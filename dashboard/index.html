@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AstrBotEX</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="moon-logo" aria-hidden="true"></div>
+          <div>
+            <div class="brand-title">AstrBotEX</div>
+            <div class="brand-subtitle">具身运行时</div>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item active" data-page="core"><span class="nav-dot"></span>核心</button>
+          <button class="nav-item" data-page="vision"><span class="nav-dot"></span>视觉</button>
+          <button class="nav-item" disabled>运动</button>
+          <button class="nav-item" disabled>插件</button>
+          <button class="nav-item" disabled>追踪</button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="footer-label">API</div>
+          <div class="footer-value" id="apiBaseLabel">127.0.0.1:8765</div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section class="page active" id="page-core">
+          <header class="topbar">
+            <div>
+              <h1>核心运行时</h1>
+              <p>本地 AstrBotEX Core 状态、插件槽位、任务循环和事件追踪。</p>
+            </div>
+            <div class="topbar-actions">
+              <div class="status-pill" id="connectionPill"><span class="pulse"></span>正在连接</div>
+              <button class="secondary" id="refreshButton">刷新</button>
+              <button class="primary" id="startButton">启动</button>
+              <button class="danger" id="stopButton">停止</button>
+            </div>
+          </header>
+
+          <section class="status-grid">
+            <article class="metric">
+              <span class="metric-label">运行状态</span>
+              <strong id="runtimeState">--</strong>
+              <small id="runtimeDetail">等待 API 返回</small>
+            </article>
+            <article class="metric">
+              <span class="metric-label">世界状态</span>
+              <strong id="worldSummary">--</strong>
+              <small id="worldDetail">实体 / 区域 / 机器人</small>
+            </article>
+            <article class="metric">
+              <span class="metric-label">运动桥</span>
+              <strong id="motionState">--</strong>
+              <small id="motionDetail">等待 RobotState</small>
+            </article>
+            <article class="metric">
+              <span class="metric-label">当前技能</span>
+              <strong id="activeSkill">--</strong>
+              <small id="skillDetail">--</small>
+            </article>
+          </section>
+
+          <section class="workbench">
+            <div class="panel panel-left">
+              <div class="panel-head">
+                <h2>核心契约</h2>
+                <span>稳定层</span>
+              </div>
+              <div class="contract-list">
+                <div class="contract-item"><b>Runtime</b><p>IDLE / READY / RUNNING / PAUSED / FAULT / FINISHED。</p></div>
+                <div class="contract-item"><b>WorldState</b><p>实体、区域、机器人状态和任务状态。</p></div>
+                <div class="contract-item"><b>Intent</b><p>技能只发运动意图，不直接写串口字节。</p></div>
+                <div class="contract-item"><b>EventBus</b><p>运行时、视觉、策略、技能、规则、运动和故障事件。</p></div>
+              </div>
+            </div>
+
+            <div class="panel panel-center">
+              <div class="panel-head">
+                <h2>运行快照</h2>
+                <span id="snapshotTime">未同步</span>
+              </div>
+              <div class="snapshot-grid">
+                <div><span>Tick 频率</span><b id="tickHz">--</b></div>
+                <div><span>电池电压</span><b id="batteryVoltage">--</b></div>
+                <div><span>急停</span><b id="estopState">--</b></div>
+                <div><span>机器人位姿</span><b id="robotPose">--</b></div>
+              </div>
+              <div class="json-preview" id="goalPreview">active_goal: null</div>
+            </div>
+
+            <div class="panel panel-right">
+              <div class="panel-head">
+                <h2>插件槽位</h2>
+                <span id="pluginCount">0</span>
+              </div>
+              <div class="slot-list" id="pluginList"></div>
+            </div>
+          </section>
+
+          <section class="trace-panel">
+            <div class="panel-head">
+              <h2>事件追踪</h2>
+              <span id="eventStatus">SSE 未连接</span>
+            </div>
+            <div class="trace-list" id="traceList"></div>
+          </section>
+        </section>
+
+        <section class="page" id="page-vision">
+          <header class="topbar">
+            <div>
+              <h1>视觉源</h1>
+              <p>配置外部视觉服务，测试 HTTP latest 结果，并查看预览画面入口。</p>
+            </div>
+            <div class="topbar-actions">
+              <button class="secondary" id="visionRefreshButton">刷新</button>
+              <button class="primary" id="visionAddButton">添加视觉源</button>
+            </div>
+          </header>
+
+          <section class="vision-workbench">
+            <aside class="vision-sources">
+              <div class="panel-head">
+                <h2>服务商</h2>
+                <span id="visionSourceCount">0</span>
+              </div>
+              <div class="source-list" id="visionSourceList"></div>
+            </aside>
+
+            <div class="vision-main">
+              <div class="panel vision-config">
+                <div class="panel-head">
+                  <h2 id="visionTitle">未选择视觉源</h2>
+                  <span id="visionActiveBadge">--</span>
+                </div>
+                <form class="config-form" id="visionForm">
+                  <label>ID<input id="visionId" autocomplete="off" /></label>
+                  <label>接入方式
+                    <select id="visionType">
+                      <option value="local_api">外部 HTTP 服务</option>
+                      <option value="mock">内置模拟源</option>
+                    </select>
+                  </label>
+                  <label class="wide">Result Endpoint<input id="visionResultEndpoint" placeholder="http://127.0.0.1:8770/vision/latest" /></label>
+                  <label class="wide">Preview URL<input id="visionPreviewUrl" placeholder="http://127.0.0.1:8770/vision/stream" /></label>
+                  <label class="wide">Snapshot URL<input id="visionSnapshotUrl" placeholder="http://127.0.0.1:8770/vision/snapshot" /></label>
+                  <label>Timeout ms<input id="visionTimeoutMs" type="number" min="1" value="80" /></label>
+                  <label>Stale After ms<input id="visionStaleAfterMs" type="number" min="1" value="300" /></label>
+                  <label>Min Confidence<input id="visionMinConfidence" type="number" min="0" max="1" step="0.01" value="0.4" /></label>
+                  <label class="check-row"><input id="visionEnabled" type="checkbox" />启用</label>
+                </form>
+                <div class="form-actions">
+                  <button class="secondary" id="visionSaveButton">保存</button>
+                  <button class="secondary" id="visionTestButton">测试</button>
+                  <button class="primary" id="visionSetActiveButton">设为当前输入</button>
+                  <button class="danger" id="visionDeleteButton">删除</button>
+                </div>
+              </div>
+
+              <div class="vision-preview-grid">
+                <div class="panel">
+                  <div class="panel-head">
+                    <h2>画面预览</h2>
+                    <span id="visionPreviewStatus">--</span>
+                  </div>
+                  <div class="preview-box" id="visionPreviewBox">
+                    <span>未配置 preview_url</span>
+                  </div>
+                </div>
+                <div class="panel">
+                  <div class="panel-head">
+                    <h2>Latest Result</h2>
+                    <span id="visionLatestStatus">--</span>
+                  </div>
+                  <div class="json-preview tall" id="visionLatestPreview">--</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js?v=20260627-vision-page"></script>
+  </body>
+</html>

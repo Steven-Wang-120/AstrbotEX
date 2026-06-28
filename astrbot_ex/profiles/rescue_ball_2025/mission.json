@@ -1,0 +1,17 @@
+{
+  "id": "rescue_ball_2025",
+  "name": "Rescue Ball 2025 Prototype",
+  "tick_hz": 10,
+  "objectives": [
+    {
+      "type": "relocate_entity",
+      "entity_type": "rescue_target",
+      "target_zone_role": "home_safe_zone"
+    }
+  ],
+  "constraints": {
+    "max_entities_per_transfer": 3,
+    "max_danger_entities_per_transfer": 1,
+    "first_entity_semantic": "own_normal"
+  }
+}

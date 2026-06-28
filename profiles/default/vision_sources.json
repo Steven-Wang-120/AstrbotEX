@@ -1,0 +1,41 @@
+{
+  "active_source": "mock_http_vision",
+  "sources": [
+    {
+      "id": "mock_vision_source",
+      "type": "mock",
+      "enabled": true,
+      "result_endpoint": "",
+      "preview_url": "",
+      "snapshot_url": "",
+      "timeout_ms": 80,
+      "stale_after_ms": 300,
+      "min_confidence": 0.4,
+      "metadata": {}
+    },
+    {
+      "id": "test_http_vision",
+      "type": "local_api",
+      "enabled": true,
+      "result_endpoint": "http://127.0.0.1:9999/vision/latest",
+      "preview_url": "http://127.0.0.1:9999/vision/stream",
+      "snapshot_url": "http://127.0.0.1:9999/vision/snapshot",
+      "timeout_ms": 50,
+      "stale_after_ms": 300,
+      "min_confidence": 0.4,
+      "metadata": {}
+    },
+    {
+      "id": "mock_http_vision",
+      "type": "local_api",
+      "enabled": true,
+      "result_endpoint": "http://127.0.0.1:8770/vision/latest",
+      "preview_url": "http://127.0.0.1:8770/vision/stream",
+      "snapshot_url": "http://127.0.0.1:8770/vision/snapshot",
+      "timeout_ms": 200,
+      "stale_after_ms": 300,
+      "min_confidence": 0.4,
+      "metadata": {}
+    }
+  ]
+}
