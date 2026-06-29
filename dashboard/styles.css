@@ -350,6 +350,11 @@ textarea {
   border-radius: 8px;
   padding: 9px 13px;
   min-height: 38px;
+  cursor: pointer;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .primary {
@@ -367,6 +372,83 @@ textarea {
   color: #fff;
   background: #8f2d2d;
   border-color: #8f2d2d;
+}
+
+.primary:hover,
+.secondary:hover,
+.danger:hover {
+  box-shadow: 0 2px 8px rgb(17 21 20 / 10%);
+  transform: translateY(-1px);
+}
+
+.primary:active,
+.secondary:active,
+.danger:active {
+  transform: translateY(0);
+}
+
+.primary:disabled,
+.secondary:disabled,
+.danger:disabled {
+  cursor: wait;
+  opacity: 0.68;
+  box-shadow: none;
+  transform: none;
+}
+
+.busy {
+  position: relative;
+}
+
+.busy::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: -1px;
+  animation: spin 0.75s linear infinite;
+}
+
+.toast {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 20;
+  max-width: min(420px, calc(100vw - 44px));
+  border: 1px solid #bfd9cd;
+  border-radius: 8px;
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 8px 24px rgb(17 21 20 / 18%);
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.error {
+  background: #8f2d2d;
+  border-color: #e7c4bf;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .snapshot-grid {

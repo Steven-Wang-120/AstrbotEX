@@ -7,6 +7,7 @@ const state = {
   visionSources: [],
   activeVisionSource: null,
   selectedVisionSourceId: null,
+  toastTimer: null,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -14,6 +15,34 @@ const $ = (id) => document.getElementById(id);
 function setText(id, value) {
   const el = $(id);
   if (el) el.textContent = value;
+}
+
+function showToast(message, kind = "ok") {
+  const toast = $("toast");
+  if (!toast) return;
+  toast.textContent = message;
+  toast.className = `toast show ${kind}`;
+  if (state.toastTimer) clearTimeout(state.toastTimer);
+  state.toastTimer = setTimeout(() => {
+    toast.className = "toast";
+  }, 2600);
+}
+
+async function runAction(button, pendingLabel, action) {
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.classList.add("busy");
+  button.textContent = pendingLabel;
+  try {
+    await action();
+    showToast(`${originalText}完成`);
+  } catch (error) {
+    showToast(`${originalText}失败：${error.message}`, "error");
+  } finally {
+    button.disabled = false;
+    button.classList.remove("busy");
+    button.textContent = originalText;
+  }
 }
 
 function isPresent(value) {
@@ -315,26 +344,26 @@ function bindActions() {
   document.querySelectorAll(".nav-item[data-page]").forEach((button) => {
     button.addEventListener("click", () => switchPage(button.dataset.page));
   });
-  $("refreshButton").addEventListener("click", refreshStatus);
-  $("startButton").addEventListener("click", startRuntime);
-  $("stopButton").addEventListener("click", stopRuntime);
-  $("visionRefreshButton").addEventListener("click", refreshVisionSources);
-  $("visionAddButton").addEventListener("click", addVisionSource);
+  $("refreshButton").addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", refreshStatus));
+  $("startButton").addEventListener("click", (event) => runAction(event.currentTarget, "启动中", startRuntime));
+  $("stopButton").addEventListener("click", (event) => runAction(event.currentTarget, "停止中", stopRuntime));
+  $("visionRefreshButton").addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", refreshVisionSources));
+  $("visionAddButton").addEventListener("click", (event) => runAction(event.currentTarget, "添加中", addVisionSource));
   $("visionSaveButton").addEventListener("click", (event) => {
     event.preventDefault();
-    saveVisionSource();
+    runAction(event.currentTarget, "保存中", saveVisionSource);
   });
   $("visionTestButton").addEventListener("click", (event) => {
     event.preventDefault();
-    testVisionSource();
+    runAction(event.currentTarget, "测试中", testVisionSource);
   });
   $("visionSetActiveButton").addEventListener("click", (event) => {
     event.preventDefault();
-    setActiveVisionSource();
+    runAction(event.currentTarget, "设置中", setActiveVisionSource);
   });
   $("visionDeleteButton").addEventListener("click", (event) => {
     event.preventDefault();
-    deleteVisionSource();
+    runAction(event.currentTarget, "删除中", deleteVisionSource);
   });
 }
 
