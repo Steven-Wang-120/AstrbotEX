@@ -39,6 +39,9 @@ class AstrBotEXRuntime:
         if self.state in {RuntimeState.RUNNING, RuntimeState.FAULT}:
             return
         self.state = RuntimeState.RUNNING
+        for slot in self.registry.list():
+            if slot.enabled and hasattr(slot.plugin, "on_runtime_start"):
+                slot.plugin.on_runtime_start()
         self.event_bus.emit("runtime_state", "runtime started", state=self.state.value)
 
     def pause(self) -> None:
@@ -53,12 +56,18 @@ class AstrBotEXRuntime:
         if self.active_skill:
             self.active_skill.plugin.cancel(reason)
             self.active_skill = None
+        for slot in self.registry.list():
+            if slot.enabled and hasattr(slot.plugin, "on_runtime_stop"):
+                slot.plugin.on_runtime_stop(reason)
         self.state = RuntimeState.IDLE
         self.event_bus.emit("runtime_state", reason, state=self.state.value)
 
     def tick(self) -> None:
         if self.state != RuntimeState.RUNNING:
             return
+        for slot in self.registry.list():
+            if slot.enabled and hasattr(slot.plugin, "on_tick"):
+                slot.plugin.on_tick(self.world)
 
         vision_provider = self._vision_provider()
         motion_bridge = self._motion_bridge()

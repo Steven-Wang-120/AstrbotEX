@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import cgi
 import json
 import os
 import queue
+import tempfile
 import threading
 import time
 from http import HTTPStatus
@@ -13,6 +15,7 @@ from typing import Any
 from urllib.parse import unquote, urlparse
 
 from astrbot_ex.core.models import RuntimeEvent, RuntimeState
+from astrbot_ex.core.local_plugins import LocalPluginManager
 from astrbot_ex.core.runtime import AstrBotEXRuntime
 from astrbot_ex.core.runtime_demo import build_demo_runtime
 from astrbot_ex.core.serialization import to_jsonable
@@ -133,6 +136,20 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         if path in {"/api/vision/latest", "/api/v1/ex/vision/latest"}:
             self._send_json(self.server.vision_sources.latest())
             return
+        if path in {"/api/plugins", "/api/v1/ex/plugins"}:
+            self._send_json({"plugins": self.server.local_plugins.list_plugins()})
+            return
+        plugin_id = self._match_plugin_id(path)
+        if plugin_id:
+            try:
+                self._send_json({"plugin": self.server.local_plugins.get_plugin(plugin_id)})
+            except KeyError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+            return
+        cover_id = self._match_plugin_cover(path)
+        if cover_id:
+            self._send_plugin_cover(cover_id)
+            return
         if path == "/healthz":
             self._send_json({"ok": True})
             return
@@ -177,6 +194,34 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": False, "error": f"unknown source: {source_id}"}, HTTPStatus.NOT_FOUND)
                 return
             self._send_json(result)
+            return
+        if path in {"/api/plugins/upload", "/api/v1/ex/plugins/upload"}:
+            self._handle_plugin_upload()
+            return
+        plugin_id = self._match_plugin_action(path, "enable")
+        if plugin_id:
+            try:
+                plugin = self.server.local_plugins.set_enabled(plugin_id, True)
+            except KeyError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+                return
+            self._send_json({"ok": True, "plugin": plugin})
+            return
+        plugin_id = self._match_plugin_action(path, "disable")
+        if plugin_id:
+            try:
+                plugin = self.server.local_plugins.get_plugin(plugin_id)
+            except KeyError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+                return
+            if any(cap in plugin.get("provides", []) for cap in ("motion_bridge", "transport", "protocol_codec", "skill_plugin")):
+                self.controller.stop(f"plugin disabled: {plugin_id}")
+            try:
+                plugin = self.server.local_plugins.set_enabled(plugin_id, False)
+            except KeyError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+                return
+            self._send_json({"ok": True, "plugin": plugin})
             return
         self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
 
@@ -233,6 +278,31 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
                 return unquote(path.removeprefix(prefix).removesuffix(suffix).strip("/"))
         return None
 
+    @staticmethod
+    def _match_plugin_id(path: str) -> str | None:
+        for prefix in ("/api/plugins/", "/api/v1/ex/plugins/"):
+            if path.startswith(prefix) and not path.endswith("/enable") and not path.endswith("/disable") and not path.endswith("/cover"):
+                tail = path.removeprefix(prefix).strip("/")
+                if tail and "/" not in tail:
+                    return unquote(tail)
+        return None
+
+    @staticmethod
+    def _match_plugin_action(path: str, action: str) -> str | None:
+        suffix = f"/{action}"
+        for prefix in ("/api/plugins/", "/api/v1/ex/plugins/"):
+            if path.startswith(prefix) and path.endswith(suffix):
+                return unquote(path.removeprefix(prefix).removesuffix(suffix).strip("/"))
+        return None
+
+    @staticmethod
+    def _match_plugin_cover(path: str) -> str | None:
+        suffix = "/cover"
+        for prefix in ("/api/plugins/", "/api/v1/ex/plugins/"):
+            if path.startswith(prefix) and path.endswith(suffix):
+                return unquote(path.removeprefix(prefix).removesuffix(suffix).strip("/"))
+        return None
+
     def _read_json(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", "0"))
         if length <= 0:
@@ -250,6 +320,76 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _handle_plugin_upload(self) -> None:
+        ctype, _ = cgi.parse_header(self.headers.get("Content-Type", ""))
+        if ctype != "multipart/form-data":
+            self._send_json({"ok": False, "error": "multipart/form-data required"}, HTTPStatus.BAD_REQUEST)
+            return
+        form = cgi.FieldStorage(
+            fp=self.rfile,
+            headers=self.headers,
+            environ={
+                "REQUEST_METHOD": "POST",
+                "CONTENT_TYPE": self.headers.get("Content-Type", ""),
+            },
+        )
+        upload = form["file"] if "file" in form else None
+        if upload is None or not getattr(upload, "filename", ""):
+            self._send_json({"ok": False, "error": "missing plugin zip file"}, HTTPStatus.BAD_REQUEST)
+            return
+        filename = str(upload.filename)
+        if not filename.lower().endswith(".zip"):
+            self._send_json({"ok": False, "error": "only .zip plugin packages are supported"}, HTTPStatus.BAD_REQUEST)
+            return
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp:
+            shutil_source = upload.file
+            while True:
+                chunk = shutil_source.read(1024 * 1024)
+                if not chunk:
+                    break
+                tmp.write(chunk)
+            temp_path = Path(tmp.name)
+        try:
+            plugin = self.server.local_plugins.install_zip(temp_path)
+        except Exception as exc:
+            self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return
+        finally:
+            try:
+                temp_path.unlink(missing_ok=True)
+            except OSError:
+                pass
+        self._send_json({"ok": True, "plugin": plugin})
+
+    def _send_plugin_cover(self, plugin_id: str) -> None:
+        try:
+            plugin = self.server.local_plugins.get_plugin(plugin_id)
+            record = self.server.local_plugins.records[plugin["id"]]
+            cover = record.manifest.cover
+            if not cover:
+                self._send_json({"ok": False, "error": "cover not configured"}, HTTPStatus.NOT_FOUND)
+                return
+            target = (record.root / cover).resolve()
+            if record.root.resolve() not in target.parents and target != record.root.resolve():
+                self._send_json({"ok": False, "error": "invalid cover path"}, HTTPStatus.BAD_REQUEST)
+                return
+            body = target.read_bytes()
+        except Exception as exc:
+            self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+            return
+        content_types = {
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".webp": "image/webp",
+        }
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", content_types.get(target.suffix.lower(), "application/octet-stream"))
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
 
@@ -322,6 +462,7 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
     controller: RuntimeController
     static_root: Path
     vision_sources: VisionSourceManager
+    local_plugins: LocalPluginManager
 
 
 def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
@@ -332,6 +473,14 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
     project_root = Path(__file__).resolve().parents[2]
     server.static_root = (project_root / "dashboard").resolve()
     server.vision_sources = VisionSourceManager(project_root / "profiles" / "default" / "vision_sources.json")
+    server.local_plugins = LocalPluginManager(
+        plugins_root=project_root / "plugins",
+        state_path=project_root / "profiles" / "default" / "plugins_state.json",
+        registry=runtime.registry,
+        event_bus=runtime.event_bus,
+    )
+    server.local_plugins.discover()
+    server.local_plugins.load_enabled()
     return server
 
 

@@ -20,7 +20,7 @@
           <button class="nav-item active" data-page="core"><span class="nav-dot"></span>核心</button>
           <button class="nav-item" data-page="vision"><span class="nav-dot"></span>视觉</button>
           <button class="nav-item" disabled>运动</button>
-          <button class="nav-item" disabled>插件</button>
+          <button class="nav-item" data-page="plugins"><span class="nav-dot"></span>插件</button>
           <button class="nav-item" disabled>追踪</button>
         </nav>
 
@@ -186,10 +186,48 @@
             </div>
           </section>
         </section>
+
+        <section class="page" id="page-plugins">
+          <header class="topbar">
+            <div>
+              <h1>插件</h1>
+              <p>本地插件安装、启用状态、能力声明和运行健康。</p>
+            </div>
+            <div class="topbar-actions">
+              <button class="secondary" id="pluginsRefreshButton">刷新</button>
+            </div>
+          </header>
+
+          <section class="plugins-layout">
+            <div class="plugin-grid" id="pluginGrid"></div>
+
+            <aside class="panel plugin-detail" id="pluginDetail">
+              <div class="panel-head">
+                <h2>插件详情</h2>
+                <span id="pluginDetailStatus">--</span>
+              </div>
+              <div class="plugin-detail-empty" id="pluginDetailEmpty">选择一个插件查看详情</div>
+              <div class="plugin-detail-body" id="pluginDetailBody" hidden>
+                <h3 id="pluginDetailName">--</h3>
+                <p id="pluginDetailDescription">--</p>
+                <div class="plugin-meta-list">
+                  <div><span>ID</span><b id="pluginDetailId">--</b></div>
+                  <div><span>版本</span><b id="pluginDetailVersion">--</b></div>
+                  <div><span>作者</span><b id="pluginDetailAuthor">--</b></div>
+                  <div><span>状态</span><b id="pluginDetailState">--</b></div>
+                </div>
+                <div class="json-preview tall" id="pluginSchemaPreview">--</div>
+              </div>
+            </aside>
+          </section>
+
+          <button class="plugin-upload-fab" id="pluginUploadButton" title="上传插件 zip" aria-label="上传插件 zip">+</button>
+          <input id="pluginZipInput" type="file" accept=".zip,application/zip" hidden />
+        </section>
       </main>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="./app.js?v=20260627-vision-page"></script>
+    <script src="./app.js?v=20260630-plugins"></script>
   </body>
 </html>

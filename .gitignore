@@ -6,3 +6,6 @@ dist/
 build/
 .DS_Store
 Thumbs.db
+plugins/*
+!plugins/.gitkeep
+profiles/default/plugins_state.json

@@ -655,10 +655,240 @@ textarea {
   overflow: auto;
 }
 
+.plugins-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+  align-items: start;
+}
+
+.plugin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.plugin-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.plugin-card:hover,
+.plugin-card.selected {
+  border-color: #bfd9cd;
+  box-shadow: 0 4px 16px rgb(17 21 20 / 10%);
+  transform: translateY(-1px);
+}
+
+.plugin-cover {
+  position: relative;
+  height: 132px;
+  background: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  overflow: hidden;
+}
+
+.plugin-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.plugin-cover > span {
+  font-size: 34px;
+  font-weight: 760;
+}
+
+.plugin-switch {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.switch {
+  width: 42px;
+  height: 24px;
+  display: inline-block;
+}
+
+.switch input {
+  display: none;
+}
+
+.switch span {
+  display: block;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 70%);
+  border: 1px solid rgb(17 21 20 / 16%);
+  position: relative;
+  box-shadow: 0 2px 8px rgb(17 21 20 / 16%);
+}
+
+.switch span::after {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.15s ease;
+}
+
+.switch input:checked + span {
+  background: var(--green);
+}
+
+.switch input:checked + span::after {
+  transform: translateX(18px);
+}
+
+.plugin-card-body {
+  padding: 14px;
+}
+
+.plugin-card-body h2 {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.plugin-card-body p {
+  min-height: 38px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.plugin-card-body small {
+  display: block;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.plugin-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.plugin-badges span {
+  color: var(--green);
+  background: var(--green-soft);
+  border-radius: 999px;
+  padding: 4px 7px;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.plugin-detail {
+  position: sticky;
+  top: 26px;
+}
+
+.plugin-detail-empty {
+  color: var(--muted);
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+}
+
+.plugin-detail-body h3 {
+  margin: 0;
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.plugin-detail-body p {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.plugin-meta-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.plugin-meta-list div {
+  background: var(--surface-soft);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.plugin-meta-list span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.plugin-meta-list b {
+  display: block;
+  margin-top: 7px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.plugin-empty {
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  background: var(--surface);
+}
+
+.plugin-upload-fab {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--green);
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgb(17 21 20 / 18%);
+}
+
+.plugin-upload-fab:hover {
+  transform: translateY(-1px);
+}
+
 @media (max-width: 1120px) {
   .status-grid,
   .workbench,
-  .vision-preview-grid {
+  .vision-preview-grid,
+  .plugins-layout {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -681,11 +911,16 @@ textarea {
   .config-form,
   .snapshot-grid,
   .vision-workbench,
-  .vision-preview-grid {
+  .vision-preview-grid,
+  .plugins-layout {
     grid-template-columns: 1fr;
   }
 
   .panel-center {
     grid-column: auto;
+  }
+
+  .plugin-detail {
+    position: static;
   }
 }

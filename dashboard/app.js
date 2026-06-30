@@ -7,6 +7,8 @@ const state = {
   visionSources: [],
   activeVisionSource: null,
   selectedVisionSourceId: null,
+  plugins: [],
+  selectedPluginId: null,
   toastTimer: null,
 };
 
@@ -78,6 +80,7 @@ function switchPage(page) {
     el.classList.toggle("active", el.dataset.page === page);
   });
   if (page === "vision") refreshVisionSources();
+  if (page === "plugins") refreshPlugins();
 }
 
 async function refreshStatus() {
@@ -339,6 +342,131 @@ async function refreshVisionLatest() {
   setText("visionLatestPreview", JSON.stringify(latest, null, 2));
 }
 
+async function refreshPlugins() {
+  const data = await apiJson("/api/v1/ex/plugins");
+  state.plugins = data.plugins || [];
+  if (!state.selectedPluginId && state.plugins.length > 0) {
+    state.selectedPluginId = state.plugins[0].id;
+  }
+  renderPluginGrid();
+  renderPluginDetail();
+}
+
+function selectedPlugin() {
+  return state.plugins.find((plugin) => plugin.id === state.selectedPluginId) || null;
+}
+
+function renderPluginGrid() {
+  const grid = $("pluginGrid");
+  grid.innerHTML = "";
+  if (state.plugins.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "plugin-empty";
+    empty.textContent = "还没有安装本地插件";
+    grid.appendChild(empty);
+    return;
+  }
+  state.plugins.forEach((plugin) => {
+    const card = document.createElement("article");
+    card.className = `plugin-card ${plugin.id === state.selectedPluginId ? "selected" : ""}`;
+    card.addEventListener("click", () => {
+      state.selectedPluginId = plugin.id;
+      renderPluginGrid();
+      renderPluginDetail();
+    });
+
+    const cover = document.createElement("div");
+    cover.className = "plugin-cover";
+    if (plugin.cover_url) {
+      const image = document.createElement("img");
+      image.src = `${API_BASE}${plugin.cover_url}`;
+      image.alt = plugin.name;
+      cover.appendChild(image);
+    } else {
+      cover.innerHTML = `<span>${plugin.name.slice(0, 2).toUpperCase()}</span>`;
+    }
+
+    const toggle = document.createElement("label");
+    toggle.className = "switch plugin-switch";
+    toggle.addEventListener("click", (event) => event.stopPropagation());
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = Boolean(plugin.enabled);
+    input.addEventListener("change", () => setPluginEnabled(plugin.id, input.checked));
+    toggle.appendChild(input);
+    toggle.appendChild(document.createElement("span"));
+    cover.appendChild(toggle);
+
+    const body = document.createElement("div");
+    body.className = "plugin-card-body";
+    body.innerHTML = `
+      <h2>${escapeHtml(plugin.name)}</h2>
+      <p>${escapeHtml(plugin.description || "无描述")}</p>
+      <div class="plugin-badges">${(plugin.provides || []).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
+      <small>${escapeHtml(plugin.status)} · ${escapeHtml(plugin.version || "--")}</small>
+    `;
+    card.appendChild(cover);
+    card.appendChild(body);
+    grid.appendChild(card);
+  });
+}
+
+function renderPluginDetail() {
+  const plugin = selectedPlugin();
+  $("pluginDetailEmpty").hidden = Boolean(plugin);
+  $("pluginDetailBody").hidden = !plugin;
+  if (!plugin) {
+    setText("pluginDetailStatus", "--");
+    return;
+  }
+  setText("pluginDetailStatus", plugin.enabled ? "已启用" : plugin.status);
+  setText("pluginDetailName", plugin.name || "--");
+  setText("pluginDetailDescription", plugin.description || "无描述");
+  setText("pluginDetailId", plugin.id || "--");
+  setText("pluginDetailVersion", plugin.version || "--");
+  setText("pluginDetailAuthor", plugin.author || "--");
+  setText("pluginDetailState", plugin.error ? `${plugin.status}: ${plugin.error}` : plugin.status);
+  setText("pluginSchemaPreview", JSON.stringify(plugin.config_schema || { provides: plugin.provides, requires: plugin.requires }, null, 2));
+}
+
+async function setPluginEnabled(pluginId, enabled) {
+  const action = enabled ? "enable" : "disable";
+  const result = await apiJson(`/api/v1/ex/plugins/${encodeURIComponent(pluginId)}/${action}`, {
+    method: "POST",
+    body: "{}",
+  });
+  const updated = result.plugin;
+  state.plugins = state.plugins.map((plugin) => (plugin.id === updated.id ? updated : plugin));
+  showToast(`${updated.name} ${enabled ? "已启用" : "已停用"}`);
+  renderPluginGrid();
+  renderPluginDetail();
+  await refreshStatus();
+}
+
+async function uploadPluginZip(file) {
+  const form = new FormData();
+  form.append("file", file);
+  const response = await fetch(`${API_BASE}/api/v1/ex/plugins/upload`, {
+    method: "POST",
+    body: form,
+  });
+  const data = await response.json();
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.error || `${response.status} ${response.statusText}`);
+  }
+  state.selectedPluginId = data.plugin.id;
+  await refreshPlugins();
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function bindActions() {
   setText("apiBaseLabel", API_BASE.replace(/^https?:\/\//, ""));
   document.querySelectorAll(".nav-item[data-page]").forEach((button) => {
@@ -365,11 +493,20 @@ function bindActions() {
     event.preventDefault();
     runAction(event.currentTarget, "删除中", deleteVisionSource);
   });
+  $("pluginsRefreshButton").addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", refreshPlugins));
+  $("pluginUploadButton").addEventListener("click", () => $("pluginZipInput").click());
+  $("pluginZipInput").addEventListener("change", (event) => {
+    const file = event.currentTarget.files && event.currentTarget.files[0];
+    if (!file) return;
+    runAction($("pluginUploadButton"), "+", () => uploadPluginZip(file));
+    event.currentTarget.value = "";
+  });
 }
 
 bindActions();
 renderEvents();
 refreshStatus();
 refreshVisionSources();
+refreshPlugins();
 connectEvents();
 setInterval(refreshStatus, 2000);
