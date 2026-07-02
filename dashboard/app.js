@@ -1,14 +1,25 @@
 const API_BASE = window.ASTRBOTEX_API_BASE || "http://127.0.0.1:8765";
 const MAX_TRACE_EVENTS = 200;
+const PLUGIN_CATEGORIES = ["vision", "control", "decision", "special"];
+
+const CATEGORY_LABELS = {
+  vision: "视觉",
+  control: "控制",
+  decision: "决策",
+  special: "特种",
+};
 
 const state = {
   events: [],
   eventSource: null,
-  visionSources: [],
-  activeVisionSource: null,
-  selectedVisionSourceId: null,
   plugins: [],
-  selectedPluginId: null,
+  selectedPluginIds: {
+    vision: null,
+    control: null,
+    decision: null,
+    special: null,
+  },
+  activeUploadCategory: null,
   toastTimer: null,
   logAutoscroll: true,
 };
@@ -89,8 +100,7 @@ function switchPage(page) {
   document.querySelectorAll(".nav-item[data-page]").forEach((el) => {
     el.classList.toggle("active", el.dataset.page === page);
   });
-  if (page === "vision") refreshVisionSources();
-  if (page === "plugins") refreshPlugins();
+  if (PLUGIN_CATEGORIES.includes(page)) refreshPlugins();
   if (page === "logs") renderEvents();
 }
 
@@ -136,18 +146,6 @@ function eventLevel(event) {
   return "DEBUG";
 }
 
-function formatEventLine(event) {
-  const time = formatTime(event.timestamp);
-  const level = eventLevel(event);
-  const detail = event.data && Object.keys(event.data).length > 0 ? ` ${JSON.stringify(event.data)}` : "";
-  return {
-    time,
-    level,
-    type: event.type || "event",
-    message: `${event.message || ""}${detail}`,
-  };
-}
-
 function pushEvent(event) {
   state.events.push(event);
   state.events = state.events.slice(-MAX_TRACE_EVENTS);
@@ -158,7 +156,6 @@ function renderEvents() {
   const consoleEl = $("logConsole");
   if (!consoleEl) return;
   consoleEl.innerHTML = "";
-
   if (state.events.length === 0) {
     const empty = document.createElement("div");
     empty.className = "log-empty";
@@ -166,20 +163,18 @@ function renderEvents() {
     consoleEl.appendChild(empty);
     return;
   }
-
   state.events.forEach((event) => {
-    const line = formatEventLine(event);
+    const detail = event.data && Object.keys(event.data).length > 0 ? ` ${JSON.stringify(event.data)}` : "";
     const row = document.createElement("div");
     row.className = "log-line";
     row.innerHTML = `
-      <span class="log-time">${escapeHtml(line.time)}</span>
-      <span class="log-level log-level-${line.level.toLowerCase()}">[${escapeHtml(line.level)}]</span>
-      <span class="log-type">${escapeHtml(line.type)}</span>
-      <span class="log-message">${escapeHtml(line.message)}</span>
+      <span class="log-time">${escapeHtml(formatTime(event.timestamp))}</span>
+      <span class="log-level log-level-${eventLevel(event).toLowerCase()}">[${escapeHtml(eventLevel(event))}]</span>
+      <span class="log-type">${escapeHtml(event.type || "event")}</span>
+      <span class="log-message">${escapeHtml(`${event.message || ""}${detail}`)}</span>
     `;
     consoleEl.appendChild(row);
   });
-
   if (state.logAutoscroll) {
     consoleEl.scrollTop = consoleEl.scrollHeight;
   }
@@ -195,7 +190,7 @@ function connectEvents() {
     try {
       pushEvent(JSON.parse(message.data));
     } catch {
-      // Ignore malformed dev-time events.
+      // ignore malformed events
     }
   });
 }
@@ -241,189 +236,47 @@ async function stopRuntime() {
   await refreshStatus();
 }
 
-async function refreshVisionSources() {
-  const data = await apiJson("/api/v1/ex/vision/sources");
-  state.visionSources = data.sources || [];
-  state.activeVisionSource = data.active_source || null;
-  if (!state.selectedVisionSourceId && state.visionSources.length > 0) {
-    state.selectedVisionSourceId = state.activeVisionSource || state.visionSources[0].id;
-  }
-  renderVisionSourceList();
-  renderSelectedVisionSource();
-}
-
-function selectedVisionSource() {
-  return state.visionSources.find((source) => source.id === state.selectedVisionSourceId) || null;
-}
-
-function renderVisionSourceList() {
-  setText("visionSourceCount", `${state.visionSources.length}`);
-  const list = $("visionSourceList");
-  list.innerHTML = "";
-  state.visionSources.forEach((source) => {
-    const item = document.createElement("button");
-    item.className = `source-item ${source.id === state.selectedVisionSourceId ? "active" : ""}`;
-    const title = source.id || "未命名视觉源";
-    item.innerHTML = `<span>${source.type}${source.id === state.activeVisionSource ? " · active" : ""}</span><b>${title}</b>`;
-    item.addEventListener("click", () => {
-      state.selectedVisionSourceId = source.id;
-      renderVisionSourceList();
-      renderSelectedVisionSource();
-    });
-    list.appendChild(item);
-  });
-}
-
-function renderSelectedVisionSource() {
-  const source = selectedVisionSource();
-  if (!source) {
-    setText("visionTitle", "未选择视觉源");
-    setText("visionActiveBadge", "--");
-    setText("visionLatestPreview", "--");
-    renderPreview("");
-    return;
-  }
-  setText("visionTitle", source.id || "未命名视觉源");
-  setText("visionActiveBadge", source.id === state.activeVisionSource ? "当前输入" : "未激活");
-  $("visionId").value = source.id || "";
-  $("visionType").value = source.type || "local_api";
-  $("visionEnabled").checked = Boolean(source.enabled);
-  $("visionResultEndpoint").value = source.result_endpoint || "";
-  $("visionPreviewUrl").value = source.preview_url || "";
-  $("visionSnapshotUrl").value = source.snapshot_url || "";
-  $("visionTimeoutMs").value = source.timeout_ms ?? 80;
-  $("visionStaleAfterMs").value = source.stale_after_ms ?? 300;
-  $("visionMinConfidence").value = source.min_confidence ?? 0.4;
-  renderPreview(source.preview_url || "");
-  refreshVisionLatest();
-}
-
-function readVisionForm() {
-  return {
-    id: $("visionId").value.trim(),
-    type: $("visionType").value,
-    enabled: $("visionEnabled").checked,
-    result_endpoint: $("visionResultEndpoint").value.trim(),
-    preview_url: $("visionPreviewUrl").value.trim(),
-    snapshot_url: $("visionSnapshotUrl").value.trim(),
-    timeout_ms: Number($("visionTimeoutMs").value || 80),
-    stale_after_ms: Number($("visionStaleAfterMs").value || 300),
-    min_confidence: Number($("visionMinConfidence").value || 0.4),
-    metadata: {},
-  };
-}
-
-function renderPreview(url) {
-  const box = $("visionPreviewBox");
-  box.innerHTML = "";
-  if (!url) {
-    box.innerHTML = "<span>未配置 preview_url</span>";
-    setText("visionPreviewStatus", "--");
-    return;
-  }
-  const image = document.createElement("img");
-  image.src = url;
-  image.alt = "vision preview";
-  image.onerror = () => setText("visionPreviewStatus", "无法加载");
-  image.onload = () => setText("visionPreviewStatus", "已加载");
-  box.appendChild(image);
-  setText("visionPreviewStatus", "加载中");
-}
-
-async function saveVisionSource() {
-  const payload = readVisionForm();
-  if (!payload.id) {
-    alert("Vision Source ID 不能为空");
-    return;
-  }
-  await apiJson("/api/v1/ex/vision/sources", { method: "POST", body: JSON.stringify(payload) });
-  state.selectedVisionSourceId = payload.id;
-  await refreshVisionSources();
-}
-
-async function addVisionSource() {
-  const id = "";
-  state.selectedVisionSourceId = id;
-  state.visionSources.push({
-    id,
-    type: "local_api",
-    enabled: true,
-    result_endpoint: "",
-    preview_url: "",
-    snapshot_url: "",
-    timeout_ms: 80,
-    stale_after_ms: 300,
-    min_confidence: 0.4,
-    metadata: {},
-  });
-  renderVisionSourceList();
-  renderSelectedVisionSource();
-}
-
-async function setActiveVisionSource() {
-  const source = readVisionForm();
-  await saveVisionSource();
-  await apiJson("/api/v1/ex/vision/active-source", { method: "POST", body: JSON.stringify({ id: source.id }) });
-  state.activeVisionSource = source.id;
-  await refreshVisionSources();
-}
-
-async function deleteVisionSource() {
-  const source = selectedVisionSource();
-  if (!source || !confirm(`删除视觉源 ${source.id}？`)) return;
-  await apiJson(`/api/v1/ex/vision/sources/${encodeURIComponent(source.id)}`, { method: "DELETE" });
-  state.selectedVisionSourceId = null;
-  await refreshVisionSources();
-}
-
-async function testVisionSource() {
-  const source = readVisionForm();
-  if (!source.id) return;
-  await saveVisionSource();
-  const result = await apiJson(`/api/v1/ex/vision/sources/${encodeURIComponent(source.id)}/test`, { method: "POST" });
-  setText("visionLatestStatus", result.ok ? `测试通过 ${result.latency_ms} ms` : "测试失败");
-  setText("visionLatestPreview", JSON.stringify(result, null, 2));
-}
-
-async function refreshVisionLatest() {
-  const source = selectedVisionSource();
-  if (!source) return;
-  const latest = await apiJson("/api/v1/ex/vision/latest");
-  setText("visionLatestStatus", latest.ok === false ? "无结果" : "已更新");
-  setText("visionLatestPreview", JSON.stringify(latest, null, 2));
+function pluginsByCategory(category) {
+  return state.plugins.filter((plugin) => (plugin.category || "special") === category);
 }
 
 async function refreshPlugins() {
   const data = await apiJson("/api/v1/ex/plugins");
   state.plugins = data.plugins || [];
-  if (!state.selectedPluginId && state.plugins.length > 0) {
-    state.selectedPluginId = state.plugins[0].id;
+  for (const category of PLUGIN_CATEGORIES) {
+    const plugins = pluginsByCategory(category);
+    if (!plugins.find((plugin) => plugin.id === state.selectedPluginIds[category])) {
+      state.selectedPluginIds[category] = plugins.length > 0 ? plugins[0].id : null;
+    }
   }
-  renderPluginGrid();
-  renderPluginDetail();
+  renderAllPluginCategories();
 }
 
-function selectedPlugin() {
-  return state.plugins.find((plugin) => plugin.id === state.selectedPluginId) || null;
+function renderAllPluginCategories() {
+  for (const category of PLUGIN_CATEGORIES) {
+    renderPluginCategory(category);
+  }
 }
 
-function renderPluginGrid() {
-  const grid = $("pluginGrid");
+function renderPluginCategory(category) {
+  const plugins = pluginsByCategory(category);
+  setText(`${category}Count`, `${plugins.length}`);
+  const grid = $(`${category}Grid`);
   grid.innerHTML = "";
-  if (state.plugins.length === 0) {
+  if (plugins.length === 0) {
     const empty = document.createElement("div");
     empty.className = "plugin-empty";
-    empty.textContent = "还没有安装本地插件";
+    empty.textContent = `还没有安装${CATEGORY_LABELS[category]}插件`;
     grid.appendChild(empty);
+    renderPluginDetail(category, null);
     return;
   }
-  state.plugins.forEach((plugin) => {
+  plugins.forEach((plugin) => {
     const card = document.createElement("article");
-    card.className = `plugin-card ${plugin.id === state.selectedPluginId ? "selected" : ""}`;
+    card.className = `plugin-card ${plugin.id === state.selectedPluginIds[category] ? "selected" : ""}`;
     card.addEventListener("click", () => {
-      state.selectedPluginId = plugin.id;
-      renderPluginGrid();
-      renderPluginDetail();
+      state.selectedPluginIds[category] = plugin.id;
+      renderPluginCategory(category);
     });
 
     const cover = document.createElement("div");
@@ -434,7 +287,7 @@ function renderPluginGrid() {
       image.alt = plugin.name;
       cover.appendChild(image);
     } else {
-      cover.innerHTML = `<span>${plugin.name.slice(0, 2).toUpperCase()}</span>`;
+      cover.innerHTML = `<span>${escapeHtml((plugin.name || plugin.id).slice(0, 2).toUpperCase())}</span>`;
     }
 
     const toggle = document.createElement("label");
@@ -460,24 +313,28 @@ function renderPluginGrid() {
     card.appendChild(body);
     grid.appendChild(card);
   });
+  const selected = plugins.find((plugin) => plugin.id === state.selectedPluginIds[category]) || plugins[0];
+  renderPluginDetail(category, selected);
 }
 
-function renderPluginDetail() {
-  const plugin = selectedPlugin();
-  $("pluginDetailEmpty").hidden = Boolean(plugin);
-  $("pluginDetailBody").hidden = !plugin;
+function renderPluginDetail(category, plugin) {
+  $(`${category}DetailEmpty`).hidden = Boolean(plugin);
+  $(`${category}DetailBody`).hidden = !plugin;
   if (!plugin) {
-    setText("pluginDetailStatus", "--");
+    setText(`${category}DetailStatus`, "--");
     return;
   }
-  setText("pluginDetailStatus", plugin.enabled ? "已启用" : plugin.status);
-  setText("pluginDetailName", plugin.name || "--");
-  setText("pluginDetailDescription", plugin.description || "无描述");
-  setText("pluginDetailId", plugin.id || "--");
-  setText("pluginDetailVersion", plugin.version || "--");
-  setText("pluginDetailAuthor", plugin.author || "--");
-  setText("pluginDetailState", plugin.error ? `${plugin.status}: ${plugin.error}` : plugin.status);
-  setText("pluginSchemaPreview", JSON.stringify(plugin.config_schema || { provides: plugin.provides, requires: plugin.requires }, null, 2));
+  setText(`${category}DetailStatus`, plugin.enabled ? "已启用" : plugin.status);
+  setText(`${category}DetailName`, plugin.name || "--");
+  setText(`${category}DetailDescription`, plugin.description || "无描述");
+  setText(`${category}DetailId`, plugin.id || "--");
+  setText(`${category}DetailVersion`, plugin.version || "--");
+  setText(`${category}DetailAuthor`, plugin.author || "--");
+  setText(`${category}DetailState`, plugin.error ? `${plugin.status}: ${plugin.error}` : plugin.status);
+  setText(
+    `${category}SchemaPreview`,
+    JSON.stringify(plugin.config_schema || { category: plugin.category, provides: plugin.provides, requires: plugin.requires }, null, 2),
+  );
 }
 
 async function setPluginEnabled(pluginId, enabled) {
@@ -489,14 +346,14 @@ async function setPluginEnabled(pluginId, enabled) {
   const updated = result.plugin;
   state.plugins = state.plugins.map((plugin) => (plugin.id === updated.id ? updated : plugin));
   showToast(`${updated.name} ${enabled ? "已启用" : "已停用"}`);
-  renderPluginGrid();
-  renderPluginDetail();
+  renderAllPluginCategories();
   await refreshStatus();
 }
 
-async function uploadPluginZip(file) {
+async function uploadPluginZip(file, category) {
   const form = new FormData();
   form.append("file", file);
+  form.append("category", category);
   const response = await fetch(`${API_BASE}/api/v1/ex/plugins/upload`, {
     method: "POST",
     body: form,
@@ -505,7 +362,7 @@ async function uploadPluginZip(file) {
   if (!response.ok || data.ok === false) {
     throw new Error(data.error || `${response.status} ${response.statusText}`);
   }
-  state.selectedPluginId = data.plugin.id;
+  state.selectedPluginIds[category] = data.plugin.id;
   await refreshPlugins();
 }
 
@@ -518,31 +375,20 @@ function bindActions() {
   $("startButton").addEventListener("click", (event) => runAction(event.currentTarget, "启动中", startRuntime));
   $("stopButton").addEventListener("click", (event) => runAction(event.currentTarget, "停止中", stopRuntime));
 
-  $("visionRefreshButton").addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", refreshVisionSources));
-  $("visionAddButton").addEventListener("click", (event) => runAction(event.currentTarget, "添加中", addVisionSource));
-  $("visionSaveButton").addEventListener("click", (event) => {
-    event.preventDefault();
-    runAction(event.currentTarget, "保存中", saveVisionSource);
+  document.querySelectorAll("[data-plugin-refresh]").forEach((button) => {
+    button.addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", refreshPlugins));
   });
-  $("visionTestButton").addEventListener("click", (event) => {
-    event.preventDefault();
-    runAction(event.currentTarget, "测试中", testVisionSource);
+  document.querySelectorAll("[data-upload-category]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.activeUploadCategory = button.dataset.uploadCategory;
+      $("pluginZipInput").click();
+    });
   });
-  $("visionSetActiveButton").addEventListener("click", (event) => {
-    event.preventDefault();
-    runAction(event.currentTarget, "设置中", setActiveVisionSource);
-  });
-  $("visionDeleteButton").addEventListener("click", (event) => {
-    event.preventDefault();
-    runAction(event.currentTarget, "删除中", deleteVisionSource);
-  });
-
-  $("pluginsRefreshButton").addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", refreshPlugins));
-  $("pluginUploadButton").addEventListener("click", () => $("pluginZipInput").click());
   $("pluginZipInput").addEventListener("change", (event) => {
     const file = event.currentTarget.files && event.currentTarget.files[0];
-    if (!file) return;
-    runAction($("pluginUploadButton"), "+", () => uploadPluginZip(file));
+    if (!file || !state.activeUploadCategory) return;
+    const button = document.querySelector(`[data-upload-category="${state.activeUploadCategory}"]`);
+    runAction(button, "+", () => uploadPluginZip(file, state.activeUploadCategory));
     event.currentTarget.value = "";
   });
 
@@ -553,7 +399,6 @@ function bindActions() {
 bindActions();
 renderEvents();
 refreshStatus();
-refreshVisionSources();
 refreshPlugins();
 connectEvents();
 setInterval(refreshStatus, 2000);

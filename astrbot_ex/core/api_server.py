@@ -139,7 +139,11 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             self._send_json(self.server.vision_sources.latest())
             return
         if path in {"/api/plugins", "/api/v1/ex/plugins"}:
-            self._send_json({"plugins": self.server.local_plugins.list_plugins()})
+            plugins = self.server.local_plugins.list_plugins()
+            grouped = {category: [] for category in ("vision", "control", "decision", "special")}
+            for plugin in plugins:
+                grouped.setdefault(plugin.get("category", "special"), []).append(plugin)
+            self._send_json({"plugins": plugins, "groups": grouped})
             return
         plugin_id = self._match_plugin_id(path)
         if plugin_id:
@@ -355,7 +359,8 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
                 tmp.write(chunk)
             temp_path = Path(tmp.name)
         try:
-            plugin = self.server.local_plugins.install_zip(temp_path)
+            category = form.getfirst("category")
+            plugin = self.server.local_plugins.install_zip(temp_path, category=category)
         except Exception as exc:
             self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
             return

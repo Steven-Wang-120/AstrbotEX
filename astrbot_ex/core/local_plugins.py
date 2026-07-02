@@ -28,6 +28,21 @@ ALLOWED_PLUGIN_TYPES = {
     "trace_plugin",
 }
 
+PLUGIN_CATEGORIES = ("vision", "control", "decision", "special")
+
+DEFAULT_CATEGORY_BY_CAPABILITY = {
+    "vision_provider": "vision",
+    "motion_bridge": "control",
+    "transport": "control",
+    "protocol_codec": "control",
+    "telemetry_provider": "control",
+    "rule_plugin": "decision",
+    "policy_plugin": "decision",
+    "skill_plugin": "decision",
+    "tool_plugin": "decision",
+    "trace_plugin": "special",
+}
+
 RUNTIME_KIND_BY_CAPABILITY = {
     "motion_bridge": "motion",
     "vision_provider": "vision",
@@ -56,6 +71,7 @@ class PluginManifest:
 class LocalPluginRecord:
     manifest: PluginManifest
     root: Path
+    category: str
     enabled: bool
     loaded: bool = False
     status: str = "installed"
@@ -95,37 +111,43 @@ class LocalPluginManager:
         self.event_bus = event_bus
         self.records: dict[str, LocalPluginRecord] = {}
         self.plugins_root.mkdir(parents=True, exist_ok=True)
+        for category in PLUGIN_CATEGORIES:
+            (self.plugins_root / category).mkdir(parents=True, exist_ok=True)
 
     def discover(self) -> None:
         self.records.clear()
         state = self._load_state()
-        for child in sorted(self.plugins_root.iterdir()):
-            if not child.is_dir():
-                continue
-            try:
-                manifest = self._load_manifest(child)
-                enabled = bool(state.get(manifest.id, manifest.enabled_default))
-                self.records[manifest.id] = LocalPluginRecord(
-                    manifest=manifest,
-                    root=child,
-                    enabled=enabled,
-                    config_schema=self._load_config_schema(child, manifest),
-                )
-            except Exception as exc:
-                fallback_id = child.name
-                self.records[fallback_id] = LocalPluginRecord(
-                    manifest=PluginManifest(
-                        id=fallback_id,
-                        name=fallback_id,
-                        version="0.0.0",
-                        entry="main.py",
-                        provides=[],
-                    ),
-                    root=child,
-                    enabled=False,
-                    status="fault",
-                    error=str(exc),
-                )
+        for category_root in self._iter_category_roots():
+            category = self._category_name_for_root(category_root)
+            for child in sorted(category_root.iterdir()):
+                if not child.is_dir():
+                    continue
+                try:
+                    manifest = self._load_manifest(child)
+                    enabled = bool(state.get(manifest.id, manifest.enabled_default))
+                    self.records[manifest.id] = LocalPluginRecord(
+                        manifest=manifest,
+                        root=child,
+                        category=category,
+                        enabled=enabled,
+                        config_schema=self._load_config_schema(child, manifest),
+                    )
+                except Exception as exc:
+                    fallback_id = child.name
+                    self.records[fallback_id] = LocalPluginRecord(
+                        manifest=PluginManifest(
+                            id=fallback_id,
+                            name=fallback_id,
+                            version="0.0.0",
+                            entry="main.py",
+                            provides=[],
+                        ),
+                        root=child,
+                        category=category,
+                        enabled=False,
+                        status="fault",
+                        error=str(exc),
+                    )
 
     def load_enabled(self) -> None:
         for record in list(self.records.values()):
@@ -158,7 +180,7 @@ class LocalPluginManager:
         )
         return self._serialize(record, include_schema=True)
 
-    def install_zip(self, zip_path: Path) -> dict[str, Any]:
+    def install_zip(self, zip_path: Path, *, category: str | None = None) -> dict[str, Any]:
         with zipfile.ZipFile(zip_path) as archive:
             members = archive.infolist()
             self._validate_zip_members(members)
@@ -172,10 +194,13 @@ class LocalPluginManager:
             if entry_name not in {item.filename.strip("/") for item in members}:
                 raise ValueError(f"entry file not found: {manifest.entry}")
 
-            target = self.plugins_root / manifest.id
+            plugin_category = self._normalize_category(category) or self._category_for_manifest(manifest)
+            target_root = self.plugins_root / plugin_category
+            target_root.mkdir(parents=True, exist_ok=True)
+            target = target_root / manifest.id
             if target.exists():
                 raise ValueError(f"plugin already exists: {manifest.id}")
-            temp = self.plugins_root / f".upload_{manifest.id}_{int(time.time())}"
+            temp = target_root / f".upload_{manifest.id}_{int(time.time())}"
             temp.mkdir(parents=True, exist_ok=False)
             try:
                 for item in members:
@@ -280,6 +305,7 @@ class LocalPluginManager:
         payload = {
             "id": manifest.id,
             "name": manifest.name,
+            "category": record.category,
             "version": manifest.version,
             "description": manifest.description,
             "author": manifest.author,
@@ -384,6 +410,31 @@ class LocalPluginManager:
             return self.records[plugin_id]
         except KeyError as exc:
             raise KeyError(f"unknown plugin: {plugin_id}") from exc
+
+    def _category_for_manifest(self, manifest: PluginManifest) -> str:
+        for capability in manifest.provides:
+            category = DEFAULT_CATEGORY_BY_CAPABILITY.get(capability)
+            if category:
+                return category
+        return "special"
+
+    def _normalize_category(self, category: str | None) -> str | None:
+        if category is None:
+            return None
+        value = category.strip().lower()
+        if value not in PLUGIN_CATEGORIES:
+            raise ValueError(f"unsupported plugin category: {category}")
+        return value
+
+    def _iter_category_roots(self) -> list[Path]:
+        roots = [self.plugins_root / category for category in PLUGIN_CATEGORIES]
+        legacy_children = [child for child in self.plugins_root.iterdir() if child.is_dir() and child.name not in PLUGIN_CATEGORIES]
+        if legacy_children:
+            roots.append(self.plugins_root)
+        return roots
+
+    def _category_name_for_root(self, root: Path) -> str:
+        return root.name if root != self.plugins_root else "special"
 
     def _manifest_dict(self, manifest: PluginManifest) -> dict[str, Any]:
         return {
