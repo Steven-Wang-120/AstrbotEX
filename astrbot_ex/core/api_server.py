@@ -33,6 +33,8 @@ class RuntimeController:
     def start(self) -> None:
         with self._lock:
             self.runtime.start()
+            if self.runtime.state != RuntimeState.RUNNING:
+                return
             if self._thread and self._thread.is_alive():
                 return
             self._stop_event.clear()

@@ -1,5 +1,5 @@
 const API_BASE = window.ASTRBOTEX_API_BASE || "http://127.0.0.1:8765";
-const MAX_TRACE_EVENTS = 80;
+const MAX_TRACE_EVENTS = 200;
 
 const state = {
   events: [],
@@ -10,6 +10,7 @@ const state = {
   plugins: [],
   selectedPluginId: null,
   toastTimer: null,
+  logAutoscroll: true,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -61,8 +62,17 @@ function formatPose(pose) {
 }
 
 function formatTime(timestamp) {
-  if (!timestamp) return "未同步";
+  if (!timestamp) return "--";
   return new Date(timestamp * 1000).toLocaleTimeString();
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 async function apiJson(path, options = {}) {
@@ -81,6 +91,7 @@ function switchPage(page) {
   });
   if (page === "vision") refreshVisionSources();
   if (page === "plugins") refreshPlugins();
+  if (page === "logs") renderEvents();
 }
 
 async function refreshStatus() {
@@ -98,7 +109,6 @@ function renderStatus(status) {
   const robot = world.robot || {};
   const entities = world.entities || [];
   const zones = world.zones || [];
-  const plugins = status.plugins || [];
 
   setText("runtimeState", String(status.runtime_state || "--").toUpperCase());
   setText("runtimeDetail", `目标频率 ${formatValue(status.tick_hz)} Hz`);
@@ -114,54 +124,73 @@ function renderStatus(status) {
   setText("estopState", robot.estop ? "触发" : "--");
   setText("robotPose", formatPose(robot.pose));
   setText("goalPreview", `active_goal: ${JSON.stringify(status.active_goal, null, 2)}`);
-  setText("pluginCount", `${plugins.length} 个`);
-  renderPlugins(plugins);
 
   if (Array.isArray(status.recent_events) && state.events.length === 0) {
     status.recent_events.forEach(pushEvent);
   }
 }
 
-function renderPlugins(plugins) {
-  const list = $("pluginList");
-  list.innerHTML = "";
-  plugins.forEach((plugin) => {
-    const item = document.createElement("div");
-    item.className = `slot ${plugin.enabled ? "ok" : ""}`;
-    item.innerHTML = `<span>${plugin.kind}</span><b>${plugin.id}</b>`;
-    list.appendChild(item);
-  });
+function eventLevel(event) {
+  if (event.type === "fault" || event.type === "rule_rejected") return "ERROR";
+  if (event.type === "runtime_state" || event.type === "plugin") return "INFO";
+  return "DEBUG";
+}
+
+function formatEventLine(event) {
+  const time = formatTime(event.timestamp);
+  const level = eventLevel(event);
+  const detail = event.data && Object.keys(event.data).length > 0 ? ` ${JSON.stringify(event.data)}` : "";
+  return {
+    time,
+    level,
+    type: event.type || "event",
+    message: `${event.message || ""}${detail}`,
+  };
 }
 
 function pushEvent(event) {
-  state.events.unshift(event);
-  state.events = state.events.slice(0, MAX_TRACE_EVENTS);
+  state.events.push(event);
+  state.events = state.events.slice(-MAX_TRACE_EVENTS);
   renderEvents();
 }
 
 function renderEvents() {
-  const list = $("traceList");
-  list.innerHTML = "";
+  const consoleEl = $("logConsole");
+  if (!consoleEl) return;
+  consoleEl.innerHTML = "";
+
   if (state.events.length === 0) {
     const empty = document.createElement("div");
-    empty.innerHTML = "<b>waiting</b><span>等待运行时事件</span>";
-    list.appendChild(empty);
+    empty.className = "log-empty";
+    empty.textContent = "等待运行时事件";
+    consoleEl.appendChild(empty);
     return;
   }
+
   state.events.forEach((event) => {
-    const item = document.createElement("div");
-    const detail = event.data ? JSON.stringify(event.data) : "";
-    item.innerHTML = `<b>${event.type}</b><span>${event.message} ${detail}</span>`;
-    list.appendChild(item);
+    const line = formatEventLine(event);
+    const row = document.createElement("div");
+    row.className = "log-line";
+    row.innerHTML = `
+      <span class="log-time">${escapeHtml(line.time)}</span>
+      <span class="log-level log-level-${line.level.toLowerCase()}">[${escapeHtml(line.level)}]</span>
+      <span class="log-type">${escapeHtml(line.type)}</span>
+      <span class="log-message">${escapeHtml(line.message)}</span>
+    `;
+    consoleEl.appendChild(row);
   });
+
+  if (state.logAutoscroll) {
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+  }
 }
 
 function connectEvents() {
   if (state.eventSource) state.eventSource.close();
   const source = new EventSource(`${API_BASE}/api/events`);
   state.eventSource = source;
-  source.onopen = () => setText("eventStatus", "SSE 已连接");
-  source.onerror = () => setText("eventStatus", "SSE 重连中");
+  source.onopen = () => setEventConnection(true, "SSE 已连接");
+  source.onerror = () => setEventConnection(false, "SSE 重连中");
   source.addEventListener("event", (message) => {
     try {
       pushEvent(JSON.parse(message.data));
@@ -175,6 +204,28 @@ function setConnection(ok, label) {
   const pill = $("connectionPill");
   pill.classList.toggle("offline", !ok);
   pill.lastChild.textContent = label;
+}
+
+function setEventConnection(ok, label) {
+  setText("eventStatus", label);
+  const pill = $("logConnectionPill");
+  if (!pill) return;
+  pill.classList.toggle("offline", !ok);
+  pill.lastChild.textContent = label;
+}
+
+function toggleLogAutoscroll() {
+  state.logAutoscroll = !state.logAutoscroll;
+  setText("logAutoscrollButton", `自动滚动：${state.logAutoscroll ? "开" : "关"}`);
+  if (state.logAutoscroll) {
+    const consoleEl = $("logConsole");
+    if (consoleEl) consoleEl.scrollTop = consoleEl.scrollHeight;
+  }
+}
+
+function clearLogs() {
+  state.events = [];
+  renderEvents();
 }
 
 async function startRuntime() {
@@ -458,15 +509,6 @@ async function uploadPluginZip(file) {
   await refreshPlugins();
 }
 
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
 function bindActions() {
   setText("apiBaseLabel", API_BASE.replace(/^https?:\/\//, ""));
   document.querySelectorAll(".nav-item[data-page]").forEach((button) => {
@@ -475,6 +517,7 @@ function bindActions() {
   $("refreshButton").addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", refreshStatus));
   $("startButton").addEventListener("click", (event) => runAction(event.currentTarget, "启动中", startRuntime));
   $("stopButton").addEventListener("click", (event) => runAction(event.currentTarget, "停止中", stopRuntime));
+
   $("visionRefreshButton").addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", refreshVisionSources));
   $("visionAddButton").addEventListener("click", (event) => runAction(event.currentTarget, "添加中", addVisionSource));
   $("visionSaveButton").addEventListener("click", (event) => {
@@ -493,6 +536,7 @@ function bindActions() {
     event.preventDefault();
     runAction(event.currentTarget, "删除中", deleteVisionSource);
   });
+
   $("pluginsRefreshButton").addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", refreshPlugins));
   $("pluginUploadButton").addEventListener("click", () => $("pluginZipInput").click());
   $("pluginZipInput").addEventListener("change", (event) => {
@@ -501,6 +545,9 @@ function bindActions() {
     runAction($("pluginUploadButton"), "+", () => uploadPluginZip(file));
     event.currentTarget.value = "";
   });
+
+  $("logAutoscrollButton").addEventListener("click", toggleLogAutoscroll);
+  $("logClearButton").addEventListener("click", clearLogs);
 }
 
 bindActions();

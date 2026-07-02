@@ -38,6 +38,13 @@ class AstrBotEXRuntime:
     def start(self) -> None:
         if self.state in {RuntimeState.RUNNING, RuntimeState.FAULT}:
             return
+        if self._vision_provider() is None or self._motion_bridge() is None:
+            self.event_bus.emit(
+                "runtime_state",
+                "runtime start blocked: missing required vision or motion plugin",
+                state=self.state.value,
+            )
+            return
         self.state = RuntimeState.RUNNING
         for slot in self.registry.list():
             if slot.enabled and hasattr(slot.plugin, "on_runtime_start"):

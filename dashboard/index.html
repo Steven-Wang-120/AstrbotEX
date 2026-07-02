@@ -21,7 +21,7 @@
           <button class="nav-item" data-page="vision"><span class="nav-dot"></span>视觉</button>
           <button class="nav-item" disabled>运动</button>
           <button class="nav-item" data-page="plugins"><span class="nav-dot"></span>插件</button>
-          <button class="nav-item" disabled>追踪</button>
+          <button class="nav-item" data-page="logs"><span class="nav-dot"></span>运行日志</button>
         </nav>
 
         <div class="sidebar-footer">
@@ -35,7 +35,7 @@
           <header class="topbar">
             <div>
               <h1>核心运行时</h1>
-              <p>本地 AstrBotEX Core 状态、插件槽位、任务循环和事件追踪。</p>
+              <p>本地 AstrBotEX Core 状态和运行快照。</p>
             </div>
             <div class="topbar-actions">
               <div class="status-pill" id="connectionPill"><span class="pulse"></span>正在连接</div>
@@ -68,21 +68,8 @@
             </article>
           </section>
 
-          <section class="workbench">
-            <div class="panel panel-left">
-              <div class="panel-head">
-                <h2>核心契约</h2>
-                <span>稳定层</span>
-              </div>
-              <div class="contract-list">
-                <div class="contract-item"><b>Runtime</b><p>IDLE / READY / RUNNING / PAUSED / FAULT / FINISHED。</p></div>
-                <div class="contract-item"><b>WorldState</b><p>实体、区域、机器人状态和任务状态。</p></div>
-                <div class="contract-item"><b>Intent</b><p>技能只发运动意图，不直接写串口字节。</p></div>
-                <div class="contract-item"><b>EventBus</b><p>运行时、视觉、策略、技能、规则、运动和故障事件。</p></div>
-              </div>
-            </div>
-
-            <div class="panel panel-center">
+          <section class="workbench core-workbench">
+            <div class="panel panel-main">
               <div class="panel-head">
                 <h2>运行快照</h2>
                 <span id="snapshotTime">未同步</span>
@@ -95,22 +82,6 @@
               </div>
               <div class="json-preview" id="goalPreview">active_goal: null</div>
             </div>
-
-            <div class="panel panel-right">
-              <div class="panel-head">
-                <h2>插件槽位</h2>
-                <span id="pluginCount">0</span>
-              </div>
-              <div class="slot-list" id="pluginList"></div>
-            </div>
-          </section>
-
-          <section class="trace-panel">
-            <div class="panel-head">
-              <h2>事件追踪</h2>
-              <span id="eventStatus">SSE 未连接</span>
-            </div>
-            <div class="trace-list" id="traceList"></div>
           </section>
         </section>
 
@@ -224,10 +195,32 @@
           <button class="plugin-upload-fab" id="pluginUploadButton" title="上传插件 zip" aria-label="上传插件 zip">+</button>
           <input id="pluginZipInput" type="file" accept=".zip,application/zip" hidden />
         </section>
+
+        <section class="page" id="page-logs">
+          <header class="topbar">
+            <div>
+              <h1>运行日志</h1>
+              <p>查看运行时事件流，便于验证插件生命周期、策略决策和运动链路。</p>
+            </div>
+            <div class="topbar-actions">
+              <div class="status-pill" id="logConnectionPill"><span class="pulse"></span>日志流连接中</div>
+              <button class="secondary" id="logAutoscrollButton">自动滚动：开</button>
+              <button class="secondary" id="logClearButton">清空</button>
+            </div>
+          </header>
+
+          <section class="panel log-panel">
+            <div class="panel-head">
+              <h2>事件流</h2>
+              <span id="eventStatus">SSE 未连接</span>
+            </div>
+            <div class="log-console" id="logConsole"></div>
+          </section>
+        </section>
       </main>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="./app.js?v=20260630-plugins"></script>
+    <script src="./app.js?v=20260702-logs"></script>
   </body>
 </html>
