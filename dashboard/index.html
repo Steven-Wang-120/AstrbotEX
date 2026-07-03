@@ -19,9 +19,10 @@
         <nav class="nav">
           <button class="nav-item active" data-page="core"><span class="nav-dot"></span>核心</button>
           <button class="nav-item" data-page="vision"><span class="nav-dot"></span>视觉</button>
+          <button class="nav-item" data-page="perception"><span class="nav-dot"></span>感知</button>
           <button class="nav-item" data-page="control"><span class="nav-dot"></span>控制</button>
           <button class="nav-item" data-page="decision"><span class="nav-dot"></span>决策</button>
-          <button class="nav-item" data-page="special"><span class="nav-dot"></span>特种</button>
+          <button class="nav-item" data-page="special"><span class="nav-dot"></span>特殊</button>
           <button class="nav-item" data-page="logs"><span class="nav-dot"></span>运行日志</button>
         </nav>
 
@@ -58,7 +59,7 @@
               <small id="worldDetail">实体 / 区域 / 机器人</small>
             </article>
             <article class="metric">
-              <span class="metric-label">运动桥</span>
+              <span class="metric-label">运动链路</span>
               <strong id="motionState">--</strong>
               <small id="motionDetail">等待 RobotState</small>
             </article>
@@ -88,171 +89,198 @@
           <header class="topbar">
             <div>
               <h1>视觉插件</h1>
-              <p>安装和管理上游感知插件。视觉模型、桥接适配器和视觉输入管线统一从这里接入。</p>
+              <p>管理相机识别、外部视觉模型桥接和目标检测结果接入插件。</p>
             </div>
             <div class="topbar-actions">
               <button class="secondary" data-plugin-refresh="vision">刷新</button>
             </div>
           </header>
-          <section class="plugin-page-layout">
-            <div class="panel plugin-panel-main">
-              <div class="panel-head">
-                <h2>已安装</h2>
-                <span id="visionCount">0</span>
-              </div>
-              <div class="plugin-grid" id="visionGrid"></div>
+          <section class="panel plugin-panel-main">
+            <div class="panel-head">
+              <h2>已安装</h2>
+              <span id="visionCount">0</span>
             </div>
-            <aside class="panel plugin-detail" id="visionDetailPanel">
-              <div class="panel-head">
-                <h2>插件详情</h2>
-                <span id="visionDetailStatus">--</span>
-              </div>
-              <div class="plugin-detail-empty" id="visionDetailEmpty">选择一个视觉插件查看详情</div>
-              <div class="plugin-detail-body" id="visionDetailBody" hidden>
-                <h3 id="visionDetailName">--</h3>
-                <p id="visionDetailDescription">--</p>
-                <div class="plugin-meta-list">
-                  <div><span>ID</span><b id="visionDetailId">--</b></div>
-                  <div><span>版本</span><b id="visionDetailVersion">--</b></div>
-                  <div><span>作者</span><b id="visionDetailAuthor">--</b></div>
-                  <div><span>状态</span><b id="visionDetailState">--</b></div>
-                </div>
-                <div class="json-preview tall" id="visionSchemaPreview">--</div>
-              </div>
-            </aside>
+            <div class="plugin-grid" id="visionGrid"></div>
           </section>
-          <button class="plugin-upload-fab" id="visionUploadButton" data-upload-category="vision" title="上传视觉插件" aria-label="上传视觉插件">+</button>
+          <button class="plugin-upload-fab" data-upload-category="vision" title="上传视觉插件" aria-label="上传视觉插件">+</button>
+        </section>
+
+        <section class="page" id="page-perception">
+          <header class="topbar">
+            <div>
+              <h1>感知插件</h1>
+              <p>管理雷达、定位、里程计、姿态和环境几何等感知链路插件。</p>
+            </div>
+            <div class="topbar-actions">
+              <button class="secondary" data-plugin-refresh="perception">刷新</button>
+            </div>
+          </header>
+          <section class="panel plugin-panel-main">
+            <div class="panel-head">
+              <h2>已安装</h2>
+              <span id="perceptionCount">0</span>
+            </div>
+            <div class="plugin-grid" id="perceptionGrid"></div>
+          </section>
+          <button class="plugin-upload-fab" data-upload-category="perception" title="上传感知插件" aria-label="上传感知插件">+</button>
         </section>
 
         <section class="page" id="page-control">
           <header class="topbar">
             <div>
               <h1>控制插件</h1>
-              <p>管理下游硬件对接插件，包括 transport、codec、motion bridge 和遥测链路。</p>
+              <p>管理 motion bridge、协议编解码、总线传输和下位机执行链路插件。</p>
             </div>
             <div class="topbar-actions">
               <button class="secondary" data-plugin-refresh="control">刷新</button>
             </div>
           </header>
-          <section class="plugin-page-layout">
-            <div class="panel plugin-panel-main">
-              <div class="panel-head">
-                <h2>已安装</h2>
-                <span id="controlCount">0</span>
-              </div>
-              <div class="plugin-grid" id="controlGrid"></div>
+          <section class="panel plugin-panel-main">
+            <div class="panel-head">
+              <h2>已安装</h2>
+              <span id="controlCount">0</span>
             </div>
-            <aside class="panel plugin-detail" id="controlDetailPanel">
-              <div class="panel-head">
-                <h2>插件详情</h2>
-                <span id="controlDetailStatus">--</span>
-              </div>
-              <div class="plugin-detail-empty" id="controlDetailEmpty">选择一个控制插件查看详情</div>
-              <div class="plugin-detail-body" id="controlDetailBody" hidden>
-                <h3 id="controlDetailName">--</h3>
-                <p id="controlDetailDescription">--</p>
-                <div class="plugin-meta-list">
-                  <div><span>ID</span><b id="controlDetailId">--</b></div>
-                  <div><span>版本</span><b id="controlDetailVersion">--</b></div>
-                  <div><span>作者</span><b id="controlDetailAuthor">--</b></div>
-                  <div><span>状态</span><b id="controlDetailState">--</b></div>
-                </div>
-                <div class="json-preview tall" id="controlSchemaPreview">--</div>
-              </div>
-            </aside>
+            <div class="plugin-grid" id="controlGrid"></div>
           </section>
-          <button class="plugin-upload-fab" id="controlUploadButton" data-upload-category="control" title="上传控制插件" aria-label="上传控制插件">+</button>
+          <button class="plugin-upload-fab" data-upload-category="control" title="上传控制插件" aria-label="上传控制插件">+</button>
         </section>
 
         <section class="page" id="page-decision">
           <header class="topbar">
             <div>
               <h1>决策插件</h1>
-              <p>管理规则、策略、技能和后续对接 AstrBot 的高层决策插件。</p>
+              <p>管理比赛规则、目标选择、技能执行和上层任务调度插件。</p>
             </div>
             <div class="topbar-actions">
               <button class="secondary" data-plugin-refresh="decision">刷新</button>
             </div>
           </header>
-          <section class="plugin-page-layout">
-            <div class="panel plugin-panel-main">
-              <div class="panel-head">
-                <h2>已安装</h2>
-                <span id="decisionCount">0</span>
-              </div>
-              <div class="plugin-grid" id="decisionGrid"></div>
+          <section class="panel plugin-panel-main">
+            <div class="panel-head">
+              <h2>已安装</h2>
+              <span id="decisionCount">0</span>
             </div>
-            <aside class="panel plugin-detail" id="decisionDetailPanel">
-              <div class="panel-head">
-                <h2>插件详情</h2>
-                <span id="decisionDetailStatus">--</span>
-              </div>
-              <div class="plugin-detail-empty" id="decisionDetailEmpty">选择一个决策插件查看详情</div>
-              <div class="plugin-detail-body" id="decisionDetailBody" hidden>
-                <h3 id="decisionDetailName">--</h3>
-                <p id="decisionDetailDescription">--</p>
-                <div class="plugin-meta-list">
-                  <div><span>ID</span><b id="decisionDetailId">--</b></div>
-                  <div><span>版本</span><b id="decisionDetailVersion">--</b></div>
-                  <div><span>作者</span><b id="decisionDetailAuthor">--</b></div>
-                  <div><span>状态</span><b id="decisionDetailState">--</b></div>
-                </div>
-                <div class="json-preview tall" id="decisionSchemaPreview">--</div>
-              </div>
-            </aside>
+            <div class="plugin-grid" id="decisionGrid"></div>
           </section>
-          <button class="plugin-upload-fab" id="decisionUploadButton" data-upload-category="decision" title="上传决策插件" aria-label="上传决策插件">+</button>
+          <button class="plugin-upload-fab" data-upload-category="decision" title="上传决策插件" aria-label="上传决策插件">+</button>
         </section>
 
         <section class="page" id="page-special">
           <header class="topbar">
             <div>
-              <h1>特种插件</h1>
-              <p>管理不归属于视觉、控制、决策三大主链路的插件，例如 MQTT 订阅、追踪或桥接插件。</p>
+              <h1>特殊插件</h1>
+              <p>管理追踪、诊断、桥接和辅助调试类插件。</p>
             </div>
             <div class="topbar-actions">
               <button class="secondary" data-plugin-refresh="special">刷新</button>
             </div>
           </header>
-          <section class="plugin-page-layout">
-            <div class="panel plugin-panel-main">
-              <div class="panel-head">
-                <h2>已安装</h2>
-                <span id="specialCount">0</span>
-              </div>
-              <div class="plugin-grid" id="specialGrid"></div>
+          <section class="panel plugin-panel-main">
+            <div class="panel-head">
+              <h2>已安装</h2>
+              <span id="specialCount">0</span>
             </div>
-            <aside class="panel plugin-detail" id="specialDetailPanel">
-              <div class="panel-head">
-                <h2>插件详情</h2>
-                <span id="specialDetailStatus">--</span>
-              </div>
-              <div class="plugin-detail-empty" id="specialDetailEmpty">选择一个特种插件查看详情</div>
-              <div class="plugin-detail-body" id="specialDetailBody" hidden>
-                <h3 id="specialDetailName">--</h3>
-                <p id="specialDetailDescription">--</p>
-                <div class="plugin-meta-list">
-                  <div><span>ID</span><b id="specialDetailId">--</b></div>
-                  <div><span>版本</span><b id="specialDetailVersion">--</b></div>
-                  <div><span>作者</span><b id="specialDetailAuthor">--</b></div>
-                  <div><span>状态</span><b id="specialDetailState">--</b></div>
-                </div>
-                <div class="json-preview tall" id="specialSchemaPreview">--</div>
-              </div>
-            </aside>
+            <div class="plugin-grid" id="specialGrid"></div>
           </section>
-          <button class="plugin-upload-fab" id="specialUploadButton" data-upload-category="special" title="上传特种插件" aria-label="上传特种插件">+</button>
+          <button class="plugin-upload-fab" data-upload-category="special" title="上传特殊插件" aria-label="上传特殊插件">+</button>
+        </section>
+
+        <section class="page" id="page-plugin">
+          <header class="topbar">
+            <div>
+              <h1 id="pluginDashboardTitle">插件控制台</h1>
+              <p id="pluginDashboardSubtitle">选择一个插件进入</p>
+            </div>
+            <div class="topbar-actions">
+              <button class="secondary" id="pluginBackButton">返回列表</button>
+              <button class="primary" id="pluginSaveButton">保存配置</button>
+              <button class="danger" id="pluginUninstallButton">卸载插件</button>
+            </div>
+          </header>
+
+          <div class="plugin-dashboard-empty panel" id="pluginDashboardEmpty">
+            还没有选中插件
+          </div>
+
+          <div class="plugin-dashboard" id="pluginDashboardBody" hidden>
+            <section class="panel plugin-dashboard-main">
+              <div class="plugin-dashboard-head">
+                <div class="plugin-dashboard-cover" id="pluginDashboardCover"></div>
+                <div class="plugin-dashboard-summary">
+                  <h2 id="pluginDashboardName">--</h2>
+                  <p id="pluginDashboardDescription">--</p>
+                  <div class="plugin-enable-row">
+                    <span>启用状态</span>
+                    <label class="switch">
+                      <input id="pluginEnabledSwitch" type="checkbox" />
+                      <span></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="plugin-meta-list plugin-dashboard-meta">
+                <div><span>ID</span><b id="pluginDashboardId">--</b></div>
+                <div><span>版本</span><b id="pluginDashboardVersion">--</b></div>
+                <div><span>作者</span><b id="pluginDashboardAuthor">--</b></div>
+                <div><span>状态</span><b id="pluginDashboardState">--</b></div>
+                <div><span>能力</span><b id="pluginDashboardProvides">--</b></div>
+                <div><span>路径</span><b id="pluginDashboardPath">--</b></div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <h2>插件配置</h2>
+                <span>基于 config.schema.json 自动生成</span>
+              </div>
+              <div class="config-form" id="pluginConfigFields"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <h2>发布 / 订阅</h2>
+                <button class="secondary" id="pluginPubsubSaveButton">保存发布订阅</button>
+              </div>
+              <div class="pubsub-layout">
+                <section class="pubsub-card">
+                  <div class="pubsub-card-head">
+                    <h3>发布</h3>
+                    <label class="switch">
+                      <input id="pluginPublishEnabled" type="checkbox" />
+                      <span></span>
+                    </label>
+                  </div>
+                  <p class="pubsub-help">插件先声明自己能发布哪些 topic，这里只控制当前是否启用。</p>
+                  <div class="pubsub-topic-list" id="pluginPublishList"></div>
+                </section>
+
+                <section class="pubsub-card">
+                  <div class="pubsub-card-head">
+                    <h3>订阅</h3>
+                  </div>
+                  <p class="pubsub-help">按两步选择：先选来源插件，再选这个插件的 topic。</p>
+                  <div class="subscription-builder">
+                    <select id="subscriptionPublisherSelect" class="config-input"></select>
+                    <select id="subscriptionTopicSelect" class="config-input"></select>
+                    <button class="secondary" id="subscriptionAddButton">添加订阅</button>
+                  </div>
+                  <div class="subscription-list" id="pluginSubscriptionList"></div>
+                </section>
+              </div>
+            </section>
+          </div>
         </section>
 
         <section class="page" id="page-logs">
           <header class="topbar">
             <div>
               <h1>运行日志</h1>
-              <p>查看运行时事件流，便于验证插件生命周期、策略决策和运动链路。</p>
+              <p>查看运行时事件流，便于联调插件生命周期、策略决策和运动链路。</p>
             </div>
             <div class="topbar-actions">
               <div class="status-pill" id="logConnectionPill"><span class="pulse"></span>日志流连接中</div>
-              <button class="secondary" id="logAutoscrollButton">自动滚动：开</button>
+              <button class="secondary" id="logAutoscrollButton">自动滚动: 开</button>
               <button class="secondary" id="logClearButton">清空</button>
             </div>
           </header>
@@ -267,9 +295,9 @@
         </section>
       </main>
     </div>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <input id="pluginZipInput" type="file" accept=".zip,application/zip" hidden />
-
-    <script src="./app.js?v=20260702-categories-cn"></script>
+    <script src="./app.js?v=20260703-pubsub"></script>
   </body>
 </html>

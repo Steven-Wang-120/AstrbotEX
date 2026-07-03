@@ -140,10 +140,13 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             return
         if path in {"/api/plugins", "/api/v1/ex/plugins"}:
             plugins = self.server.local_plugins.list_plugins()
-            grouped = {category: [] for category in ("vision", "control", "decision", "special")}
+            grouped = {category: [] for category in ("vision", "perception", "control", "decision", "special")}
             for plugin in plugins:
                 grouped.setdefault(plugin.get("category", "special"), []).append(plugin)
             self._send_json({"plugins": plugins, "groups": grouped})
+            return
+        if path in {"/api/pubsub/publishers", "/api/v1/ex/pubsub/publishers"}:
+            self._send_json({"publishers": self.server.local_plugins.list_publishers()})
             return
         plugin_id = self._match_plugin_id(path)
         if plugin_id:
@@ -155,6 +158,10 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         cover_id = self._match_plugin_cover(path)
         if cover_id:
             self._send_plugin_cover(cover_id)
+            return
+        dashboard_id = self._match_plugin_dashboard(path)
+        if dashboard_id:
+            self._send_plugin_dashboard(dashboard_id)
             return
         if path == "/healthz":
             self._send_json({"ok": True})
@@ -229,6 +236,26 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
                 return
             self._send_json({"ok": True, "plugin": plugin})
             return
+        plugin_id = self._match_plugin_action(path, "config")
+        if plugin_id:
+            payload = self._read_json()
+            try:
+                plugin = self.server.local_plugins.update_config(plugin_id, payload)
+            except (KeyError, ValueError) as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
+                return
+            self._send_json({"ok": True, "plugin": plugin})
+            return
+        plugin_id = self._match_plugin_action(path, "pubsub")
+        if plugin_id:
+            payload = self._read_json()
+            try:
+                plugin = self.server.local_plugins.update_pubsub(plugin_id, payload)
+            except (KeyError, ValueError) as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
+                return
+            self._send_json({"ok": True, "plugin": plugin})
+            return
         self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
 
     def do_PUT(self) -> None:
@@ -256,6 +283,22 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": False, "error": f"unknown source: {source_id}"}, HTTPStatus.NOT_FOUND)
                 return
             self._send_json({"ok": True})
+            return
+        plugin_id = self._match_plugin_id(path)
+        if plugin_id:
+            try:
+                plugin = self.server.local_plugins.get_plugin(plugin_id)
+            except KeyError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+                return
+            if any(cap in plugin.get("provides", []) for cap in ("motion_bridge", "transport", "protocol_codec", "skill_plugin", "vision_provider")):
+                self.controller.stop(f"plugin uninstalled: {plugin_id}")
+            try:
+                self.server.local_plugins.uninstall(plugin_id)
+            except (KeyError, OSError, ValueError) as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
+                return
+            self._send_json({"ok": True, "plugin_id": plugin_id})
             return
         self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
 
@@ -304,6 +347,14 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
     @staticmethod
     def _match_plugin_cover(path: str) -> str | None:
         suffix = "/cover"
+        for prefix in ("/api/plugins/", "/api/v1/ex/plugins/"):
+            if path.startswith(prefix) and path.endswith(suffix):
+                return unquote(path.removeprefix(prefix).removesuffix(suffix).strip("/"))
+        return None
+
+    @staticmethod
+    def _match_plugin_dashboard(path: str) -> str | None:
+        suffix = "/dashboard"
         for prefix in ("/api/plugins/", "/api/v1/ex/plugins/"):
             if path.startswith(prefix) and path.endswith(suffix):
                 return unquote(path.removeprefix(prefix).removesuffix(suffix).strip("/"))
@@ -400,6 +451,29 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _send_plugin_dashboard(self, plugin_id: str) -> None:
+        try:
+            plugin = self.server.local_plugins.get_plugin(plugin_id)
+            record = self.server.local_plugins.records[plugin["id"]]
+            dashboard = record.manifest.dashboard
+            if not dashboard:
+                self._send_json({"ok": False, "error": "dashboard not configured"}, HTTPStatus.NOT_FOUND)
+                return
+            target = (record.root / dashboard).resolve()
+            if record.root.resolve() not in target.parents and target != record.root.resolve():
+                self._send_json({"ok": False, "error": "invalid dashboard path"}, HTTPStatus.BAD_REQUEST)
+                return
+            body = target.read_bytes()
+        except Exception as exc:
+            self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+            return
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
     def _try_send_static(self) -> bool:
         path = self.path.split("?", 1)[0]
         if path == "/":
@@ -485,6 +559,7 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         state_path=project_root / "profiles" / "default" / "plugins_state.json",
         registry=runtime.registry,
         event_bus=runtime.event_bus,
+        topic_bus=runtime.topic_bus,
     )
     server.local_plugins.discover()
     server.local_plugins.load_enabled()

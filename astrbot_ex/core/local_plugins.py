@@ -13,6 +13,7 @@ from typing import Any
 
 from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.plugin_registry import PluginRegistry
+from astrbot_ex.core.topic_bus import TopicBus
 
 
 ALLOWED_PLUGIN_TYPES = {
@@ -28,14 +29,14 @@ ALLOWED_PLUGIN_TYPES = {
     "trace_plugin",
 }
 
-PLUGIN_CATEGORIES = ("vision", "control", "decision", "special")
+PLUGIN_CATEGORIES = ("vision", "perception", "control", "decision", "special")
 
 DEFAULT_CATEGORY_BY_CAPABILITY = {
     "vision_provider": "vision",
     "motion_bridge": "control",
     "transport": "control",
     "protocol_codec": "control",
-    "telemetry_provider": "control",
+    "telemetry_provider": "perception",
     "rule_plugin": "decision",
     "policy_plugin": "decision",
     "skill_plugin": "decision",
@@ -53,6 +54,13 @@ RUNTIME_KIND_BY_CAPABILITY = {
 
 
 @dataclass(slots=True)
+class TopicDeclaration:
+    topic: str
+    label: str = ""
+    schema: str = ""
+
+
+@dataclass(slots=True)
 class PluginManifest:
     id: str
     name: str
@@ -65,6 +73,9 @@ class PluginManifest:
     config_schema: str | None = None
     enabled_default: bool = False
     cover: str | None = None
+    dashboard: str | None = None
+    publishes: list[TopicDeclaration] = field(default_factory=list)
+    subscribes: list[TopicDeclaration] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -89,11 +100,13 @@ class PluginContext:
         plugin_root: Path,
         config: dict[str, Any],
         event_bus: EventBus,
+        topic_bus: TopicBus,
     ) -> None:
         self.plugin_id = plugin_id
         self.plugin_root = plugin_root
         self.config = config
         self.event_bus = event_bus
+        self.topic_bus = topic_bus
 
 
 class LocalPluginManager:
@@ -104,11 +117,13 @@ class LocalPluginManager:
         state_path: Path,
         registry: PluginRegistry,
         event_bus: EventBus,
+        topic_bus: TopicBus,
     ) -> None:
         self.plugins_root = plugins_root
         self.state_path = state_path
         self.registry = registry
         self.event_bus = event_bus
+        self.topic_bus = topic_bus
         self.records: dict[str, LocalPluginRecord] = {}
         self.plugins_root.mkdir(parents=True, exist_ok=True)
         for category in PLUGIN_CATEGORIES:
@@ -117,37 +132,16 @@ class LocalPluginManager:
     def discover(self) -> None:
         self.records.clear()
         state = self._load_state()
-        for category_root in self._iter_category_roots():
-            category = self._category_name_for_root(category_root)
-            for child in sorted(category_root.iterdir()):
-                if not child.is_dir():
-                    continue
-                try:
-                    manifest = self._load_manifest(child)
-                    enabled = bool(state.get(manifest.id, manifest.enabled_default))
-                    self.records[manifest.id] = LocalPluginRecord(
-                        manifest=manifest,
-                        root=child,
-                        category=category,
-                        enabled=enabled,
-                        config_schema=self._load_config_schema(child, manifest),
-                    )
-                except Exception as exc:
-                    fallback_id = child.name
-                    self.records[fallback_id] = LocalPluginRecord(
-                        manifest=PluginManifest(
-                            id=fallback_id,
-                            name=fallback_id,
-                            version="0.0.0",
-                            entry="main.py",
-                            provides=[],
-                        ),
-                        root=child,
-                        category=category,
-                        enabled=False,
-                        status="fault",
-                        error=str(exc),
-                    )
+        for child in sorted(self.plugins_root.iterdir()):
+            if not child.is_dir():
+                continue
+            if child.name in PLUGIN_CATEGORIES:
+                for nested in sorted(child.iterdir()):
+                    if not nested.is_dir():
+                        continue
+                    self._discover_plugin_dir(nested, child.name, state)
+                continue
+            self._discover_plugin_dir(child, None, state)
 
     def load_enabled(self) -> None:
         for record in list(self.records.values()):
@@ -159,6 +153,43 @@ class LocalPluginManager:
 
     def get_plugin(self, plugin_id: str) -> dict[str, Any]:
         return self._serialize(self._record(plugin_id), include_schema=True)
+
+    def update_config(self, plugin_id: str, config: dict[str, Any]) -> dict[str, Any]:
+        record = self._record(plugin_id)
+        if not isinstance(config, dict):
+            raise ValueError("config must be an object")
+        self._write_plugin_config(record, config)
+        if record.loaded:
+            self.registry.unregister(record.manifest.id)
+            record.loaded = False
+            record.plugin = None
+            record.module_name = None
+            record.status = "installed"
+        if record.enabled:
+            self._load_record(record)
+        self.event_bus.emit("plugin", "plugin config updated", plugin=plugin_id)
+        return self._serialize(record, include_schema=True)
+
+    def update_pubsub(self, plugin_id: str, pubsub: dict[str, Any]) -> dict[str, Any]:
+        record = self._record(plugin_id)
+        if not isinstance(pubsub, dict):
+            raise ValueError("pubsub must be an object")
+        config = self._load_plugin_config(record)
+        config["pubsub"] = self._normalize_pubsub(record, pubsub)
+        return self.update_config(plugin_id, config)
+
+    def list_publishers(self) -> list[dict[str, Any]]:
+        return [self._publisher_payload(record) for record in self.records.values() if record.manifest.publishes]
+
+    def uninstall(self, plugin_id: str) -> None:
+        record = self._record(plugin_id)
+        if record.loaded:
+            self.registry.unregister(record.manifest.id)
+        self.records.pop(plugin_id, None)
+        shutil.rmtree(record.root)
+        self._save_enabled_state()
+        self.event_bus.emit("plugin", "plugin uninstalled", plugin=plugin_id)
+        self.discover()
 
     def set_enabled(self, plugin_id: str, enabled: bool) -> dict[str, Any]:
         record = self._record(plugin_id)
@@ -275,6 +306,7 @@ class LocalPluginManager:
             plugin_root=record.root,
             config=config,
             event_bus=self.event_bus,
+            topic_bus=self.topic_bus,
         )
         factory = getattr(module, "create_plugin", None)
         if callable(factory):
@@ -311,15 +343,20 @@ class LocalPluginManager:
             "author": manifest.author,
             "provides": manifest.provides,
             "requires": manifest.requires,
+            "publishes": [self._topic_dict(item) for item in manifest.publishes],
+            "subscribes": [self._topic_dict(item) for item in manifest.subscribes],
+            "pubsub": self._pubsub_payload(record),
             "enabled": record.enabled,
             "loaded": record.loaded,
             "status": record.status,
             "error": record.error,
             "cover_url": f"/api/plugins/{manifest.id}/cover" if manifest.cover else None,
+            "dashboard_url": f"/api/plugins/{manifest.id}/dashboard" if manifest.dashboard else None,
             "path": str(record.root),
         }
         if include_schema:
             payload["config_schema"] = record.config_schema
+            payload["config"] = self._load_plugin_config(record)
         return payload
 
     def _load_manifest(self, root: Path) -> PluginManifest:
@@ -335,6 +372,8 @@ class LocalPluginManager:
             raise ValueError(f"config_schema not found: {manifest.config_schema}")
         if manifest.cover and not (root / manifest.cover).is_file():
             raise ValueError(f"cover not found: {manifest.cover}")
+        if manifest.dashboard and not (root / manifest.dashboard).is_file():
+            raise ValueError(f"dashboard not found: {manifest.dashboard}")
         return manifest
 
     def _manifest_from_bytes(self, raw: bytes) -> PluginManifest:
@@ -357,6 +396,9 @@ class LocalPluginManager:
             ),
             enabled_default=bool(data.get("enabled_default", False)),
             cover=str(data["cover"]).strip() if data.get("cover") else None,
+            dashboard=str(data["dashboard"]).strip() if data.get("dashboard") else None,
+            publishes=self._parse_topics(data.get("publishes", [])),
+            subscribes=self._parse_topics(data.get("subscribes", [])),
         )
 
     def _validate_manifest(self, manifest: PluginManifest) -> None:
@@ -373,6 +415,8 @@ class LocalPluginManager:
         unknown = [item for item in manifest.provides if item not in ALLOWED_PLUGIN_TYPES]
         if unknown:
             raise ValueError(f"unsupported provides: {', '.join(unknown)}")
+        self._validate_topics(manifest.id, manifest.publishes)
+        self._validate_topics(manifest.id, manifest.subscribes, require_prefix=False)
 
     def _load_config_schema(self, root: Path, manifest: PluginManifest) -> dict[str, Any] | None:
         if not manifest.config_schema:
@@ -385,6 +429,10 @@ class LocalPluginManager:
             return {}
         data = json.loads(config_path.read_text(encoding="utf-8"))
         return data if isinstance(data, dict) else {}
+
+    def _write_plugin_config(self, record: LocalPluginRecord, config: dict[str, Any]) -> None:
+        config_path = record.root / "config.json"
+        config_path.write_text(json.dumps(config, indent=2, ensure_ascii=False), encoding="utf-8")
 
     def _load_state(self) -> dict[str, bool]:
         if not self.state_path.is_file():
@@ -426,15 +474,34 @@ class LocalPluginManager:
             raise ValueError(f"unsupported plugin category: {category}")
         return value
 
-    def _iter_category_roots(self) -> list[Path]:
-        roots = [self.plugins_root / category for category in PLUGIN_CATEGORIES]
-        legacy_children = [child for child in self.plugins_root.iterdir() if child.is_dir() and child.name not in PLUGIN_CATEGORIES]
-        if legacy_children:
-            roots.append(self.plugins_root)
-        return roots
-
-    def _category_name_for_root(self, root: Path) -> str:
-        return root.name if root != self.plugins_root else "special"
+    def _discover_plugin_dir(self, root: Path, category_hint: str | None, state: dict[str, bool]) -> None:
+        try:
+            manifest = self._load_manifest(root)
+            category = category_hint or self._category_for_manifest(manifest)
+            enabled = bool(state.get(manifest.id, manifest.enabled_default))
+            self.records[manifest.id] = LocalPluginRecord(
+                manifest=manifest,
+                root=root,
+                category=category,
+                enabled=enabled,
+                config_schema=self._load_config_schema(root, manifest),
+            )
+        except Exception as exc:
+            fallback_id = root.name
+            self.records[fallback_id] = LocalPluginRecord(
+                manifest=PluginManifest(
+                    id=fallback_id,
+                    name=fallback_id,
+                    version="0.0.0",
+                    entry="main.py",
+                    provides=[],
+                ),
+                root=root,
+                category=category_hint or "special",
+                enabled=False,
+                status="fault",
+                error=str(exc),
+            )
 
     def _manifest_dict(self, manifest: PluginManifest) -> dict[str, Any]:
         return {
@@ -445,6 +512,8 @@ class LocalPluginManager:
             "author": manifest.author,
             "provides": manifest.provides,
             "requires": manifest.requires,
+            "publishes": [self._topic_dict(item) for item in manifest.publishes],
+            "subscribes": [self._topic_dict(item) for item in manifest.subscribes],
         }
 
     def _find_manifest_member(self, members: list[zipfile.ZipInfo]) -> zipfile.ZipInfo | None:
@@ -460,3 +529,102 @@ class LocalPluginManager:
             path = Path(item.filename.strip("/"))
             if item.filename.startswith("/") or ".." in path.parts:
                 raise ValueError(f"unsafe zip path: {item.filename}")
+
+    def _parse_topics(self, raw_items: Any) -> list[TopicDeclaration]:
+        items: list[TopicDeclaration] = []
+        if not isinstance(raw_items, list):
+            return items
+        for raw in raw_items:
+            if isinstance(raw, str):
+                topic = raw.strip()
+                if topic:
+                    items.append(TopicDeclaration(topic=topic, label=topic, schema=""))
+                continue
+            if not isinstance(raw, dict):
+                continue
+            topic = str(raw.get("topic", "")).strip()
+            if not topic:
+                continue
+            label = str(raw.get("label", "")).strip() or topic
+            schema = str(raw.get("schema", "")).strip()
+            items.append(TopicDeclaration(topic=topic, label=label, schema=schema))
+        return items
+
+    def _validate_topics(self, plugin_id: str, items: list[TopicDeclaration], *, require_prefix: bool = True) -> None:
+        seen: set[str] = set()
+        for item in items:
+            if not item.topic:
+                raise ValueError("topic must not be empty")
+            if item.topic in seen:
+                raise ValueError(f"duplicate topic declaration: {item.topic}")
+            seen.add(item.topic)
+            if require_prefix and not item.topic.startswith(f"{plugin_id}."):
+                raise ValueError(f"publish topic must start with '{plugin_id}.': {item.topic}")
+
+    def _topic_dict(self, item: TopicDeclaration) -> dict[str, str]:
+        return {
+            "topic": item.topic,
+            "label": item.label or item.topic,
+            "schema": item.schema,
+        }
+
+    def _pubsub_payload(self, record: LocalPluginRecord) -> dict[str, Any]:
+        config = self._load_plugin_config(record)
+        raw = config.get("pubsub", {})
+        if not isinstance(raw, dict):
+            raw = {}
+        normalized = self._normalize_pubsub(record, raw, strict=False)
+        return normalized
+
+    def _normalize_pubsub(
+        self,
+        record: LocalPluginRecord,
+        raw: dict[str, Any],
+        *,
+        strict: bool = True,
+    ) -> dict[str, Any]:
+        publishes = {item.topic for item in record.manifest.publishes}
+        publish_enabled = bool(raw.get("publish_enabled", False))
+        enabled_topics: list[str] = []
+        for item in raw.get("enabled_topics", []):
+            topic = str(item).strip()
+            if not topic:
+                continue
+            if topic not in publishes:
+                if strict:
+                    raise ValueError(f"unknown publish topic for {record.manifest.id}: {topic}")
+                continue
+            enabled_topics.append(topic)
+
+        subscriptions: list[dict[str, str]] = []
+        for item in raw.get("subscriptions", []):
+            if not isinstance(item, dict):
+                continue
+            plugin_id = str(item.get("plugin_id", "")).strip()
+            topic = str(item.get("topic", "")).strip()
+            if not plugin_id or not topic:
+                continue
+            subscriptions.append({"plugin_id": plugin_id, "topic": topic})
+
+        return {
+            "publish_enabled": publish_enabled,
+            "enabled_topics": enabled_topics,
+            "subscriptions": subscriptions,
+        }
+
+    def _publisher_payload(self, record: LocalPluginRecord) -> dict[str, Any]:
+        pubsub = self._pubsub_payload(record)
+        return {
+            "plugin_id": record.manifest.id,
+            "name": record.manifest.name,
+            "category": record.category,
+            "enabled": record.enabled,
+            "publish_enabled": pubsub.get("publish_enabled", False),
+            "topics": [
+                {
+                    **self._topic_dict(item),
+                    "enabled": item.topic in set(pubsub.get("enabled_topics", [])),
+                }
+                for item in record.manifest.publishes
+            ],
+        }

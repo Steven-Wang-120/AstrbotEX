@@ -6,6 +6,7 @@ from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.models import Goal, RuntimeState, WorldState
 from astrbot_ex.core.plugin_registry import PluginRegistry
 from astrbot_ex.core.safety import SafetyGuard
+from astrbot_ex.core.topic_bus import TopicBus
 from astrbot_ex.core.world_builder import WorldBuilder
 from astrbot_ex.interfaces.motion import MotionBridge
 from astrbot_ex.interfaces.policy import PolicyPlugin
@@ -26,10 +27,12 @@ class AstrBotEXRuntime:
         registry: PluginRegistry,
         event_bus: EventBus | None = None,
         safety: SafetyGuard | None = None,
+        topic_bus: TopicBus | None = None,
     ) -> None:
         self.registry = registry
         self.event_bus = event_bus or EventBus()
         self.safety = safety or SafetyGuard()
+        self.topic_bus = topic_bus or TopicBus()
         self.world_builder = WorldBuilder()
         self.state = RuntimeState.IDLE
         self.world = WorldState()

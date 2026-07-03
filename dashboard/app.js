@@ -1,24 +1,23 @@
 const API_BASE = window.ASTRBOTEX_API_BASE || "http://127.0.0.1:8765";
 const MAX_TRACE_EVENTS = 200;
-const PLUGIN_CATEGORIES = ["vision", "control", "decision", "special"];
+const PLUGIN_CATEGORIES = ["vision", "perception", "control", "decision", "special"];
 
 const CATEGORY_LABELS = {
   vision: "视觉",
+  perception: "感知",
   control: "控制",
   decision: "决策",
-  special: "特种",
+  special: "特殊",
 };
 
 const state = {
   events: [],
   eventSource: null,
   plugins: [],
-  selectedPluginIds: {
-    vision: null,
-    control: null,
-    decision: null,
-    special: null,
-  },
+  publishers: [],
+  activePage: "core",
+  activePluginId: null,
+  activePluginCategory: null,
   activeUploadCategory: null,
   toastTimer: null,
   logAutoscroll: true,
@@ -49,9 +48,8 @@ async function runAction(button, pendingLabel, action) {
   button.textContent = pendingLabel;
   try {
     await action();
-    showToast(`${originalText}完成`);
   } catch (error) {
-    showToast(`${originalText}失败：${error.message}`, "error");
+    showToast(error.message, "error");
   } finally {
     button.disabled = false;
     button.classList.remove("busy");
@@ -91,17 +89,22 @@ async function apiJson(path, options = {}) {
     headers: { "Content-Type": "application/json" },
     ...options,
   });
-  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-  return response.json();
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.error || `${response.status} ${response.statusText}`);
+  }
+  return data;
 }
 
 function switchPage(page) {
+  state.activePage = page;
   document.querySelectorAll(".page").forEach((el) => el.classList.toggle("active", el.id === `page-${page}`));
   document.querySelectorAll(".nav-item[data-page]").forEach((el) => {
     el.classList.toggle("active", el.dataset.page === page);
   });
   if (PLUGIN_CATEGORIES.includes(page)) refreshPlugins();
   if (page === "logs") renderEvents();
+  if (page === "plugin") renderPluginDashboard();
 }
 
 async function refreshStatus() {
@@ -110,7 +113,7 @@ async function refreshStatus() {
     renderStatus(status);
     setConnection(true, "API 已连接");
   } catch (error) {
-    setConnection(false, `API 连接失败：${error.message}`);
+    setConnection(false, `API 连接失败: ${error.message}`);
   }
 }
 
@@ -197,6 +200,7 @@ function connectEvents() {
 
 function setConnection(ok, label) {
   const pill = $("connectionPill");
+  if (!pill) return;
   pill.classList.toggle("offline", !ok);
   pill.lastChild.textContent = label;
 }
@@ -211,7 +215,7 @@ function setEventConnection(ok, label) {
 
 function toggleLogAutoscroll() {
   state.logAutoscroll = !state.logAutoscroll;
-  setText("logAutoscrollButton", `自动滚动：${state.logAutoscroll ? "开" : "关"}`);
+  setText("logAutoscrollButton", `自动滚动: ${state.logAutoscroll ? "开" : "关"}`);
   if (state.logAutoscroll) {
     const consoleEl = $("logConsole");
     if (consoleEl) consoleEl.scrollTop = consoleEl.scrollHeight;
@@ -226,6 +230,7 @@ function clearLogs() {
 async function startRuntime() {
   await apiJson("/api/runtime/start", { method: "POST", body: "{}" });
   await refreshStatus();
+  showToast("运行时已启动");
 }
 
 async function stopRuntime() {
@@ -234,22 +239,51 @@ async function stopRuntime() {
     body: JSON.stringify({ reason: "stopped from dashboard" }),
   });
   await refreshStatus();
+  showToast("运行时已停止");
 }
 
 function pluginsByCategory(category) {
   return state.plugins.filter((plugin) => (plugin.category || "special") === category);
 }
 
+function currentPlugin() {
+  return state.plugins.find((plugin) => plugin.id === state.activePluginId) || null;
+}
+
+function currentPublishers() {
+  return state.publishers.filter((item) => item.plugin_id !== state.activePluginId);
+}
+
+async function fetchPluginDetail(pluginId) {
+  const data = await apiJson(`/api/v1/ex/plugins/${encodeURIComponent(pluginId)}`);
+  const detailed = data.plugin;
+  state.plugins = state.plugins.map((plugin) => (plugin.id === detailed.id ? detailed : plugin));
+  return detailed;
+}
+
+async function refreshPublishers() {
+  const data = await apiJson("/api/v1/ex/pubsub/publishers");
+  state.publishers = data.publishers || [];
+}
+
 async function refreshPlugins() {
   const data = await apiJson("/api/v1/ex/plugins");
   state.plugins = data.plugins || [];
-  for (const category of PLUGIN_CATEGORIES) {
-    const plugins = pluginsByCategory(category);
-    if (!plugins.find((plugin) => plugin.id === state.selectedPluginIds[category])) {
-      state.selectedPluginIds[category] = plugins.length > 0 ? plugins[0].id : null;
+  await refreshPublishers();
+  renderAllPluginCategories();
+  if (state.activePluginId) {
+    const matched = currentPlugin();
+    if (!matched) {
+      state.activePluginId = null;
+      state.activePluginCategory = null;
+      if (state.activePage === "plugin") switchPage("vision");
+    } else {
+      if (!matched.config_schema) {
+        await fetchPluginDetail(matched.id);
+      }
+      renderPluginDashboard();
     }
   }
-  renderAllPluginCategories();
 }
 
 function renderAllPluginCategories() {
@@ -268,15 +302,14 @@ function renderPluginCategory(category) {
     empty.className = "plugin-empty";
     empty.textContent = `还没有安装${CATEGORY_LABELS[category]}插件`;
     grid.appendChild(empty);
-    renderPluginDetail(category, null);
     return;
   }
+
   plugins.forEach((plugin) => {
     const card = document.createElement("article");
-    card.className = `plugin-card ${plugin.id === state.selectedPluginIds[category] ? "selected" : ""}`;
+    card.className = "plugin-card";
     card.addEventListener("click", () => {
-      state.selectedPluginIds[category] = plugin.id;
-      renderPluginCategory(category);
+      openPluginDashboard(plugin).catch((error) => showToast(error.message, "error"));
     });
 
     const cover = document.createElement("div");
@@ -305,36 +338,319 @@ function renderPluginCategory(category) {
     body.className = "plugin-card-body";
     body.innerHTML = `
       <h2>${escapeHtml(plugin.name)}</h2>
-      <p>${escapeHtml(plugin.description || "无描述")}</p>
+      <p>${escapeHtml(plugin.description || "暂无说明")}</p>
       <div class="plugin-badges">${(plugin.provides || []).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
       <small>${escapeHtml(plugin.status)} · ${escapeHtml(plugin.version || "--")}</small>
     `;
+
     card.appendChild(cover);
     card.appendChild(body);
     grid.appendChild(card);
   });
-  const selected = plugins.find((plugin) => plugin.id === state.selectedPluginIds[category]) || plugins[0];
-  renderPluginDetail(category, selected);
 }
 
-function renderPluginDetail(category, plugin) {
-  $(`${category}DetailEmpty`).hidden = Boolean(plugin);
-  $(`${category}DetailBody`).hidden = !plugin;
+async function openPluginDashboard(plugin) {
+  state.activePluginId = plugin.id;
+  state.activePluginCategory = plugin.category || "special";
+  if (!plugin.config_schema) {
+    await fetchPluginDetail(plugin.id);
+  }
+  await refreshPublishers();
+  renderPluginDashboard();
+  switchPage("plugin");
+}
+
+function renderPluginDashboard() {
+  const plugin = currentPlugin();
+  const empty = $("pluginDashboardEmpty");
+  const body = $("pluginDashboardBody");
   if (!plugin) {
-    setText(`${category}DetailStatus`, "--");
+    empty.hidden = false;
+    body.hidden = true;
+    setText("pluginDashboardTitle", "插件控制台");
+    setText("pluginDashboardSubtitle", "选择一个插件进入");
     return;
   }
-  setText(`${category}DetailStatus`, plugin.enabled ? "已启用" : plugin.status);
-  setText(`${category}DetailName`, plugin.name || "--");
-  setText(`${category}DetailDescription`, plugin.description || "无描述");
-  setText(`${category}DetailId`, plugin.id || "--");
-  setText(`${category}DetailVersion`, plugin.version || "--");
-  setText(`${category}DetailAuthor`, plugin.author || "--");
-  setText(`${category}DetailState`, plugin.error ? `${plugin.status}: ${plugin.error}` : plugin.status);
-  setText(
-    `${category}SchemaPreview`,
-    JSON.stringify(plugin.config_schema || { category: plugin.category, provides: plugin.provides, requires: plugin.requires }, null, 2),
-  );
+
+  empty.hidden = true;
+  body.hidden = false;
+  setText("pluginDashboardTitle", plugin.name || plugin.id);
+  setText("pluginDashboardSubtitle", `${CATEGORY_LABELS[plugin.category] || "特殊"}插件`);
+  setText("pluginDashboardName", plugin.name || "--");
+  setText("pluginDashboardDescription", plugin.description || "暂无说明");
+  setText("pluginDashboardId", plugin.id || "--");
+  setText("pluginDashboardVersion", plugin.version || "--");
+  setText("pluginDashboardAuthor", plugin.author || "--");
+  setText("pluginDashboardState", plugin.error ? `${plugin.status}: ${plugin.error}` : plugin.status);
+  setText("pluginDashboardPath", plugin.path || "--");
+  setText("pluginDashboardProvides", (plugin.provides || []).join(", ") || "--");
+  $("pluginEnabledSwitch").checked = Boolean(plugin.enabled);
+
+  const cover = $("pluginDashboardCover");
+  cover.innerHTML = "";
+  if (plugin.cover_url) {
+    const image = document.createElement("img");
+    image.src = `${API_BASE}${plugin.cover_url}`;
+    image.alt = plugin.name;
+    cover.appendChild(image);
+  } else {
+    cover.innerHTML = `<span>${escapeHtml((plugin.name || plugin.id).slice(0, 2).toUpperCase())}</span>`;
+  }
+
+  renderPluginConfigForm(plugin);
+  renderPluginPubSub(plugin);
+}
+
+function normalizeSchemaField(key, schema) {
+  const fallbackType = typeof schema.default === "boolean"
+    ? "boolean"
+    : typeof schema.default === "number"
+      ? (Number.isInteger(schema.default) ? "integer" : "number")
+      : "string";
+  return {
+    key,
+    type: schema.type || (Array.isArray(schema.enum) ? "string" : fallbackType),
+    title: schema.title || key,
+    required: false,
+    enum: Array.isArray(schema.enum) ? schema.enum : null,
+    defaultValue: schema.default,
+    minimum: schema.minimum,
+    maximum: schema.maximum,
+    description: schema.description || "",
+  };
+}
+
+function renderPluginConfigForm(plugin) {
+  const container = $("pluginConfigFields");
+  container.innerHTML = "";
+  const schema = plugin.config_schema || {};
+  const properties = schema.properties || {};
+  const required = Array.isArray(schema.required) ? schema.required : [];
+  const config = plugin.config || {};
+
+  const entries = Object.entries(properties);
+  if (entries.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "plugin-empty compact";
+    empty.textContent = "这个插件没有声明配置项";
+    container.appendChild(empty);
+    return;
+  }
+
+  entries.forEach(([key, rawSchema]) => {
+    const field = normalizeSchemaField(key, rawSchema || {});
+    field.required = required.includes(key);
+    const value = Object.prototype.hasOwnProperty.call(config, key) ? config[key] : field.defaultValue;
+
+    const row = document.createElement("label");
+    row.className = "config-field";
+    row.setAttribute("for", `config-${field.key}`);
+
+    const head = document.createElement("div");
+    head.className = "config-field-head";
+    head.innerHTML = `
+      <span>${escapeHtml(field.title)}</span>
+      ${field.required ? '<b class="required-mark">必填</b>' : ""}
+    `;
+    row.appendChild(head);
+
+    let input;
+    if (field.enum) {
+      input = document.createElement("select");
+      field.enum.forEach((optionValue) => {
+        const option = document.createElement("option");
+        option.value = String(optionValue);
+        option.textContent = String(optionValue);
+        if (String(value) === String(optionValue)) option.selected = true;
+        input.appendChild(option);
+      });
+    } else if (field.type === "boolean") {
+      input = document.createElement("select");
+      [["true", "是"], ["false", "否"]].forEach(([optionValue, label]) => {
+        const option = document.createElement("option");
+        option.value = optionValue;
+        option.textContent = label;
+        if (String(Boolean(value)) === optionValue) option.selected = true;
+        input.appendChild(option);
+      });
+    } else if (field.type === "integer" || field.type === "number") {
+      input = document.createElement("input");
+      input.type = "number";
+      if (isPresent(field.minimum)) input.min = String(field.minimum);
+      if (isPresent(field.maximum)) input.max = String(field.maximum);
+      if (isPresent(value)) input.value = String(value);
+    } else {
+      input = document.createElement("input");
+      input.type = "text";
+      if (isPresent(value)) input.value = String(value);
+    }
+
+    input.id = `config-${field.key}`;
+    input.dataset.configKey = field.key;
+    input.dataset.configType = field.type;
+    if (field.required) input.dataset.required = "true";
+    input.className = "config-input";
+    row.appendChild(input);
+
+    if (field.description) {
+      const note = document.createElement("small");
+      note.className = "config-note";
+      note.textContent = field.description;
+      row.appendChild(note);
+    }
+
+    container.appendChild(row);
+  });
+}
+
+function renderPluginPubSub(plugin) {
+  const publishes = Array.isArray(plugin.publishes) ? plugin.publishes : [];
+  const pubsub = plugin.pubsub || { publish_enabled: false, enabled_topics: [], subscriptions: [] };
+  const enabledTopics = new Set(pubsub.enabled_topics || []);
+
+  const publishMaster = $("pluginPublishEnabled");
+  if (publishMaster) publishMaster.checked = Boolean(pubsub.publish_enabled);
+
+  const publishList = $("pluginPublishList");
+  publishList.innerHTML = "";
+  if (publishes.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "plugin-empty compact";
+    empty.textContent = "这个插件没有声明可发布 topic";
+    publishList.appendChild(empty);
+  } else {
+    publishes.forEach((item) => {
+      const row = document.createElement("label");
+      row.className = "pubsub-topic-row";
+      row.innerHTML = `
+        <span class="pubsub-topic-main">
+          <b>${escapeHtml(item.label || item.topic)}</b>
+          <small>${escapeHtml(item.topic)}${item.schema ? ` · ${escapeHtml(item.schema)}` : ""}</small>
+        </span>
+      `;
+      const toggle = document.createElement("input");
+      toggle.type = "checkbox";
+      toggle.dataset.publishTopic = item.topic;
+      toggle.checked = enabledTopics.has(item.topic);
+      row.appendChild(toggle);
+      publishList.appendChild(row);
+    });
+  }
+
+  renderPublisherSelect(plugin);
+  renderSubscriptionList(plugin);
+}
+
+function renderPublisherSelect(plugin) {
+  const select = $("subscriptionPublisherSelect");
+  select.innerHTML = '<option value="">先选择来源插件</option>';
+  currentPublishers().forEach((publisher) => {
+    const option = document.createElement("option");
+    option.value = publisher.plugin_id;
+    const stateLabel = publisher.publish_enabled ? "已启用发布" : "已声明未启用";
+    option.textContent = `${publisher.name} (${publisher.plugin_id}) · ${stateLabel}`;
+    select.appendChild(option);
+  });
+  renderPublisherTopicOptions(select.value, plugin);
+}
+
+function renderPublisherTopicOptions(publisherId, plugin) {
+  const select = $("subscriptionTopicSelect");
+  select.innerHTML = '<option value="">再选择 topic</option>';
+  const publisher = state.publishers.find((item) => item.plugin_id === publisherId);
+  if (!publisher) return;
+
+  const allowedSchemas = new Set((plugin.subscribes || []).map((item) => item.schema).filter(Boolean));
+  const allowedTopics = plugin.subscribes || [];
+  const hasDeclaredSubscriptions = allowedTopics.length > 0;
+
+  publisher.topics.forEach((item) => {
+    const schemaAllowed = allowedSchemas.size === 0 || !item.schema || allowedSchemas.has(item.schema);
+    const topicAllowed = !hasDeclaredSubscriptions || allowedTopics.some((declared) => declared.schema === item.schema || declared.topic === item.topic);
+    if (!schemaAllowed || !topicAllowed) return;
+    const option = document.createElement("option");
+    option.value = item.topic;
+    option.textContent = `${item.label || item.topic} (${item.topic})${item.enabled ? "" : " · 未启用发布"}`;
+    option.dataset.label = item.label || item.topic;
+    select.appendChild(option);
+  });
+}
+
+function renderSubscriptionList(plugin) {
+  const list = $("pluginSubscriptionList");
+  list.innerHTML = "";
+  const pubsub = plugin.pubsub || { subscriptions: [] };
+  const subscriptions = Array.isArray(pubsub.subscriptions) ? pubsub.subscriptions : [];
+  if (subscriptions.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "plugin-empty compact";
+    empty.textContent = "当前没有订阅任何 topic";
+    list.appendChild(empty);
+    return;
+  }
+
+  subscriptions.forEach((item, index) => {
+    const publisher = state.publishers.find((entry) => entry.plugin_id === item.plugin_id);
+    const topic = publisher?.topics?.find((entry) => entry.topic === item.topic);
+    const row = document.createElement("div");
+    row.className = "subscription-item";
+    row.innerHTML = `
+      <div>
+        <b>${escapeHtml(topic?.label || item.topic)}</b>
+        <small>${escapeHtml(item.plugin_id)} · ${escapeHtml(item.topic)}</small>
+      </div>
+    `;
+    const remove = document.createElement("button");
+    remove.className = "secondary";
+    remove.textContent = "移除";
+    remove.addEventListener("click", () => removeSubscription(index));
+    row.appendChild(remove);
+    list.appendChild(row);
+  });
+}
+
+function currentPubsubDraft(plugin) {
+  const current = plugin.pubsub || { publish_enabled: false, enabled_topics: [], subscriptions: [] };
+  return {
+    publish_enabled: Boolean(current.publish_enabled),
+    enabled_topics: [...(current.enabled_topics || [])],
+    subscriptions: [...(current.subscriptions || [])],
+  };
+}
+
+function collectPluginConfig() {
+  const payload = {};
+  const missing = [];
+  document.querySelectorAll("[data-config-key]").forEach((input) => {
+    const key = input.dataset.configKey;
+    const type = input.dataset.configType;
+    const required = input.dataset.required === "true";
+    let value = input.value;
+
+    if (required && !String(value).trim()) {
+      missing.push(key);
+      return;
+    }
+    if (!String(value).trim() && !required) {
+      payload[key] = "";
+      return;
+    }
+    if (type === "boolean") value = value === "true";
+    if (type === "integer") value = Number.parseInt(value, 10);
+    if (type === "number") value = Number(value);
+    payload[key] = value;
+  });
+  if (missing.length > 0) {
+    throw new Error(`缺少必填项: ${missing.join(", ")}`);
+  }
+  return payload;
+}
+
+function collectPubsubConfig(plugin) {
+  const payload = currentPubsubDraft(plugin);
+  payload.publish_enabled = Boolean($("pluginPublishEnabled").checked);
+  payload.enabled_topics = Array.from(document.querySelectorAll("[data-publish-topic]:checked")).map((input) => input.dataset.publishTopic);
+  return payload;
 }
 
 async function setPluginEnabled(pluginId, enabled) {
@@ -345,8 +661,84 @@ async function setPluginEnabled(pluginId, enabled) {
   });
   const updated = result.plugin;
   state.plugins = state.plugins.map((plugin) => (plugin.id === updated.id ? updated : plugin));
-  showToast(`${updated.name} ${enabled ? "已启用" : "已停用"}`);
+  if (state.activePluginId === updated.id) {
+    state.activePluginId = updated.id;
+  }
   renderAllPluginCategories();
+  renderPluginDashboard();
+  await refreshStatus();
+  showToast(`${updated.name}已${enabled ? "启用" : "停用"}`);
+}
+
+async function savePluginConfig() {
+  const plugin = currentPlugin();
+  if (!plugin) return;
+  const payload = collectPluginConfig();
+  const result = await apiJson(`/api/v1/ex/plugins/${encodeURIComponent(plugin.id)}/config`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  const updated = result.plugin;
+  state.plugins = state.plugins.map((item) => (item.id === updated.id ? updated : item));
+  renderPluginDashboard();
+  showToast("配置已保存");
+}
+
+async function savePluginPubsub() {
+  const plugin = currentPlugin();
+  if (!plugin) return;
+  const payload = collectPubsubConfig(plugin);
+  const result = await apiJson(`/api/v1/ex/plugins/${encodeURIComponent(plugin.id)}/pubsub`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  const updated = result.plugin;
+  state.plugins = state.plugins.map((item) => (item.id === updated.id ? updated : item));
+  await refreshPublishers();
+  renderPluginDashboard();
+  showToast("发布 / 订阅配置已保存");
+}
+
+function addSubscription() {
+  const plugin = currentPlugin();
+  if (!plugin) return;
+  const publisherId = $("subscriptionPublisherSelect").value;
+  const topic = $("subscriptionTopicSelect").value;
+  if (!publisherId || !topic) {
+    showToast("请先选择来源插件和 topic", "error");
+    return;
+  }
+  const pubsub = currentPubsubDraft(plugin);
+  const exists = pubsub.subscriptions.some((item) => item.plugin_id === publisherId && item.topic === topic);
+  if (exists) {
+    showToast("这个订阅已经存在", "error");
+    return;
+  }
+  pubsub.subscriptions.push({ plugin_id: publisherId, topic });
+  plugin.pubsub = pubsub;
+  renderSubscriptionList(plugin);
+}
+
+function removeSubscription(index) {
+  const plugin = currentPlugin();
+  if (!plugin) return;
+  const pubsub = currentPubsubDraft(plugin);
+  pubsub.subscriptions.splice(index, 1);
+  plugin.pubsub = pubsub;
+  renderSubscriptionList(plugin);
+}
+
+async function uninstallActivePlugin() {
+  const plugin = currentPlugin();
+  if (!plugin) return;
+  if (!window.confirm(`确认卸载插件“${plugin.name}”吗？`)) return;
+  await apiJson(`/api/v1/ex/plugins/${encodeURIComponent(plugin.id)}`, { method: "DELETE" });
+  showToast(`已卸载${plugin.name}`);
+  const category = plugin.category || "special";
+  state.activePluginId = null;
+  state.activePluginCategory = null;
+  await refreshPlugins();
+  switchPage(category);
   await refreshStatus();
 }
 
@@ -358,12 +750,14 @@ async function uploadPluginZip(file, category) {
     method: "POST",
     body: form,
   });
-  const data = await response.json();
+  const data = await response.json().catch(() => ({}));
   if (!response.ok || data.ok === false) {
     throw new Error(data.error || `${response.status} ${response.statusText}`);
   }
-  state.selectedPluginIds[category] = data.plugin.id;
   await refreshPlugins();
+  const plugin = state.plugins.find((item) => item.id === data.plugin.id) || data.plugin;
+  await openPluginDashboard(plugin);
+  showToast(`已安装${plugin.name}`);
 }
 
 function bindActions() {
@@ -391,6 +785,22 @@ function bindActions() {
     runAction(button, "+", () => uploadPluginZip(file, state.activeUploadCategory));
     event.currentTarget.value = "";
   });
+
+  $("pluginBackButton").addEventListener("click", () => switchPage(state.activePluginCategory || "vision"));
+  $("pluginEnabledSwitch").addEventListener("change", (event) => {
+    const plugin = currentPlugin();
+    if (!plugin) return;
+    setPluginEnabled(plugin.id, event.currentTarget.checked);
+  });
+  $("pluginSaveButton").addEventListener("click", (event) => runAction(event.currentTarget, "保存中", savePluginConfig));
+  $("pluginPubsubSaveButton").addEventListener("click", (event) => runAction(event.currentTarget, "保存中", savePluginPubsub));
+  $("pluginUninstallButton").addEventListener("click", (event) => runAction(event.currentTarget, "卸载中", uninstallActivePlugin));
+  $("subscriptionPublisherSelect").addEventListener("change", (event) => {
+    const plugin = currentPlugin();
+    if (!plugin) return;
+    renderPublisherTopicOptions(event.currentTarget.value, plugin);
+  });
+  $("subscriptionAddButton").addEventListener("click", addSubscription);
 
   $("logAutoscrollButton").addEventListener("click", toggleLogAutoscroll);
   $("logClearButton").addEventListener("click", clearLogs);
