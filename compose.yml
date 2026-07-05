@@ -1,0 +1,64 @@
+services:
+  astrbotex:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${ASTRBOTEX_IMAGE:-astrbotex:local}
+    container_name: ${ASTRBOTEX_CONTAINER_NAME:-astrbotex}
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - ASTRBOTEX_HOST=0.0.0.0
+      - ASTRBOTEX_PORT=8765
+      - ASTRBOTEX_TICK_HZ=${ASTRBOTEX_TICK_HZ:-5}
+      - ASTRBOTEX_DATA_DIR=/app/data
+    ports:
+      - "${ASTRBOTEX_PORT:-8765}:8765"
+    volumes:
+      - ./deploy/astrbotex/data:/app/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    networks:
+      - robot_ai
+
+  astrbot:
+    image: ${ASTRBOT_IMAGE:-soulter/astrbot:latest}
+    container_name: ${ASTRBOT_CONTAINER_NAME:-astrbot}
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - ASTRBOTEX_BASE_URL=${ASTRBOTEX_BASE_URL:-http://astrbotex:8765}
+    ports:
+      - "${ASTRBOT_WEB_PORT:-6185}:6185"
+      - "${ASTRBOT_PLATFORM_PORT:-6199}:6199"
+    volumes:
+      - ./deploy/astrbot/data:/AstrBot/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    depends_on:
+      - astrbotex
+      - napcat
+    networks:
+      - robot_ai
+
+  napcat:
+    image: ${NAPCAT_IMAGE:-mlikiowa/napcat-docker:latest}
+    container_name: ${NAPCAT_CONTAINER_NAME:-napcat}
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - MODE=astrbot
+      - NAPCAT_UID=${NAPCAT_UID:-1000}
+      - NAPCAT_GID=${NAPCAT_GID:-1000}
+    ports:
+      - "${NAPCAT_PORT:-6099}:6099"
+    volumes:
+      - ./deploy/astrbot/data:/AstrBot/data
+      - ./deploy/napcat/config:/app/napcat/config
+      - ./deploy/napcat/ntqq:/app/.config/QQ
+    networks:
+      - robot_ai
+
+networks:
+  robot_ai:
+    driver: bridge

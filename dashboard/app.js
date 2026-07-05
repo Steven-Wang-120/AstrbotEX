@@ -15,6 +15,7 @@ const state = {
   eventSource: null,
   plugins: [],
   publishers: [],
+  runtimeState: "idle",
   activePage: "core",
   activePluginId: null,
   activePluginCategory: null,
@@ -107,13 +108,19 @@ function switchPage(page) {
   if (page === "plugin") renderPluginDashboard();
 }
 
-async function refreshStatus() {
+async function refreshStatus(options = {}) {
+  const { suppressToast = false } = options;
   try {
     const status = await apiJson("/api/status");
     renderStatus(status);
     setConnection(true, "API 已连接");
+    return status;
   } catch (error) {
     setConnection(false, `API 连接失败: ${error.message}`);
+    if (!suppressToast) {
+      throw error;
+    }
+    return null;
   }
 }
 
@@ -122,6 +129,7 @@ function renderStatus(status) {
   const robot = world.robot || {};
   const entities = world.entities || [];
   const zones = world.zones || [];
+  state.runtimeState = String(status.runtime_state || "idle").toLowerCase();
 
   setText("runtimeState", String(status.runtime_state || "--").toUpperCase());
   setText("runtimeDetail", `目标频率 ${formatValue(status.tick_hz)} Hz`);
@@ -137,10 +145,40 @@ function renderStatus(status) {
   setText("estopState", robot.estop ? "触发" : "--");
   setText("robotPose", formatPose(robot.pose));
   setText("goalPreview", `active_goal: ${JSON.stringify(status.active_goal, null, 2)}`);
+  renderRuntimeToggleButton();
 
   if (Array.isArray(status.recent_events) && state.events.length === 0) {
     status.recent_events.forEach(pushEvent);
   }
+}
+
+function renderRuntimeToggleButton(pending = "") {
+  const button = $("runtimeToggleButton");
+  if (!button) return;
+  button.classList.remove("primary", "danger", "secondary");
+  button.disabled = false;
+
+  if (pending === "starting") {
+    button.classList.add("primary", "busy");
+    button.textContent = "启动中";
+    button.disabled = true;
+    return;
+  }
+  if (pending === "stopping") {
+    button.classList.add("danger", "busy");
+    button.textContent = "停止中";
+    button.disabled = true;
+    return;
+  }
+
+  button.classList.remove("busy");
+  if (state.runtimeState === "running") {
+    button.classList.add("primary");
+    button.textContent = "运行中";
+    return;
+  }
+  button.classList.add("danger");
+  button.textContent = "已停止";
 }
 
 function eventLevel(event) {
@@ -228,18 +266,52 @@ function clearLogs() {
 }
 
 async function startRuntime() {
-  await apiJson("/api/runtime/start", { method: "POST", body: "{}" });
-  await refreshStatus();
+  renderRuntimeToggleButton("starting");
+  const result = await apiJson("/api/runtime/start", { method: "POST", body: "{}" });
+  state.runtimeState = String(result.state || "running").toLowerCase();
+  renderRuntimeToggleButton();
+  await refreshStatus({ suppressToast: true });
   showToast("运行时已启动");
 }
 
 async function stopRuntime() {
-  await apiJson("/api/runtime/stop", {
+  renderRuntimeToggleButton("stopping");
+  const result = await apiJson("/api/runtime/stop", {
     method: "POST",
     body: JSON.stringify({ reason: "stopped from dashboard" }),
   });
-  await refreshStatus();
+  state.runtimeState = String(result.state || "idle").toLowerCase();
+  renderRuntimeToggleButton();
+  await refreshStatus({ suppressToast: true });
   showToast("运行时已停止");
+}
+
+async function toggleRuntime() {
+  if (state.runtimeState === "running") {
+    await stopRuntime();
+    return;
+  }
+  await startRuntime();
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+async function handleRuntimeToggleClick() {
+  const targetState = state.runtimeState === "running" ? "idle" : "running";
+  try {
+    await toggleRuntime();
+  } catch (error) {
+    await sleep(500);
+    const status = await refreshStatus({ suppressToast: true });
+    const actualState = String(status?.runtime_state || state.runtimeState || "idle").toLowerCase();
+    if (actualState === targetState) {
+      renderRuntimeToggleButton();
+      return;
+    }
+    showToast(targetState === "running" ? "启动状态机失败" : "停止状态机失败", "error");
+  }
 }
 
 function pluginsByCategory(category) {
@@ -765,9 +837,10 @@ function bindActions() {
   document.querySelectorAll(".nav-item[data-page]").forEach((button) => {
     button.addEventListener("click", () => switchPage(button.dataset.page));
   });
-  $("refreshButton").addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", refreshStatus));
-  $("startButton").addEventListener("click", (event) => runAction(event.currentTarget, "启动中", startRuntime));
-  $("stopButton").addEventListener("click", (event) => runAction(event.currentTarget, "停止中", stopRuntime));
+  $("refreshButton").addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", () => refreshStatus()));
+  $("runtimeToggleButton").addEventListener("click", () => {
+    handleRuntimeToggleClick().catch(() => showToast("状态机切换失败", "error"));
+  });
 
   document.querySelectorAll("[data-plugin-refresh]").forEach((button) => {
     button.addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", refreshPlugins));
@@ -808,7 +881,10 @@ function bindActions() {
 
 bindActions();
 renderEvents();
+renderRuntimeToggleButton();
 refreshStatus();
 refreshPlugins();
 connectEvents();
-setInterval(refreshStatus, 2000);
+setInterval(() => {
+  refreshStatus({ suppressToast: true }).catch(() => {});
+}, 2000);

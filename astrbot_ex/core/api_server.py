@@ -552,11 +552,13 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
     server = AstrBotEXHTTPServer((host, port), AstrBotEXRequestHandler)
     server.controller = controller
     project_root = Path(__file__).resolve().parents[2]
+    data_dir = os.environ.get("ASTRBOTEX_DATA_DIR")
+    data_root = Path(data_dir).resolve() if data_dir else project_root
     server.static_root = (project_root / "dashboard").resolve()
-    server.vision_sources = VisionSourceManager(project_root / "profiles" / "default" / "vision_sources.json")
+    server.vision_sources = VisionSourceManager(data_root / "profiles" / "default" / "vision_sources.json")
     server.local_plugins = LocalPluginManager(
-        plugins_root=project_root / "plugins",
-        state_path=project_root / "profiles" / "default" / "plugins_state.json",
+        plugins_root=data_root / "plugins",
+        state_path=data_root / "profiles" / "default" / "plugins_state.json",
         registry=runtime.registry,
         event_bus=runtime.event_bus,
         topic_bus=runtime.topic_bus,

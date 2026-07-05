@@ -76,8 +76,9 @@ vision_provider
 
 实际行为特点：
 
-- `start()` 启动时必须同时存在 `vision` 插件和 `motion` 插件
-- 缺少任一必需插件时，runtime 不进入 `RUNNING`
+- `start()` 负责启动本地运行循环，不把真实硬件链路作为启动前置条件
+- 缺少 `vision` 插件时，`tick()` 会记录 `vision provider unavailable`，并生成空视觉结果
+- 缺少 `motion` 插件时，`tick()` 会记录 `motion bridge unavailable`，并生成 `link_ok=false` 的机器人状态
 - `tick()` 会拉取视觉结果与机器人状态，更新世界模型
 - `rule` 可以对世界状态或意图进行拦截
 - `policy` 负责选目标
@@ -102,7 +103,7 @@ ApproachEntitySkill
 
 - 默认 runtime 已不再自动注册完整 mock 闭环
 - runtime 不会再自动刷 mock 视觉 / mock 技能日志
-- 缺少真实 vision 或 motion 插件时会阻塞启动
+- 缺少真实 vision 或 motion 插件时不会阻塞 API 层启动；运行循环会用缺失状态事件暴露链路问题
 
 这说明项目方向已经从“演示原型”切到“真实插件接入”。
 
@@ -207,7 +208,30 @@ python -m astrbot_ex.core.api_server --host 0.0.0.0 --port 8765 --tick-hz 5
 ASTRBOTEX_HOST=0.0.0.0
 ASTRBOTEX_PORT=8765
 ASTRBOTEX_TICK_HZ=5
+ASTRBOTEX_DATA_DIR=/app/data
 ```
+
+`ASTRBOTEX_DATA_DIR` 是可选项。未设置时继续使用项目根目录下的：
+
+```text
+plugins/
+profiles/
+```
+
+设置后，运行数据会改为：
+
+```text
+$ASTRBOTEX_DATA_DIR/plugins
+$ASTRBOTEX_DATA_DIR/profiles
+```
+
+Docker / compose 部署时建议只挂载统一数据目录：
+
+```text
+./data:/app/data
+```
+
+这样拉取新镜像时，核心代码、Dashboard 和脚本跟随镜像更新；插件、配置、启停状态和 profile 保留在宿主机 `data` 目录。
 
 当前要特别注意的一点：
 
