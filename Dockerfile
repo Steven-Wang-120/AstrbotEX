@@ -10,10 +10,14 @@ WORKDIR /app
 
 COPY astrbot_ex ./astrbot_ex
 COPY dashboard ./dashboard
+COPY plugins ./builtin_plugins
 COPY scripts ./scripts
 COPY README.md ./
-COPY README_AstrBotEX插件系统规范.md ./
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+
+RUN chmod +x ./docker-entrypoint.sh
 
 EXPOSE 8765
 
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["python", "-m", "astrbot_ex.core.api_server", "--host", "0.0.0.0", "--port", "8765", "--tick-hz", "5"]

@@ -1,4 +1,4 @@
-const API_BASE = window.ASTRBOTEX_API_BASE || "http://127.0.0.1:8765";
+const API_BASE = window.ASTRBOTEX_API_BASE || window.location.origin;
 const MAX_TRACE_EVENTS = 200;
 const PLUGIN_CATEGORIES = ["vision", "perception", "control", "decision", "special"];
 
