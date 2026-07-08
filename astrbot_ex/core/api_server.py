@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-import cgi
+import email.policy
 import json
 import os
 import queue
@@ -381,36 +381,46 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _handle_plugin_upload(self) -> None:
-        ctype, _ = cgi.parse_header(self.headers.get("Content-Type", ""))
-        if ctype != "multipart/form-data":
+        content_type = self.headers.get("Content-Type", "")
+        if not content_type.lower().startswith("multipart/form-data"):
             self._send_json({"ok": False, "error": "multipart/form-data required"}, HTTPStatus.BAD_REQUEST)
             return
-        form = cgi.FieldStorage(
-            fp=self.rfile,
-            headers=self.headers,
-            environ={
-                "REQUEST_METHOD": "POST",
-                "CONTENT_TYPE": self.headers.get("Content-Type", ""),
-            },
-        )
-        upload = form["file"] if "file" in form else None
-        if upload is None or not getattr(upload, "filename", ""):
+        length = int(self.headers.get("Content-Length", "0"))
+        if length <= 0:
             self._send_json({"ok": False, "error": "missing plugin zip file"}, HTTPStatus.BAD_REQUEST)
             return
-        filename = str(upload.filename)
+        body = self.rfile.read(length)
+        message = email.message_from_bytes(
+            f"Content-Type: {content_type}\r\nMIME-Version: 1.0\r\n\r\n".encode("utf-8") + body,
+            policy=email.policy.default,
+        )
+        if not message.is_multipart():
+            self._send_json({"ok": False, "error": "multipart/form-data required"}, HTTPStatus.BAD_REQUEST)
+            return
+
+        upload_part = None
+        category = None
+        for part in message.iter_parts():
+            if part.get_content_disposition() != "form-data":
+                continue
+            name = part.get_param("name", header="content-disposition")
+            if name == "category" and category is None:
+                category = part.get_content().strip()
+            elif name == "file" and upload_part is None:
+                upload_part = part
+
+        filename = upload_part.get_filename() if upload_part is not None else ""
+        if upload_part is None or not filename:
+            self._send_json({"ok": False, "error": "missing plugin zip file"}, HTTPStatus.BAD_REQUEST)
+            return
+        filename = str(filename)
         if not filename.lower().endswith(".zip"):
             self._send_json({"ok": False, "error": "only .zip plugin packages are supported"}, HTTPStatus.BAD_REQUEST)
             return
         with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp:
-            shutil_source = upload.file
-            while True:
-                chunk = shutil_source.read(1024 * 1024)
-                if not chunk:
-                    break
-                tmp.write(chunk)
+            tmp.write(upload_part.get_payload(decode=True) or b"")
             temp_path = Path(tmp.name)
         try:
-            category = form.getfirst("category")
             plugin = self.server.local_plugins.install_zip(temp_path, category=category)
         except Exception as exc:
             self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
