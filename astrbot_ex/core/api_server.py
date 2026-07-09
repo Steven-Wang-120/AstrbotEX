@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import argparse
-import cgi
 import json
 import os
 import queue
 import tempfile
 import threading
 import time
+from email.parser import BytesParser
+from email.policy import default as email_policy
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -381,36 +382,29 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _handle_plugin_upload(self) -> None:
-        ctype, _ = cgi.parse_header(self.headers.get("Content-Type", ""))
-        if ctype != "multipart/form-data":
+        content_type = self.headers.get("Content-Type", "")
+        if not content_type.lower().startswith("multipart/form-data"):
             self._send_json({"ok": False, "error": "multipart/form-data required"}, HTTPStatus.BAD_REQUEST)
             return
-        form = cgi.FieldStorage(
-            fp=self.rfile,
-            headers=self.headers,
-            environ={
-                "REQUEST_METHOD": "POST",
-                "CONTENT_TYPE": self.headers.get("Content-Type", ""),
-            },
-        )
-        upload = form["file"] if "file" in form else None
-        if upload is None or not getattr(upload, "filename", ""):
+        try:
+            form = self._parse_multipart_form_data()
+        except ValueError as exc:
+            self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return
+
+        upload = form.get("file")
+        if not upload or not upload.get("filename"):
             self._send_json({"ok": False, "error": "missing plugin zip file"}, HTTPStatus.BAD_REQUEST)
             return
-        filename = str(upload.filename)
+        filename = str(upload["filename"])
         if not filename.lower().endswith(".zip"):
             self._send_json({"ok": False, "error": "only .zip plugin packages are supported"}, HTTPStatus.BAD_REQUEST)
             return
         with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp:
-            shutil_source = upload.file
-            while True:
-                chunk = shutil_source.read(1024 * 1024)
-                if not chunk:
-                    break
-                tmp.write(chunk)
+            tmp.write(upload["content"])
             temp_path = Path(tmp.name)
         try:
-            category = form.getfirst("category")
+            category = form.get("category", {}).get("text")
             plugin = self.server.local_plugins.install_zip(temp_path, category=category)
         except Exception as exc:
             self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
@@ -529,6 +523,32 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             pass
         finally:
             stream.close()
+
+    def _parse_multipart_form_data(self) -> dict[str, dict[str, Any]]:
+        length = int(self.headers.get("Content-Length", "0"))
+        if length <= 0:
+            raise ValueError("missing request body")
+
+        raw_body = self.rfile.read(length)
+        header_block = f"Content-Type: {self.headers.get('Content-Type', '')}\r\nMIME-Version: 1.0\r\n\r\n"
+        message = BytesParser(policy=email_policy).parsebytes(header_block.encode("utf-8") + raw_body)
+        if not message.is_multipart():
+            raise ValueError("invalid multipart/form-data body")
+
+        fields: dict[str, dict[str, Any]] = {}
+        for part in message.iter_parts():
+            name = part.get_param("name", header="content-disposition")
+            if not name:
+                continue
+            payload = part.get_payload(decode=True) or b""
+            entry: dict[str, Any] = {"content": payload}
+            filename = part.get_filename()
+            if filename:
+                entry["filename"] = filename
+            else:
+                entry["text"] = payload.decode("utf-8").strip()
+            fields[name] = entry
+        return fields
 
     def _write_sse(self, event_name: str, payload: Any) -> None:
         data = json.dumps(to_jsonable(payload), ensure_ascii=False)
