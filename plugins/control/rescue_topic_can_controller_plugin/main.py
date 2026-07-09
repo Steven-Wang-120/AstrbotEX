@@ -211,7 +211,16 @@ class Plugin:
         self._close_transport("plugin unloaded")
 
     def on_runtime_start(self) -> None:
-        self._open_transport()
+        try:
+            self._open_transport()
+        except Exception as exc:
+            self._link_ok = False
+            self.context.event_bus.emit(
+                "control",
+                "CAN transport open failed",
+                plugin=self.id,
+                error=str(exc),
+            )
         self._state = "SCAN_TARGET"
         self._state_entered_at = time.time()
         self._last_note = "runtime started"
@@ -224,7 +233,18 @@ class Plugin:
         if not self.enabled:
             return
         now = time.time()
-        self._ensure_transport()
+        try:
+            self._ensure_transport()
+        except Exception as exc:
+            self._link_ok = False
+            self.context.event_bus.emit_throttled(
+                "control",
+                "CAN transport open failed",
+                interval_sec=1.0,
+                key=f"{self.id}:can_open_failed",
+                plugin=self.id,
+                error=str(exc),
+            )
         self._send_heartbeat_if_due(now, running=True)
         self._run_state_machine(now)
 
