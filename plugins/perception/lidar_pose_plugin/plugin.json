@@ -1,0 +1,45 @@
+{
+  "id": "lidar_pose_plugin",
+  "name": "Lidar Pose Perception Plugin",
+  "version": "0.1.0",
+  "description": "Receives lidar/pose JSON, fuses the selected YOLO target angle with LaserScan ranges, and publishes rescue perception topics.",
+  "author": "Codex",
+  "entry": "main.py",
+  "provides": ["telemetry_provider"],
+  "config_schema": "config.schema.json",
+  "enabled_default": false,
+  "publishes": [
+    {
+      "topic": "lidar_pose_plugin.pose",
+      "label": "Robot pose",
+      "schema": "pose"
+    },
+    {
+      "topic": "lidar_pose_plugin.selected_target_range",
+      "label": "Selected target range",
+      "schema": "distance"
+    },
+    {
+      "topic": "lidar_pose_plugin.boundary",
+      "label": "Boundary status",
+      "schema": "boundary"
+    },
+    {
+      "topic": "lidar_pose_plugin.rescue_perception",
+      "label": "Rescue perception",
+      "schema": "rescue_perception"
+    },
+    {
+      "topic": "lidar_pose_plugin.raw_packet",
+      "label": "Raw lidar packet",
+      "schema": "raw_json"
+    }
+  ],
+  "subscribes": [
+    {
+      "topic": "astrbotex_ros2_vision_plugin.current_target",
+      "label": "Current YOLO target",
+      "schema": "target"
+    }
+  ]
+}

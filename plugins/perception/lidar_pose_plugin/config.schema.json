@@ -1,0 +1,263 @@
+{
+  "type": "object",
+  "properties": {
+    "input_mode": {
+      "type": "string",
+      "title": "Input mode",
+      "enum": ["ros2", "ipc_unix_socket"],
+      "default": "ros2",
+      "description": "ros2 subscribes ROS2 LaserScan/Pose topics directly. ipc_unix_socket receives newline-delimited JSON from a host-side bridge."
+    },
+    "ros_node_name": {
+      "type": "string",
+      "title": "ROS2 node name",
+      "default": "lidar_pose_plugin"
+    },
+    "scan_topic": {
+      "type": "string",
+      "title": "LaserScan topic",
+      "default": "/scan"
+    },
+    "scan_message_type": {
+      "type": "string",
+      "title": "Scan message type",
+      "enum": ["sensor_msgs/msg/LaserScan"],
+      "default": "sensor_msgs/msg/LaserScan"
+    },
+    "pose_topic": {
+      "type": "string",
+      "title": "Pose topic",
+      "default": "/astrbotex/robot_pose",
+      "description": "Optional robot pose topic. Leave empty if pose is included in IPC JSON or unavailable."
+    },
+    "pose_message_type": {
+      "type": "string",
+      "title": "Pose message type",
+      "enum": [
+        "geometry_msgs/msg/Pose2D",
+        "geometry_msgs/msg/PoseStamped",
+        "nav_msgs/msg/Odometry",
+        "std_msgs/msg/String"
+      ],
+      "default": "geometry_msgs/msg/Pose2D",
+      "description": "std_msgs/msg/String must contain JSON with robot_x/y/yaw fields."
+    },
+    "spin_timeout_sec": {
+      "type": "number",
+      "title": "ROS2 spin timeout seconds",
+      "default": 0.05,
+      "minimum": 0.001
+    },
+    "ipc_socket_path": {
+      "type": "string",
+      "title": "IPC socket path",
+      "default": "/app/data/ipc/astrbotex_lidar.sock"
+    },
+    "ipc_socket_backlog": {
+      "type": "integer",
+      "title": "IPC backlog",
+      "default": 1,
+      "minimum": 1
+    },
+    "ipc_read_timeout_sec": {
+      "type": "number",
+      "title": "IPC read timeout seconds",
+      "default": 0.2,
+      "minimum": 0.01
+    },
+    "stale_after_ms": {
+      "type": "integer",
+      "title": "Lidar packet stale milliseconds",
+      "default": 800,
+      "minimum": 1
+    },
+    "publish_hz": {
+      "type": "number",
+      "title": "Publish frequency",
+      "default": 10,
+      "minimum": 1,
+      "maximum": 50
+    },
+    "source_name": {
+      "type": "string",
+      "title": "Source name",
+      "default": "lidar_pose"
+    },
+    "default_frame_id": {
+      "type": "string",
+      "title": "Default frame id",
+      "default": "lidar_front"
+    },
+    "vision_target_topic": {
+      "type": "string",
+      "title": "YOLO current target topic",
+      "default": "astrbotex_ros2_vision_plugin.current_target"
+    },
+    "vision_target_stale_ms": {
+      "type": "integer",
+      "title": "YOLO target stale milliseconds",
+      "default": 700,
+      "minimum": 1
+    },
+    "camera_hfov_deg": {
+      "type": "number",
+      "title": "摄像头水平视场角",
+      "default": 60.0,
+      "minimum": 1,
+      "maximum": 180,
+      "description": "单位为度。雷达插件用它把 YOLO target_x 换算成雷达角度，例如 60 表示画面最左到最右共 60 度。"
+    },
+    "camera_to_lidar_yaw_offset_deg": {
+      "type": "number",
+      "title": "Camera-to-lidar yaw offset degrees",
+      "default": 0.0,
+      "description": "Added after converting target_x to an angle. Use this when camera center and lidar zero angle are not aligned."
+    },
+    "camera_x_to_lidar_angle_sign": {
+      "type": "number",
+      "title": "target_x to lidar angle sign",
+      "default": -1.0,
+      "description": "Use -1 when target_x positive means image right and LaserScan positive angle is left. Use +1 if both signs are the same."
+    },
+    "target_range_window_deg": {
+      "type": "number",
+      "title": "Target range angle window degrees",
+      "default": 3.0,
+      "minimum": 0.1,
+      "maximum": 30
+    },
+    "front_range_window_deg": {
+      "type": "number",
+      "title": "Front range angle window degrees",
+      "default": 5.0,
+      "minimum": 0.1,
+      "maximum": 60
+    },
+    "range_select_method": {
+      "type": "string",
+      "title": "Range selection method",
+      "enum": ["min", "median"],
+      "default": "min"
+    },
+    "pose_unit": {
+      "type": "string",
+      "title": "Generic pose x/y unit",
+      "enum": ["mm", "m"],
+      "default": "mm"
+    },
+    "pose_yaw_unit": {
+      "type": "string",
+      "title": "Generic pose yaw unit",
+      "enum": ["rad", "deg"],
+      "default": "rad"
+    },
+    "home_x_mm": {
+      "type": "number",
+      "title": "Home X mm",
+      "default": 0.0
+    },
+    "home_y_mm": {
+      "type": "number",
+      "title": "Home Y mm",
+      "default": 0.0
+    },
+    "target_projection_angle_mode": {
+      "type": "string",
+      "title": "目标坐标投影角度模式",
+      "enum": [
+        "robot_yaw_minus_lidar_angle",
+        "robot_yaw_plus_lidar_angle"
+      ],
+      "default": "robot_yaw_minus_lidar_angle",
+      "description": "用于把 YOLO 选中目标的雷达距离投影到赛场坐标。若 LaserScan 正角为左、你的场地 yaw 正方向按右转为正，通常用 robot_yaw_minus_lidar_angle。"
+    },
+    "ignore_own_safe_zone_targets": {
+      "type": "boolean",
+      "title": "忽略本方安全区内目标",
+      "default": true,
+      "description": "开启后，雷达插件会估算 YOLO 选中球的赛场坐标，落在本方安全区矩形内时标记为忽略。"
+    },
+    "own_safe_zone_min_x_mm": {
+      "type": "number",
+      "title": "本方安全区 min X mm",
+      "default": 0.0
+    },
+    "own_safe_zone_max_x_mm": {
+      "type": "number",
+      "title": "本方安全区 max X mm",
+      "default": 300.0
+    },
+    "own_safe_zone_min_y_mm": {
+      "type": "number",
+      "title": "本方安全区 min Y mm",
+      "default": -300.0
+    },
+    "own_safe_zone_max_y_mm": {
+      "type": "number",
+      "title": "本方安全区 max Y mm",
+      "default": 300.0
+    },
+    "own_safe_zone_margin_mm": {
+      "type": "number",
+      "title": "本方安全区判断余量 mm",
+      "default": 20.0,
+      "minimum": 0,
+      "description": "用于补偿定位和投影误差。默认 20mm 会把安全区判断范围略微扩大。"
+    },
+    "field_min_x_mm": {
+      "type": "number",
+      "title": "Field min X mm",
+      "default": 0.0
+    },
+    "field_max_x_mm": {
+      "type": "number",
+      "title": "Field max X mm",
+      "default": 2400.0
+    },
+    "field_min_y_mm": {
+      "type": "number",
+      "title": "Field min Y mm",
+      "default": -1200.0
+    },
+    "field_max_y_mm": {
+      "type": "number",
+      "title": "Field max Y mm",
+      "default": 1200.0
+    },
+    "boundary_margin_mm": {
+      "type": "number",
+      "title": "Boundary margin mm",
+      "default": 120.0,
+      "minimum": 0
+    },
+    "boundary_check_enabled": {
+      "type": "boolean",
+      "title": "Enable boundary check",
+      "default": true
+    },
+    "pubsub": {
+      "type": "object",
+      "title": "Pub/Sub",
+      "properties": {
+        "publish_enabled": {
+          "type": "boolean",
+          "title": "Enable publishing",
+          "default": true
+        },
+        "enabled_topics": {
+          "type": "array",
+          "title": "Enabled topics",
+          "default": [
+            "lidar_pose_plugin.pose",
+            "lidar_pose_plugin.selected_target_range",
+            "lidar_pose_plugin.boundary",
+            "lidar_pose_plugin.rescue_perception"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

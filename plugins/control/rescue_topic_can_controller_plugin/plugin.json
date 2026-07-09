@@ -1,0 +1,45 @@
+{
+  "id": "rescue_topic_can_controller_plugin",
+  "name": "Rescue Topic CAN Controller Plugin",
+  "version": "0.1.0",
+  "description": "Subscribes YOLO/lidar perception topics, runs the first rescue state machine, and sends offline CAN frames through SocketCAN or serial SLCAN.",
+  "author": "Codex",
+  "entry": "main.py",
+  "provides": ["motion_bridge"],
+  "config_schema": "config.schema.json",
+  "enabled_default": false,
+  "publishes": [
+    {
+      "topic": "rescue_topic_can_controller_plugin.state",
+      "label": "Controller state",
+      "schema": "controller_state"
+    },
+    {
+      "topic": "rescue_topic_can_controller_plugin.decision",
+      "label": "Decision",
+      "schema": "decision"
+    },
+    {
+      "topic": "rescue_topic_can_controller_plugin.can_tx",
+      "label": "CAN TX",
+      "schema": "can_frame"
+    },
+    {
+      "topic": "rescue_topic_can_controller_plugin.can_rx",
+      "label": "CAN RX",
+      "schema": "can_frame"
+    }
+  ],
+  "subscribes": [
+    {
+      "topic": "astrbotex_ros2_vision_plugin.current_target",
+      "label": "Current YOLO target",
+      "schema": "target"
+    },
+    {
+      "topic": "lidar_pose_plugin.rescue_perception",
+      "label": "Rescue perception",
+      "schema": "rescue_perception"
+    }
+  ]
+}
