@@ -30,22 +30,20 @@ services:
     image: ${ASTRBOTEX_IMAGE:-astrbotex:local}
     container_name: ${ASTRBOTEX_CONTAINER_NAME:-astrbotex}
     restart: unless-stopped
+    network_mode: host
     environment:
       - TZ=${TZ:-Asia/Shanghai}
       - ASTRBOTEX_HOST=0.0.0.0
       - ASTRBOTEX_PORT=8765
       - ASTRBOTEX_TICK_HZ=${ASTRBOTEX_TICK_HZ:-20}
       - ASTRBOTEX_DATA_DIR=/app/data
-    ports:
-      - "${ASTRBOTEX_PORT:-8765}:8765"
     volumes:
       - ./deploy/astrbotex/data:/app/data
+      - /dev:/dev
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     depends_on:
       - mqtt
-    networks:
-      - robot_ai
 
   astrbot:
     image: ${ASTRBOT_IMAGE:-soulter/astrbot:latest}

@@ -1,6 +1,6 @@
 {
-  "can_transport": "socketcan",
-  "dry_run": false,
+  "can_transport": "dry_run",
+  "dry_run": true,
   "socketcan_interface": "can0",
   "serial_port": "/dev/ttyS5",
   "serial_baudrate": 1000000,
