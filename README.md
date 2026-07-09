@@ -199,7 +199,7 @@ cd D:\Code\AstrBotEX
 或者：
 
 ```bash
-python -m astrbot_ex.core.api_server --host 0.0.0.0 --port 8765 --tick-hz 5
+python -m astrbot_ex.core.api_server --host 0.0.0.0 --port 8765 --tick-hz 20
 ```
 
 环境变量：
@@ -207,7 +207,7 @@ python -m astrbot_ex.core.api_server --host 0.0.0.0 --port 8765 --tick-hz 5
 ```text
 ASTRBOTEX_HOST=0.0.0.0
 ASTRBOTEX_PORT=8765
-ASTRBOTEX_TICK_HZ=5
+ASTRBOTEX_TICK_HZ=20
 ASTRBOTEX_DATA_DIR=/app/data
 ```
 

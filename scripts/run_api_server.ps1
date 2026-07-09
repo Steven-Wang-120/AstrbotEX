@@ -20,6 +20,6 @@ if (-not $python) {
 
 $hostName = if ($env:ASTRBOTEX_HOST) { $env:ASTRBOTEX_HOST } else { "127.0.0.1" }
 $port = if ($env:ASTRBOTEX_PORT) { $env:ASTRBOTEX_PORT } else { "8765" }
-$tickHz = if ($env:ASTRBOTEX_TICK_HZ) { $env:ASTRBOTEX_TICK_HZ } else { "5" }
+$tickHz = if ($env:ASTRBOTEX_TICK_HZ) { $env:ASTRBOTEX_TICK_HZ } else { "20" }
 
 & $python.Source -m astrbot_ex.core.api_server --host $hostName --port $port --tick-hz $tickHz

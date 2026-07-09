@@ -24,7 +24,7 @@ from astrbot_ex.core.vision_sources import VisionSourceManager
 
 
 class RuntimeController:
-    def __init__(self, runtime: AstrBotEXRuntime, tick_hz: float = 5.0) -> None:
+    def __init__(self, runtime: AstrBotEXRuntime, tick_hz: float = 20.0) -> None:
         self.runtime = runtime
         self.tick_hz = tick_hz
         self._lock = threading.RLock()
@@ -592,7 +592,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run the AstrBotEX local API server.")
     parser.add_argument("--host", default=os.environ.get("ASTRBOTEX_HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.environ.get("ASTRBOTEX_PORT", "8765")))
-    parser.add_argument("--tick-hz", type=float, default=float(os.environ.get("ASTRBOTEX_TICK_HZ", "5")))
+    parser.add_argument("--tick-hz", type=float, default=float(os.environ.get("ASTRBOTEX_TICK_HZ", "20")))
     args = parser.parse_args()
 
     server = build_server(args.host, args.port, args.tick_hz)

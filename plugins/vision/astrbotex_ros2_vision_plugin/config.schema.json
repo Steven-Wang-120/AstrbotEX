@@ -1,0 +1,159 @@
+{
+  "type": "object",
+  "properties": {
+    "input_mode": {
+      "type": "string",
+      "title": "输入模式",
+      "enum": [
+        "ros2",
+        "ipc_unix_socket"
+      ],
+      "default": "ipc_unix_socket",
+      "description": "ros2 表示插件直接订阅 ROS2；ipc_unix_socket 表示插件通过本地 Unix Socket 接收宿主机桥接进来的 JSON，不需要容器内安装 ROS2，也不走 TCP/IP。"
+    },
+    "ros_node_name": {
+      "type": "string",
+      "title": "ROS2 节点名称",
+      "default": "astrbotex_ros2_vision_plugin",
+      "description": "插件内部创建的 ROS2 node 名称。"
+    },
+    "topic": {
+      "type": "string",
+      "title": "YOLO 订阅 Topic",
+      "default": "/astrbotex/vision_target",
+      "description": "YOLO 节点发布检测结果的 ROS2 topic。"
+    },
+    "message_type": {
+      "type": "string",
+      "title": "ROS2 消息类型",
+      "enum": [
+        "std_msgs/msg/String",
+        "std_msgs/String",
+        "vision_msgs/msg/Detection2DArray",
+        "auto"
+      ],
+      "default": "std_msgs/msg/String",
+      "description": "第一版推荐 std_msgs/msg/String，内容为 JSON。auto 会先尝试 String。"
+    },
+    "spin_timeout_sec": {
+      "type": "number",
+      "title": "ROS2 轮询间隔秒",
+      "default": 0.05,
+      "minimum": 0.001,
+      "description": "后台线程每次 spin_once 的超时时间。"
+    },
+    "ipc_socket_path": {
+      "type": "string",
+      "title": "IPC Socket 路径",
+      "default": "/app/data/ipc/astrbotex_vision.sock",
+      "description": "ipc_unix_socket 模式下监听的 Unix Domain Socket 路径。Docker 部署时建议放在持久化挂载目录内，让宿主机 bridge 通过同一挂载目录连接。"
+    },
+    "ipc_socket_backlog": {
+      "type": "integer",
+      "title": "IPC 等待连接数",
+      "default": 1,
+      "minimum": 1,
+      "description": "Unix Socket listen backlog。第一版一个桥接进程连接即可。"
+    },
+    "ipc_read_timeout_sec": {
+      "type": "number",
+      "title": "IPC 读取超时秒",
+      "default": 0.2,
+      "minimum": 0.01,
+      "description": "Unix Socket 接收循环的超时时间，用于让插件能及时停止。"
+    },
+    "stale_after_ms": {
+      "type": "integer",
+      "title": "结果过期毫秒",
+      "default": 500,
+      "minimum": 1,
+      "description": "超过该时间未收到新包时，get_result 返回 stale 空结果。"
+    },
+    "source_name": {
+      "type": "string",
+      "title": "来源名称",
+      "default": "yolo_ros2",
+      "description": "写入 VisionResult.metadata.source 的来源名称。"
+    },
+    "default_frame_id": {
+      "type": "string",
+      "title": "默认相机名称",
+      "default": "camera_front",
+      "description": "消息未带 frame_id 时使用的默认值。"
+    },
+    "image_width": {
+      "type": "integer",
+      "title": "图像宽度",
+      "default": 640,
+      "minimum": 1,
+      "description": "用于从 bbox 反推 target_x 或发布当前目标信息。"
+    },
+    "image_height": {
+      "type": "integer",
+      "title": "图像高度",
+      "default": 480,
+      "minimum": 1,
+      "description": "用于补充检测结果 metadata。"
+    },
+    "min_confidence": {
+      "type": "number",
+      "title": "最小置信度",
+      "default": 0.4,
+      "minimum": 0,
+      "maximum": 1,
+      "description": "低于该阈值的目标会被过滤。"
+    },
+    "focus_color": {
+      "type": "string",
+      "title": "关注颜色",
+      "enum": ["red", "blue"],
+      "default": "red",
+      "description": "普通目标只转发选中的红色或蓝色。"
+    },
+    "always_forward_colors": {
+      "type": "array",
+      "title": "始终转发颜色",
+      "default": ["yellow", "black", "empty"],
+      "items": {
+        "type": "string"
+      },
+      "description": "这些颜色不受关注颜色限制，默认 yellow / black / empty 始终转发。"
+    },
+    "publish_filtered_only": {
+      "type": "boolean",
+      "title": "只发布过滤后的结果",
+      "default": true,
+      "description": "开启后 EX Topic 和 VisionResult 都只包含通过颜色过滤的目标。"
+    },
+    "target_x_deadband": {
+      "type": "number",
+      "title": "中轴死区",
+      "default": 0.1,
+      "minimum": 0,
+      "maximum": 1,
+      "description": "发布 current_target 时用于标记 is_aligned。"
+    },
+    "pubsub": {
+      "type": "object",
+      "title": "EX Topic 发布配置",
+      "properties": {
+        "publish_enabled": {
+          "type": "boolean",
+          "title": "启用发布",
+          "default": true
+        },
+        "enabled_topics": {
+          "type": "array",
+          "title": "启用 Topic",
+          "default": [
+            "astrbotex_ros2_vision_plugin.current_target",
+            "astrbotex_ros2_vision_plugin.detections"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -3,7 +3,7 @@ FROM python:3.12-slim
 ENV PYTHONUNBUFFERED=1
 ENV ASTRBOTEX_HOST=0.0.0.0
 ENV ASTRBOTEX_PORT=8765
-ENV ASTRBOTEX_TICK_HZ=5
+ENV ASTRBOTEX_TICK_HZ=20
 ENV ASTRBOTEX_DATA_DIR=/app/data
 
 WORKDIR /app
@@ -20,4 +20,4 @@ RUN chmod +x ./docker-entrypoint.sh
 EXPOSE 8765
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
-CMD ["python", "-m", "astrbot_ex.core.api_server", "--host", "0.0.0.0", "--port", "8765", "--tick-hz", "5"]
+CMD ["python", "-m", "astrbot_ex.core.api_server", "--host", "0.0.0.0", "--port", "8765", "--tick-hz", "20"]

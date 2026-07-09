@@ -1,7 +1,7 @@
 {
   "id": "rescue_ball_2025",
   "name": "Rescue Ball 2025 Prototype",
-  "tick_hz": 10,
+  "tick_hz": 20,
   "objectives": [
     {
       "type": "relocate_entity",

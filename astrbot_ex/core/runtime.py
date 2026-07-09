@@ -78,7 +78,14 @@ class AstrBotEXRuntime:
         vision = self._read_vision(vision_provider)
         robot = self._read_robot_state(motion_bridge)
         self.world = self.world_builder.update(vision, robot)
-        self.event_bus.emit("vision", "vision frame received", frame_id=vision.frame_id, entities=len(vision.entities))
+        self.event_bus.emit_throttled(
+            "vision",
+            "vision frame received",
+            interval_sec=0.5,
+            key="runtime:vision_frame",
+            frame_id=vision.frame_id,
+            entities=len(vision.entities),
+        )
 
         for rule in self._rules():
             for decision in rule.evaluate_world(self.world):
@@ -88,12 +95,18 @@ class AstrBotEXRuntime:
 
         goal = self._select_goal()
         if goal is None:
-            self.event_bus.emit("policy", "no goal selected")
+            self.event_bus.emit_throttled("policy", "no goal selected", interval_sec=1.0)
             return
 
         skill = self._select_or_continue_skill(goal)
         if skill is None:
-            self.event_bus.emit("skill", "no skill can run", goal=goal.type)
+            self.event_bus.emit_throttled(
+                "skill",
+                "no skill can run",
+                interval_sec=1.0,
+                key=f"skill:no_skill:{goal.type}",
+                goal=goal.type,
+            )
             return
 
         result = skill.tick(self.world)
@@ -107,10 +120,23 @@ class AstrBotEXRuntime:
                 return
 
         if motion_bridge is None:
-            self.event_bus.emit("motion", "motion bridge unavailable, intent dropped", note=intent.note, status=result.status)
+            self.event_bus.emit_throttled(
+                "motion",
+                "motion bridge unavailable, intent dropped",
+                interval_sec=1.0,
+                note=intent.note,
+                status=result.status,
+            )
         else:
             motion_bridge.send(intent)
-            self.event_bus.emit("motion", "intent sent", note=intent.note, status=result.status)
+            self.event_bus.emit_throttled(
+                "motion",
+                "intent sent",
+                interval_sec=0.5,
+                key="motion:intent_sent",
+                note=intent.note,
+                status=result.status,
+            )
 
         if result.status in {"done", "failed"}:
             self.event_bus.emit("skill", f"skill {result.status}", reason=result.reason)
@@ -152,13 +178,13 @@ class AstrBotEXRuntime:
 
     def _read_vision(self, provider: VisionProvider | None) -> VisionResult:
         if provider is None:
-            self.event_bus.emit("vision", "vision provider unavailable")
+            self.event_bus.emit_throttled("vision", "vision provider unavailable", interval_sec=1.0)
             return VisionResult(frame_id=0, timestamp=self.world.timestamp, metadata={"source": "missing_vision"})
         return provider.get_result()
 
     def _read_robot_state(self, bridge: MotionBridge | None) -> RobotState:
         if bridge is None:
-            self.event_bus.emit("motion", "motion bridge unavailable")
+            self.event_bus.emit_throttled("motion", "motion bridge unavailable", interval_sec=1.0)
             return RobotState(link_ok=False, metadata={"source": "missing_motion"})
         return bridge.read_state()
 

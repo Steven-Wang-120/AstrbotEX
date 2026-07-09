@@ -1,0 +1,29 @@
+{
+  "id": "astrbotex_ros2_vision_plugin",
+  "name": "AstrBotEX ROS2 Vision Plugin",
+  "version": "0.2.0",
+  "description": "支持直接订阅 ROS2 YOLO 消息，或通过本地 Unix Socket 接收宿主机 ROS2 bridge 消息，转换为 AstrBotEX VisionResult 并发布 EX Topic。",
+  "author": "Codex",
+  "entry": "main.py",
+  "provides": ["vision_provider"],
+  "config_schema": "config.schema.json",
+  "enabled_default": false,
+  "publishes": [
+    {
+      "topic": "astrbotex_ros2_vision_plugin.current_target",
+      "label": "当前目标",
+      "schema": "target"
+    },
+    {
+      "topic": "astrbotex_ros2_vision_plugin.detections",
+      "label": "检测结果",
+      "schema": "detections"
+    },
+    {
+      "topic": "astrbotex_ros2_vision_plugin.raw_packet",
+      "label": "原始视觉包",
+      "schema": "raw_json"
+    }
+  ],
+  "subscribes": []
+}

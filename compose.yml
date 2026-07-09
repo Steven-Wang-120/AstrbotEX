@@ -34,7 +34,7 @@ services:
       - TZ=${TZ:-Asia/Shanghai}
       - ASTRBOTEX_HOST=0.0.0.0
       - ASTRBOTEX_PORT=8765
-      - ASTRBOTEX_TICK_HZ=${ASTRBOTEX_TICK_HZ:-5}
+      - ASTRBOTEX_TICK_HZ=${ASTRBOTEX_TICK_HZ:-20}
       - ASTRBOTEX_DATA_DIR=/app/data
     ports:
       - "${ASTRBOTEX_PORT:-8765}:8765"
