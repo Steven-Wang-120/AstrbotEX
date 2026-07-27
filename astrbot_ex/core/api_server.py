@@ -216,8 +216,9 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         if plugin_id:
             try:
                 plugin = self.server.local_plugins.set_enabled(plugin_id, True)
-            except KeyError as exc:
-                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+            except (KeyError, ValueError) as exc:
+                status = HTTPStatus.NOT_FOUND if isinstance(exc, KeyError) else HTTPStatus.BAD_REQUEST
+                self._send_json({"ok": False, "error": str(exc)}, status)
                 return
             self._send_json({"ok": True, "plugin": plugin})
             return
@@ -232,8 +233,9 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
                 self.controller.stop(f"plugin disabled: {plugin_id}")
             try:
                 plugin = self.server.local_plugins.set_enabled(plugin_id, False)
-            except KeyError as exc:
-                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+            except (KeyError, ValueError) as exc:
+                status = HTTPStatus.NOT_FOUND if isinstance(exc, KeyError) else HTTPStatus.BAD_REQUEST
+                self._send_json({"ok": False, "error": str(exc)}, status)
                 return
             self._send_json({"ok": True, "plugin": plugin})
             return

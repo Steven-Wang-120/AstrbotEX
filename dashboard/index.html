@@ -3,300 +3,359 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AstrBotEX</title>
+    <title>ASTRBOTEX · CONTROL PANEL</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="app-shell">
       <aside class="sidebar">
         <div class="brand">
-          <div class="moon-logo" aria-hidden="true"></div>
-          <div>
-            <div class="brand-title">AstrBotEX</div>
+          <div class="brand-mark" aria-hidden="true">
+            <span class="brand-mark-core"></span>
+          </div>
+          <div class="brand-text">
+            <div class="brand-title">ASTRBOTEX</div>
+            <div class="brand-sub">CONTROL · REV 0.4</div>
           </div>
         </div>
 
         <nav class="nav">
-          <button class="nav-item active" data-page="core"><span class="nav-dot"></span>核心</button>
-          <button class="nav-item" data-page="vision"><span class="nav-dot"></span>视觉</button>
-          <button class="nav-item" data-page="perception"><span class="nav-dot"></span>感知</button>
-          <button class="nav-item" data-page="control"><span class="nav-dot"></span>控制</button>
-          <button class="nav-item" data-page="decision"><span class="nav-dot"></span>决策</button>
-          <button class="nav-item" data-page="special"><span class="nav-dot"></span>特殊</button>
-          <button class="nav-item" data-page="logs"><span class="nav-dot"></span>运行日志</button>
+          <button class="nav-item active" data-page="core">
+            <span class="nav-num">01</span><span class="nav-label">核心</span>
+          </button>
+          <button class="nav-item" data-page="plugins">
+            <span class="nav-num">02</span><span class="nav-label">插件</span>
+          </button>
+          <button class="nav-item" data-page="logs">
+            <span class="nav-num">03</span><span class="nav-label">运行日志</span>
+          </button>
         </nav>
 
-        <div class="sidebar-footer">
-          <div class="footer-label">API</div>
-          <div class="footer-value" id="apiBaseLabel">127.0.0.1:8765</div>
+        <div class="sidebar-foot">
+          <div class="foot-row">
+            <span class="foot-label">API</span>
+            <span class="foot-value" id="apiBaseLabel">127.0.0.1:8765</span>
+          </div>
+          <div class="foot-row">
+            <span class="foot-label">BUILD</span>
+            <span class="foot-value">2026.07</span>
+          </div>
         </div>
       </aside>
 
-      <main class="main">
-        <section class="page active" id="page-core">
-          <header class="topbar">
-            <div>
-              <h1>核心运行时</h1>
-              <p>本地 AstrBotEX Core 状态和运行快照。</p>
-            </div>
-            <div class="topbar-actions">
-              <div class="status-pill" id="connectionPill"><span class="pulse"></span>正在连接</div>
-              <button class="secondary" id="refreshButton">刷新</button>
-              <button class="danger" id="runtimeToggleButton">已停止</button>
-            </div>
-          </header>
-
-          <section class="status-grid">
-            <article class="metric">
-              <span class="metric-label">运行状态</span>
-              <strong id="runtimeState">--</strong>
-              <small id="runtimeDetail">等待 API 返回</small>
-            </article>
-            <article class="metric">
-              <span class="metric-label">世界状态</span>
-              <strong id="worldSummary">--</strong>
-              <small id="worldDetail">实体 / 区域 / 机器人</small>
-            </article>
-            <article class="metric">
-              <span class="metric-label">运动链路</span>
-              <strong id="motionState">--</strong>
-              <small id="motionDetail">等待 RobotState</small>
-            </article>
-            <article class="metric">
-              <span class="metric-label">当前技能</span>
-              <strong id="activeSkill">--</strong>
-              <small id="skillDetail">--</small>
-            </article>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head">
-              <h2>运行快照</h2>
-              <span id="snapshotTime">未同步</span>
-            </div>
-            <div class="snapshot-grid">
-              <div><span>Tick 频率</span><b id="tickHz">--</b></div>
-              <div><span>电池电压</span><b id="batteryVoltage">--</b></div>
-              <div><span>急停</span><b id="estopState">--</b></div>
-              <div><span>机器人位姿</span><b id="robotPose">--</b></div>
-            </div>
-            <div class="json-preview" id="goalPreview">active_goal: null</div>
-          </section>
-        </section>
-
-        <section class="page" id="page-vision">
-          <header class="topbar">
-            <div>
-              <h1>视觉插件</h1>
-              <p>管理相机识别、外部视觉模型桥接和目标检测结果接入插件。</p>
-            </div>
-            <div class="topbar-actions">
-              <button class="secondary" data-plugin-refresh="vision">刷新</button>
-            </div>
-          </header>
-          <section class="panel plugin-panel-main">
-            <div class="panel-head">
-              <h2>已安装</h2>
-              <span id="visionCount">0</span>
-            </div>
-            <div class="plugin-grid" id="visionGrid"></div>
-          </section>
-          <button class="plugin-upload-fab" data-upload-category="vision" title="上传视觉插件" aria-label="上传视觉插件">+</button>
-        </section>
-
-        <section class="page" id="page-perception">
-          <header class="topbar">
-            <div>
-              <h1>感知插件</h1>
-              <p>管理雷达、定位、里程计、姿态和环境几何等感知链路插件。</p>
-            </div>
-            <div class="topbar-actions">
-              <button class="secondary" data-plugin-refresh="perception">刷新</button>
-            </div>
-          </header>
-          <section class="panel plugin-panel-main">
-            <div class="panel-head">
-              <h2>已安装</h2>
-              <span id="perceptionCount">0</span>
-            </div>
-            <div class="plugin-grid" id="perceptionGrid"></div>
-          </section>
-          <button class="plugin-upload-fab" data-upload-category="perception" title="上传感知插件" aria-label="上传感知插件">+</button>
-        </section>
-
-        <section class="page" id="page-control">
-          <header class="topbar">
-            <div>
-              <h1>控制插件</h1>
-              <p>管理 motion bridge、协议编解码、总线传输和下位机执行链路插件。</p>
-            </div>
-            <div class="topbar-actions">
-              <button class="secondary" data-plugin-refresh="control">刷新</button>
-            </div>
-          </header>
-          <section class="panel plugin-panel-main">
-            <div class="panel-head">
-              <h2>已安装</h2>
-              <span id="controlCount">0</span>
-            </div>
-            <div class="plugin-grid" id="controlGrid"></div>
-          </section>
-          <button class="plugin-upload-fab" data-upload-category="control" title="上传控制插件" aria-label="上传控制插件">+</button>
-        </section>
-
-        <section class="page" id="page-decision">
-          <header class="topbar">
-            <div>
-              <h1>决策插件</h1>
-              <p>管理比赛规则、目标选择、技能执行和上层任务调度插件。</p>
-            </div>
-            <div class="topbar-actions">
-              <button class="secondary" data-plugin-refresh="decision">刷新</button>
-            </div>
-          </header>
-          <section class="panel plugin-panel-main">
-            <div class="panel-head">
-              <h2>已安装</h2>
-              <span id="decisionCount">0</span>
-            </div>
-            <div class="plugin-grid" id="decisionGrid"></div>
-          </section>
-          <button class="plugin-upload-fab" data-upload-category="decision" title="上传决策插件" aria-label="上传决策插件">+</button>
-        </section>
-
-        <section class="page" id="page-special">
-          <header class="topbar">
-            <div>
-              <h1>特殊插件</h1>
-              <p>管理追踪、诊断、桥接和辅助调试类插件。</p>
-            </div>
-            <div class="topbar-actions">
-              <button class="secondary" data-plugin-refresh="special">刷新</button>
-            </div>
-          </header>
-          <section class="panel plugin-panel-main">
-            <div class="panel-head">
-              <h2>已安装</h2>
-              <span id="specialCount">0</span>
-            </div>
-            <div class="plugin-grid" id="specialGrid"></div>
-          </section>
-          <button class="plugin-upload-fab" data-upload-category="special" title="上传特殊插件" aria-label="上传特殊插件">+</button>
-        </section>
-
-        <section class="page" id="page-plugin">
-          <header class="topbar">
-            <div>
-              <h1 id="pluginDashboardTitle">插件控制台</h1>
-              <p id="pluginDashboardSubtitle">选择一个插件进入</p>
-            </div>
-            <div class="topbar-actions">
-              <button class="secondary" id="pluginBackButton">返回列表</button>
-              <button class="primary" id="pluginSaveButton">保存配置</button>
-              <button class="danger" id="pluginUninstallButton">卸载插件</button>
-            </div>
-          </header>
-
-          <div class="plugin-dashboard-empty panel" id="pluginDashboardEmpty">
-            还没有选中插件
+      <div class="main-col">
+        <div class="status-strip" role="status" aria-live="polite">
+          <div class="strip-cell strip-conn" id="connectionPill">
+            <span class="sq" aria-hidden="true"></span><span data-label>连接中</span>
           </div>
+          <div class="strip-sep"></div>
+          <div class="strip-cell">
+            <span class="strip-label">RUNTIME</span>
+            <span class="strip-value" id="stripRuntime">--</span>
+          </div>
+          <div class="strip-cell">
+            <span class="strip-label">TICK</span>
+            <span class="strip-value" id="stripTick">--</span>
+          </div>
+          <div class="strip-cell">
+            <span class="strip-label">BATT</span>
+            <span class="strip-value" id="stripBatt">--</span>
+          </div>
+          <div class="strip-cell">
+            <span class="strip-label">ESTOP</span>
+            <span class="strip-value" id="stripEstop">--</span>
+          </div>
+          <div class="strip-cell">
+            <span class="strip-label">SKILL</span>
+            <span class="strip-value" id="stripSkill">--</span>
+          </div>
+          <div class="strip-cell strip-sse">
+            <span class="strip-label">SSE</span>
+            <span class="strip-value" id="stripSse">--</span>
+          </div>
+          <div class="strip-spacer"></div>
+          <button class="btn btn-ghost btn-sm" id="refreshButton">刷新</button>
+          <button class="btn btn-danger-solid btn-sm" id="runtimeToggleButton">已停止</button>
+        </div>
 
-          <div class="plugin-dashboard" id="pluginDashboardBody" hidden>
-            <section class="panel plugin-dashboard-main">
-              <div class="plugin-dashboard-head">
-                <div class="plugin-dashboard-cover" id="pluginDashboardCover"></div>
-                <div class="plugin-dashboard-summary">
-                  <h2 id="pluginDashboardName">--</h2>
-                  <p id="pluginDashboardDescription">--</p>
-                  <div class="plugin-enable-row">
-                    <span>启用状态</span>
-                    <label class="switch">
-                      <input id="pluginEnabledSwitch" type="checkbox" />
-                      <span></span>
-                    </label>
-                  </div>
+        <main class="main">
+          <!-- ============ 01 CORE ============ -->
+          <section class="page active" id="page-core">
+            <header class="page-head">
+              <div class="page-head-num">01</div>
+              <div class="page-head-text">
+                <h1>核心运行时</h1>
+                <p>本地 AstrBotEX Core 状态与运行快照</p>
+              </div>
+            </header>
+
+            <section class="metric-grid">
+              <article class="metric">
+                <span class="corner tl"></span><span class="corner tr"></span>
+                <span class="corner bl"></span><span class="corner br"></span>
+                <span class="metric-label">运行状态</span>
+                <strong class="metric-value" id="runtimeState">--</strong>
+                <small class="metric-sub" id="runtimeDetail">等待 API 返回</small>
+              </article>
+              <article class="metric">
+                <span class="corner tl"></span><span class="corner tr"></span>
+                <span class="corner bl"></span><span class="corner br"></span>
+                <span class="metric-label">世界状态</span>
+                <strong class="metric-value" id="worldSummary">--</strong>
+                <small class="metric-sub" id="worldDetail">实体 / 区域 / 机器人</small>
+              </article>
+              <article class="metric">
+                <span class="corner tl"></span><span class="corner tr"></span>
+                <span class="corner bl"></span><span class="corner br"></span>
+                <span class="metric-label">运动链路</span>
+                <strong class="metric-value" id="motionState">--</strong>
+                <small class="metric-sub" id="motionDetail">等待 RobotState</small>
+              </article>
+              <article class="metric">
+                <span class="corner tl"></span><span class="corner tr"></span>
+                <span class="corner bl"></span><span class="corner br"></span>
+                <span class="metric-label">当前技能</span>
+                <strong class="metric-value" id="activeSkill">--</strong>
+                <small class="metric-sub" id="skillDetail">--</small>
+              </article>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <span class="panel-num">01.A</span>
+                <h2>运行快照</h2>
+                <span class="panel-meta" id="snapshotTime">未同步</span>
+              </div>
+              <div class="snapshot-grid">
+                <div class="kv">
+                  <span class="kv-label">TICK 频率</span>
+                  <span class="kv-dots"></span>
+                  <b class="kv-value" id="tickHz">--</b>
+                </div>
+                <div class="kv">
+                  <span class="kv-label">电池电压</span>
+                  <span class="kv-dots"></span>
+                  <b class="kv-value" id="batteryVoltage">--</b>
+                </div>
+                <div class="kv">
+                  <span class="kv-label">急停</span>
+                  <span class="kv-dots"></span>
+                  <b class="kv-value" id="estopState">--</b>
+                </div>
+                <div class="kv">
+                  <span class="kv-label">机器人位姿</span>
+                  <span class="kv-dots"></span>
+                  <b class="kv-value" id="robotPose">--</b>
                 </div>
               </div>
-
-              <div class="plugin-meta-list plugin-dashboard-meta">
-                <div><span>ID</span><b id="pluginDashboardId">--</b></div>
-                <div><span>版本</span><b id="pluginDashboardVersion">--</b></div>
-                <div><span>作者</span><b id="pluginDashboardAuthor">--</b></div>
-                <div><span>状态</span><b id="pluginDashboardState">--</b></div>
-                <div><span>能力</span><b id="pluginDashboardProvides">--</b></div>
-                <div><span>路径</span><b id="pluginDashboardPath">--</b></div>
-              </div>
+              <div class="json-preview" id="goalPreview">active_goal: null</div>
             </section>
-
-            <section class="panel">
-              <div class="panel-head">
-                <h2>插件配置</h2>
-                <span>基于 config.schema.json 自动生成</span>
-              </div>
-              <div class="config-form" id="pluginConfigFields"></div>
-            </section>
-
-            <section class="panel">
-              <div class="panel-head">
-                <h2>发布 / 订阅</h2>
-                <button class="secondary" id="pluginPubsubSaveButton">保存发布订阅</button>
-              </div>
-              <div class="pubsub-layout">
-                <section class="pubsub-card">
-                  <div class="pubsub-card-head">
-                    <h3>发布</h3>
-                    <label class="switch">
-                      <input id="pluginPublishEnabled" type="checkbox" />
-                      <span></span>
-                    </label>
-                  </div>
-                  <p class="pubsub-help">插件先声明自己能发布哪些 topic，这里只控制当前是否启用。</p>
-                  <div class="pubsub-topic-list" id="pluginPublishList"></div>
-                </section>
-
-                <section class="pubsub-card">
-                  <div class="pubsub-card-head">
-                    <h3>订阅</h3>
-                  </div>
-                  <p class="pubsub-help">按两步选择：先选来源插件，再选这个插件的 topic。</p>
-                  <div class="subscription-builder">
-                    <select id="subscriptionPublisherSelect" class="config-input"></select>
-                    <select id="subscriptionTopicSelect" class="config-input"></select>
-                    <button class="secondary" id="subscriptionAddButton">添加订阅</button>
-                  </div>
-                  <div class="subscription-list" id="pluginSubscriptionList"></div>
-                </section>
-              </div>
-            </section>
-          </div>
-        </section>
-
-        <section class="page" id="page-logs">
-          <header class="topbar">
-            <div>
-              <h1>运行日志</h1>
-              <p>查看运行时事件流，便于联调插件生命周期、策略决策和运动链路。</p>
-            </div>
-            <div class="topbar-actions">
-              <div class="status-pill" id="logConnectionPill"><span class="pulse"></span>日志流连接中</div>
-              <button class="secondary" id="logAutoscrollButton">自动滚动: 开</button>
-              <button class="secondary" id="logClearButton">清空</button>
-            </div>
-          </header>
-
-          <section class="panel log-panel">
-            <div class="panel-head">
-              <h2>事件流</h2>
-              <span id="eventStatus">SSE 未连接</span>
-            </div>
-            <div class="log-console" id="logConsole"></div>
           </section>
-        </section>
-      </main>
+
+          <!-- ============ 02 PLUGINS ============ -->
+          <section class="page" id="page-plugins">
+            <header class="page-head">
+              <div class="page-head-num">02</div>
+              <div class="page-head-text">
+                <h1>插件管理</h1>
+                <p>视觉 / 感知 / 控制 / 决策 / 特殊 —— 全部已安装插件</p>
+              </div>
+            </header>
+
+            <div class="tab-rail" role="tablist">
+              <button class="tab-item active" data-category="all" role="tab">
+                全部 <span class="tab-count" data-count="all">0</span>
+              </button>
+              <button class="tab-item" data-category="vision" role="tab">
+                视觉 <span class="tab-count" data-count="vision">0</span>
+              </button>
+              <button class="tab-item" data-category="perception" role="tab">
+                感知 <span class="tab-count" data-count="perception">0</span>
+              </button>
+              <button class="tab-item" data-category="control" role="tab">
+                控制 <span class="tab-count" data-count="control">0</span>
+              </button>
+              <button class="tab-item" data-category="decision" role="tab">
+                决策 <span class="tab-count" data-count="decision">0</span>
+              </button>
+              <button class="tab-item" data-category="special" role="tab">
+                特殊 <span class="tab-count" data-count="special">0</span>
+              </button>
+              <div class="tab-spacer"></div>
+              <button class="btn btn-ghost btn-sm" id="pluginRefreshButton">刷新</button>
+            </div>
+
+            <section class="panel plugin-panel">
+              <div class="panel-head">
+                <span class="panel-num">02.A</span>
+                <h2 id="pluginPanelTitle">已安装 · 全部</h2>
+                <span class="panel-meta"><span id="pluginCount">0</span> 个插件</span>
+              </div>
+              <div class="plugin-grid" id="pluginGrid"></div>
+            </section>
+
+            <button class="install-fab" id="pluginUploadFab" title="上传插件 ZIP" aria-label="上传插件 ZIP">
+              <span class="fab-glyph">+</span>
+              <span class="fab-label">INSTALL</span>
+            </button>
+          </section>
+
+          <!-- ============ 03 LOGS ============ -->
+          <section class="page" id="page-logs">
+            <header class="page-head">
+              <div class="page-head-num">03</div>
+              <div class="page-head-text">
+                <h1>运行日志</h1>
+                <p>运行时事件流 · 联调插件生命周期、策略决策与运动链路</p>
+              </div>
+              <div class="page-head-actions">
+                <div class="status-pill" id="logConnectionPill">
+                  <span class="sq" aria-hidden="true"></span><span data-label>日志流连接中</span>
+                </div>
+                <button class="btn btn-ghost btn-sm" id="logAutoscrollButton">自动滚动: 开</button>
+                <button class="btn btn-ghost btn-sm" id="logClearButton">清空</button>
+              </div>
+            </header>
+
+            <section class="panel log-panel">
+              <div class="panel-head">
+                <span class="panel-num">03.A</span>
+                <h2>事件流</h2>
+                <span class="panel-meta" id="eventStatus">SSE 未连接</span>
+              </div>
+              <div class="log-console" id="logConsole"></div>
+            </section>
+          </section>
+
+          <!-- ============ 04 PLUGIN DETAIL ============ -->
+          <section class="page" id="page-plugin">
+            <header class="page-head">
+              <div class="page-head-num">04</div>
+              <div class="page-head-text">
+                <div class="breadcrumb">
+                  <button class="breadcrumb-link" id="pluginBackButton">02 插件</button>
+                  <span class="breadcrumb-sep">/</span>
+                  <span id="pluginDashboardSubtitle">插件控制台</span>
+                </div>
+                <h1 id="pluginDashboardTitle">插件控制台</h1>
+                <p>配置 · 发布订阅 · 生命周期</p>
+              </div>
+              <div class="page-head-actions">
+                <button class="btn btn-primary btn-sm" id="pluginSaveButton">
+                  保存配置<span class="dirty-dot" hidden></span>
+                </button>
+                <button class="btn btn-danger btn-sm" id="pluginUninstallButton">卸载插件</button>
+              </div>
+            </header>
+
+            <div class="plugin-dashboard-empty" id="pluginDashboardEmpty">
+              <span class="corner tl"></span><span class="corner tr"></span>
+              <span class="corner bl"></span><span class="corner br"></span>
+              还没有选中插件
+            </div>
+
+            <div class="plugin-dashboard" id="pluginDashboardBody" hidden>
+              <section class="panel">
+                <div class="panel-head">
+                  <span class="panel-num">04.A</span>
+                  <h2>插件信息</h2>
+                  <span class="panel-meta" id="pluginDashboardState">--</span>
+                </div>
+                <div class="plugin-hero">
+                  <div class="plugin-hero-cover" id="pluginDashboardCover"></div>
+                  <div class="plugin-hero-text">
+                    <h2 id="pluginDashboardName">--</h2>
+                    <p id="pluginDashboardDescription">--</p>
+                    <div class="plugin-enable-row">
+                      <span class="enable-label">启用状态</span>
+                      <label class="switch">
+                        <input id="pluginEnabledSwitch" type="checkbox" />
+                        <span></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="meta-grid">
+                  <div class="kv">
+                    <span class="kv-label">ID</span><span class="kv-dots"></span>
+                    <b class="kv-value" id="pluginDashboardId">--</b>
+                  </div>
+                  <div class="kv">
+                    <span class="kv-label">版本</span><span class="kv-dots"></span>
+                    <b class="kv-value" id="pluginDashboardVersion">--</b>
+                  </div>
+                  <div class="kv">
+                    <span class="kv-label">作者</span><span class="kv-dots"></span>
+                    <b class="kv-value" id="pluginDashboardAuthor">--</b>
+                  </div>
+                  <div class="kv">
+                    <span class="kv-label">能力</span><span class="kv-dots"></span>
+                    <b class="kv-value" id="pluginDashboardProvides">--</b>
+                  </div>
+                  <div class="kv kv-wide">
+                    <span class="kv-label">路径</span><span class="kv-dots"></span>
+                    <b class="kv-value" id="pluginDashboardPath">--</b>
+                  </div>
+                </div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-head">
+                  <span class="panel-num">04.B</span>
+                  <h2>插件配置</h2>
+                  <span class="panel-meta">基于 config.schema.json 自动生成</span>
+                </div>
+                <div class="config-form" id="pluginConfigFields"></div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-head">
+                  <span class="panel-num">04.C</span>
+                  <h2>发布 / 订阅</h2>
+                  <button class="btn btn-ghost btn-sm" id="pluginPubsubSaveButton">
+                    保存发布订阅<span class="dirty-dot" hidden></span>
+                  </button>
+                </div>
+                <div class="pubsub-layout">
+                  <section class="pubsub-card">
+                    <div class="pubsub-card-head">
+                      <h3>发布</h3>
+                      <label class="switch">
+                        <input id="pluginPublishEnabled" type="checkbox" />
+                        <span></span>
+                      </label>
+                    </div>
+                    <p class="pubsub-help">插件先声明可发布的 topic，这里控制当前是否启用。</p>
+                    <div class="pubsub-topic-list" id="pluginPublishList"></div>
+                  </section>
+
+                  <section class="pubsub-card">
+                    <div class="pubsub-card-head">
+                      <h3>订阅</h3>
+                    </div>
+                    <p class="pubsub-help">两步选择：先来源插件，再选 topic。</p>
+                    <div class="subscription-builder">
+                      <select id="subscriptionPublisherSelect" class="config-input"></select>
+                      <select id="subscriptionTopicSelect" class="config-input"></select>
+                      <button class="btn btn-ghost btn-sm" id="subscriptionAddButton">添加</button>
+                    </div>
+                    <div class="subscription-list" id="pluginSubscriptionList"></div>
+                  </section>
+                </div>
+              </section>
+            </div>
+          </section>
+        </main>
+
+        <div class="foot-ruler" aria-hidden="true">
+          <span>ASTRBOTEX · INDUSTRIAL CONTROL PANEL</span>
+          <span>POLL 2000MS · SSE LIVE</span>
+        </div>
+      </div>
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <input id="pluginZipInput" type="file" accept=".zip,application/zip" hidden />
-    <script src="./app.js?v=20260703-pubsub"></script>
+    <script src="./app.js?v=20260726-industrial"></script>
   </body>
 </html>

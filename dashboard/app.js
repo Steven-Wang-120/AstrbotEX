@@ -3,6 +3,7 @@ const MAX_TRACE_EVENTS = 200;
 const PLUGIN_CATEGORIES = ["vision", "perception", "control", "decision", "special"];
 
 const CATEGORY_LABELS = {
+  all: "全部",
   vision: "视觉",
   perception: "感知",
   control: "控制",
@@ -19,9 +20,13 @@ const state = {
   activePage: "core",
   activePluginId: null,
   activePluginCategory: null,
-  activeUploadCategory: null,
+  activePluginTab: "all",
   toastTimer: null,
   logAutoscroll: true,
+  configDirty: false,
+  pubsubDirty: false,
+  uninstallArmed: false,
+  uninstallTimer: null,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -43,7 +48,9 @@ function showToast(message, kind = "ok") {
 }
 
 async function runAction(button, pendingLabel, action) {
-  const originalText = button.textContent;
+  if (!button) return action();
+  const dirtyDot = button.querySelector(".dirty-dot");
+  const originalHTML = button.innerHTML;
   button.disabled = true;
   button.classList.add("busy");
   button.textContent = pendingLabel;
@@ -54,7 +61,8 @@ async function runAction(button, pendingLabel, action) {
   } finally {
     button.disabled = false;
     button.classList.remove("busy");
-    button.textContent = originalText;
+    button.innerHTML = originalHTML;
+    if (dirtyDot) updateDirtyUI();
   }
 }
 
@@ -97,26 +105,61 @@ async function apiJson(path, options = {}) {
   return data;
 }
 
-function switchPage(page) {
+/* ============ ROUTER ============ */
+
+function parseHash() {
+  const hash = window.location.hash.replace(/^#\/?/, "");
+  if (!hash) return { page: "core" };
+  const parts = hash.split("/");
+  if (parts[0] === "plugins" && parts.length >= 3) {
+    return { page: "plugin", category: parts[1], pluginId: decodeURIComponent(parts.slice(2).join("/")) };
+  }
+  if (parts[0] === "plugins" && parts.length === 2) {
+    return { page: "plugins", tab: parts[1] };
+  }
+  if (parts[0] === "plugins") return { page: "plugins" };
+  if (parts[0] === "logs") return { page: "logs" };
+  if (parts[0] === "core") return { page: "core" };
+  return { page: "core" };
+}
+
+function writeHash() {
+  let hash = "#/core";
+  if (state.activePage === "plugins") hash = `#/plugins/${state.activePluginTab}`;
+  else if (state.activePage === "logs") hash = "#/logs";
+  else if (state.activePage === "plugin" && state.activePluginId) {
+    hash = `#/plugins/${state.activePluginCategory || "special"}/${encodeURIComponent(state.activePluginId)}`;
+  }
+  if (window.location.hash !== hash) {
+    history.replaceState(null, "", hash);
+  }
+}
+
+function switchPage(page, options = {}) {
   state.activePage = page;
   document.querySelectorAll(".page").forEach((el) => el.classList.toggle("active", el.id === `page-${page}`));
   document.querySelectorAll(".nav-item[data-page]").forEach((el) => {
     el.classList.toggle("active", el.dataset.page === page);
   });
-  if (PLUGIN_CATEGORIES.includes(page)) refreshPlugins();
+  const fab = $("pluginUploadFab");
+  if (fab) fab.hidden = page !== "plugins";
+  if (page === "plugins") renderPluginGrid();
   if (page === "logs") renderEvents();
   if (page === "plugin") renderPluginDashboard();
+  if (!options.silent) writeHash();
 }
+
+/* ============ STATUS ============ */
 
 async function refreshStatus(options = {}) {
   const { suppressToast = false } = options;
   try {
     const status = await apiJson("/api/status");
     renderStatus(status);
-    setConnection(true, "API 已连接");
+    setConnection(true, "已连接");
     return status;
   } catch (error) {
-    setConnection(false, `API 连接失败: ${error.message}`);
+    setConnection(false, `连接失败`);
     if (!suppressToast) {
       throw error;
     }
@@ -129,22 +172,32 @@ function renderStatus(status) {
   const robot = world.robot || {};
   const entities = world.entities || [];
   const zones = world.zones || [];
+  const robotConnected = robot.link_ok === true;
+  const estopKnown = robotConnected && typeof robot.estop === "boolean";
   state.runtimeState = String(status.runtime_state || "idle").toLowerCase();
 
   setText("runtimeState", String(status.runtime_state || "--").toUpperCase());
   setText("runtimeDetail", `目标频率 ${formatValue(status.tick_hz)} Hz`);
   setText("worldSummary", `${entities.length} 实体`);
-  setText("worldDetail", `${zones.length} 区域，链路 ${robot.link_ok ? "正常" : "--"}`);
-  setText("motionState", robot.link_ok ? "连接正常" : "--");
-  setText("motionDetail", robot.estop ? "急停触发" : "--");
+  setText("worldDetail", `${zones.length} 区域，链路 ${robotConnected ? "正常" : "未连接"}`);
+  setText("motionState", robotConnected ? "连接正常" : "未连接");
+  setText("motionDetail", !estopKnown ? "急停状态未知" : robot.estop ? "急停触发" : "急停正常");
   setText("activeSkill", status.active_skill || "--");
   setText("skillDetail", status.active_goal ? status.active_goal.type : "--");
   setText("snapshotTime", formatTime(world.timestamp));
   setText("tickHz", `${formatValue(status.tick_hz)} Hz`);
   setText("batteryVoltage", isPresent(robot.battery_voltage) ? `${Number(robot.battery_voltage).toFixed(1)} V` : "--");
-  setText("estopState", robot.estop ? "触发" : "--");
+  setText("estopState", !estopKnown ? "未知" : robot.estop ? "触发" : "正常");
   setText("robotPose", formatPose(robot.pose));
   setText("goalPreview", `active_goal: ${JSON.stringify(status.active_goal, null, 2)}`);
+
+  // status strip
+  setText("stripRuntime", state.runtimeState.toUpperCase());
+  setText("stripTick", isPresent(status.tick_hz) ? `${status.tick_hz} Hz` : "--");
+  setText("stripBatt", isPresent(robot.battery_voltage) ? `${Number(robot.battery_voltage).toFixed(1)} V` : "--");
+  setText("stripEstop", !estopKnown ? "UNKNOWN" : robot.estop ? "TRIG" : "OK");
+  setText("stripSkill", status.active_skill || "--");
+
   renderRuntimeToggleButton();
 
   if (Array.isArray(status.recent_events) && state.events.length === 0) {
@@ -155,17 +208,17 @@ function renderStatus(status) {
 function renderRuntimeToggleButton(pending = "") {
   const button = $("runtimeToggleButton");
   if (!button) return;
-  button.classList.remove("primary", "danger", "secondary");
+  button.classList.remove("btn-primary", "btn-danger-solid", "btn-ghost");
   button.disabled = false;
 
   if (pending === "starting") {
-    button.classList.add("primary", "busy");
+    button.classList.add("btn-primary", "busy");
     button.textContent = "启动中";
     button.disabled = true;
     return;
   }
   if (pending === "stopping") {
-    button.classList.add("danger", "busy");
+    button.classList.add("btn-danger-solid", "busy");
     button.textContent = "停止中";
     button.disabled = true;
     return;
@@ -173,13 +226,33 @@ function renderRuntimeToggleButton(pending = "") {
 
   button.classList.remove("busy");
   if (state.runtimeState === "running") {
-    button.classList.add("primary");
+    button.classList.add("btn-primary");
     button.textContent = "运行中";
     return;
   }
-  button.classList.add("danger");
+  button.classList.add("btn-danger-solid");
   button.textContent = "已停止";
 }
+
+function setConnection(ok, label) {
+  const pill = $("connectionPill");
+  if (!pill) return;
+  pill.classList.toggle("offline", !ok);
+  const labelEl = pill.querySelector("[data-label]");
+  if (labelEl) labelEl.textContent = label;
+}
+
+function setEventConnection(ok, label) {
+  setText("eventStatus", label);
+  setText("stripSse", ok ? "LIVE" : "RETRY");
+  const pill = $("logConnectionPill");
+  if (!pill) return;
+  pill.classList.toggle("offline", !ok);
+  const labelEl = pill.querySelector("[data-label]");
+  if (labelEl) labelEl.textContent = label;
+}
+
+/* ============ EVENTS / LOGS ============ */
 
 function eventLevel(event) {
   if (event.type === "fault" || event.type === "rule_rejected") return "ERROR";
@@ -236,21 +309,6 @@ function connectEvents() {
   });
 }
 
-function setConnection(ok, label) {
-  const pill = $("connectionPill");
-  if (!pill) return;
-  pill.classList.toggle("offline", !ok);
-  pill.lastChild.textContent = label;
-}
-
-function setEventConnection(ok, label) {
-  setText("eventStatus", label);
-  const pill = $("logConnectionPill");
-  if (!pill) return;
-  pill.classList.toggle("offline", !ok);
-  pill.lastChild.textContent = label;
-}
-
 function toggleLogAutoscroll() {
   state.logAutoscroll = !state.logAutoscroll;
   setText("logAutoscrollButton", `自动滚动: ${state.logAutoscroll ? "开" : "关"}`);
@@ -264,6 +322,8 @@ function clearLogs() {
   state.events = [];
   renderEvents();
 }
+
+/* ============ RUNTIME TOGGLE ============ */
 
 async function startRuntime() {
   renderRuntimeToggleButton("starting");
@@ -314,6 +374,8 @@ async function handleRuntimeToggleClick() {
   }
 }
 
+/* ============ PLUGINS ============ */
+
 function pluginsByCategory(category) {
   return state.plugins.filter((plugin) => (plugin.category || "special") === category);
 }
@@ -342,13 +404,14 @@ async function refreshPlugins() {
   const data = await apiJson("/api/v1/ex/plugins");
   state.plugins = data.plugins || [];
   await refreshPublishers();
-  renderAllPluginCategories();
+  renderPluginGrid();
+  renderTabCounts();
   if (state.activePluginId) {
     const matched = currentPlugin();
     if (!matched) {
       state.activePluginId = null;
       state.activePluginCategory = null;
-      if (state.activePage === "plugin") switchPage("vision");
+      if (state.activePage === "plugin") switchPage("plugins");
     } else {
       if (!matched.config_schema) {
         await fetchPluginDetail(matched.id);
@@ -358,21 +421,36 @@ async function refreshPlugins() {
   }
 }
 
-function renderAllPluginCategories() {
-  for (const category of PLUGIN_CATEGORIES) {
-    renderPluginCategory(category);
+function renderTabCounts() {
+  const counts = { all: state.plugins.length };
+  for (const cat of PLUGIN_CATEGORIES) {
+    counts[cat] = pluginsByCategory(cat).length;
   }
+  document.querySelectorAll("[data-count]").forEach((el) => {
+    const key = el.dataset.count;
+    el.textContent = String(counts[key] ?? 0);
+  });
 }
 
-function renderPluginCategory(category) {
-  const plugins = pluginsByCategory(category);
-  setText(`${category}Count`, `${plugins.length}`);
-  const grid = $(`${category}Grid`);
+function renderPluginGrid() {
+  const grid = $("pluginGrid");
+  if (!grid) return;
+
+  const tab = state.activePluginTab;
+  const plugins = tab === "all" ? state.plugins : pluginsByCategory(tab);
+
+  setText("pluginCount", String(plugins.length));
+  setText("pluginPanelTitle", `已安装 · ${CATEGORY_LABELS[tab] || "全部"}`);
+
+  document.querySelectorAll(".tab-item[data-category]").forEach((el) => {
+    el.classList.toggle("active", el.dataset.category === tab);
+  });
+
   grid.innerHTML = "";
   if (plugins.length === 0) {
     const empty = document.createElement("div");
     empty.className = "plugin-empty";
-    empty.textContent = `还没有安装${CATEGORY_LABELS[category]}插件`;
+    empty.textContent = tab === "all" ? "还没有安装任何插件" : `还没有安装${CATEGORY_LABELS[tab]}插件`;
     grid.appendChild(empty);
     return;
   }
@@ -383,6 +461,19 @@ function renderPluginCategory(category) {
     card.addEventListener("click", () => {
       openPluginDashboard(plugin).catch((error) => showToast(error.message, "error"));
     });
+
+    const toggle = document.createElement("label");
+    toggle.className = "switch plugin-switch";
+    toggle.title = plugin.enabled ? "停用" : "启用";
+    toggle.addEventListener("click", (event) => event.stopPropagation());
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = Boolean(plugin.enabled);
+    input.addEventListener("change", () => {
+      setPluginEnabled(plugin.id, input.checked, input).catch((error) => showToast(error.message, "error"));
+    });
+    toggle.appendChild(input);
+    toggle.appendChild(document.createElement("span"));
 
     const cover = document.createElement("div");
     cover.className = "plugin-cover";
@@ -395,26 +486,18 @@ function renderPluginCategory(category) {
       cover.innerHTML = `<span>${escapeHtml((plugin.name || plugin.id).slice(0, 2).toUpperCase())}</span>`;
     }
 
-    const toggle = document.createElement("label");
-    toggle.className = "switch plugin-switch";
-    toggle.addEventListener("click", (event) => event.stopPropagation());
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.checked = Boolean(plugin.enabled);
-    input.addEventListener("change", () => setPluginEnabled(plugin.id, input.checked));
-    toggle.appendChild(input);
-    toggle.appendChild(document.createElement("span"));
-    cover.appendChild(toggle);
-
     const body = document.createElement("div");
-    body.className = "plugin-card-body";
+    body.className = "plugin-body";
+    const tags = (plugin.provides || []).map((item) => `<span class="plugin-tag">${escapeHtml(item)}</span>`).join("");
+    const statusClass = plugin.error ? "state-err" : plugin.enabled ? "state-ok" : "";
     body.innerHTML = `
-      <h2>${escapeHtml(plugin.name)}</h2>
-      <p>${escapeHtml(plugin.description || "暂无说明")}</p>
-      <div class="plugin-badges">${(plugin.provides || []).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
-      <small>${escapeHtml(plugin.status)} · ${escapeHtml(plugin.version || "--")}</small>
+      <h2 class="plugin-name">${escapeHtml(plugin.name)}</h2>
+      <p class="plugin-desc">${escapeHtml(plugin.description || "暂无说明")}</p>
+      <div class="plugin-tags">${tags}</div>
+      <div class="plugin-meta"><span class="${statusClass}">${escapeHtml(plugin.status)}</span> · v${escapeHtml(plugin.version || "--")}</div>
     `;
 
+    card.appendChild(toggle);
     card.appendChild(cover);
     card.appendChild(body);
     grid.appendChild(card);
@@ -428,6 +511,8 @@ async function openPluginDashboard(plugin) {
     await fetchPluginDetail(plugin.id);
   }
   await refreshPublishers();
+  resetDirty();
+  disarmUninstall();
   renderPluginDashboard();
   switchPage("plugin");
 }
@@ -446,8 +531,8 @@ function renderPluginDashboard() {
 
   empty.hidden = true;
   body.hidden = false;
-  setText("pluginDashboardTitle", plugin.name || plugin.id);
-  setText("pluginDashboardSubtitle", `${CATEGORY_LABELS[plugin.category] || "特殊"}插件`);
+  setPluginDashboardTitle(plugin.name || plugin.id);
+  setText("pluginDashboardSubtitle", `${CATEGORY_LABELS[plugin.category] || "特殊"} / ${plugin.id}`);
   setText("pluginDashboardName", plugin.name || "--");
   setText("pluginDashboardDescription", plugin.description || "暂无说明");
   setText("pluginDashboardId", plugin.id || "--");
@@ -488,6 +573,7 @@ function normalizeSchemaField(key, schema) {
     defaultValue: schema.default,
     minimum: schema.minimum,
     maximum: schema.maximum,
+    items: schema.items || null,
     description: schema.description || "",
   };
 }
@@ -500,7 +586,7 @@ function renderPluginConfigForm(plugin) {
   const required = Array.isArray(schema.required) ? schema.required : [];
   const config = plugin.config || {};
 
-  const entries = Object.entries(properties);
+  const entries = Object.entries(properties).filter(([key, fieldSchema]) => key !== "pubsub" && fieldSchema?.type !== "object");
   if (entries.length === 0) {
     const empty = document.createElement("div");
     empty.className = "plugin-empty compact";
@@ -548,9 +634,15 @@ function renderPluginConfigForm(plugin) {
     } else if (field.type === "integer" || field.type === "number") {
       input = document.createElement("input");
       input.type = "number";
+      input.step = field.type === "integer" ? "1" : "any";
       if (isPresent(field.minimum)) input.min = String(field.minimum);
       if (isPresent(field.maximum)) input.max = String(field.maximum);
       if (isPresent(value)) input.value = String(value);
+    } else if (field.type === "array") {
+      input = document.createElement("input");
+      input.type = "text";
+      input.value = Array.isArray(value) ? value.join(", ") : "";
+      input.dataset.configItemType = field.items?.type || "string";
     } else {
       input = document.createElement("input");
       input.type = "text";
@@ -562,12 +654,14 @@ function renderPluginConfigForm(plugin) {
     input.dataset.configType = field.type;
     if (field.required) input.dataset.required = "true";
     input.className = "config-input";
+    input.addEventListener("input", () => markDirty("config"));
+    input.addEventListener("change", () => markDirty("config"));
     row.appendChild(input);
 
-    if (field.description) {
+    if (field.description || field.type === "array") {
       const note = document.createElement("small");
       note.className = "config-note";
-      note.textContent = field.description;
+      note.textContent = [field.description, field.type === "array" ? "多个值请使用英文逗号分隔。" : ""].filter(Boolean).join(" ");
       row.appendChild(note);
     }
 
@@ -604,6 +698,7 @@ function renderPluginPubSub(plugin) {
       toggle.type = "checkbox";
       toggle.dataset.publishTopic = item.topic;
       toggle.checked = enabledTopics.has(item.topic);
+      toggle.addEventListener("change", () => markDirty("pubsub"));
       row.appendChild(toggle);
       publishList.appendChild(row);
     });
@@ -673,7 +768,7 @@ function renderSubscriptionList(plugin) {
       </div>
     `;
     const remove = document.createElement("button");
-    remove.className = "secondary";
+    remove.className = "btn btn-ghost btn-sm";
     remove.textContent = "移除";
     remove.addEventListener("click", () => removeSubscription(index));
     row.appendChild(remove);
@@ -693,25 +788,40 @@ function currentPubsubDraft(plugin) {
 function collectPluginConfig() {
   const payload = {};
   const missing = [];
-  document.querySelectorAll("[data-config-key]").forEach((input) => {
+  const inputs = Array.from(document.querySelectorAll("[data-config-key]"));
+  for (const input of inputs) {
     const key = input.dataset.configKey;
     const type = input.dataset.configType;
     const required = input.dataset.required === "true";
     let value = input.value;
 
+    if (!input.checkValidity()) {
+      input.reportValidity();
+      throw new Error(`${key} 超出允许范围或格式不正确`);
+    }
+
     if (required && !String(value).trim()) {
       missing.push(key);
-      return;
+      continue;
     }
-    if (!String(value).trim() && !required) {
-      payload[key] = "";
-      return;
+    if (type === "array") {
+      const itemType = input.dataset.configItemType || "string";
+      value = String(value).split(",").map((item) => item.trim()).filter(Boolean);
+      if (itemType === "integer") value = value.map((item) => Number.parseInt(item, 10));
+      if (itemType === "number") value = value.map((item) => Number(item));
+    } else if (type === "boolean") {
+      value = value === "true";
+    } else if (type === "integer" || type === "number") {
+      if (!String(value).trim()) {
+        throw new Error(`${key} 需要有效数字`);
+      }
+      value = type === "integer" ? Number.parseInt(value, 10) : Number(value);
+      if (!Number.isFinite(value)) {
+        throw new Error(`${key} 需要有效数字`);
+      }
     }
-    if (type === "boolean") value = value === "true";
-    if (type === "integer") value = Number.parseInt(value, 10);
-    if (type === "number") value = Number(value);
     payload[key] = value;
-  });
+  }
   if (missing.length > 0) {
     throw new Error(`缺少必填项: ${missing.join(", ")}`);
   }
@@ -725,21 +835,36 @@ function collectPubsubConfig(plugin) {
   return payload;
 }
 
-async function setPluginEnabled(pluginId, enabled) {
+async function setPluginEnabled(pluginId, enabled, input = null) {
   const action = enabled ? "enable" : "disable";
-  const result = await apiJson(`/api/v1/ex/plugins/${encodeURIComponent(pluginId)}/${action}`, {
-    method: "POST",
-    body: "{}",
-  });
-  const updated = result.plugin;
-  state.plugins = state.plugins.map((plugin) => (plugin.id === updated.id ? updated : plugin));
-  if (state.activePluginId === updated.id) {
-    state.activePluginId = updated.id;
+  const previousEnabled = Boolean(state.plugins.find((plugin) => plugin.id === pluginId)?.enabled);
+  if (input) input.disabled = true;
+  try {
+    const result = await apiJson(`/api/v1/ex/plugins/${encodeURIComponent(pluginId)}/${action}`, {
+      method: "POST",
+      body: "{}",
+    });
+    const updated = result.plugin;
+    if (updated.error || updated.status === "fault") {
+      throw new Error(updated.error || `${updated.name}进入故障状态`);
+    }
+    state.plugins = state.plugins.map((plugin) => (plugin.id === updated.id ? updated : plugin));
+    renderPluginGrid();
+    renderTabCounts();
+    renderPluginDashboard();
+    await refreshStatus({ suppressToast: true });
+    showToast(`${updated.name}已${enabled ? "启用" : "停用"}`);
+  } catch (error) {
+    if (input) input.checked = previousEnabled;
+    try {
+      await refreshPlugins();
+    } catch {
+      // Keep the last confirmed local state when reconciliation is unavailable.
+    }
+    throw error;
+  } finally {
+    if (input) input.disabled = false;
   }
-  renderAllPluginCategories();
-  renderPluginDashboard();
-  await refreshStatus();
-  showToast(`${updated.name}已${enabled ? "启用" : "停用"}`);
 }
 
 async function savePluginConfig() {
@@ -752,6 +877,7 @@ async function savePluginConfig() {
   });
   const updated = result.plugin;
   state.plugins = state.plugins.map((item) => (item.id === updated.id ? updated : item));
+  clearDirty("config");
   renderPluginDashboard();
   showToast("配置已保存");
 }
@@ -767,6 +893,7 @@ async function savePluginPubsub() {
   const updated = result.plugin;
   state.plugins = state.plugins.map((item) => (item.id === updated.id ? updated : item));
   await refreshPublishers();
+  clearDirty("pubsub");
   renderPluginDashboard();
   showToast("发布 / 订阅配置已保存");
 }
@@ -788,6 +915,7 @@ function addSubscription() {
   }
   pubsub.subscriptions.push({ plugin_id: publisherId, topic });
   plugin.pubsub = pubsub;
+  markDirty("pubsub");
   renderSubscriptionList(plugin);
 }
 
@@ -797,22 +925,63 @@ function removeSubscription(index) {
   const pubsub = currentPubsubDraft(plugin);
   pubsub.subscriptions.splice(index, 1);
   plugin.pubsub = pubsub;
+  markDirty("pubsub");
   renderSubscriptionList(plugin);
 }
 
-async function uninstallActivePlugin() {
+/* ============ UNINSTALL (two-step) ============ */
+
+function disarmUninstall() {
+  state.uninstallArmed = false;
+  if (state.uninstallTimer) {
+    clearTimeout(state.uninstallTimer);
+    state.uninstallTimer = null;
+  }
+  const btn = $("pluginUninstallButton");
+  if (!btn) return;
+  btn.textContent = "卸载插件";
+  btn.classList.remove("btn-danger-solid");
+  btn.classList.add("btn-danger");
+}
+
+async function handleUninstallClick(event) {
   const plugin = currentPlugin();
   if (!plugin) return;
-  if (!window.confirm(`确认卸载插件“${plugin.name}”吗？`)) return;
-  await apiJson(`/api/v1/ex/plugins/${encodeURIComponent(plugin.id)}`, { method: "DELETE" });
-  showToast(`已卸载${plugin.name}`);
-  const category = plugin.category || "special";
-  state.activePluginId = null;
-  state.activePluginCategory = null;
-  await refreshPlugins();
-  switchPage(category);
-  await refreshStatus();
+  const btn = event.currentTarget;
+
+  if (!state.uninstallArmed) {
+    state.uninstallArmed = true;
+    btn.textContent = "确认卸载？再点一次";
+    btn.classList.remove("btn-danger");
+    btn.classList.add("btn-danger-solid");
+    state.uninstallTimer = setTimeout(() => {
+      disarmUninstall();
+    }, 4000);
+    return;
+  }
+
+  if (state.uninstallTimer) {
+    clearTimeout(state.uninstallTimer);
+    state.uninstallTimer = null;
+  }
+  state.uninstallArmed = false;
+
+  await runAction(btn, "卸载中", async () => {
+    await apiJson(`/api/v1/ex/plugins/${encodeURIComponent(plugin.id)}`, { method: "DELETE" });
+    showToast(`已卸载${plugin.name}`);
+    const category = plugin.category || "special";
+    state.activePluginId = null;
+    state.activePluginCategory = null;
+    state.activePluginTab = category;
+    disarmUninstall();
+    await refreshPlugins();
+    switchPage("plugins");
+    await refreshStatus();
+  });
+  disarmUninstall();
 }
+
+/* ============ UPLOAD ============ */
 
 async function uploadPluginZip(file, category) {
   const form = new FormData();
@@ -832,42 +1001,139 @@ async function uploadPluginZip(file, category) {
   showToast(`已安装${plugin.name}`);
 }
 
+function handleUploadClick() {
+  let category = state.activePluginTab;
+  if (category === "all") {
+    const choice = window.prompt(
+      `选择插件类别（输入编号）:\n${PLUGIN_CATEGORIES.map((c, i) => `  ${i + 1}. ${CATEGORY_LABELS[c]} (${c})`).join("\n")}`,
+      "1"
+    );
+    if (!choice) return;
+    const idx = Number.parseInt(choice, 10) - 1;
+    if (Number.isNaN(idx) || idx < 0 || idx >= PLUGIN_CATEGORIES.length) {
+      showToast("类别选择无效", "error");
+      return;
+    }
+    category = PLUGIN_CATEGORIES[idx];
+  }
+  const input = $("pluginZipInput");
+  input.dataset.uploadCategory = category;
+  input.click();
+}
+
+/* ============ DIRTY TRACKING ============ */
+
+function markDirty(which) {
+  if (which === "config") state.configDirty = true;
+  if (which === "pubsub") state.pubsubDirty = true;
+  updateDirtyUI();
+}
+
+function clearDirty(which) {
+  if (which === "config") state.configDirty = false;
+  if (which === "pubsub") state.pubsubDirty = false;
+  updateDirtyUI();
+}
+
+function resetDirty() {
+  state.configDirty = false;
+  state.pubsubDirty = false;
+  updateDirtyUI();
+}
+
+function updateDirtyUI() {
+  const configDot = $("pluginSaveButton")?.querySelector(".dirty-dot");
+  if (configDot) configDot.hidden = !state.configDirty;
+  const pubsubDot = $("pluginPubsubSaveButton")?.querySelector(".dirty-dot");
+  if (pubsubDot) pubsubDot.hidden = !state.pubsubDirty;
+
+  const title = $("pluginDashboardTitle");
+  if (!title) return;
+  let flag = title.querySelector(".unsaved-flag");
+  if (state.configDirty || state.pubsubDirty) {
+    if (!flag) {
+      flag = document.createElement("span");
+      flag.className = "unsaved-flag";
+      flag.textContent = "未保存";
+      title.appendChild(flag);
+    }
+  } else if (flag) {
+    flag.remove();
+  }
+}
+
+function setPluginDashboardTitle(text) {
+  const title = $("pluginDashboardTitle");
+  if (!title) return;
+  title.textContent = text;
+  updateDirtyUI();
+}
+
+window.addEventListener("beforeunload", (event) => {
+  if (state.configDirty || state.pubsubDirty) {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+});
+
+/* ============ BINDINGS ============ */
+
 function bindActions() {
   setText("apiBaseLabel", API_BASE.replace(/^https?:\/\//, ""));
+
   document.querySelectorAll(".nav-item[data-page]").forEach((button) => {
-    button.addEventListener("click", () => switchPage(button.dataset.page));
+    button.addEventListener("click", () => {
+      switchPage(button.dataset.page);
+    });
   });
+
   $("refreshButton").addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", () => refreshStatus()));
   $("runtimeToggleButton").addEventListener("click", () => {
     handleRuntimeToggleClick().catch(() => showToast("状态机切换失败", "error"));
   });
 
-  document.querySelectorAll("[data-plugin-refresh]").forEach((button) => {
-    button.addEventListener("click", (event) => runAction(event.currentTarget, "刷新中", refreshPlugins));
-  });
-  document.querySelectorAll("[data-upload-category]").forEach((button) => {
+  document.querySelectorAll(".tab-item[data-category]").forEach((button) => {
     button.addEventListener("click", () => {
-      state.activeUploadCategory = button.dataset.uploadCategory;
-      $("pluginZipInput").click();
+      state.activePluginTab = button.dataset.category;
+      renderPluginGrid();
+      writeHash();
     });
   });
+
+  $("pluginRefreshButton").addEventListener("click", (event) =>
+    runAction(event.currentTarget, "刷新中", refreshPlugins)
+  );
+
+  const fab = $("pluginUploadFab");
+  if (fab) fab.addEventListener("click", handleUploadClick);
+
   $("pluginZipInput").addEventListener("change", (event) => {
     const file = event.currentTarget.files && event.currentTarget.files[0];
-    if (!file || !state.activeUploadCategory) return;
-    const button = document.querySelector(`[data-upload-category="${state.activeUploadCategory}"]`);
-    runAction(button, "+", () => uploadPluginZip(file, state.activeUploadCategory));
+    const category = event.currentTarget.dataset.uploadCategory;
+    if (!file || !category) return;
+    const fabEl = $("pluginUploadFab");
+    runAction(fabEl, "+", () => uploadPluginZip(file, category));
     event.currentTarget.value = "";
   });
 
-  $("pluginBackButton").addEventListener("click", () => switchPage(state.activePluginCategory || "vision"));
+  $("pluginBackButton").addEventListener("click", () => {
+    if (state.activePluginCategory) {
+      state.activePluginTab = state.activePluginCategory;
+    }
+    switchPage("plugins");
+  });
+
   $("pluginEnabledSwitch").addEventListener("change", (event) => {
     const plugin = currentPlugin();
     if (!plugin) return;
-    setPluginEnabled(plugin.id, event.currentTarget.checked);
+    setPluginEnabled(plugin.id, event.currentTarget.checked, event.currentTarget).catch((error) => showToast(error.message, "error"));
   });
   $("pluginSaveButton").addEventListener("click", (event) => runAction(event.currentTarget, "保存中", savePluginConfig));
   $("pluginPubsubSaveButton").addEventListener("click", (event) => runAction(event.currentTarget, "保存中", savePluginPubsub));
-  $("pluginUninstallButton").addEventListener("click", (event) => runAction(event.currentTarget, "卸载中", uninstallActivePlugin));
+  $("pluginUninstallButton").addEventListener("click", (event) => {
+    handleUninstallClick(event).catch((error) => showToast(error.message, "error"));
+  });
+  $("pluginPublishEnabled").addEventListener("change", () => markDirty("pubsub"));
   $("subscriptionPublisherSelect").addEventListener("change", (event) => {
     const plugin = currentPlugin();
     if (!plugin) return;
@@ -877,14 +1143,72 @@ function bindActions() {
 
   $("logAutoscrollButton").addEventListener("click", toggleLogAutoscroll);
   $("logClearButton").addEventListener("click", clearLogs);
+
+  window.addEventListener("hashchange", () => {
+    applyRoute(parseHash());
+  });
 }
 
-bindActions();
-renderEvents();
-renderRuntimeToggleButton();
-refreshStatus();
-refreshPlugins();
-connectEvents();
-setInterval(() => {
-  refreshStatus({ suppressToast: true }).catch(() => {});
-}, 2000);
+/* ============ ROUTE APPLICATION ============ */
+
+async function applyRoute(route) {
+  if (route.page === "plugin" && route.pluginId) {
+    state.activePluginId = route.pluginId;
+    state.activePluginCategory = route.category || null;
+    let plugin = currentPlugin();
+    if (!plugin) {
+      try {
+        plugin = await fetchPluginDetail(route.pluginId);
+      } catch {
+        showToast(`插件 ${route.pluginId} 不存在`, "error");
+        switchPage("plugins");
+        return;
+      }
+    } else if (!plugin.config_schema) {
+      try {
+        await fetchPluginDetail(plugin.id);
+      } catch { /* non-fatal */ }
+    }
+    try {
+      await refreshPublishers();
+    } catch { /* non-fatal */ }
+    resetDirty();
+    disarmUninstall();
+    switchPage("plugin", { silent: true });
+    return;
+  }
+  if (route.page === "plugins") {
+    if (route.tab && (route.tab === "all" || PLUGIN_CATEGORIES.includes(route.tab))) {
+      state.activePluginTab = route.tab;
+    }
+    switchPage("plugins", { silent: true });
+    return;
+  }
+  if (route.page === "logs") {
+    switchPage("logs", { silent: true });
+    return;
+  }
+  switchPage("core", { silent: true });
+}
+
+/* ============ BOOT ============ */
+
+async function boot() {
+  bindActions();
+  renderEvents();
+  renderRuntimeToggleButton();
+  const fab = $("pluginUploadFab");
+  if (fab) fab.hidden = true;
+
+  refreshStatus().catch(() => {});
+  await refreshPlugins().catch(() => {});
+  connectEvents();
+
+  await applyRoute(parseHash());
+
+  setInterval(() => {
+    refreshStatus({ suppressToast: true }).catch(() => {});
+  }, 2000);
+}
+
+boot();

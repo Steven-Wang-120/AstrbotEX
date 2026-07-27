@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import math
 import shutil
 import sys
 import time
@@ -158,7 +159,10 @@ class LocalPluginManager:
         record = self._record(plugin_id)
         if not isinstance(config, dict):
             raise ValueError("config must be an object")
-        self._write_plugin_config(record, config)
+        merged_config = self._load_plugin_config(record)
+        merged_config.update(config)
+        self._validate_config(record, merged_config)
+        self._write_plugin_config(record, merged_config)
         if record.loaded:
             self.registry.unregister(record.manifest.id)
             record.loaded = False
@@ -196,6 +200,10 @@ class LocalPluginManager:
         if enabled:
             record.enabled = True
             self._load_record(record)
+            if record.error:
+                record.enabled = False
+                self._save_enabled_state()
+                raise ValueError(f"failed to enable plugin: {record.error}")
         else:
             if record.loaded:
                 self.registry.unregister(record.manifest.id)
@@ -210,6 +218,48 @@ class LocalPluginManager:
             enabled=enabled,
         )
         return self._serialize(record, include_schema=True)
+
+    def _validate_config(self, record: LocalPluginRecord, config: dict[str, Any]) -> None:
+        schema = record.config_schema or {}
+
+        def validate_value(path: str, value: Any, value_schema: dict[str, Any]) -> None:
+            expected = value_schema.get("type")
+            if expected == "object":
+                if not isinstance(value, dict):
+                    raise ValueError(f"{path} must be an object")
+                for key in value_schema.get("required", []):
+                    if key not in value:
+                        raise ValueError(f"{path}.{key} is required")
+                for key, child_schema in value_schema.get("properties", {}).items():
+                    if key in value:
+                        validate_value(f"{path}.{key}", value[key], child_schema)
+            elif expected == "array":
+                if not isinstance(value, list):
+                    raise ValueError(f"{path} must be an array")
+                item_schema = value_schema.get("items", {})
+                for index, item in enumerate(value):
+                    validate_value(f"{path}[{index}]", item, item_schema)
+            elif expected == "boolean":
+                if not isinstance(value, bool):
+                    raise ValueError(f"{path} must be a boolean")
+            elif expected == "integer":
+                if not isinstance(value, int) or isinstance(value, bool):
+                    raise ValueError(f"{path} must be an integer")
+            elif expected == "number":
+                if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value):
+                    raise ValueError(f"{path} must be a finite number")
+            elif expected == "string" and not isinstance(value, str):
+                raise ValueError(f"{path} must be a string")
+
+            if "enum" in value_schema and value not in value_schema["enum"]:
+                raise ValueError(f"{path} must be one of {value_schema['enum']}")
+            if expected in {"integer", "number"}:
+                if "minimum" in value_schema and value < value_schema["minimum"]:
+                    raise ValueError(f"{path} must be >= {value_schema['minimum']}")
+                if "maximum" in value_schema and value > value_schema["maximum"]:
+                    raise ValueError(f"{path} must be <= {value_schema['maximum']}")
+
+        validate_value("config", config, schema)
 
     def install_zip(self, zip_path: Path, *, category: str | None = None) -> dict[str, Any]:
         with zipfile.ZipFile(zip_path) as archive:
