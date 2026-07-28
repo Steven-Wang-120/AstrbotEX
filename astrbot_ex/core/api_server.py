@@ -322,7 +322,7 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
 
     def log_message(self, format: str, *args: Any) -> None:
-        print(f"{self.address_string()} - {format % args}")
+        return
 
     @property
     def controller(self) -> RuntimeController:

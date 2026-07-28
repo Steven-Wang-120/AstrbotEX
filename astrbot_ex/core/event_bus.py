@@ -17,6 +17,8 @@ class EventBus:
 
     def emit(self, event_type: str, message: str, **data) -> RuntimeEvent:
         event = RuntimeEvent(type=event_type, message=message, data=data)
+        if not self._should_publish(event):
+            return event
         with self._lock:
             self._events.append(event)
             subscribers = list(self._subscribers)
@@ -56,3 +58,36 @@ class EventBus:
     def recent(self, limit: int = 100) -> list[RuntimeEvent]:
         with self._lock:
             return list(self._events)[-limit:]
+
+    @staticmethod
+    def _should_publish(event: RuntimeEvent) -> bool:
+        if event.type in {"fault", "plugin_fault", "runtime_state", "rule_rejected"}:
+            return True
+
+        data = event.data or {}
+        severity = str(data.get("severity", "")).lower()
+        if severity in {"error", "fatal"} or data.get("error"):
+            return True
+
+        text = f"{event.type} {event.message}".lower()
+        lifecycle_keywords = (
+            "start",
+            "started",
+            "stop",
+            "stopped",
+            "load",
+            "loaded",
+            "unload",
+            "unloaded",
+            "install",
+            "installed",
+            "uninstall",
+            "uninstalled",
+            "enable",
+            "enabled",
+            "disable",
+            "disabled",
+            "open failed",
+            "failed",
+        )
+        return any(keyword in text for keyword in lifecycle_keywords)
