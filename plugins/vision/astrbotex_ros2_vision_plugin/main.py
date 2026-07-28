@@ -4,7 +4,6 @@ import json
 import math
 import os
 import socket
-import threading
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -47,64 +46,84 @@ class Plugin:
     def __init__(self, context) -> None:
         self.context = context
         self.config = dict(context.config or {})
-        self._thread: threading.Thread | None = None
-        self._stop_event = threading.Event()
-        self._lock = threading.Lock()
         self._node: Node | None = None
         self._subscription: Any = None
+        self._input_mode = ""
+        self._ipc_server: socket.socket | None = None
+        self._ipc_connection: socket.socket | None = None
+        self._ipc_buffer = ""
+        self._ipc_path = ""
         self._frame_seq = 0
         self._last_result = VisionResult(frame_id=0, timestamp=time.time(), metadata={"source": "empty"})
         self._last_raw: dict[str, Any] | None = None
 
     def on_runtime_start(self) -> None:
-        self._start_worker()
+        self._open_input()
 
     def on_runtime_stop(self, reason: str) -> None:
-        self._stop_worker(reason)
+        self._close_input(reason)
 
     def on_disable(self) -> None:
-        self._stop_worker("plugin disabled")
+        self._close_input("plugin disabled")
 
     def on_unload(self) -> None:
-        self._stop_worker("plugin unloaded")
+        self._close_input("plugin unloaded")
 
     def get_result(self) -> VisionResult:
-        with self._lock:
-            stale_after = max(1, int(self.config.get("stale_after_ms", 500))) / 1000.0
-            now = time.time()
-            age = now - self._last_result.timestamp
-            if age > stale_after:
-                return VisionResult(
-                    frame_id=self._last_result.frame_id,
-                    timestamp=now,
-                    metadata={
-                        "source": self.config.get("source_name", "yolo_ros2"),
-                        "stale": True,
-                        "age_sec": round(age, 3),
-                    },
-                )
-            return self._last_result
+        stale_after = max(1, int(self.config.get("stale_after_ms", 500))) / 1000.0
+        now = time.time()
+        age = now - self._last_result.timestamp
+        if age > stale_after:
+            return VisionResult(
+                frame_id=self._last_result.frame_id,
+                timestamp=now,
+                metadata={
+                    "source": self.config.get("source_name", "yolo_ros2"),
+                    "stale": True,
+                    "age_sec": round(age, 3),
+                },
+            )
+        return self._last_result
 
-    def _start_worker(self) -> None:
-        if self._thread and self._thread.is_alive():
+    def on_worker_step(self) -> None:
+        if self._input_mode == "ros2":
+            if self._node is not None:
+                timeout = min(0.05, max(0.001, float(self.config.get("spin_timeout_sec", 0.05))))
+                rclpy.spin_once(self._node, timeout_sec=timeout)
             return
-        self._stop_event.clear()
+        if self._input_mode == "ipc_unix_socket":
+            self._ipc_step()
+
+    def _open_input(self) -> None:
+        self._close_input("reopen")
         input_mode = str(self.config.get("input_mode", "ipc_unix_socket")).strip().lower()
         if input_mode in {"ros2", "ros"}:
             if rclpy is None:
                 raise RuntimeError("rclpy is not installed; install ROS2 Python packages before enabling ROS2 mode")
-            target = self._ros2_worker_loop
-            thread_name = "astrbotex-ros2-vision"
+            self._input_mode = "ros2"
+            self._open_ros2()
         elif input_mode in {"ipc_unix_socket", "unix_socket", "ipc"}:
-            target = self._ipc_unix_socket_worker_loop
-            thread_name = "astrbotex-ipc-vision"
+            self._input_mode = "ipc_unix_socket"
+            self._open_ipc()
         else:
             raise ValueError(f"unsupported input_mode: {input_mode}")
-        self._thread = threading.Thread(target=target, name=thread_name, daemon=True)
-        self._thread.start()
 
-    def _stop_worker(self, reason: str) -> None:
-        self._stop_event.set()
+    def _close_input(self, reason: str) -> None:
+        self._close_ipc_connection()
+        server = self._ipc_server
+        self._ipc_server = None
+        if server is not None:
+            try:
+                server.close()
+            except OSError:
+                pass
+        if self._ipc_path:
+            try:
+                if os.path.exists(self._ipc_path):
+                    os.unlink(self._ipc_path)
+            except OSError:
+                pass
+        self._ipc_path = ""
         node = self._node
         self._node = None
         self._subscription = None
@@ -113,103 +132,82 @@ class Plugin:
                 node.destroy_node()
             except Exception:
                 pass
-        self._emit("ros2 vision link closed", reason=reason)
+        if self._input_mode:
+            self._emit("vision link closed", reason=reason, input_mode=self._input_mode)
+        self._input_mode = ""
 
-    def _ros2_worker_loop(self) -> None:
+    def _open_ros2(self) -> None:
         node_name = str(self.config.get("ros_node_name", self.id)).strip() or self.id
         topic = str(self.config.get("topic", "/astrbotex/vision_target")).strip()
         message_type = str(self.config.get("message_type", "std_msgs/msg/String")).strip()
-        spin_timeout = float(self.config.get("spin_timeout_sec", 0.05))
+        if not rclpy.ok():
+            rclpy.init(args=None)
+        self._node = rclpy.create_node(node_name)
+        msg_cls = self._message_class(message_type)
+        self._subscription = self._node.create_subscription(msg_cls, topic, self._on_ros_message, 10)
+        self._emit("ros2 vision subscription started", topic=topic, message_type=self._message_type_name(msg_cls))
 
-        try:
-            if not rclpy.ok():
-                rclpy.init(args=None)
-            self._node = rclpy.create_node(node_name)
-            msg_cls = self._message_class(message_type)
-            self._subscription = self._node.create_subscription(msg_cls, topic, self._on_ros_message, 10)
-            self._emit("ros2 vision subscription started", topic=topic, message_type=self._message_type_name(msg_cls))
-
-            while not self._stop_event.is_set():
-                rclpy.spin_once(self._node, timeout_sec=spin_timeout)
-        except Exception as exc:
-            self._emit("ros2 vision worker failed", severity="error", error=str(exc))
-        finally:
-            node = self._node
-            self._node = None
-            self._subscription = None
-            if node is not None:
-                try:
-                    node.destroy_node()
-                except Exception:
-                    pass
-
-    def _ipc_unix_socket_worker_loop(self) -> None:
+    def _open_ipc(self) -> None:
         path = str(self.config.get("ipc_socket_path", "/app/data/ipc/astrbotex_vision.sock")).strip()
         backlog = int(self.config.get("ipc_socket_backlog", 1))
-        read_timeout = float(self.config.get("ipc_read_timeout_sec", 0.2))
         if not path:
             raise ValueError("ipc_socket_path is required in ipc_unix_socket mode")
         if not hasattr(socket, "AF_UNIX"):
             raise RuntimeError("Unix domain sockets are not supported on this platform")
-
-        server: socket.socket | None = None
+        timeout = min(0.05, max(0.001, float(self.config.get("ipc_read_timeout_sec", 0.2))))
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        if os.path.exists(path):
+            os.unlink(path)
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        server.settimeout(timeout)
+        server.bind(path)
+        server.listen(backlog)
         try:
-            os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-            if os.path.exists(path):
-                os.unlink(path)
-            server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            server.settimeout(read_timeout)
-            server.bind(path)
-            server.listen(backlog)
-            try:
-                os.chmod(path, 0o666)
-            except OSError:
-                pass
-            self._emit("ipc vision socket started", path=path)
+            os.chmod(path, 0o666)
+        except OSError:
+            pass
+        self._ipc_server = server
+        self._ipc_path = path
+        self._emit("ipc vision socket started", path=path)
 
-            while not self._stop_event.is_set():
-                try:
-                    conn, _ = server.accept()
-                except socket.timeout:
-                    continue
-                except OSError:
-                    if self._stop_event.is_set():
-                        break
-                    raise
-                with conn:
-                    conn.settimeout(read_timeout)
-                    self._read_ipc_stream(conn)
-        except Exception as exc:
-            self._emit("ipc vision worker failed", severity="error", error=str(exc), path=path)
-        finally:
-            if server is not None:
-                try:
-                    server.close()
-                except OSError:
-                    pass
+    def _ipc_step(self) -> None:
+        if self._ipc_connection is None:
+            if self._ipc_server is None:
+                return
             try:
-                if os.path.exists(path):
-                    os.unlink(path)
-            except OSError:
-                pass
-
-    def _read_ipc_stream(self, conn: socket.socket) -> None:
-        buffer = ""
-        while not self._stop_event.is_set():
-            try:
-                chunk = conn.recv(65536)
+                connection, _ = self._ipc_server.accept()
             except socket.timeout:
-                continue
+                return
+            connection.settimeout(self._ipc_server.gettimeout())
+            self._ipc_connection = connection
+            self._ipc_buffer = ""
+            return
+        try:
+            chunk = self._ipc_connection.recv(65536)
+        except socket.timeout:
+            return
+        except OSError:
+            self._close_ipc_connection()
+            return
+        if not chunk:
+            self._close_ipc_connection()
+            return
+        self._ipc_buffer += chunk.decode("utf-8", errors="replace")
+        while "\n" in self._ipc_buffer:
+            line, self._ipc_buffer = self._ipc_buffer.split("\n", 1)
+            self._on_ipc_line(line)
+
+    def _close_ipc_connection(self) -> None:
+        connection = self._ipc_connection
+        self._ipc_connection = None
+        if connection is not None:
+            try:
+                connection.close()
             except OSError:
-                break
-            if not chunk:
-                break
-            buffer += chunk.decode("utf-8", errors="replace")
-            while "\n" in buffer:
-                line, buffer = buffer.split("\n", 1)
-                self._on_ipc_line(line)
-        if buffer.strip():
-            self._on_ipc_line(buffer)
+                pass
+        if self._ipc_buffer.strip():
+            self._on_ipc_line(self._ipc_buffer)
+        self._ipc_buffer = ""
 
     def _on_ipc_line(self, line: str) -> None:
         text = line.strip()
@@ -221,9 +219,8 @@ class Plugin:
                 raise ValueError("IPC payload must be a JSON object")
             packet = self._parse_json_packet(payload)
             result = self._to_vision_result(packet)
-            with self._lock:
-                self._last_result = result
-                self._last_raw = packet.raw
+            self._last_result = result
+            self._last_raw = packet.raw
             self._publish_topics(result, packet)
             self._emit("ipc vision packet received", frame_id=result.frame_id, entities=len(result.entities))
         except Exception as exc:
@@ -248,9 +245,8 @@ class Plugin:
         try:
             packet = self._parse_message(msg)
             result = self._to_vision_result(packet)
-            with self._lock:
-                self._last_result = result
-                self._last_raw = packet.raw
+            self._last_result = result
+            self._last_raw = packet.raw
             self._publish_topics(result, packet)
             self._emit("ros2 vision packet received", frame_id=result.frame_id, entities=len(result.entities))
         except Exception as exc:

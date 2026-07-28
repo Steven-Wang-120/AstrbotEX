@@ -4,7 +4,6 @@ import json
 import math
 import socket
 import struct
-import threading
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -182,9 +181,6 @@ class Plugin:
         self.config = dict(context.config or {})
         self.enabled = False
         self._transport: CanTransport | None = None
-        self._rx_thread: threading.Thread | None = None
-        self._rx_stop = threading.Event()
-        self._lock = threading.RLock()
         self._state = "SCAN_TARGET"
         self._state_entered_at = time.time()
         self._heartbeat_seq = 0
@@ -248,6 +244,33 @@ class Plugin:
         self._send_heartbeat_if_due(now, running=True)
         self._run_state_machine(now)
 
+    def on_worker_step(self) -> None:
+        transport = self._transport
+        if transport is None:
+            time.sleep(0.02)
+            return
+        try:
+            frame = transport.recv(timeout_sec=0.02)
+        except Exception as exc:
+            self._link_ok = False
+            self.context.event_bus.emit_throttled(
+                "control",
+                "CAN receive failed",
+                interval_sec=1.0,
+                key=f"{self.id}:can_receive_failed",
+                plugin=self.id,
+                error=str(exc),
+            )
+            time.sleep(0.02)
+            return
+        if frame is None:
+            time.sleep(0.005)
+            return
+        payload = self._frame_payload(frame, kind="rx", note="")
+        self._last_can_rx = payload
+        self._link_ok = True
+        self._publish_can("rescue_topic_can_controller_plugin.can_rx", frame, kind="rx", note="")
+
     def send(self, intent: Intent) -> None:
         # Runtime compatibility hook. The rescue first version is topic-driven,
         # so this only honors explicit stop intents from other runtime layers.
@@ -260,17 +283,16 @@ class Plugin:
         self._send_heartbeat_if_due(time.time(), running=False, force=True)
 
     def read_state(self) -> RobotState:
-        with self._lock:
-            return RobotState(
-                link_ok=self._link_ok,
-                metadata={
-                    "source": self.id,
-                    "controller_state": self._state,
-                    "last_motion": self._last_motion,
-                    "last_note": self._last_note,
-                    "can_rx": self._last_can_rx,
-                },
-            )
+        return RobotState(
+            link_ok=self._link_ok,
+            metadata={
+                "source": self.id,
+                "controller_state": self._state,
+                "last_motion": self._last_motion,
+                "last_note": self._last_note,
+                "can_rx": self._last_can_rx,
+            },
+        )
 
     def _run_state_machine(self, now: float) -> None:
         target, target_stale = self._latest_topic(str(self.config.get("vision_target_topic", "")), int(self.config.get("vision_stale_ms", 700)), now)
@@ -478,11 +500,9 @@ class Plugin:
         transport.open()
         self._transport = transport
         self._link_ok = True
-        self._start_rx_thread()
         self.context.event_bus.emit("control", "CAN transport opened", plugin=self.id, transport=mode)
 
     def _close_transport(self, reason: str) -> None:
-        self._rx_stop.set()
         transport = self._transport
         self._transport = None
         if transport is not None:
@@ -491,31 +511,6 @@ class Plugin:
             except Exception:
                 pass
         self._link_ok = False
-
-    def _start_rx_thread(self) -> None:
-        if self._rx_thread and self._rx_thread.is_alive():
-            return
-        self._rx_stop.clear()
-        self._rx_thread = threading.Thread(target=self._rx_loop, name="astrbotex-can-rx", daemon=True)
-        self._rx_thread.start()
-
-    def _rx_loop(self) -> None:
-        while not self._rx_stop.is_set():
-            transport = self._transport
-            if transport is None:
-                time.sleep(0.05)
-                continue
-            try:
-                frame = transport.recv(timeout_sec=0.05)
-            except Exception:
-                time.sleep(0.05)
-                continue
-            if frame is None:
-                continue
-            payload = self._frame_payload(frame, kind="rx", note="")
-            with self._lock:
-                self._last_can_rx = payload
-            self._publish_can("rescue_topic_can_controller_plugin.can_rx", frame, kind="rx", note="")
 
     def _publish_state(
         self,

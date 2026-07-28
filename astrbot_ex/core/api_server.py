@@ -64,10 +64,15 @@ class RuntimeController:
                 },
                 "plugins": [
                     {
-                        "id": getattr(slot.plugin, "id", slot.plugin.__class__.__name__),
-                        "name": getattr(slot.plugin, "name", slot.plugin.__class__.__name__),
+                        "id": slot.id,
+                        "name": slot.name,
                         "kind": slot.kind,
                         "enabled": slot.enabled,
+                        "thread": {
+                            "name": slot.actor.thread_name,
+                            "alive": slot.actor.alive,
+                            "last_error": slot.actor.last_error,
+                        },
                     }
                     for slot in self.runtime.registry.list()
                 ],
@@ -79,7 +84,11 @@ class RuntimeController:
         while not self._stop_event.is_set():
             with self._lock:
                 if self.runtime.state == RuntimeState.RUNNING:
-                    self.runtime.tick()
+                    try:
+                        self.runtime.tick()
+                    except Exception as exc:
+                        self.runtime.fail(f"runtime tick failed: {exc}")
+                        self._stop_event.set()
             time.sleep(interval)
 
 
@@ -172,7 +181,14 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         path = self._path()
         if path == "/api/runtime/start" or path == "/api/v1/ex/runtime/start":
-            self.controller.start()
+            try:
+                self.controller.start()
+            except Exception as exc:
+                self._send_json(
+                    {"ok": False, "error": str(exc), "state": self.controller.runtime.state.value},
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                )
+                return
             self._send_json({"ok": True, "state": self.controller.runtime.state.value})
             return
         if path == "/api/runtime/stop" or path == "/api/v1/ex/runtime/stop":

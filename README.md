@@ -171,6 +171,21 @@ plugins\special\<plugin_id>
 - 卸载插件
 - 配置更新后重新加载
 
+### 6.1 插件线程模型
+
+每个已加载插件由 Core 分配一个独立的 `PluginActor` 工作线程。插件的生命周期、`on_tick()`、设备读写和运行时方法都在该线程中串行执行。
+
+约束如下：
+
+- 插件不得自行创建 `threading.Thread`
+- 阻塞式设备插件通过有超时的 `on_worker_step()` 完成一次 I/O
+- 同一物理设备或总线只能由一个插件线程持有
+- Runtime 的 tick 投递会合并，慢插件不会无限积压旧 tick
+- 插件间数据通过 `TopicBus` 最新值或 `PluginContext.subscribe()` 有界 inbox 交换
+- 插件卸载前 Core 会停止运行期 I/O、执行生命周期回调并等待线程退出
+
+`GET /api/status` 的插件状态中会返回 Actor 线程名称、存活状态和最后一次错误。
+
 ## 7. Dashboard 当前能力
 
 当前 Dashboard 已具备：

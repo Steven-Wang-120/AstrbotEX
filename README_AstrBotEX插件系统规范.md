@@ -247,6 +247,23 @@ plugins\special\<plugin_id>
 - `dashboard`
   插件自定义 Dashboard 页面
 
+### 5.2 执行线程约定
+
+每个已加载插件对应一个由 AstrBotEX Core 管理的 `PluginActor` 线程。插件作者不直接创建或销毁线程。
+
+普通生命周期和业务方法会通过 Actor mailbox 投递，并在该插件线程中串行执行。需要持续读取阻塞设备的插件实现：
+
+```python
+def on_worker_step(self) -> None:
+    data = self.device.read(timeout=0.05)
+    if data is not None:
+        self.publish(data)
+```
+
+`on_worker_step()` 必须使用有界超时，保证配置重载、停用和卸载可以及时完成。一个插件如果同时面对多个无法由同一轮询接口管理的独立阻塞设备，应拆成多个插件；共享一条 CAN 或串口总线的多个逻辑节点，则由一个总线插件线程统一路由。
+
+插件之间不得直接跨线程调用。连续状态使用 `TopicBus.get_latest()`；需要逐条消费消息时，使用 `PluginContext.subscribe()` 获取有界 inbox。
+
 ---
 
 ## 6. 推荐扩展字段：Pub/Sub

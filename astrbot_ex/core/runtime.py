@@ -4,21 +4,20 @@ from dataclasses import dataclass
 
 from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.models import Goal, RobotState, RuntimeState, VisionResult, WorldState
-from astrbot_ex.core.plugin_registry import PluginRegistry
+from astrbot_ex.core.plugin_registry import PluginRegistry, PluginSlot
 from astrbot_ex.core.safety import SafetyGuard
 from astrbot_ex.core.topic_bus import TopicBus
 from astrbot_ex.core.world_builder import WorldBuilder
-from astrbot_ex.interfaces.motion import MotionBridge
-from astrbot_ex.interfaces.policy import PolicyPlugin
-from astrbot_ex.interfaces.rule import RulePlugin
-from astrbot_ex.interfaces.skill import SkillPlugin
-from astrbot_ex.interfaces.vision import VisionProvider
 
 
 @dataclass(slots=True)
 class ActiveSkill:
-    plugin: SkillPlugin
+    slot: PluginSlot
     goal: Goal
+
+    @property
+    def plugin(self):
+        return self.slot.plugin
 
 
 class AstrBotEXRuntime:
@@ -41,10 +40,8 @@ class AstrBotEXRuntime:
     def start(self) -> None:
         if self.state in {RuntimeState.RUNNING, RuntimeState.FAULT}:
             return
+        self.registry.start_runtime()
         self.state = RuntimeState.RUNNING
-        for slot in self.registry.list():
-            if slot.enabled and hasattr(slot.plugin, "on_runtime_start"):
-                slot.plugin.on_runtime_start()
         self.event_bus.emit("runtime_state", "runtime started", state=self.state.value)
 
     def pause(self) -> None:
@@ -55,13 +52,25 @@ class AstrBotEXRuntime:
     def stop(self, reason: str = "stopped") -> None:
         bridge = self._motion_bridge()
         if bridge:
-            bridge.stop(reason)
+            try:
+                bridge.call("stop", reason)
+            except Exception as exc:
+                self.event_bus.emit("plugin_fault", "motion stop failed", plugin=bridge.id, error=str(exc))
         if self.active_skill:
-            self.active_skill.plugin.cancel(reason)
+            try:
+                self.active_skill.slot.call("cancel", reason)
+            except Exception as exc:
+                self.event_bus.emit(
+                    "plugin_fault",
+                    "skill cancel failed",
+                    plugin=self.active_skill.slot.id,
+                    error=str(exc),
+                )
             self.active_skill = None
-        for slot in self.registry.list():
-            if slot.enabled and hasattr(slot.plugin, "on_runtime_stop"):
-                slot.plugin.on_runtime_stop(reason)
+        try:
+            self.registry.stop_runtime(reason)
+        except Exception as exc:
+            self.event_bus.emit("plugin_fault", "runtime plugin stop failed", error=str(exc))
         self.state = RuntimeState.IDLE
         self.event_bus.emit("runtime_state", reason, state=self.state.value)
 
@@ -69,8 +78,8 @@ class AstrBotEXRuntime:
         if self.state != RuntimeState.RUNNING:
             return
         for slot in self.registry.list():
-            if slot.enabled and hasattr(slot.plugin, "on_tick"):
-                slot.plugin.on_tick(self.world)
+            if slot.enabled and slot.has_method("on_tick"):
+                slot.cast("on_tick", self.world, coalesce_key="runtime_tick")
 
         vision_provider = self._vision_provider()
         motion_bridge = self._motion_bridge()
@@ -88,7 +97,7 @@ class AstrBotEXRuntime:
         )
 
         for rule in self._rules():
-            for decision in rule.evaluate_world(self.world):
+            for decision in rule.call("evaluate_world", self.world):
                 if not decision.allowed:
                     self._fault(decision.reason or "world rule rejected")
                     return
@@ -109,13 +118,13 @@ class AstrBotEXRuntime:
             )
             return
 
-        result = skill.tick(self.world)
+        result = skill.call("tick", self.world)
         intent = self.safety.filter_intent(self.world, result.intent)
         for rule in self._rules():
-            decision = rule.evaluate_intent(self.world, intent)
+            decision = rule.call("evaluate_intent", self.world, intent)
             if not decision.allowed:
                 if motion_bridge:
-                    motion_bridge.stop(decision.reason)
+                    motion_bridge.call("stop", decision.reason)
                 self.event_bus.emit("rule_rejected", decision.reason, severity=decision.severity)
                 return
 
@@ -128,7 +137,7 @@ class AstrBotEXRuntime:
                 status=result.status,
             )
         else:
-            motion_bridge.send(intent)
+            motion_bridge.call("send", intent)
             self.event_bus.emit_throttled(
                 "motion",
                 "intent sent",
@@ -143,54 +152,57 @@ class AstrBotEXRuntime:
             self.active_skill = None
 
     def _select_goal(self) -> Goal | None:
-        policy = self.registry.get_one("policy")
-        if policy is None:
-            return None
-        return policy.select_goal(self.world)
+        policy_slot = self.registry.get_slot("policy")
+        return policy_slot.call("select_goal", self.world) if policy_slot else None
 
-    def _select_or_continue_skill(self, goal: Goal) -> SkillPlugin | None:
+    def _select_or_continue_skill(self, goal: Goal) -> PluginSlot | None:
         if self.active_skill and self.active_skill.goal == goal:
-            return self.active_skill.plugin
+            return self.active_skill.slot
 
         if self.active_skill:
-            self.active_skill.plugin.cancel("replaced by new goal")
+            self.active_skill.slot.call("cancel", "replaced by new goal")
             self.active_skill = None
 
         for slot in self.registry.list():
             if slot.kind != "skill" or not slot.enabled:
                 continue
-            skill = slot.plugin
-            if skill.can_run(self.world, goal):
-                skill.start(self.world, goal)
-                self.active_skill = ActiveSkill(plugin=skill, goal=goal)
-                self.event_bus.emit("skill", "skill started", skill=skill.id, goal=goal.type)
-                return skill
+            if slot.call("can_run", self.world, goal):
+                slot.call("start", self.world, goal)
+                self.active_skill = ActiveSkill(slot=slot, goal=goal)
+                self.event_bus.emit("skill", "skill started", skill=slot.id, goal=goal.type)
+                return slot
         return None
 
-    def _rules(self) -> list[RulePlugin]:
-        return [slot.plugin for slot in self.registry.list() if slot.kind == "rule" and slot.enabled]
+    def _rules(self) -> list[PluginSlot]:
+        return [slot for slot in self.registry.list() if slot.kind == "rule" and slot.enabled]
 
-    def _vision_provider(self) -> VisionProvider | None:
-        return self.registry.get_one("vision")
+    def _vision_provider(self) -> PluginSlot | None:
+        return self.registry.get_slot("vision")
 
-    def _motion_bridge(self) -> MotionBridge | None:
-        return self.registry.get_one("motion")
+    def _motion_bridge(self) -> PluginSlot | None:
+        return self.registry.get_slot("motion")
 
-    def _read_vision(self, provider: VisionProvider | None) -> VisionResult:
+    def _read_vision(self, provider: PluginSlot | None) -> VisionResult:
         if provider is None:
             self.event_bus.emit_throttled("vision", "vision provider unavailable", interval_sec=1.0)
             return VisionResult(frame_id=0, timestamp=self.world.timestamp, metadata={"source": "missing_vision"})
-        return provider.get_result()
+        return provider.call("get_result")
 
-    def _read_robot_state(self, bridge: MotionBridge | None) -> RobotState:
+    def _read_robot_state(self, bridge: PluginSlot | None) -> RobotState:
         if bridge is None:
             self.event_bus.emit_throttled("motion", "motion bridge unavailable", interval_sec=1.0)
             return RobotState(link_ok=False, metadata={"source": "missing_motion"})
-        return bridge.read_state()
+        return bridge.call("read_state")
 
     def _fault(self, reason: str) -> None:
         bridge = self._motion_bridge()
         if bridge:
-            bridge.stop(reason)
+            try:
+                bridge.call("stop", reason)
+            except Exception as exc:
+                self.event_bus.emit("plugin_fault", "fault stop failed", plugin=bridge.id, error=str(exc))
         self.state = RuntimeState.FAULT
         self.event_bus.emit("fault", reason, state=self.state.value)
+
+    def fail(self, reason: str) -> None:
+        self._fault(reason)

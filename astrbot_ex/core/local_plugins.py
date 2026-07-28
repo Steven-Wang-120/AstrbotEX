@@ -14,7 +14,7 @@ from typing import Any
 
 from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.plugin_registry import PluginRegistry
-from astrbot_ex.core.topic_bus import TopicBus
+from astrbot_ex.core.topic_bus import TopicBus, TopicInbox
 
 
 ALLOWED_PLUGIN_TYPES = {
@@ -108,6 +108,9 @@ class PluginContext:
         self.config = config
         self.event_bus = event_bus
         self.topic_bus = topic_bus
+
+    def subscribe(self, topic: str, *, max_messages: int = 1) -> TopicInbox:
+        return self.topic_bus.subscribe_inbox(topic, max_messages=max_messages)
 
 
 class LocalPluginManager:
@@ -384,6 +387,8 @@ class LocalPluginManager:
 
     def _serialize(self, record: LocalPluginRecord, *, include_schema: bool = False) -> dict[str, Any]:
         manifest = record.manifest
+        slot = self.registry.get(manifest.id)
+        actor_error = slot.actor.last_error if slot is not None else None
         payload = {
             "id": manifest.id,
             "name": manifest.name,
@@ -398,8 +403,15 @@ class LocalPluginManager:
             "pubsub": self._pubsub_payload(record),
             "enabled": record.enabled,
             "loaded": record.loaded,
-            "status": record.status,
-            "error": record.error,
+            "status": "fault" if actor_error else record.status,
+            "error": actor_error or record.error,
+            "thread": {
+                "name": slot.actor.thread_name,
+                "alive": slot.actor.alive,
+                "last_error": slot.actor.last_error,
+            }
+            if slot is not None
+            else None,
             "cover_url": f"/api/plugins/{manifest.id}/cover" if manifest.cover else None,
             "dashboard_url": f"/api/plugins/{manifest.id}/dashboard" if manifest.dashboard else None,
             "path": str(record.root),

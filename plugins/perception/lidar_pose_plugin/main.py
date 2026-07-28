@@ -61,11 +61,14 @@ class Plugin:
         self.context = context
         self.config = dict(context.config or {})
         self.enabled = False
-        self._thread: threading.Thread | None = None
-        self._stop_event = threading.Event()
         self._lock = threading.RLock()
         self._node: Node | None = None
         self._subscriptions: list[Any] = []
+        self._input_mode = ""
+        self._ipc_server: socket.socket | None = None
+        self._ipc_connection: socket.socket | None = None
+        self._ipc_buffer = ""
+        self._ipc_path = ""
         self._last_packet: ScanPacket | None = None
         self._last_pose: dict[str, float] = {}
         self._last_publish_at = 0.0
@@ -79,17 +82,17 @@ class Plugin:
 
     def on_disable(self) -> None:
         self.enabled = False
-        self._stop_worker("plugin disabled")
+        self._close_input("plugin disabled")
 
     def on_unload(self) -> None:
         self.enabled = False
-        self._stop_worker("plugin unloaded")
+        self._close_input("plugin unloaded")
 
     def on_runtime_start(self) -> None:
-        self._start_worker()
+        self._open_input()
 
     def on_runtime_stop(self, reason: str) -> None:
-        self._stop_worker(reason)
+        self._close_input(reason)
 
     def on_tick(self, world) -> None:
         if not self.enabled:
@@ -102,26 +105,45 @@ class Plugin:
         perception = self._build_perception(now)
         self._publish_topics(perception)
 
-    def _start_worker(self) -> None:
-        if self._thread and self._thread.is_alive():
+    def on_worker_step(self) -> None:
+        if self._input_mode == "ros2":
+            if self._node is not None:
+                timeout = min(0.05, max(0.001, float(self.config.get("spin_timeout_sec", 0.05))))
+                rclpy.spin_once(self._node, timeout_sec=timeout)
             return
-        self._stop_event.clear()
+        if self._input_mode == "ipc_unix_socket":
+            self._ipc_step()
+
+    def _open_input(self) -> None:
+        self._close_input("reopen")
         input_mode = str(self.config.get("input_mode", "ros2")).strip().lower()
         if input_mode in {"ros2", "ros"}:
             if rclpy is None:
                 raise RuntimeError("rclpy is not installed; use ipc_unix_socket mode or install ROS2 Python packages")
-            target = self._ros2_worker_loop
-            name = "astrbotex-lidar-ros2"
+            self._input_mode = "ros2"
+            self._open_ros2()
         elif input_mode in {"ipc_unix_socket", "unix_socket", "ipc"}:
-            target = self._ipc_worker_loop
-            name = "astrbotex-lidar-ipc"
+            self._input_mode = "ipc_unix_socket"
+            self._open_ipc()
         else:
             raise ValueError(f"unsupported input_mode: {input_mode}")
-        self._thread = threading.Thread(target=target, name=name, daemon=True)
-        self._thread.start()
 
-    def _stop_worker(self, reason: str) -> None:
-        self._stop_event.set()
+    def _close_input(self, reason: str) -> None:
+        self._close_ipc_connection()
+        server = self._ipc_server
+        self._ipc_server = None
+        if server is not None:
+            try:
+                server.close()
+            except OSError:
+                pass
+        if self._ipc_path:
+            try:
+                if os.path.exists(self._ipc_path):
+                    os.unlink(self._ipc_path)
+            except OSError:
+                pass
+        self._ipc_path = ""
         node = self._node
         self._node = None
         self._subscriptions = []
@@ -130,53 +152,40 @@ class Plugin:
                 node.destroy_node()
             except Exception:
                 pass
-        self.context.event_bus.emit_throttled(
-            "perception_plugin",
-            "lidar link closed",
-            interval_sec=1.0,
-            key=f"{self.id}:closed",
-            plugin=self.id,
-            reason=reason,
-        )
+        if self._input_mode:
+            self.context.event_bus.emit_throttled(
+                "perception_plugin",
+                "lidar link closed",
+                interval_sec=1.0,
+                key=f"{self.id}:closed",
+                plugin=self.id,
+                reason=reason,
+                input_mode=self._input_mode,
+            )
+        self._input_mode = ""
 
-    def _ros2_worker_loop(self) -> None:
+    def _open_ros2(self) -> None:
         node_name = str(self.config.get("ros_node_name", self.id)).strip() or self.id
         scan_topic = str(self.config.get("scan_topic", "/scan")).strip()
         pose_topic = str(self.config.get("pose_topic", "/astrbotex/robot_pose")).strip()
         pose_type = str(self.config.get("pose_message_type", "geometry_msgs/msg/Pose2D")).strip()
-        spin_timeout = float(self.config.get("spin_timeout_sec", 0.05))
-
-        try:
-            if not rclpy.ok():
-                rclpy.init(args=None)
-            self._node = rclpy.create_node(node_name)
-            if LaserScan is None:
-                raise RuntimeError("sensor_msgs.msg.LaserScan is not available")
-            self._subscriptions.append(self._node.create_subscription(LaserScan, scan_topic, self._on_scan_message, 10))
-            if pose_topic:
-                pose_cls = self._pose_message_class(pose_type)
-                self._subscriptions.append(self._node.create_subscription(pose_cls, pose_topic, self._on_pose_message, 10))
-            self.context.event_bus.emit(
-                "perception_plugin",
-                "lidar ros2 subscription started",
-                plugin=self.id,
-                scan_topic=scan_topic,
-                pose_topic=pose_topic,
-                pose_message_type=pose_type,
-            )
-            while not self._stop_event.is_set():
-                rclpy.spin_once(self._node, timeout_sec=spin_timeout)
-        except Exception as exc:
-            self.context.event_bus.emit("perception_plugin", "lidar ros2 worker failed", plugin=self.id, severity="error", error=str(exc))
-        finally:
-            node = self._node
-            self._node = None
-            self._subscriptions = []
-            if node is not None:
-                try:
-                    node.destroy_node()
-                except Exception:
-                    pass
+        if not rclpy.ok():
+            rclpy.init(args=None)
+        self._node = rclpy.create_node(node_name)
+        if LaserScan is None:
+            raise RuntimeError("sensor_msgs.msg.LaserScan is not available")
+        self._subscriptions.append(self._node.create_subscription(LaserScan, scan_topic, self._on_scan_message, 10))
+        if pose_topic:
+            pose_cls = self._pose_message_class(pose_type)
+            self._subscriptions.append(self._node.create_subscription(pose_cls, pose_topic, self._on_pose_message, 10))
+        self.context.event_bus.emit(
+            "perception_plugin",
+            "lidar ros2 subscription started",
+            plugin=self.id,
+            scan_topic=scan_topic,
+            pose_topic=pose_topic,
+            pose_message_type=pose_type,
+        )
 
     def _pose_message_class(self, message_type: str) -> Any:
         value = message_type.lower()
@@ -286,73 +295,67 @@ class Plugin:
             }
         raise ValueError(f"unsupported pose message object: {type(msg).__name__}")
 
-    def _ipc_worker_loop(self) -> None:
+    def _open_ipc(self) -> None:
         path = str(self.config.get("ipc_socket_path", "/app/data/ipc/astrbotex_lidar.sock")).strip()
         backlog = int(self.config.get("ipc_socket_backlog", 1))
-        read_timeout = float(self.config.get("ipc_read_timeout_sec", 0.2))
         if not path:
             raise ValueError("ipc_socket_path is required")
         if not hasattr(socket, "AF_UNIX"):
             raise RuntimeError("Unix domain sockets are not supported on this platform")
-
-        server: socket.socket | None = None
+        timeout = min(0.05, max(0.001, float(self.config.get("ipc_read_timeout_sec", 0.2))))
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        if os.path.exists(path):
+            os.unlink(path)
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        server.settimeout(timeout)
+        server.bind(path)
+        server.listen(backlog)
         try:
-            os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-            if os.path.exists(path):
-                os.unlink(path)
-            server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            server.settimeout(read_timeout)
-            server.bind(path)
-            server.listen(backlog)
-            try:
-                os.chmod(path, 0o666)
-            except OSError:
-                pass
-            self.context.event_bus.emit("perception_plugin", "lidar ipc socket started", plugin=self.id, path=path)
+            os.chmod(path, 0o666)
+        except OSError:
+            pass
+        self._ipc_server = server
+        self._ipc_path = path
+        self.context.event_bus.emit("perception_plugin", "lidar ipc socket started", plugin=self.id, path=path)
 
-            while not self._stop_event.is_set():
-                try:
-                    conn, _ = server.accept()
-                except socket.timeout:
-                    continue
-                except OSError:
-                    if self._stop_event.is_set():
-                        break
-                    raise
-                with conn:
-                    conn.settimeout(read_timeout)
-                    self._read_ipc_stream(conn)
-        except Exception as exc:
-            self.context.event_bus.emit("perception_plugin", "lidar ipc worker failed", plugin=self.id, severity="error", error=str(exc), path=path)
-        finally:
-            if server is not None:
-                try:
-                    server.close()
-                except OSError:
-                    pass
+    def _ipc_step(self) -> None:
+        if self._ipc_connection is None:
+            if self._ipc_server is None:
+                return
             try:
-                if os.path.exists(path):
-                    os.unlink(path)
-            except OSError:
-                pass
-
-    def _read_ipc_stream(self, conn: socket.socket) -> None:
-        buffer = ""
-        while not self._stop_event.is_set():
-            try:
-                chunk = conn.recv(65536)
+                connection, _ = self._ipc_server.accept()
             except socket.timeout:
-                continue
+                return
+            connection.settimeout(self._ipc_server.gettimeout())
+            self._ipc_connection = connection
+            self._ipc_buffer = ""
+            return
+        try:
+            chunk = self._ipc_connection.recv(65536)
+        except socket.timeout:
+            return
+        except OSError:
+            self._close_ipc_connection()
+            return
+        if not chunk:
+            self._close_ipc_connection()
+            return
+        self._ipc_buffer += chunk.decode("utf-8", errors="replace")
+        while "\n" in self._ipc_buffer:
+            line, self._ipc_buffer = self._ipc_buffer.split("\n", 1)
+            self._on_ipc_line(line)
+
+    def _close_ipc_connection(self) -> None:
+        connection = self._ipc_connection
+        self._ipc_connection = None
+        if connection is not None:
+            try:
+                connection.close()
             except OSError:
-                break
-            if not chunk:
-                break
-            buffer += chunk.decode("utf-8", errors="replace")
-            while "\n" in buffer:
-                line, buffer = buffer.split("\n", 1)
-                self._on_ipc_line(line)
-        if buffer.strip():
-            self._on_ipc_line(buffer)
+                pass
+        if self._ipc_buffer.strip():
+            self._on_ipc_line(self._ipc_buffer)
+        self._ipc_buffer = ""
 
     def _on_ipc_line(self, line: str) -> None:
         text = line.strip()
