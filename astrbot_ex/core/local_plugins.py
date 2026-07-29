@@ -62,6 +62,17 @@ class TopicDeclaration:
 
 
 @dataclass(slots=True)
+class ActionDeclaration:
+    action_id: str
+    topic: str
+    description: str = ""
+    schema: dict[str, Any] = field(default_factory=lambda: {"type": "object", "properties": {}})
+    requires_blocks: list[str] = field(default_factory=list)
+    requires_runtime_state: list[str] = field(default_factory=list)
+    danger: str = "low"
+
+
+@dataclass(slots=True)
 class PluginManifest:
     id: str
     name: str
@@ -77,6 +88,7 @@ class PluginManifest:
     dashboard: str | None = None
     publishes: list[TopicDeclaration] = field(default_factory=list)
     subscribes: list[TopicDeclaration] = field(default_factory=list)
+    actions: list[ActionDeclaration] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -400,6 +412,7 @@ class LocalPluginManager:
             "requires": manifest.requires,
             "publishes": [self._topic_dict(item) for item in manifest.publishes],
             "subscribes": [self._topic_dict(item) for item in manifest.subscribes],
+            "actions": [self._action_dict(item) for item in manifest.actions],
             "pubsub": self._pubsub_payload(record),
             "enabled": record.enabled,
             "loaded": record.loaded,
@@ -461,6 +474,7 @@ class LocalPluginManager:
             dashboard=str(data["dashboard"]).strip() if data.get("dashboard") else None,
             publishes=self._parse_topics(data.get("publishes", [])),
             subscribes=self._parse_topics(data.get("subscribes", [])),
+            actions=self._parse_actions(data.get("actions", [])),
         )
 
     def _validate_manifest(self, manifest: PluginManifest) -> None:
@@ -479,6 +493,7 @@ class LocalPluginManager:
             raise ValueError(f"unsupported provides: {', '.join(unknown)}")
         self._validate_topics(manifest.id, manifest.publishes)
         self._validate_topics(manifest.id, manifest.subscribes, require_prefix=False)
+        self._validate_actions(manifest.id, manifest.actions)
 
     def _load_config_schema(self, root: Path, manifest: PluginManifest) -> dict[str, Any] | None:
         if not manifest.config_schema:
@@ -576,6 +591,7 @@ class LocalPluginManager:
             "requires": manifest.requires,
             "publishes": [self._topic_dict(item) for item in manifest.publishes],
             "subscribes": [self._topic_dict(item) for item in manifest.subscribes],
+            "actions": [self._action_dict(item) for item in manifest.actions],
         }
 
     def _find_manifest_member(self, members: list[zipfile.ZipInfo]) -> zipfile.ZipInfo | None:
@@ -612,6 +628,31 @@ class LocalPluginManager:
             items.append(TopicDeclaration(topic=topic, label=label, schema=schema))
         return items
 
+    def _parse_actions(self, raw_items: Any) -> list[ActionDeclaration]:
+        items: list[ActionDeclaration] = []
+        if not isinstance(raw_items, list):
+            return items
+        for raw in raw_items:
+            if not isinstance(raw, dict):
+                continue
+            action_id = str(raw.get("action_id", raw.get("id", ""))).strip()
+            topic = str(raw.get("topic", "")).strip()
+            if not action_id or not topic:
+                continue
+            schema = raw.get("schema", {"type": "object", "properties": {}})
+            items.append(
+                ActionDeclaration(
+                    action_id=action_id,
+                    topic=topic,
+                    description=str(raw.get("description", "")).strip(),
+                    schema=schema if isinstance(schema, dict) else {"type": "object", "properties": {}},
+                    requires_blocks=[str(item) for item in raw.get("requires_blocks", [])],
+                    requires_runtime_state=[str(item) for item in raw.get("requires_runtime_state", [])],
+                    danger=str(raw.get("danger", "low")).strip() or "low",
+                )
+            )
+        return items
+
     def _validate_topics(self, plugin_id: str, items: list[TopicDeclaration], *, require_prefix: bool = True) -> None:
         seen: set[str] = set()
         for item in items:
@@ -623,11 +664,35 @@ class LocalPluginManager:
             if require_prefix and not item.topic.startswith(f"{plugin_id}."):
                 raise ValueError(f"publish topic must start with '{plugin_id}.': {item.topic}")
 
+    def _validate_actions(self, plugin_id: str, items: list[ActionDeclaration]) -> None:
+        seen: set[str] = set()
+        for item in items:
+            if not item.action_id.replace("_", "").replace("-", "").replace(".", "").isalnum():
+                raise ValueError(f"invalid action_id: {item.action_id}")
+            if item.action_id in seen:
+                raise ValueError(f"duplicate action declaration: {item.action_id}")
+            seen.add(item.action_id)
+            if not item.topic.startswith(f"{plugin_id}."):
+                raise ValueError(f"action topic must start with '{plugin_id}.': {item.topic}")
+            if item.schema.get("type", "object") != "object":
+                raise ValueError(f"action schema must be an object schema: {item.action_id}")
+
     def _topic_dict(self, item: TopicDeclaration) -> dict[str, str]:
         return {
             "topic": item.topic,
             "label": item.label or item.topic,
             "schema": item.schema,
+        }
+
+    def _action_dict(self, item: ActionDeclaration) -> dict[str, Any]:
+        return {
+            "action_id": item.action_id,
+            "topic": item.topic,
+            "description": item.description,
+            "schema": item.schema,
+            "requires_blocks": item.requires_blocks,
+            "requires_runtime_state": item.requires_runtime_state,
+            "danger": item.danger,
         }
 
     def _pubsub_payload(self, record: LocalPluginRecord) -> dict[str, Any]:

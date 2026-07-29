@@ -16,6 +16,7 @@ from typing import Any
 from urllib.parse import unquote, urlparse
 
 from astrbot_ex.core.models import RuntimeEvent, RuntimeState
+from astrbot_ex.core.astrbot_bridge import AstrBotBridge
 from astrbot_ex.core.local_plugins import LocalPluginManager
 from astrbot_ex.core.runtime import AstrBotEXRuntime
 from astrbot_ex.core.runtime_demo import build_demo_runtime
@@ -158,6 +159,12 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         if path in {"/api/pubsub/publishers", "/api/v1/ex/pubsub/publishers"}:
             self._send_json({"publishers": self.server.local_plugins.list_publishers()})
             return
+        if path in {"/api/bridge/context", "/api/v1/ex/bridge/context", "/api/v1/ex/llm/context"}:
+            self._send_json(self.server.bridge.build_context())
+            return
+        if path in {"/api/bridge/actions", "/api/v1/ex/bridge/actions", "/api/v1/ex/llm/actions"}:
+            self._send_json({"actions": [action.to_dict() for action in self.server.bridge.list_actions()]})
+            return
         plugin_id = self._match_plugin_id(path)
         if plugin_id:
             try:
@@ -227,6 +234,11 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             return
         if path in {"/api/plugins/upload", "/api/v1/ex/plugins/upload"}:
             self._handle_plugin_upload()
+            return
+        if path in {"/api/bridge/proposal", "/api/v1/ex/bridge/proposal", "/api/v1/ex/llm/proposal"}:
+            result = self.server.bridge.handle_proposal(self._read_json())
+            status = HTTPStatus.OK if result.get("ok") else HTTPStatus.BAD_REQUEST
+            self._send_json(result, status)
             return
         plugin_id = self._match_plugin_action(path, "enable")
         if plugin_id:
@@ -582,6 +594,7 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
     static_root: Path
     vision_sources: VisionSourceManager
     local_plugins: LocalPluginManager
+    bridge: AstrBotBridge
 
 
 def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
@@ -603,6 +616,12 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
     )
     server.local_plugins.discover()
     server.local_plugins.load_enabled()
+    server.bridge = AstrBotBridge(
+        controller=controller,
+        local_plugins=server.local_plugins,
+        event_bus=runtime.event_bus,
+        topic_bus=runtime.topic_bus,
+    )
     return server
 
 
@@ -618,6 +637,7 @@ def main() -> None:
     print(f"Dashboard: http://{args.host}:{args.port}/")
     print("Core endpoints: /api/status, /api/events, /api/runtime/start, /api/runtime/stop")
     print("Vision endpoints: /api/v1/ex/vision/sources, /api/v1/ex/vision/latest")
+    print("Bridge endpoints: /api/v1/ex/bridge/context, /api/v1/ex/bridge/proposal")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
