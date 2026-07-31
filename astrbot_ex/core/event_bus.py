@@ -87,6 +87,8 @@ class EventBus:
             "enabled",
             "disable",
             "disabled",
+            "unavailable",
+            "degraded",
             "open failed",
             "failed",
         )

@@ -1,0 +1,18 @@
+{
+  "_comment": "相机与雷达的对齐标定参数。角度单位为度，距离单位为米。",
+  "camera": {
+    "hfov_deg": 90.0,
+    "image_width_px": 640,
+    "image_height_px": 480,
+    "to_lidar_yaw_offset_deg": 0.0,
+    "x_to_lidar_angle_sign": -1.0
+  },
+  "fusion": {
+    "bearing_tolerance_deg": 8.0,
+    "time_window_ms": 150,
+    "range_min_m": 0.05,
+    "range_max_m": 12.0,
+    "range_window_deg": 3.0,
+    "range_select_method": "min"
+  }
+}

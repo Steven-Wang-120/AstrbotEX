@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from enum import Enum
+from math import isfinite
 from time import time
 from typing import Any, Literal
 
@@ -24,6 +26,9 @@ class Entity:
     position: tuple[float, float] | None = None
     bbox_px: tuple[int, int, int, int] | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
+    bearing_deg: float | None = None
+    range_m: float | None = None
+    range_quality: float | None = None
 
 
 @dataclass(slots=True)
@@ -53,12 +58,57 @@ class VisionResult:
 
 
 @dataclass(slots=True)
+class ScanResult:
+    frame_id: int
+    timestamp: float
+    angle_min_rad: float
+    angle_max_rad: float
+    angle_increment_rad: float
+    ranges: list[float]
+    range_min_m: float = 0.0
+    range_max_m: float = 0.0
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def iter_points(self) -> Iterator[tuple[float, float]]:
+        for index, range_m in enumerate(self.ranges):
+            if not isfinite(range_m):
+                continue
+            if range_m < self.range_min_m:
+                continue
+            if self.range_max_m > 0.0 and range_m > self.range_max_m:
+                continue
+            yield self.angle_min_rad + index * self.angle_increment_rad, range_m
+
+
+@dataclass(slots=True)
+class ScanCluster:
+    id: str
+    bearing_deg: float
+    range_m: float
+    width_deg: float
+    point_count: int
+    metadata: dict[str, Any] = field(default_factory=dict)
+    quality: float = 1.0
+
+
+@dataclass(slots=True)
+class FusedScene:
+    timestamp: float
+    entities: list[Entity]
+    obstacles: list[ScanCluster]
+    degraded: bool
+    notes: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
 class WorldState:
     timestamp: float = field(default_factory=time)
     entities: list[Entity] = field(default_factory=list)
     zones: list[Zone] = field(default_factory=list)
     robot: RobotState = field(default_factory=RobotState)
     task_state: dict[str, Any] = field(default_factory=dict)
+    obstacles: list[ScanCluster] = field(default_factory=list)
+    perception_degraded: bool = False
 
 
 @dataclass(slots=True)

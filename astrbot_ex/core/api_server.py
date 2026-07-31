@@ -15,12 +15,16 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import unquote, urlparse
 
-from astrbot_ex.core.models import RuntimeEvent, RuntimeState
 from astrbot_ex.core.astrbot_bridge import AstrBotBridge
+from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.local_plugins import LocalPluginManager
+from astrbot_ex.core.models import RuntimeEvent, RuntimeState
+from astrbot_ex.core.perception_config import load_perception_config
+from astrbot_ex.core.plugin_registry import PluginRegistry
 from astrbot_ex.core.runtime import AstrBotEXRuntime
-from astrbot_ex.core.runtime_demo import build_demo_runtime
+from astrbot_ex.core.scene_fusion import SceneFusion
 from astrbot_ex.core.serialization import to_jsonable
+from astrbot_ex.core.topic_bus import TopicBus
 from astrbot_ex.core.vision_sources import VisionSourceManager
 
 
@@ -62,6 +66,8 @@ class RuntimeController:
                     "entities": self.runtime.world.entities,
                     "zones": self.runtime.world.zones,
                     "robot": robot,
+                    "obstacles": self.runtime.world.obstacles,
+                    "perception_degraded": self.runtime.world.perception_degraded,
                 },
                 "plugins": [
                     {
@@ -598,13 +604,32 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
 
 
 def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
-    runtime = build_demo_runtime()
-    controller = RuntimeController(runtime=runtime, tick_hz=tick_hz)
-    server = AstrBotEXHTTPServer((host, port), AstrBotEXRequestHandler)
-    server.controller = controller
     project_root = Path(__file__).resolve().parents[2]
     data_dir = os.environ.get("ASTRBOTEX_DATA_DIR")
     data_root = Path(data_dir).resolve() if data_dir else project_root
+    event_bus = EventBus()
+    topic_bus = TopicBus()
+    fusion = None
+    try:
+        perception_config = load_perception_config(data_root / "profiles" / "default" / "perception.json")
+    except ValueError as exc:
+        event_bus.emit(
+            "perception",
+            "perception config invalid, fusion disabled",
+            severity="error",
+            error=str(exc),
+        )
+    else:
+        fusion = SceneFusion(perception_config)
+    runtime = AstrBotEXRuntime(
+        registry=PluginRegistry(),
+        event_bus=event_bus,
+        topic_bus=topic_bus,
+        fusion=fusion,
+    )
+    controller = RuntimeController(runtime=runtime, tick_hz=tick_hz)
+    server = AstrBotEXHTTPServer((host, port), AstrBotEXRequestHandler)
+    server.controller = controller
     server.static_root = (project_root / "dashboard").resolve()
     server.vision_sources = VisionSourceManager(data_root / "profiles" / "default" / "vision_sources.json")
     server.local_plugins = LocalPluginManager(

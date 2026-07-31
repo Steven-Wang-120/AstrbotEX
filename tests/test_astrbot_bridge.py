@@ -7,10 +7,10 @@ import unittest
 from pathlib import Path
 from typing import Any
 
-from astrbot_ex.core.astrbot_bridge import AstrBotBridge
+from astrbot_ex.core.astrbot_bridge import AstrBotBridge, build_scene_summary
 from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.local_plugins import LocalPluginManager
-from astrbot_ex.core.models import RuntimeState, WorldState
+from astrbot_ex.core.models import Entity, RuntimeState, ScanCluster, WorldState
 from astrbot_ex.core.plugin_registry import PluginRegistry
 from astrbot_ex.core.runtime import AstrBotEXRuntime
 from astrbot_ex.core.topic_bus import TopicBus
@@ -38,9 +38,11 @@ class FakeController:
             "active_goal": None,
             "world": {
                 "timestamp": self.runtime.world.timestamp,
-                "entities": [],
-                "zones": [],
+                "entities": self.runtime.world.entities,
+                "zones": self.runtime.world.zones,
                 "robot": self.runtime.world.robot,
+                "obstacles": self.runtime.world.obstacles,
+                "perception_degraded": self.runtime.world.perception_degraded,
             },
             "recent_events": [],
         }
@@ -170,6 +172,103 @@ class AstrBotBridgeTest(unittest.TestCase):
 
         self.assertFalse(result["ok"])
         self.assertIn("params.phase is required", result["error"])
+
+    def test_context_contains_perception_scene_block(self) -> None:
+        self.runtime.world = WorldState(
+            entities=[
+                Entity(
+                    id="matched",
+                    type="rescue_target",
+                    semantic="own_normal",
+                    confidence=0.9,
+                    bearing_deg=-6.7,
+                    range_m=1.2,
+                    range_quality=0.8,
+                ),
+                Entity(
+                    id="vision_only",
+                    type="rescue_target",
+                    semantic="own_normal",
+                    confidence=0.7,
+                    bearing_deg=-15.0,
+                    range_m=None,
+                    range_quality=None,
+                ),
+                Entity(
+                    id="low_quality",
+                    type="rescue_target",
+                    semantic="own_normal",
+                    confidence=0.6,
+                    bearing_deg=20.0,
+                    range_m=1.2,
+                    range_quality=0.2,
+                ),
+            ],
+            obstacles=[
+                ScanCluster(
+                    id="obstacle_0",
+                    bearing_deg=35.0,
+                    range_m=0.9,
+                    width_deg=4.0,
+                    point_count=3,
+                    quality=1.0,
+                )
+            ],
+            perception_degraded=True,
+            task_state={"perception_notes": ["scan unavailable"]},
+        )
+
+        context = self.bridge.build_context()
+
+        perception_blocks = [
+            block
+            for block in context["blocks"]
+            if block["block_id"] == "perception.scene.v1"
+        ]
+        self.assertEqual(len(perception_blocks), 1)
+        payload = perception_blocks[0]["payload"]
+        self.assertEqual(
+            set(payload),
+            {"timestamp", "degraded", "summary", "targets", "obstacles", "notes"},
+        )
+        self.assertTrue(payload["degraded"])
+        self.assertEqual(payload["notes"], ["scan unavailable"])
+        self.assertEqual([target["id"] for target in payload["targets"]], ["matched", "vision_only", "low_quality"])
+        self.assertIn("range_quality", payload["targets"][0])
+        self.assertEqual(payload["targets"][0]["range_quality"], 0.8)
+        self.assertIn("ahead", payload["summary"])
+        self.assertIn("-6.7", payload["summary"])
+        self.assertIn("1.2", payload["summary"])
+        self.assertIn("range unknown", payload["summary"])
+        self.assertIn("~1.2m (low confidence)", payload["summary"])
+        self.assertTrue(payload["summary"].startswith("[DEGRADED"))
+        self.assertIn("scan unavailable", payload["summary"])
+        self.assertEqual(payload["obstacles"][0]["id"], "obstacle_0")
+
+    def test_build_scene_summary_is_deterministic_and_handles_empty_scene(self) -> None:
+        summary1 = build_scene_summary([], [], False, [])
+        summary2 = build_scene_summary([], [], False, [])
+
+        self.assertEqual(summary1, summary2)
+        self.assertIn("No targets", summary1)
+        self.assertIn("No obstacles", summary1)
+
+    def test_build_scene_summary_truncates_obstacles_with_count(self) -> None:
+        obstacles = [
+            {
+                "id": f"obstacle_{index}",
+                "bearing_deg": float(index * 10),
+                "range_m": float(index + 1),
+                "width_deg": 1.0,
+                "point_count": 1,
+                "quality": 1.0,
+            }
+            for index in range(7)
+        ]
+
+        summary = build_scene_summary([], obstacles, False, [])
+
+        self.assertIn("and 2 more obstacles", summary)
 
 
 if __name__ == "__main__":

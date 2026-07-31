@@ -36,6 +36,20 @@ class EventBusLogFilterTest(unittest.TestCase):
         ])
         self.assertEqual(delivered, bus.recent())
 
+    def test_publishes_degraded_unavailable_events_without_error_severity(self) -> None:
+        bus = EventBus()
+        delivered = []
+        bus.subscribe(delivered.append)
+
+        bus.emit("scan", "scan provider unavailable", severity="warning")
+        bus.emit("vision", "vision provider unavailable")
+
+        self.assertEqual(
+            [event.message for event in delivered],
+            ["scan provider unavailable", "vision provider unavailable"],
+        )
+        self.assertEqual(delivered, bus.recent())
+
 
 if __name__ == "__main__":
     unittest.main()

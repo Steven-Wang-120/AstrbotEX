@@ -12,6 +12,9 @@ from astrbot_ex.core.serialization import to_jsonable
 from astrbot_ex.core.topic_bus import TopicBus
 
 
+_MAX_SUMMARY_OBSTACLES = 5
+
+
 @dataclass(slots=True)
 class BridgeAction:
     action_id: str
@@ -65,6 +68,7 @@ class AstrBotBridge:
             self._runtime_block(status, now),
             self._world_block(status, now),
             self._events_block(status, now),
+            self._perception_block(status, now),
             *self._plugin_blocks(now),
         ]
         context_id = self._context_id(now, blocks)
@@ -252,6 +256,30 @@ class AstrBotBridge:
             },
         )
 
+    def _perception_block(self, status: dict[str, Any], now: float) -> dict[str, Any]:
+        world = status.get("world", {})
+        targets = [_target_payload(entity) for entity in world.get("entities", []) or []]
+        raw_obstacles = to_jsonable(world.get("obstacles", []))
+        obstacles = raw_obstacles if isinstance(raw_obstacles, list) else []
+        notes = _perception_notes(world.get("task_state"))
+        if not notes:
+            runtime_world = getattr(getattr(self.controller, "runtime", None), "world", None)
+            notes = _perception_notes(getattr(runtime_world, "task_state", {}))
+        degraded = bool(world.get("perception_degraded", False))
+        return self._core_block(
+            block_id="perception.scene.v1",
+            schema="perception_scene.v1",
+            now=now,
+            payload={
+                "timestamp": world.get("timestamp"),
+                "degraded": degraded,
+                "summary": build_scene_summary(targets, obstacles, degraded, notes),
+                "targets": targets,
+                "obstacles": obstacles,
+                "notes": notes,
+            },
+        )
+
     def _events_block(self, status: dict[str, Any], now: float) -> dict[str, Any]:
         return self._core_block(
             block_id="events.recent.v1",
@@ -398,3 +426,141 @@ class AstrBotBridge:
     @staticmethod
     def _contract_id(source: str, topic: str, schema: str) -> str:
         return hashlib.sha1(f"{source}|{topic}|{schema}".encode("utf-8")).hexdigest()[:12]
+
+
+def build_scene_summary(
+    targets: list[dict[str, Any]],
+    obstacles: list[dict[str, Any]],
+    degraded: bool,
+    notes: list[str],
+) -> str:
+    parts: list[str] = []
+    if degraded:
+        detail = "; ".join(str(note) for note in notes if str(note))
+        parts.append(f"[DEGRADED: {detail}]" if detail else "[DEGRADED]")
+
+    ordered_targets = sorted(
+        targets,
+        key=lambda target: (
+            _sort_float(target.get("bearing_deg")),
+            str(target.get("id", "")),
+            str(target.get("type", "")),
+        ),
+    )
+    if ordered_targets:
+        parts.append("Targets: " + "; ".join(_target_summary(target) for target in ordered_targets) + ".")
+    else:
+        parts.append("No targets detected.")
+
+    ordered_obstacles = sorted(
+        obstacles,
+        key=lambda obstacle: (
+            _sort_float(obstacle.get("range_m")),
+            _sort_float(obstacle.get("bearing_deg")),
+            str(obstacle.get("id", "")),
+        ),
+    )
+    if ordered_obstacles:
+        visible = ordered_obstacles[:_MAX_SUMMARY_OBSTACLES]
+        obstacle_texts = [_obstacle_summary(obstacle) for obstacle in visible]
+        remaining = len(ordered_obstacles) - len(visible)
+        if remaining > 0:
+            obstacle_texts.append(f"and {remaining} more obstacles")
+        parts.append("Obstacles: " + "; ".join(obstacle_texts) + ".")
+    else:
+        parts.append("No obstacles detected.")
+
+    return " ".join(parts)
+
+
+def _target_payload(entity: Any) -> dict[str, Any]:
+    return {
+        "id": _field(entity, "id"),
+        "type": _field(entity, "type"),
+        "semantic": _field(entity, "semantic"),
+        "bearing_deg": _field(entity, "bearing_deg"),
+        "range_m": _field(entity, "range_m"),
+        "range_quality": _field(entity, "range_quality"),
+        "confidence": _field(entity, "confidence"),
+    }
+
+
+def _field(value: Any, name: str) -> Any:
+    if isinstance(value, dict):
+        return value.get(name)
+    return getattr(value, name, None)
+
+
+def _perception_notes(task_state: Any) -> list[str]:
+    if not isinstance(task_state, dict):
+        return []
+    notes = task_state.get("perception_notes", [])
+    if not isinstance(notes, list):
+        return []
+    return [str(note) for note in notes if str(note)]
+
+
+def _target_summary(target: dict[str, Any]) -> str:
+    label = _label(target, "target")
+    bearing = _float_or_none(target.get("bearing_deg"))
+    direction = _direction(bearing)
+    bearing_text = "bearing unknown" if bearing is None else f"{direction} ({_format_number(bearing)} deg)"
+    range_m = _float_or_none(target.get("range_m"))
+    if range_m is None:
+        return f"{label} {bearing_text}, range unknown"
+    return f"{label} {bearing_text} at {_range_text(range_m, target.get('range_quality'))}"
+
+
+def _obstacle_summary(obstacle: dict[str, Any]) -> str:
+    label = str(obstacle.get("id") or "obstacle")
+    bearing = _float_or_none(obstacle.get("bearing_deg"))
+    direction = _direction(bearing)
+    bearing_text = "bearing unknown" if bearing is None else f"{direction} ({_format_number(bearing)} deg)"
+    range_m = _float_or_none(obstacle.get("range_m"))
+    range_text = "range unknown" if range_m is None else f"at {_format_number(range_m)}m"
+    return f"{label} {bearing_text} {range_text}"
+
+
+def _label(item: dict[str, Any], fallback: str) -> str:
+    for key in ("type", "semantic", "id"):
+        value = item.get(key)
+        if value:
+            return str(value)
+    return fallback
+
+
+def _direction(bearing_deg: float | None) -> str:
+    if bearing_deg is None:
+        return "unknown"
+    abs_bearing = abs(bearing_deg)
+    if abs_bearing <= 10.0:
+        return "ahead"
+    side = "left" if bearing_deg < 0.0 else "right"
+    if abs_bearing <= 30.0:
+        return f"slightly {side}"
+    if abs_bearing <= 75.0:
+        return side
+    return f"far {side}"
+
+
+def _range_text(range_m: float, range_quality: Any) -> str:
+    quality = _float_or_none(range_quality)
+    value = f"{_format_number(range_m)}m"
+    if quality is not None and quality < 0.5:
+        return f"~{value} (low confidence)"
+    return value
+
+
+def _float_or_none(value: Any) -> float | None:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return None
+    return float(value)
+
+
+def _sort_float(value: Any) -> float:
+    number = _float_or_none(value)
+    return number if number is not None else float("inf")
+
+
+def _format_number(value: float) -> str:
+    return f"{value:.1f}"
