@@ -10,7 +10,6 @@ WORKDIR /app
 
 COPY astrbot_ex ./astrbot_ex
 COPY dashboard ./dashboard
-COPY plugins ./builtin_plugins
 COPY scripts ./scripts
 COPY README.md ./
 COPY docker-entrypoint.sh ./docker-entrypoint.sh

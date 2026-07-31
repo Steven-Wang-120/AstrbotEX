@@ -61,13 +61,15 @@ astrbot_ex/
   core/         Runtime、API Server、世界模型、插件管理器、TopicBus、VLA Bridge
   interfaces/   各类插件稳定接口
   profiles/     配置与任务资料
-  plugins/      本地插件目录
 
 dashboard/      前端静态页面
 scripts/        本地启动脚本
-tests/          Runtime、Actor、TopicBus、插件管理、Bridge 单元测试
+tests/          Runtime、Actor、TopicBus、插件管理、Bridge 单元测试与 Mock 夹具
 
 同级独立目录：
+
+D:\Code\EXplugin
+  AstrBotEX 具体插件仓库；核心仓库不再内置可部署插件。
 
 D:\Code\astrbot_plugin_astrbotex_bridge
   AstrBot 侧桥接插件，不属于 AstrBotEX 部署包，也不应放进 AstrBotEX 镜像。
@@ -121,6 +123,8 @@ ApproachEntitySkill
 这说明项目方向已经从“演示原型”切到“真实插件接入”。
 
 ## 6. 插件系统现状
+
+本仓库只维护插件框架、稳定接口和管理能力，不再内置具体插件实现。可部署插件独立维护在 `D:\Code\EXplugin`，通过 Dashboard 上传 ZIP，或安装到运行数据目录的 `plugins/` 下。
 
 当前支持的 capability：
 
@@ -477,7 +481,7 @@ POST   /api/v1/ex/llm/proposal
 
 建议按下面顺序推进：
 
-1. 给现有真实感知插件补齐稳定 `publishes` schema 和 block 命名
+1. 在独立插件仓库中给真实感知插件补齐稳定 `publishes` schema 和 block 命名
 2. 给任务控制 / mission controller 插件补齐 `actions` 声明和 command topic 消费逻辑
 3. 完成 AstrBot 侧桥接插件安装与 `submit_astrbotex_proposal` 真实 LLM tool 调用验证
 4. 完成真实 `vision_provider`、`perception`、`motion_bridge` 的统一任务闭环
@@ -500,7 +504,7 @@ POST   /api/v1/ex/llm/proposal
 
 ```text
 python -B -m unittest discover -s tests
-15 tests OK
+14 tests OK
 ```
 
 已覆盖：
@@ -510,8 +514,9 @@ python -B -m unittest discover -s tests
 - PluginActor
 - Runtime actor integration
 - LocalPluginManager 配置校验
-- 内置控制插件 Actor 约束
 - AstrBotBridge context / proposal 校验与 command topic 发布
+
+具体插件测试随插件代码维护在 `D:\Code\EXplugin\tests`。
 
 尚未覆盖：
 
