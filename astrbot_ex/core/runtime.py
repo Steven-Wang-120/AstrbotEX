@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from astrbot_ex.core.event_bus import EventBus
+from astrbot_ex.core.interaction_core import InteractionCore
 from astrbot_ex.core.models import Goal, RobotState, RuntimeState, ScanResult, VisionResult, WorldState
 from astrbot_ex.core.plugin_registry import PluginRegistry, PluginSlot
 from astrbot_ex.core.safety import SafetyGuard
@@ -29,12 +30,14 @@ class AstrBotEXRuntime:
         safety: SafetyGuard | None = None,
         topic_bus: TopicBus | None = None,
         fusion: SceneFusion | None = None,
+        interaction_core: InteractionCore | None = None,
     ) -> None:
         self.registry = registry
         self.event_bus = event_bus or EventBus()
         self.safety = safety or SafetyGuard()
         self.topic_bus = topic_bus or TopicBus()
         self.world_builder = WorldBuilder(fusion=fusion)
+        self.interaction_core = interaction_core
         self.state = RuntimeState.IDLE
         self.world = WorldState()
         self.active_skill: ActiveSkill | None = None
@@ -43,6 +46,8 @@ class AstrBotEXRuntime:
         if self.state in {RuntimeState.RUNNING, RuntimeState.FAULT}:
             return
         self.registry.start_runtime()
+        if self.interaction_core is not None:
+            self.interaction_core.on_runtime_start()
         self.state = RuntimeState.RUNNING
         self.event_bus.emit("runtime_state", "runtime started", state=self.state.value)
 
@@ -69,6 +74,8 @@ class AstrBotEXRuntime:
                     error=str(exc),
                 )
             self.active_skill = None
+        if self.interaction_core is not None:
+            self.interaction_core.on_runtime_stop(reason)
         try:
             self.registry.stop_runtime(reason)
         except Exception as exc:
@@ -163,6 +170,9 @@ class AstrBotEXRuntime:
         if result.status in {"done", "failed"}:
             self.event_bus.emit("skill", f"skill {result.status}", reason=result.reason)
             self.active_skill = None
+
+        if self.interaction_core is not None:
+            self.interaction_core.tick()
 
     def _select_goal(self) -> Goal | None:
         policy_slot = self.registry.get_slot("policy")

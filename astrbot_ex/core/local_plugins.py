@@ -28,9 +28,12 @@ ALLOWED_PLUGIN_TYPES = {
     "skill_plugin",
     "tool_plugin",
     "trace_plugin",
+    "mic_input",
+    "speaker_output",
+    "interaction_provider",
 }
 
-PLUGIN_CATEGORIES = ("vision", "perception", "control", "decision", "special")
+PLUGIN_CATEGORIES = ("vision", "perception", "control", "decision", "special", "interaction")
 
 DEFAULT_CATEGORY_BY_CAPABILITY = {
     "vision_provider": "vision",
@@ -43,6 +46,9 @@ DEFAULT_CATEGORY_BY_CAPABILITY = {
     "skill_plugin": "decision",
     "tool_plugin": "decision",
     "trace_plugin": "special",
+    "mic_input": "interaction",
+    "speaker_output": "interaction",
+    "interaction_provider": "interaction",
 }
 
 RUNTIME_KIND_BY_CAPABILITY = {
@@ -51,6 +57,8 @@ RUNTIME_KIND_BY_CAPABILITY = {
     "rule_plugin": "rule",
     "policy_plugin": "policy",
     "skill_plugin": "skill",
+    "mic_input": "mic",
+    "speaker_output": "speaker",
 }
 
 

@@ -17,10 +17,12 @@ from urllib.parse import unquote, urlparse
 
 from astrbot_ex.core.astrbot_bridge import AstrBotBridge
 from astrbot_ex.core.event_bus import EventBus
+from astrbot_ex.core.interaction_core import InteractionCore
 from astrbot_ex.core.local_plugins import LocalPluginManager
 from astrbot_ex.core.models import RuntimeEvent, RuntimeState
 from astrbot_ex.core.perception_config import load_perception_config
 from astrbot_ex.core.plugin_registry import PluginRegistry
+from astrbot_ex.core.providers.interaction_provider import STTProvider, TTSProvider
 from astrbot_ex.core.runtime import AstrBotEXRuntime
 from astrbot_ex.core.scene_fusion import SceneFusion
 from astrbot_ex.core.serialization import to_jsonable
@@ -245,6 +247,11 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             result = self.server.bridge.handle_proposal(self._read_json())
             status = HTTPStatus.OK if result.get("ok") else HTTPStatus.BAD_REQUEST
             self._send_json(result, status)
+            return
+        if path in {"/api/v1/ex/interaction/reply"}:
+            payload = self._read_json()
+            self.server.interaction_core._handle_astrbot_reply(payload)
+            self._send_json({"ok": True})
             return
         plugin_id = self._match_plugin_action(path, "enable")
         if plugin_id:
@@ -601,6 +608,7 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
     vision_sources: VisionSourceManager
     local_plugins: LocalPluginManager
     bridge: AstrBotBridge
+    interaction_core: InteractionCore
 
 
 def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
@@ -627,6 +635,15 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         topic_bus=topic_bus,
         fusion=fusion,
     )
+    interaction_core = InteractionCore(
+        registry=runtime.registry,
+        topic_bus=runtime.topic_bus,
+        event_bus=runtime.event_bus,
+        astrbot_base_url=os.environ.get("ASTRBOT_BASE_URL", "http://127.0.0.1:8766"),
+        session_id=os.environ.get("ASTRBOTEX_SESSION_ID", "astrbotex_default"),
+        timeout_sec=float(os.environ.get("ASTRBOTEX_TIMEOUT_SEC", "5.0")),
+    )
+    server.interaction_core = interaction_core
     controller = RuntimeController(runtime=runtime, tick_hz=tick_hz)
     server = AstrBotEXHTTPServer((host, port), AstrBotEXRequestHandler)
     server.controller = controller
@@ -663,6 +680,7 @@ def main() -> None:
     print("Core endpoints: /api/status, /api/events, /api/runtime/start, /api/runtime/stop")
     print("Vision endpoints: /api/v1/ex/vision/sources, /api/v1/ex/vision/latest")
     print("Bridge endpoints: /api/v1/ex/bridge/context, /api/v1/ex/bridge/proposal")
+    print("Interaction endpoints: /api/v1/ex/interaction/reply")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
