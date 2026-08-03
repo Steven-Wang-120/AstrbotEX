@@ -1,6 +1,6 @@
 const API_BASE = window.ASTRBOTEX_API_BASE || window.location.origin;
 const MAX_TRACE_EVENTS = 200;
-const PLUGIN_CATEGORIES = ["vision", "perception", "control", "decision", "special"];
+const PLUGIN_CATEGORIES = ["vision", "perception", "control", "decision", "special", "interaction"];
 
 const CATEGORY_LABELS = {
   all: "全部",
@@ -9,6 +9,7 @@ const CATEGORY_LABELS = {
   control: "控制",
   decision: "决策",
   special: "特殊",
+  interaction: "交互",
 };
 
 const state = {
@@ -119,6 +120,7 @@ function parseHash() {
   }
   if (parts[0] === "plugins") return { page: "plugins" };
   if (parts[0] === "logs") return { page: "logs" };
+  if (parts[0] === "voice") return { page: "voice" };
   if (parts[0] === "core") return { page: "core" };
   return { page: "core" };
 }
@@ -127,6 +129,7 @@ function writeHash() {
   let hash = "#/core";
   if (state.activePage === "plugins") hash = `#/plugins/${state.activePluginTab}`;
   else if (state.activePage === "logs") hash = "#/logs";
+  else if (state.activePage === "voice") hash = "#/voice";
   else if (state.activePage === "plugin" && state.activePluginId) {
     hash = `#/plugins/${state.activePluginCategory || "special"}/${encodeURIComponent(state.activePluginId)}`;
   }
@@ -146,6 +149,7 @@ function switchPage(page, options = {}) {
   if (page === "plugins") renderPluginGrid();
   if (page === "logs") renderEvents();
   if (page === "plugin") renderPluginDashboard();
+  if (page === "voice") refreshVoiceStatus().catch(() => {});
   if (!options.silent) writeHash();
 }
 
@@ -1144,6 +1148,31 @@ function bindActions() {
   $("logAutoscrollButton").addEventListener("click", toggleLogAutoscroll);
   $("logClearButton").addEventListener("click", clearLogs);
 
+  const voiceRefreshButton = $("voiceRefreshButton");
+  if (voiceRefreshButton) {
+    voiceRefreshButton.addEventListener("click", (event) =>
+      runAction(event.currentTarget, "刷新中", refreshVoiceStatus)
+    );
+  }
+  const voiceTestTextButton = $("voiceTestTextButton");
+  if (voiceTestTextButton) {
+    voiceTestTextButton.addEventListener("click", (event) =>
+      runAction(event.currentTarget, "发送中", testSendText)
+    );
+  }
+  const voiceTestTtsButton = $("voiceTestTtsButton");
+  if (voiceTestTtsButton) {
+    voiceTestTtsButton.addEventListener("click", (event) =>
+      runAction(event.currentTarget, "合成中", testTts)
+    );
+  }
+  const voiceTestSttButton = $("voiceTestSttButton");
+  if (voiceTestSttButton) {
+    voiceTestSttButton.addEventListener("click", (event) =>
+      runAction(event.currentTarget, "识别中", testStt)
+    );
+  }
+
   window.addEventListener("hashchange", () => {
     applyRoute(parseHash());
   });
@@ -1188,7 +1217,91 @@ async function applyRoute(route) {
     switchPage("logs", { silent: true });
     return;
   }
+  if (route.page === "voice") {
+    switchPage("voice", { silent: true });
+    return;
+  }
   switchPage("core", { silent: true });
+}
+
+async function refreshVoiceStatus() {
+  try {
+    const s = await apiJson("/api/v1/ex/interaction/status");
+    setText("voiceAstrBotReachable", s.astrbot_reachable ? "已连接" : "未连接");
+    const reachEl = $("voiceAstrBotReachable");
+    if (reachEl) {
+      reachEl.className = s.astrbot_reachable ? "state-ok" : "state-err";
+    }
+    setText("voiceAstrBotUrl", s.astrbot_base_url || "--");
+    setText("voiceSttProvider", s.stt_provider || "未配置");
+    setText("voiceTtsProvider", s.tts_provider || "未配置");
+    const micCount = Array.isArray(s.mic_plugins) ? s.mic_plugins.length : 0;
+    const spkCount = Array.isArray(s.speaker_plugins) ? s.speaker_plugins.length : 0;
+    setText("voiceMicCount", String(micCount));
+    setText("voiceSpeakerCount", `扬声器 ${spkCount}`);
+    setText("voiceDetailUrl", s.astrbot_base_url || "--");
+    setText("voiceDetailMic", micCount > 0 ? s.mic_plugins.join(", ") : "无");
+    setText("voiceDetailSpeaker", spkCount > 0 ? s.speaker_plugins.join(", ") : "无");
+    setText("voiceDetailSttProxy", s.stt_proxy || "未启用");
+    setText("voiceDetailTtsProxy", s.tts_proxy || "未启用");
+    setText(
+      "voiceDetailLastStt",
+      s.last_stt_at ? new Date(s.last_stt_at * 1000).toLocaleString() : "--"
+    );
+    setText(
+      "voiceDetailLastTts",
+      s.last_tts_audio_at ? new Date(s.last_tts_audio_at * 1000).toLocaleString() : "--"
+    );
+    setText(
+      "voiceDetailError",
+      s.last_error ? `${s.last_error.operation}: ${s.last_error.error}` : (s.astrbot_error || "无")
+    );
+  } catch (error) {
+    setText("voiceAstrBotReachable", "错误");
+    throw error;
+  }
+}
+
+async function testSendText() {
+  const result = await apiJson("/api/v1/ex/interaction/message", {
+    method: "POST",
+    body: JSON.stringify({ text: "Dashboard 手动测试消息", session_id: "astrbotex_default" }),
+  });
+  setText("voiceTestResult", result.ok ? "发送成功" : `失败: ${result.error || "unknown"}`);
+  showToast(result.ok ? "文本已发送到 AstrBot" : "发送失败");
+}
+
+async function testTts() {
+  const result = await apiJson("/api/v1/ex/interaction/tts", {
+    method: "POST",
+    body: JSON.stringify({ text: "你好，这是语音合成测试。" }),
+  });
+  if (result.ok) {
+    setText("voiceTestResult", `TTS 成功: ${result.audio_url || "ok"}`);
+    showToast("TTS 合成成功");
+  } else {
+    setText("voiceTestResult", `TTS 失败: ${result.error || "unknown"}`);
+    showToast(`TTS 失败: ${result.error}`, "error");
+  }
+}
+
+async function testStt() {
+  const input = $("voiceSttFile");
+  const file = input?.files?.[0];
+  if (!file) throw new Error("请选择音频文件");
+  const audioUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => resolve(reader.result));
+    reader.addEventListener("error", () => reject(reader.error || new Error("读取音频失败")));
+    reader.readAsDataURL(file);
+  });
+  const result = await apiJson("/api/v1/ex/interaction/stt", {
+    method: "POST",
+    body: JSON.stringify({ audio_url: audioUrl }),
+  });
+  setText("voiceTestResult", `STT: ${result.text || "（空结果）"}`);
+  showToast("STT 识别完成");
+  await refreshVoiceStatus();
 }
 
 /* ============ BOOT ============ */

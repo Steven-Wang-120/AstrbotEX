@@ -37,6 +37,12 @@ services:
       - ASTRBOTEX_PORT=8765
       - ASTRBOTEX_TICK_HZ=${ASTRBOTEX_TICK_HZ:-20}
       - ASTRBOTEX_DATA_DIR=/app/data
+      - ASTRBOT_BASE_URL=${ASTRBOT_BASE_URL:-http://127.0.0.1:8766}
+      - ASTRBOTEX_SESSION_ID=${ASTRBOTEX_SESSION_ID:-astrbotex_default}
+      - ASTRBOTEX_TIMEOUT_SEC=${ASTRBOTEX_TIMEOUT_SEC:-10}
+      - ASTRBOTEX_TTS_TIMEOUT_SEC=${ASTRBOTEX_TTS_TIMEOUT_SEC:-30}
+      - ASTRBOTEX_STT_ENABLED=${ASTRBOTEX_STT_ENABLED:-true}
+      - ASTRBOTEX_TTS_ENABLED=${ASTRBOTEX_TTS_ENABLED:-true}
     volumes:
       - ./deploy/astrbotex/data:/app/data
       - /dev:/dev
@@ -52,9 +58,12 @@ services:
     environment:
       - TZ=${TZ:-Asia/Shanghai}
       - ASTRBOTEX_BASE_URL=${ASTRBOTEX_BASE_URL:-http://astrbotex:8765}
+      - ASTRBOTEX_PLUGIN_HOST=0.0.0.0
+      - ASTRBOTEX_PLUGIN_PORT=8766
     ports:
       - "${ASTRBOT_WEB_PORT:-6185}:6185"
       - "${ASTRBOT_PLATFORM_PORT:-6199}:6199"
+      - "127.0.0.1:${ASTRBOT_INTERACTION_PORT:-8766}:8766"
     volumes:
       - ./deploy/astrbot/data:/AstrBot/data
       - /etc/localtime:/etc/localtime:ro

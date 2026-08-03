@@ -29,6 +29,9 @@
           <button class="nav-item" data-page="logs">
             <span class="nav-num">03</span><span class="nav-label">运行日志</span>
           </button>
+          <button class="nav-item" data-page="voice">
+            <span class="nav-num">04</span><span class="nav-label">语音</span>
+          </button>
         </nav>
 
         <div class="sidebar-foot">
@@ -181,6 +184,9 @@
               <button class="tab-item" data-category="special" role="tab">
                 特殊 <span class="tab-count" data-count="special">0</span>
               </button>
+              <button class="tab-item" data-category="interaction" role="tab">
+                交互 <span class="tab-count" data-count="interaction">0</span>
+              </button>
               <div class="tab-spacer"></div>
               <button class="btn btn-ghost btn-sm" id="pluginRefreshButton">刷新</button>
             </div>
@@ -224,6 +230,128 @@
                 <span class="panel-meta" id="eventStatus">SSE 未连接</span>
               </div>
               <div class="log-console" id="logConsole"></div>
+            </section>
+          </section>
+
+          <!-- ============ 04 VOICE ============ -->
+          <section class="page" id="page-voice">
+            <header class="page-head">
+              <div class="page-head-num">04</div>
+              <div class="page-head-text">
+                <h1>交互 / 语音</h1>
+                <p>STT / TTS 链路状态与自检</p>
+              </div>
+            </header>
+
+            <section class="metric-grid">
+              <article class="metric">
+                <span class="corner tl"></span><span class="corner tr"></span>
+                <span class="corner bl"></span><span class="corner br"></span>
+                <span class="metric-label">AstrBot 连接</span>
+                <strong class="metric-value" id="voiceAstrBotReachable">--</strong>
+                <small class="metric-sub" id="voiceAstrBotUrl">--</small>
+              </article>
+              <article class="metric">
+                <span class="corner tl"></span><span class="corner tr"></span>
+                <span class="corner bl"></span><span class="corner br"></span>
+                <span class="metric-label">STT Provider</span>
+                <strong class="metric-value" id="voiceSttProvider">--</strong>
+                <small class="metric-sub">语音转文字</small>
+              </article>
+              <article class="metric">
+                <span class="corner tl"></span><span class="corner tr"></span>
+                <span class="corner bl"></span><span class="corner br"></span>
+                <span class="metric-label">TTS Provider</span>
+                <strong class="metric-value" id="voiceTtsProvider">--</strong>
+                <small class="metric-sub">文字转语音</small>
+              </article>
+              <article class="metric">
+                <span class="corner tl"></span><span class="corner tr"></span>
+                <span class="corner bl"></span><span class="corner br"></span>
+                <span class="metric-label">麦克风插件</span>
+                <strong class="metric-value" id="voiceMicCount">--</strong>
+                <small class="metric-sub" id="voiceSpeakerCount">扬声器 --</small>
+              </article>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <span class="panel-num">04.A</span>
+                <h2>链路自检</h2>
+                <button class="btn btn-ghost btn-sm" id="voiceRefreshButton">刷新</button>
+              </div>
+              <div class="snapshot-grid" id="voiceStatusGrid">
+                <div class="kv">
+                  <span class="kv-label">AstrBot 地址</span>
+                  <span class="kv-dots"></span>
+                  <b class="kv-value" id="voiceDetailUrl">--</b>
+                </div>
+                <div class="kv">
+                  <span class="kv-label">麦克风插件</span>
+                  <span class="kv-dots"></span>
+                  <b class="kv-value" id="voiceDetailMic">--</b>
+                </div>
+                <div class="kv">
+                  <span class="kv-label">扬声器插件</span>
+                  <span class="kv-dots"></span>
+                  <b class="kv-value" id="voiceDetailSpeaker">--</b>
+                </div>
+                <div class="kv">
+                  <span class="kv-label">STT 代理</span>
+                  <span class="kv-dots"></span>
+                  <b class="kv-value" id="voiceDetailSttProxy">--</b>
+                </div>
+                <div class="kv">
+                  <span class="kv-label">TTS 代理</span>
+                  <span class="kv-dots"></span>
+                  <b class="kv-value" id="voiceDetailTtsProxy">--</b>
+                </div>
+                <div class="kv">
+                  <span class="kv-label">最近 STT</span>
+                  <span class="kv-dots"></span>
+                  <b class="kv-value" id="voiceDetailLastStt">--</b>
+                </div>
+                <div class="kv">
+                  <span class="kv-label">最近 TTS</span>
+                  <span class="kv-dots"></span>
+                  <b class="kv-value" id="voiceDetailLastTts">--</b>
+                </div>
+                <div class="kv">
+                  <span class="kv-label">最近错误</span>
+                  <span class="kv-dots"></span>
+                  <b class="kv-value" id="voiceDetailError">--</b>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <span class="panel-num">04.B</span>
+                <h2>手动测试</h2>
+              </div>
+              <div class="snapshot-grid">
+                <div class="kv">
+                  <span class="kv-label">发送文本到 AstrBot</span>
+                  <span class="kv-dots"></span>
+                  <button class="btn btn-primary btn-sm" id="voiceTestTextButton">测试发送</button>
+                </div>
+                <div class="kv">
+                  <span class="kv-label">测试 TTS 合成</span>
+                  <span class="kv-dots"></span>
+                  <button class="btn btn-primary btn-sm" id="voiceTestTtsButton">测试 TTS</button>
+                </div>
+                <div class="kv">
+                  <span class="kv-label">测试 STT 识别</span>
+                  <span class="kv-dots"></span>
+                  <input class="config-input voice-audio-input" id="voiceSttFile" type="file" accept="audio/*,.wav,.mp3,.ogg,.m4a,.webm" />
+                  <button class="btn btn-primary btn-sm" id="voiceTestSttButton">测试 STT</button>
+                </div>
+              </div>
+              <div class="kv" style="margin-top:8px">
+                <span class="kv-label">结果</span>
+                <span class="kv-dots"></span>
+                <b class="kv-value" id="voiceTestResult" style="word-break:break-all">--</b>
+              </div>
             </section>
           </section>
 

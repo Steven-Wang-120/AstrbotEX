@@ -7,6 +7,7 @@ import queue
 import tempfile
 import threading
 import time
+import urllib.request
 from email.parser import BytesParser
 from email.policy import default as email_policy
 from http import HTTPStatus
@@ -22,6 +23,7 @@ from astrbot_ex.core.local_plugins import LocalPluginManager
 from astrbot_ex.core.models import RuntimeEvent, RuntimeState
 from astrbot_ex.core.perception_config import load_perception_config
 from astrbot_ex.core.plugin_registry import PluginRegistry
+from astrbot_ex.core.providers.astrbot_providers import AstrBotSTTProvider, AstrBotTTSProvider
 from astrbot_ex.core.providers.interaction_provider import STTProvider, TTSProvider
 from astrbot_ex.core.runtime import AstrBotEXRuntime
 from astrbot_ex.core.scene_fusion import SceneFusion
@@ -159,7 +161,17 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             return
         if path in {"/api/plugins", "/api/v1/ex/plugins"}:
             plugins = self.server.local_plugins.list_plugins()
-            grouped = {category: [] for category in ("vision", "perception", "control", "decision", "special")}
+            grouped = {
+                category: []
+                for category in (
+                    "vision",
+                    "perception",
+                    "control",
+                    "decision",
+                    "special",
+                    "interaction",
+                )
+            }
             for plugin in plugins:
                 grouped.setdefault(plugin.get("category", "special"), []).append(plugin)
             self._send_json({"plugins": plugins, "groups": grouped})
@@ -187,6 +199,9 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         dashboard_id = self._match_plugin_dashboard(path)
         if dashboard_id:
             self._send_plugin_dashboard(dashboard_id)
+            return
+        if path in {"/api/v1/ex/interaction/status"}:
+            self._send_json(self._interaction_status())
             return
         if path == "/healthz":
             self._send_json({"ok": True})
@@ -248,9 +263,55 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             status = HTTPStatus.OK if result.get("ok") else HTTPStatus.BAD_REQUEST
             self._send_json(result, status)
             return
-        if path in {"/api/v1/ex/interaction/reply"}:
+        if path == "/api/v1/ex/interaction/message":
             payload = self._read_json()
-            self.server.interaction_core._handle_astrbot_reply(payload)
+            text = str(payload.get("text", "")).strip()
+            if not text:
+                self._send_json(
+                    {"ok": False, "error": "text is required"},
+                    HTTPStatus.BAD_REQUEST,
+                )
+                return
+            result = self.server.interaction_core.send_text(
+                text,
+                source=str(payload.get("source", "api")),
+            )
+            status = HTTPStatus.OK if result.get("ok") else HTTPStatus.BAD_GATEWAY
+            self._send_json(result, status)
+            return
+        if path == "/api/v1/ex/interaction/stt":
+            payload = self._read_json()
+            audio_url = self.server.interaction_core._resolve_audio_url(payload)
+            if audio_url is None:
+                self._send_json(
+                    {"ok": False, "error": "audio_url or audio data is required"},
+                    HTTPStatus.BAD_REQUEST,
+                )
+                return
+            result = self.server.interaction_core.transcribe_audio(
+                audio_url,
+                source="api",
+                delete_after_read=str(payload.get("audio_url", "")).startswith("data:"),
+            )
+            status = HTTPStatus.OK if result.get("ok") else HTTPStatus.BAD_GATEWAY
+            self._send_json(result, status)
+            return
+        if path == "/api/v1/ex/interaction/tts":
+            payload = self._read_json()
+            text = str(payload.get("text", "")).strip()
+            if not text:
+                self._send_json(
+                    {"ok": False, "error": "text is required"},
+                    HTTPStatus.BAD_REQUEST,
+                )
+                return
+            result = self.server.interaction_core.synthesize_text(text, source="api")
+            status = HTTPStatus.OK if result.get("ok") else HTTPStatus.BAD_GATEWAY
+            self._send_json(result, status)
+            return
+        if path == "/api/v1/ex/interaction/reply":
+            payload = self._read_json()
+            self.server.interaction_core.handle_astrbot_reply(payload)
             self._send_json({"ok": True})
             return
         plugin_id = self._match_plugin_action(path, "enable")
@@ -261,6 +322,7 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
                 status = HTTPStatus.NOT_FOUND if isinstance(exc, KeyError) else HTTPStatus.BAD_REQUEST
                 self._send_json({"ok": False, "error": str(exc)}, status)
                 return
+            self.server.interaction_core.refresh_mic_subscriptions()
             self._send_json({"ok": True, "plugin": plugin})
             return
         plugin_id = self._match_plugin_action(path, "disable")
@@ -278,6 +340,7 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
                 status = HTTPStatus.NOT_FOUND if isinstance(exc, KeyError) else HTTPStatus.BAD_REQUEST
                 self._send_json({"ok": False, "error": str(exc)}, status)
                 return
+            self.server.interaction_core.refresh_mic_subscriptions()
             self._send_json({"ok": True, "plugin": plugin})
             return
         plugin_id = self._match_plugin_action(path, "config")
@@ -288,6 +351,7 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             except (KeyError, ValueError) as exc:
                 self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
                 return
+            self.server.interaction_core.refresh_mic_subscriptions()
             self._send_json({"ok": True, "plugin": plugin})
             return
         plugin_id = self._match_plugin_action(path, "pubsub")
@@ -423,6 +487,42 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(body)
+
+    def _interaction_status(self) -> dict[str, Any]:
+        ic = self.server.interaction_core
+        astrbot_reachable = False
+        provider_status: dict[str, Any] = {}
+        astrbot_error: str | None = None
+        try:
+            url = ic.astrbot_base_url.rstrip("/") + "/api/v1/ex/interaction/providers"
+            req = urllib.request.Request(url, method="GET")
+            with urllib.request.urlopen(req, timeout=2) as resp:
+                astrbot_reachable = resp.status == 200
+                if astrbot_reachable:
+                    parsed = json.loads(resp.read().decode("utf-8"))
+                    if isinstance(parsed, dict):
+                        provider_status = parsed
+        except Exception as exc:
+            astrbot_error = str(exc)
+
+        slots = self.server.controller.runtime.registry.list()
+        mic_plugins = [slot.plugin.id for slot in slots if slot.kind == "mic" and slot.enabled]
+        speaker_plugins = [slot.plugin.id for slot in slots if slot.kind == "speaker" and slot.enabled]
+        status = {
+            "astrbot_base_url": ic.astrbot_base_url,
+            "astrbot_reachable": astrbot_reachable,
+            "astrbot_error": astrbot_error,
+            "stt_provider": provider_status.get("stt"),
+            "tts_provider": provider_status.get("tts"),
+            "stt_proxy": type(ic.stt_provider).__name__ if ic.stt_provider is not None else None,
+            "tts_proxy": type(ic.tts_provider).__name__ if ic.tts_provider is not None else None,
+            "stt_ready": bool(astrbot_reachable and provider_status.get("stt") and ic.stt_provider),
+            "tts_ready": bool(astrbot_reachable and provider_status.get("tts") and ic.tts_provider),
+            "mic_plugins": mic_plugins,
+            "speaker_plugins": speaker_plugins,
+        }
+        status.update(ic.status_snapshot())
+        return status
 
     def _handle_plugin_upload(self) -> None:
         content_type = self.headers.get("Content-Type", "")
@@ -635,18 +735,39 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         topic_bus=topic_bus,
         fusion=fusion,
     )
+    _astrbot_base_url = os.environ.get("ASTRBOT_BASE_URL", "http://127.0.0.1:8766")
+    _timeout_sec = float(os.environ.get("ASTRBOTEX_TIMEOUT_SEC", "5.0"))
+
+    _stt_provider: STTProvider | None = None
+    _tts_provider: TTSProvider | None = None
+    if os.environ.get("ASTRBOTEX_STT_ENABLED", "").lower() in ("true", "1"):
+        _stt_provider = AstrBotSTTProvider(
+            astrbot_base_url=_astrbot_base_url,
+            timeout_sec=_timeout_sec,
+            event_bus=event_bus,
+        )
+    if os.environ.get("ASTRBOTEX_TTS_ENABLED", "").lower() in ("true", "1"):
+        _tts_provider = AstrBotTTSProvider(
+            astrbot_base_url=_astrbot_base_url,
+            timeout_sec=float(os.environ.get("ASTRBOTEX_TTS_TIMEOUT_SEC", "30.0")),
+            event_bus=event_bus,
+        )
+
     interaction_core = InteractionCore(
         registry=runtime.registry,
         topic_bus=runtime.topic_bus,
         event_bus=runtime.event_bus,
-        astrbot_base_url=os.environ.get("ASTRBOT_BASE_URL", "http://127.0.0.1:8766"),
+        astrbot_base_url=_astrbot_base_url,
         session_id=os.environ.get("ASTRBOTEX_SESSION_ID", "astrbotex_default"),
-        timeout_sec=float(os.environ.get("ASTRBOTEX_TIMEOUT_SEC", "5.0")),
+        timeout_sec=_timeout_sec,
+        stt_provider=_stt_provider,
+        tts_provider=_tts_provider,
     )
-    server.interaction_core = interaction_core
+    runtime.interaction_core = interaction_core
     controller = RuntimeController(runtime=runtime, tick_hz=tick_hz)
     server = AstrBotEXHTTPServer((host, port), AstrBotEXRequestHandler)
     server.controller = controller
+    server.interaction_core = interaction_core
     server.static_root = (project_root / "dashboard").resolve()
     server.vision_sources = VisionSourceManager(data_root / "profiles" / "default" / "vision_sources.json")
     server.local_plugins = LocalPluginManager(

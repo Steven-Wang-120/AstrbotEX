@@ -82,6 +82,7 @@ class InteractionCoreTest(unittest.TestCase):
         assert latest is not None
         self.assertEqual(latest.payload["format"], "wav")
         self.assertEqual(latest.payload["data"], "/tmp/test.wav")
+        self.assertFalse(latest.payload["delete_after_play"])
 
     def test_send_text_posts_correct_json_and_returns_parsed_response(self) -> None:
         expected_response = {"ok": True, "message_id": "msg_123"}
@@ -147,7 +148,28 @@ class InteractionCoreTest(unittest.TestCase):
                 self.core._handle_astrbot_reply({"text": "hello there"})
 
                 mock_publish_text.assert_called_once_with("hello there")
-                mock_publish_audio.assert_called_once_with("/tmp/fake_audio.wav")
+                mock_publish_audio.assert_called_once_with(
+                    "/tmp/fake_audio.wav",
+                    delete_after_play=True,
+                )
+
+    def test_synthesize_text_returns_audio_and_updates_status(self) -> None:
+        self.core.tts_provider = FakeTTSProvider()
+
+        result = self.core.synthesize_text("hello")
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["audio_url"], "/tmp/fake_audio.wav")
+        self.assertIsNotNone(self.core.status_snapshot()["last_tts_audio_at"])
+
+    def test_transcribe_audio_returns_text_and_updates_status(self) -> None:
+        self.core.stt_provider = FakeSTTProvider()
+
+        result = self.core.transcribe_audio("http://example.com/audio.wav")
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["text"], "hello from stt")
+        self.assertIsNotNone(self.core.status_snapshot()["last_stt_at"])
 
     def test_resolve_audio_url_file_protocol(self) -> None:
         result = self.core._resolve_audio_url({"audio_url": "file:///tmp/test.wav"})

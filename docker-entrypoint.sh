@@ -10,6 +10,7 @@ mkdir -p "$PLUGIN_DIR" \
   "$PLUGIN_DIR/control" \
   "$PLUGIN_DIR/decision" \
   "$PLUGIN_DIR/special" \
+  "$PLUGIN_DIR/interaction" \
   "$DATA_DIR/profiles/default"
 
 exec "$@"
