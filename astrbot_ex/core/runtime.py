@@ -4,12 +4,12 @@ from dataclasses import dataclass
 
 from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.interaction_core import InteractionCore
-from astrbot_ex.core.models import Goal, RobotState, RuntimeState, ScanResult, VisionResult, WorldState
+from astrbot_ex.core.models import Goal, RobotState, RuntimeState, WorldState
+from astrbot_ex.core.perception_core import PerceptionCore
 from astrbot_ex.core.plugin_registry import PluginRegistry, PluginSlot
 from astrbot_ex.core.safety import SafetyGuard
 from astrbot_ex.core.scene_fusion import SceneFusion
 from astrbot_ex.core.topic_bus import TopicBus
-from astrbot_ex.core.world_builder import WorldBuilder
 
 
 @dataclass(slots=True)
@@ -31,12 +31,17 @@ class AstrBotEXRuntime:
         topic_bus: TopicBus | None = None,
         fusion: SceneFusion | None = None,
         interaction_core: InteractionCore | None = None,
+        perception: PerceptionCore | None = None,
     ) -> None:
         self.registry = registry
         self.event_bus = event_bus or EventBus()
         self.safety = safety or SafetyGuard()
         self.topic_bus = topic_bus or TopicBus()
-        self.world_builder = WorldBuilder(fusion=fusion)
+        self.perception_core = perception or PerceptionCore(
+            registry=self.registry,
+            event_bus=self.event_bus,
+            fusion=fusion,
+        )
         self.interaction_core = interaction_core
         self.state = RuntimeState.IDLE
         self.world = WorldState()
@@ -90,31 +95,10 @@ class AstrBotEXRuntime:
             if slot.enabled and slot.has_method("on_tick"):
                 slot.cast("on_tick", self.world, coalesce_key="runtime_tick")
 
-        vision_provider = self._vision_provider()
-        scan_provider = self._scan_provider()
         motion_bridge = self._motion_bridge()
 
-        vision = self._read_vision(vision_provider)
-        scan = self._read_scan(scan_provider)
         robot = self._read_robot_state(motion_bridge)
-        self.world = self.world_builder.update(vision, scan, robot)
-        self.event_bus.emit_throttled(
-            "vision",
-            "vision frame received",
-            interval_sec=0.5,
-            key="runtime:vision_frame",
-            frame_id=vision.frame_id,
-            entities=len(vision.entities),
-        )
-        if scan is not None:
-            self.event_bus.emit_throttled(
-                "scan",
-                "scan frame received",
-                interval_sec=0.5,
-                key="runtime:scan_frame",
-                frame_id=scan.frame_id,
-                points=len(scan.ranges),
-            )
+        self.world = self.perception_core.update(robot, self.world)
 
         for rule in self._rules():
             for decision in rule.call("evaluate_world", self.world):
@@ -199,35 +183,8 @@ class AstrBotEXRuntime:
     def _rules(self) -> list[PluginSlot]:
         return [slot for slot in self.registry.list() if slot.kind == "rule" and slot.enabled]
 
-    def _vision_provider(self) -> PluginSlot | None:
-        return self.registry.get_slot("vision")
-
-    def _scan_provider(self) -> PluginSlot | None:
-        return self.registry.get_slot("scan")
-
     def _motion_bridge(self) -> PluginSlot | None:
         return self.registry.get_slot("motion")
-
-    def _read_vision(self, provider: PluginSlot | None) -> VisionResult:
-        if provider is None:
-            self.event_bus.emit_throttled("vision", "vision provider unavailable", interval_sec=1.0)
-            return VisionResult(frame_id=0, timestamp=self.world.timestamp, metadata={"source": "missing_vision"})
-        return provider.call("get_result")
-
-    def _read_scan(self, provider: PluginSlot | None) -> ScanResult | None:
-        if provider is None:
-            self.event_bus.emit_throttled(
-                "scan",
-                "scan provider unavailable",
-                interval_sec=1.0,
-                severity="warning",
-            )
-            return None
-        try:
-            return provider.call("get_scan")
-        except Exception as exc:
-            self.event_bus.emit("plugin_fault", "scan read failed", plugin=provider.id, error=str(exc))
-            return None
 
     def _read_robot_state(self, bridge: PluginSlot | None) -> RobotState:
         if bridge is None:
