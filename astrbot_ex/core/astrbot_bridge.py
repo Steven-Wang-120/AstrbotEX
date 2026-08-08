@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import threading
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -59,16 +60,19 @@ class AstrBotBridge:
         self.context_ttl_sec = context_ttl_sec
         self.block_ttl_ms = block_ttl_ms
         self._contexts: dict[str, dict[str, Any]] = {}
+        self._core_seq = 0
+        self._core_seq_lock = threading.RLock()
 
     def build_context(self) -> dict[str, Any]:
         now = time.time()
         status = self.controller.status()
         actions = [action.to_dict() for action in self.list_actions()]
+        core_seq = self._next_core_seq()
         blocks = [
-            self._runtime_block(status, now),
-            self._world_block(status, now),
-            self._events_block(status, now),
-            self._perception_block(status, now),
+            self._runtime_block(status, now, core_seq),
+            self._world_block(status, now, core_seq),
+            self._events_block(status, now, core_seq),
+            self._perception_block(status, now, core_seq),
             *self._plugin_blocks(now),
         ]
         context_id = self._context_id(now, blocks)
@@ -229,11 +233,13 @@ class AstrBotBridge:
             "status": "published",
         }
 
-    def _runtime_block(self, status: dict[str, Any], now: float) -> dict[str, Any]:
+    def _runtime_block(self, status: dict[str, Any], now: float, seq: int) -> dict[str, Any]:
         return self._core_block(
             block_id="runtime.status.v1",
             schema="runtime_status.v1",
             now=now,
+            timestamp=now,
+            seq=seq,
             payload={
                 "runtime_state": status.get("runtime_state"),
                 "tick_hz": status.get("tick_hz"),
@@ -242,12 +248,14 @@ class AstrBotBridge:
             },
         )
 
-    def _world_block(self, status: dict[str, Any], now: float) -> dict[str, Any]:
+    def _world_block(self, status: dict[str, Any], now: float, seq: int) -> dict[str, Any]:
         world = status.get("world", {})
         return self._core_block(
             block_id="world.snapshot.v1",
             schema="world_snapshot.v1",
             now=now,
+            timestamp=world.get("timestamp"),
+            seq=seq,
             payload={
                 "timestamp": world.get("timestamp"),
                 "robot": world.get("robot"),
@@ -256,7 +264,7 @@ class AstrBotBridge:
             },
         )
 
-    def _perception_block(self, status: dict[str, Any], now: float) -> dict[str, Any]:
+    def _perception_block(self, status: dict[str, Any], now: float, seq: int) -> dict[str, Any]:
         world = status.get("world", {})
         targets = [_target_payload(entity) for entity in world.get("entities", []) or []]
         raw_obstacles = to_jsonable(world.get("obstacles", []))
@@ -270,6 +278,8 @@ class AstrBotBridge:
             block_id="perception.scene.v1",
             schema="perception_scene.v1",
             now=now,
+            timestamp=world.get("timestamp"),
+            seq=seq,
             payload={
                 "timestamp": world.get("timestamp"),
                 "degraded": degraded,
@@ -280,27 +290,44 @@ class AstrBotBridge:
             },
         )
 
-    def _events_block(self, status: dict[str, Any], now: float) -> dict[str, Any]:
+    def _events_block(self, status: dict[str, Any], now: float, seq: int) -> dict[str, Any]:
         return self._core_block(
             block_id="events.recent.v1",
             schema="events_recent.v1",
             now=now,
+            timestamp=now,
+            seq=seq,
             payload={"events": status.get("recent_events", [])[-10:]},
         )
 
-    def _core_block(self, *, block_id: str, schema: str, now: float, payload: dict[str, Any]) -> dict[str, Any]:
+    def _core_block(
+        self,
+        *,
+        block_id: str,
+        schema: str,
+        now: float,
+        timestamp: Any,
+        seq: int,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        ttl_ms = int(self.context_ttl_sec * 1000)
         return {
             "block_id": block_id,
             "contract_id": self._contract_id("core", block_id, schema),
             "source_plugin": "core",
             "topic": block_id,
             "schema": schema,
-            "seq": int(now * 1000),
-            "timestamp": now,
-            "ttl_ms": int(self.context_ttl_sec * 1000),
-            "fresh": True,
+            "seq": seq,
+            "timestamp": timestamp,
+            "ttl_ms": ttl_ms,
+            "fresh": self._is_fresh(timestamp=timestamp, ttl_ms=ttl_ms, now=now),
             "payload": to_jsonable(payload),
         }
+
+    def _next_core_seq(self) -> int:
+        with self._core_seq_lock:
+            self._core_seq += 1
+            return self._core_seq
 
     def _plugin_blocks(self, now: float) -> list[dict[str, Any]]:
         blocks: list[dict[str, Any]] = []
@@ -323,11 +350,17 @@ class AstrBotBridge:
                         "seq": message.seq if message else None,
                         "timestamp": timestamp,
                         "ttl_ms": ttl_ms,
-                        "fresh": bool(timestamp and now - timestamp <= ttl_ms / 1000.0),
+                        "fresh": self._is_fresh(timestamp=timestamp, ttl_ms=ttl_ms, now=now),
                         "payload": to_jsonable(message.payload) if message else None,
                     }
                 )
         return blocks
+
+    @staticmethod
+    def _is_fresh(*, timestamp: Any, ttl_ms: int, now: float) -> bool:
+        if isinstance(timestamp, bool) or not isinstance(timestamp, int | float):
+            return False
+        return now - timestamp <= ttl_ms / 1000.0
 
     def _validate_block_refs(
         self,

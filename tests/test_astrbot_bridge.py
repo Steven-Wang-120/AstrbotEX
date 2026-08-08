@@ -76,6 +76,13 @@ class AstrBotBridgeTest(unittest.TestCase):
                                 "required": ["phase"],
                                 "properties": {"phase": {"type": "string"}},
                             },
+                        },
+                        {
+                            "action_id": "mission_controller.use_scene.v1",
+                            "topic": "mission_controller.commands.use_scene",
+                            "description": "Use the current perception scene.",
+                            "schema": {"type": "object", "properties": {}},
+                            "requires_blocks": ["perception.scene.v1"],
                         }
                     ],
                 }
@@ -110,6 +117,10 @@ class AstrBotBridgeTest(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
+
+    @staticmethod
+    def _blocks_by_id(context: dict[str, Any]) -> dict[str, dict[str, Any]]:
+        return {block["block_id"]: block for block in context["blocks"]}
 
     def test_context_contains_fresh_plugin_blocks(self) -> None:
         self.topic_bus.publish_payload(
@@ -244,6 +255,76 @@ class AstrBotBridgeTest(unittest.TestCase):
         self.assertTrue(payload["summary"].startswith("[DEGRADED"))
         self.assertIn("scan unavailable", payload["summary"])
         self.assertEqual(payload["obstacles"][0]["id"], "obstacle_0")
+
+    def test_stale_world_marks_world_and_perception_blocks_stale(self) -> None:
+        world_timestamp = time.time() - 100.0
+        self.runtime.world = WorldState(timestamp=world_timestamp)
+
+        context = self.bridge.build_context()
+        blocks = self._blocks_by_id(context)
+
+        for block_id in ("world.snapshot.v1", "perception.scene.v1"):
+            self.assertFalse(blocks[block_id]["fresh"])
+            self.assertEqual(blocks[block_id]["timestamp"], world_timestamp)
+            self.assertNotEqual(blocks[block_id]["timestamp"], context["created_at"])
+
+    def test_fresh_world_marks_world_and_perception_blocks_fresh(self) -> None:
+        self.runtime.world = WorldState()
+
+        context = self.bridge.build_context()
+        blocks = self._blocks_by_id(context)
+
+        self.assertTrue(blocks["world.snapshot.v1"]["fresh"])
+        self.assertTrue(blocks["perception.scene.v1"]["fresh"])
+
+    def test_missing_world_timestamp_marks_world_and_perception_blocks_stale(self) -> None:
+        self.runtime.world.timestamp = None
+
+        context = self.bridge.build_context()
+        blocks = self._blocks_by_id(context)
+
+        for block_id in ("world.snapshot.v1", "perception.scene.v1"):
+            self.assertIsNone(blocks[block_id]["timestamp"])
+            self.assertFalse(blocks[block_id]["fresh"])
+
+    def test_stale_perception_block_rejects_proposal(self) -> None:
+        self.runtime.world = WorldState(timestamp=time.time() - 100.0)
+        context = self.bridge.build_context()
+        perception = self._blocks_by_id(context)["perception.scene.v1"]
+
+        result = self.bridge.handle_proposal(
+            {
+                "context_id": context["context_id"],
+                "commands": [
+                    {
+                        "action_id": "mission_controller.use_scene.v1",
+                        "uses_blocks": [
+                            {
+                                "block_id": perception["block_id"],
+                                "seq": perception["seq"],
+                            }
+                        ],
+                        "params": {},
+                        "reason": "use current scene",
+                    }
+                ],
+            }
+        )
+
+        self.assertFalse(result["ok"])
+        self.assertIn("stale block reference", result["error"])
+
+    def test_core_block_sequence_is_monotonic_small_and_shared(self) -> None:
+        contexts = [self.bridge.build_context() for _ in range(3)]
+        core_blocks = [
+            [block for block in context["blocks"] if block["source_plugin"] == "core"]
+            for context in contexts
+        ]
+        sequences = [blocks[0]["seq"] for blocks in core_blocks]
+
+        self.assertEqual(sequences, [1, 2, 3])
+        self.assertTrue(all(len({block["seq"] for block in blocks}) == 1 for blocks in core_blocks))
+        self.assertLess(sequences[0], int(time.time() * 1000))
 
     def test_build_scene_summary_is_deterministic_and_handles_empty_scene(self) -> None:
         summary1 = build_scene_summary([], [], False, [])
