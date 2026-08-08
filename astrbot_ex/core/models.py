@@ -89,6 +89,7 @@ class ScanCluster:
     point_count: int
     metadata: dict[str, Any] = field(default_factory=dict)
     quality: float = 1.0
+    attributed_to: str | None = None
 
 
 @dataclass(slots=True)

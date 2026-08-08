@@ -270,6 +270,29 @@ class AstrBotBridgeTest(unittest.TestCase):
 
         self.assertIn("and 2 more obstacles", summary)
 
+    def test_build_scene_summary_distinguishes_attributed_obstacles(self) -> None:
+        summary = build_scene_summary(
+            [],
+            [
+                {
+                    "id": "obstacle_0",
+                    "bearing_deg": 1.0,
+                    "range_m": 1.0,
+                    "attributed_to": "person-1",
+                },
+                {
+                    "id": "obstacle_1",
+                    "bearing_deg": 2.0,
+                    "range_m": 2.0,
+                },
+            ],
+            False,
+            [],
+        )
+
+        self.assertIn("identified entity person-1", summary)
+        self.assertNotIn("identified entity obstacle_1", summary)
+
 
 if __name__ == "__main__":
     unittest.main()

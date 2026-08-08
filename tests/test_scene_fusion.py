@@ -93,6 +93,7 @@ class SceneFusionTest(unittest.TestCase):
 
         self.assertTrue(fused.degraded)
         self.assertIn("scan unavailable", fused.notes)
+        self.assertEqual(fused.obstacles, [])
         self.assertEqual(len(fused.entities), 1)
         self.assertAlmostEqual(fused.entities[0].bearing_deg or 0.0, 1.4321, places=3)
         self.assertIsNone(fused.entities[0].range_m)
@@ -237,7 +238,7 @@ class SceneFusionTest(unittest.TestCase):
         self.assertEqual(entity.range_m, 9.0)
         self.assertEqual(entity.range_quality, 0.25)
 
-    def test_consumed_points_are_not_repeated_as_obstacles(self) -> None:
+    def test_all_valid_points_are_obstacles_with_target_attribution(self) -> None:
         fusion = SceneFusion(self.config())
         ranges = [math.inf] * 26
         ranges[5] = 2.0
@@ -249,8 +250,75 @@ class SceneFusionTest(unittest.TestCase):
         fused = fusion.fuse(self.vision(), scan)
 
         self.assertEqual(fused.entities[0].range_m, 1.5)
-        self.assertEqual(sum(cluster.point_count for cluster in fused.obstacles), 1)
-        self.assertEqual(sum(cluster.point_count for cluster in fused.obstacles) + 3, 4)
+        self.assertEqual(sum(cluster.point_count for cluster in fused.obstacles), 4)
+        self.assertEqual(
+            sum(
+                cluster.point_count
+                for cluster in fused.obstacles
+                if cluster.attributed_to == "entity-1"
+            ),
+            3,
+        )
+        self.assertEqual(
+            sum(
+                cluster.point_count
+                for cluster in fused.obstacles
+                if cluster.attributed_to is None
+            ),
+            1,
+        )
+
+    def test_target_is_also_an_attributed_obstacle(self) -> None:
+        fusion = SceneFusion(self.config())
+        scan = self.scan_from_degrees(0.0, [1.0])
+
+        fused = fusion.fuse(self.vision(), scan)
+
+        self.assertAlmostEqual(fused.entities[0].range_m or 0.0, 1.0)
+        self.assertEqual(len(fused.obstacles), 1)
+        self.assertAlmostEqual(fused.obstacles[0].range_m, 1.0)
+        self.assertEqual(fused.obstacles[0].attributed_to, "entity-1")
+
+    def test_overlapping_target_windows_claim_points_once(self) -> None:
+        fusion = SceneFusion(self.config())
+        entities = [
+            Entity(id="first", type="rescue_target", bbox_px=(316, 210, 24, 24)),
+            Entity(id="second", type="rescue_target", bbox_px=(317, 210, 24, 24)),
+        ]
+        ranges = [math.inf] * 21
+        ranges[0] = 1.0
+        ranges[1] = 1.1
+        ranges[20] = 4.0
+        scan = self.scan_from_degrees(0.0, ranges, step_deg=1.0)
+
+        fused = fusion.fuse(self.vision(entities=entities), scan)
+
+        self.assertEqual(sum(cluster.point_count for cluster in fused.obstacles), 3)
+        self.assertEqual(
+            sum(
+                cluster.point_count
+                for cluster in fused.obstacles
+                if cluster.attributed_to == "first"
+            ),
+            2,
+        )
+        self.assertEqual(
+            sum(
+                cluster.point_count
+                for cluster in fused.obstacles
+                if cluster.attributed_to == "second"
+            ),
+            0,
+        )
+        self.assertEqual(
+            sum(
+                cluster.point_count
+                for cluster in fused.obstacles
+                if cluster.attributed_to is None
+            ),
+            1,
+        )
+        self.assertEqual(len({cluster.id for cluster in fused.obstacles}), len(fused.obstacles))
 
     def test_load_perception_config_rejects_inverted_range_bounds(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

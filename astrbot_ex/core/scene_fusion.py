@@ -48,7 +48,8 @@ class SceneFusion:
 
         valid_points = self._valid_scan_points(scan)
         valid_by_index = {point.index: point for point in valid_points}
-        consumed_indices: set[int] = set()
+        claimed_indices: set[int] = set()
+        claimed_points: list[tuple[str, list[_ScanPoint]]] = []
         fused_entities: list[Entity] = []
         for entity in vision.entities:
             bearing_rad = self._entity_bearing_rad(entity)
@@ -66,12 +67,20 @@ class SceneFusion:
 
             selected_range = self._select_range(window_points)
             quality = len(window_points) / len(window_indices)
-            consumed_indices.update(point.index for point in window_points)
+            unclaimed_points = [point for point in window_points if point.index not in claimed_indices]
+            claimed_indices.update(point.index for point in unclaimed_points)
+            if unclaimed_points:
+                claimed_points.append((entity.id, unclaimed_points))
             fused_entities.append(self._entity_with_bearing(entity, bearing_rad, selected_range, quality))
 
         obstacles = self._cluster_points(
-            [point for point in valid_points if point.index not in consumed_indices]
+            [point for point in valid_points if point.index not in claimed_indices],
+            attributed_to=None,
         )
+        for entity_id, points in claimed_points:
+            obstacles.extend(
+                self._cluster_points(points, attributed_to=entity_id, start_index=len(obstacles))
+            )
         return FusedScene(
             timestamp=vision.timestamp,
             entities=fused_entities,
@@ -163,7 +172,13 @@ class SceneFusion:
             return float(median(values))
         return min(values)
 
-    def _cluster_points(self, points: list[_ScanPoint]) -> list[ScanCluster]:
+    def _cluster_points(
+        self,
+        points: list[_ScanPoint],
+        *,
+        attributed_to: str | None,
+        start_index: int = 0,
+    ) -> list[ScanCluster]:
         if not points:
             return []
 
@@ -187,9 +202,18 @@ class SceneFusion:
                 groups[0] = groups[-1] + groups[0]
                 groups.pop()
 
-        return [self._scan_cluster(index, group) for index, group in enumerate(groups)]
+        return [
+            self._scan_cluster(start_index + index, group, attributed_to=attributed_to)
+            for index, group in enumerate(groups)
+        ]
 
-    def _scan_cluster(self, index: int, points: list[_ScanPoint]) -> ScanCluster:
+    def _scan_cluster(
+        self,
+        index: int,
+        points: list[_ScanPoint],
+        *,
+        attributed_to: str | None,
+    ) -> ScanCluster:
         angles = [point.angle_rad for point in points]
         return ScanCluster(
             id=f"obstacle_{index}",
@@ -197,6 +221,7 @@ class SceneFusion:
             range_m=min(point.range_m for point in points),
             width_deg=degrees(_circular_width_rad(angles)),
             point_count=len(points),
+            attributed_to=attributed_to,
         )
 
 

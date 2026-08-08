@@ -518,7 +518,9 @@ def _obstacle_summary(obstacle: dict[str, Any]) -> str:
     bearing_text = "bearing unknown" if bearing is None else f"{direction} ({_format_number(bearing)} deg)"
     range_m = _float_or_none(obstacle.get("range_m"))
     range_text = "range unknown" if range_m is None else f"at {_format_number(range_m)}m"
-    return f"{label} {bearing_text} {range_text}"
+    attributed_to = obstacle.get("attributed_to")
+    attribution_text = "" if attributed_to is None else f" (identified entity {attributed_to})"
+    return f"{label} {bearing_text} {range_text}{attribution_text}"
 
 
 def _label(item: dict[str, Any], fallback: str) -> str:
