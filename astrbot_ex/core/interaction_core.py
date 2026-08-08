@@ -4,10 +4,13 @@ import asyncio
 import base64
 import json
 import queue
+import re
 import threading
 import time
+import unicodedata
 import urllib.request
 import uuid
+import wave
 from pathlib import Path
 from tempfile import gettempdir
 from typing import Any
@@ -19,6 +22,24 @@ from astrbot_ex.core.topic_bus import TopicBus, TopicMessage
 
 
 class InteractionCore:
+    _FILLER_ONLY = frozenset({"嗯", "嗯嗯", "呃", "额", "唔", "啊啊"})
+    _CONFIRMATION_ACKS = frozenset({"嗯", "嗯嗯", "好", "可以", "对"})
+    _CONFIRMATION_HINTS = (
+        "是否",
+        "要不要",
+        "需不需要",
+        "可以吗",
+        "行吗",
+        "继续吗",
+        "执行吗",
+        "确认",
+        "确定",
+        "同意",
+    )
+    _BACKCHANNEL_TOPIC = "interaction_core.message.backchannel"
+    _CONFIRMATION_TOPIC = "interaction_core.message.confirmation"
+    _CAPTURE_TOPIC = "interaction_core.audio.capture"
+
     def __init__(
         self,
         *,
@@ -30,6 +51,8 @@ class InteractionCore:
         timeout_sec: float = 5.0,
         stt_provider: STTProvider | None = None,
         tts_provider: TTSProvider | None = None,
+        capture_tail_sec: float = 0.5,
+        capture_fallback_playback_sec: float = 2.0,
     ) -> None:
         self.registry = registry
         self.topic_bus = topic_bus
@@ -39,7 +62,12 @@ class InteractionCore:
         self.timeout_sec = timeout_sec
         self.stt_provider = stt_provider
         self.tts_provider = tts_provider
+        self.capture_tail_sec = max(0.0, float(capture_tail_sec))
+        self.capture_fallback_playback_sec = max(
+            0.0, float(capture_fallback_playback_sec)
+        )
         self._unsub_callbacks: list[Any] = []
+        self._audio_stop_unsub: Any | None = None
         self._pending_mic_messages: list[TopicMessage] = []
         self._work_queue: queue.Queue[tuple[str, Any]] = queue.Queue(maxsize=32)
         self._lock = threading.RLock()
@@ -49,10 +77,22 @@ class InteractionCore:
         self._generation = 0
         self._active_turn_id: str | None = None
         self._last_request_generation: int | None = None
+        self._capture_block_until = 0.0
+        self._capture_gate_token = 0
+        self._capture_resume_timer: threading.Timer | None = None
+        self._capture_paused = False
+        self._capture_resuming = False
+        self._paused_mic_slots: list[tuple[Any, str]] = []
+        self._active_capture_utterance_id: str | None = None
+        self._suppressed_utterances: dict[str, float] = {}
+        self._suppress_unidentified_until = 0.0
+        self._awaiting_confirmation_until = 0.0
         self.last_incoming_text_at: float | None = None
         self.last_stt_at: float | None = None
         self.last_astrbot_reply_at: float | None = None
         self.last_tts_audio_at: float | None = None
+        self.last_backchannel_at: float | None = None
+        self.last_confirmation_at: float | None = None
         self.last_error: dict[str, Any] | None = None
 
     def on_runtime_start(self) -> None:
@@ -65,6 +105,10 @@ class InteractionCore:
                 daemon=True,
             )
             self._worker_thread.start()
+        if self._audio_stop_unsub is None:
+            self._audio_stop_unsub = self.topic_bus.subscribe(
+                "interaction_core.audio.stop", self._handle_audio_stop
+            )
         self.refresh_mic_subscriptions()
 
     def refresh_mic_subscriptions(self) -> None:
@@ -92,10 +136,21 @@ class InteractionCore:
         text = str(message.payload.get("text", ""))
         if not text:
             return
+        if self._mic_message_is_suppressed(message):
+            return
         with self._lock:
-            self.last_incoming_text_at = time.time()
             generation = self._generation
             turn_id = self._active_turn_id or uuid.uuid4().hex
+        text = self._accept_mic_text(
+            text,
+            message=message,
+            turn_id=turn_id,
+            generation=generation,
+        )
+        if text is None:
+            return
+        with self._lock:
+            self.last_incoming_text_at = time.time()
         self.topic_bus.publish_payload(
             "interaction_core.message.incoming",
             timestamp=message.timestamp,
@@ -119,6 +174,9 @@ class InteractionCore:
             )
 
     def _queue_mic_raw(self, message: TopicMessage) -> None:
+        if self._mic_message_is_suppressed(message):
+            self._cleanup_mic_audio(message)
+            return
         try:
             self._work_queue.put_nowait(("mic_raw", message))
         except queue.Full:
@@ -132,11 +190,33 @@ class InteractionCore:
 
     def _handle_voice_activity(self, message: TopicMessage) -> None:
         state = str(message.payload.get("state", "")).strip().lower()
+        utterance_id = str(message.payload.get("utterance_id") or "").strip() or None
+        if state in {"end", "speech_end", "inactive", "stop"}:
+            with self._lock:
+                if utterance_id == self._active_capture_utterance_id:
+                    self._active_capture_utterance_id = None
+            return
         if state not in {"start", "speech_start", "active"}:
             return
         with self._lock:
+            self._prune_suppressed_utterances_locked()
+            self._active_capture_utterance_id = utterance_id
+            if self._capture_blocked_locked():
+                self._remember_suppressed_utterance_locked(utterance_id)
+                suppressed = True
+            else:
+                suppressed = False
+        if suppressed:
+            self.event_bus.emit_throttled(
+                "interaction",
+                "voice activity suppressed during audio playback",
+                interval_sec=1.0,
+                key="interaction:voice_activity_suppressed",
+            )
+            return
+        with self._lock:
             self._generation += 1
-            self._active_turn_id = str(message.payload.get("utterance_id") or uuid.uuid4().hex)
+            self._active_turn_id = utterance_id or uuid.uuid4().hex
             generation = self._generation
         self.topic_bus.publish_payload(
             "interaction_core.audio.stop",
@@ -181,6 +261,9 @@ class InteractionCore:
                 )
 
     def _process_mic_raw(self, message: TopicMessage) -> None:
+        if self._mic_message_is_suppressed(message):
+            self._cleanup_mic_audio(message)
+            return
         with self._lock:
             generation = self._generation
             turn_id = str(
@@ -205,12 +288,19 @@ class InteractionCore:
             return
         text = str(result.get("text", ""))
         with self._lock:
-            if generation != self._generation:
+            if generation != self._generation or self._capture_blocked_locked():
                 return
             self._active_turn_id = turn_id
-            self.last_incoming_text_at = time.time()
-        if not text:
+        text = self._accept_mic_text(
+            text,
+            message=message,
+            turn_id=turn_id,
+            generation=generation,
+        )
+        if text is None:
             return
+        with self._lock:
+            self.last_incoming_text_at = time.time()
         self.topic_bus.publish_payload(
             "interaction_core.message.incoming",
             timestamp=message.timestamp,
@@ -229,6 +319,372 @@ class InteractionCore:
             generation=generation,
         )
 
+    @staticmethod
+    def _normalize_mic_text(text: str) -> str:
+        value = str(text).strip()
+        return re.sub(r"\s+", " ", value)
+
+    @staticmethod
+    def _compact_mic_text(text: str) -> str:
+        chars: list[str] = []
+        for char in text:
+            if char.isspace():
+                continue
+            category = unicodedata.category(char)
+            if category and category[0] in {"P", "S"}:
+                continue
+            chars.append(char)
+        return "".join(chars)
+
+    def _accept_mic_text(
+        self,
+        text: str,
+        *,
+        message: TopicMessage,
+        turn_id: str,
+        generation: int,
+    ) -> str | None:
+        normalized = self._normalize_mic_text(text)
+        compact = self._compact_mic_text(unicodedata.normalize("NFKC", normalized))
+        if not compact:
+            self.event_bus.emit_throttled(
+                "interaction",
+                "empty microphone transcript ignored",
+                interval_sec=1.0,
+                key="interaction:empty_transcript",
+            )
+            return None
+        if compact in self._FILLER_ONLY:
+            if self._confirmation_is_pending():
+                self._publish_confirmation(
+                    text=normalized,
+                    message=message,
+                    turn_id=turn_id,
+                    generation=generation,
+                )
+            else:
+                self._publish_backchannel(
+                    text=normalized,
+                    message=message,
+                    turn_id=turn_id,
+                    generation=generation,
+                )
+            return None
+        if compact in self._CONFIRMATION_ACKS and self._confirmation_is_pending():
+            self._publish_confirmation(
+                text=normalized,
+                message=message,
+                turn_id=turn_id,
+                generation=generation,
+            )
+            return None
+        with self._lock:
+            self._awaiting_confirmation_until = 0.0
+        return normalized
+
+    def _publish_backchannel(
+        self,
+        *,
+        text: str,
+        message: TopicMessage,
+        turn_id: str,
+        generation: int,
+    ) -> None:
+        with self._lock:
+            now = time.time()
+            self.last_incoming_text_at = now
+            self.last_backchannel_at = now
+        self.topic_bus.publish_payload(
+            self._BACKCHANNEL_TOPIC,
+            timestamp=message.timestamp,
+            source=message.source,
+            payload={
+                "text": text,
+                "original_topic": message.topic,
+                "turn_id": turn_id,
+                "generation": generation,
+            },
+        )
+        self.event_bus.emit_throttled(
+            "interaction",
+            "filler-only microphone transcript treated as backchannel",
+            interval_sec=1.0,
+            key="interaction:backchannel",
+        )
+
+    def _publish_confirmation(
+        self,
+        *,
+        text: str,
+        message: TopicMessage,
+        turn_id: str,
+        generation: int,
+    ) -> None:
+        with self._lock:
+            now = time.time()
+            self.last_incoming_text_at = now
+            self.last_confirmation_at = now
+            self._awaiting_confirmation_until = 0.0
+        self.topic_bus.publish_payload(
+            self._CONFIRMATION_TOPIC,
+            timestamp=message.timestamp,
+            source=message.source,
+            payload={
+                "confirmed": True,
+                "text": text,
+                "original_topic": message.topic,
+                "turn_id": turn_id,
+                "generation": generation,
+            },
+        )
+        self.event_bus.emit(
+            "interaction",
+            "microphone confirmation recognized",
+            generation=generation,
+            turn_id=turn_id,
+        )
+
+    def _confirmation_is_pending(self) -> bool:
+        with self._lock:
+            if self._awaiting_confirmation_until > time.monotonic():
+                return True
+            self._awaiting_confirmation_until = 0.0
+            return False
+
+    def _update_confirmation_state(self, text: str, reply: dict[str, Any]) -> None:
+        metadata = reply.get("metadata")
+        metadata = metadata if isinstance(metadata, dict) else {}
+        explicit = reply.get("awaiting_confirmation")
+        if explicit is None:
+            explicit = metadata.get("awaiting_confirmation")
+        pending = (
+            bool(explicit)
+            if explicit is not None
+            else self._looks_like_confirmation_prompt(text)
+        )
+        with self._lock:
+            self._awaiting_confirmation_until = (
+                time.monotonic() + 15.0 if pending else 0.0
+            )
+
+    def _looks_like_confirmation_prompt(self, text: str) -> bool:
+        compact = self._compact_mic_text(
+            unicodedata.normalize("NFKC", self._normalize_mic_text(text))
+        )
+        if not compact or not any(hint in compact for hint in self._CONFIRMATION_HINTS):
+            return False
+        return any(mark in text for mark in ("?", "？")) or any(
+            hint in compact
+            for hint in ("是否", "要不要", "需不需要", "确认", "确定", "同意")
+        )
+
+    def _capture_blocked_locked(self) -> bool:
+        return bool(
+            self._capture_paused
+            or self._capture_resuming
+            or self._capture_block_until > time.monotonic()
+        )
+
+    def _prune_suppressed_utterances_locked(self) -> None:
+        now = time.monotonic()
+        expired = [
+            utterance_id
+            for utterance_id, deadline in self._suppressed_utterances.items()
+            if deadline <= now
+        ]
+        for utterance_id in expired:
+            self._suppressed_utterances.pop(utterance_id, None)
+        if self._suppress_unidentified_until <= now:
+            self._suppress_unidentified_until = 0.0
+
+    def _remember_suppressed_utterance_locked(self, utterance_id: str | None) -> None:
+        deadline = max(time.monotonic(), self._capture_block_until) + 2.0
+        if utterance_id:
+            self._suppressed_utterances[utterance_id] = deadline
+        else:
+            self._suppress_unidentified_until = max(
+                self._suppress_unidentified_until, deadline
+            )
+
+    def _mic_message_is_suppressed(self, message: TopicMessage) -> bool:
+        utterance_id = str(message.payload.get("utterance_id") or "").strip() or None
+        with self._lock:
+            self._prune_suppressed_utterances_locked()
+            if utterance_id and utterance_id in self._suppressed_utterances:
+                return True
+            if self._capture_blocked_locked():
+                self._remember_suppressed_utterance_locked(utterance_id)
+                return True
+            return self._suppress_unidentified_until > time.monotonic()
+
+    def _cleanup_mic_audio(self, message: TopicMessage) -> None:
+        if not bool(message.payload.get("delete_after_read", False)):
+            return
+        audio_url = self._resolve_audio_url(message.payload)
+        if not audio_url or audio_url.startswith(("http://", "https://")):
+            return
+        try:
+            Path(audio_url).unlink(missing_ok=True)
+        except OSError:
+            pass
+
+    def _audio_duration_sec(
+        self, audio_url: str, metadata: dict[str, Any] | None = None
+    ) -> float:
+        if metadata is not None:
+            try:
+                explicit = float(metadata.get("duration_sec", 0.0))
+            except (TypeError, ValueError):
+                explicit = 0.0
+            if explicit > 0.0:
+                return explicit
+        path_text = str(audio_url)
+        if path_text.startswith("file://"):
+            path_text = path_text[7:]
+        path = Path(path_text)
+        if path.is_file() and path.suffix.lower() == ".wav":
+            try:
+                with wave.open(str(path), "rb") as wav_file:
+                    rate = wav_file.getframerate()
+                    if rate > 0:
+                        return max(0.0, wav_file.getnframes() / rate)
+            except (OSError, EOFError, wave.Error):
+                pass
+        return self.capture_fallback_playback_sec
+
+    def _begin_capture_pause(self, playback_duration_sec: float, reason: str) -> None:
+        now = time.monotonic()
+        deadline = now + max(0.0, playback_duration_sec) + self.capture_tail_sec
+        with self._lock:
+            was_blocked = self._capture_blocked_locked()
+            self._capture_block_until = max(self._capture_block_until, deadline)
+            self._capture_gate_token += 1
+            token = self._capture_gate_token
+            self._capture_paused = True
+            self._prune_suppressed_utterances_locked()
+            self._remember_suppressed_utterance_locked(self._active_capture_utterance_id)
+        if not was_blocked:
+            paused_slots = self._pause_mic_plugins(reason)
+            with self._lock:
+                if token == self._capture_gate_token:
+                    self._paused_mic_slots = paused_slots
+        self._publish_capture_state("paused", reason, deadline)
+        self._schedule_capture_resume(token, deadline)
+
+    def _pause_mic_plugins(self, reason: str) -> list[tuple[Any, str]]:
+        with self._lock:
+            runtime_active = self._runtime_active
+        if not runtime_active:
+            return []
+        paused: list[tuple[Any, str]] = []
+        for slot in self.registry.list():
+            if slot.kind != "mic" or not slot.enabled:
+                continue
+            try:
+                if slot.has_method("pause_capture"):
+                    queued = slot.cast("pause_capture", reason)
+                    resume_method = "resume_capture" if slot.has_method("resume_capture") else "on_runtime_start"
+                elif slot.has_method("on_runtime_stop"):
+                    queued = slot.cast("on_runtime_stop", reason)
+                    resume_method = "on_runtime_start"
+                else:
+                    continue
+                if queued:
+                    paused.append((slot, resume_method))
+            except Exception as exc:
+                self.event_bus.emit(
+                    "plugin_fault",
+                    "microphone capture pause failed",
+                    plugin=slot.id,
+                    error=str(exc),
+                )
+        return paused
+
+    def _schedule_capture_resume(self, token: int, deadline: float) -> None:
+        delay = max(0.01, deadline - time.monotonic())
+        timer = threading.Timer(delay, self._resume_capture_if_due, args=(token,))
+        timer.daemon = True
+        with self._lock:
+            old_timer = self._capture_resume_timer
+            self._capture_resume_timer = timer
+        if old_timer is not None:
+            old_timer.cancel()
+        timer.start()
+
+    def _resume_capture_if_due(self, token: int) -> None:
+        with self._lock:
+            if token != self._capture_gate_token:
+                return
+            remaining = self._capture_block_until - time.monotonic()
+            if remaining > 0.0:
+                deadline = self._capture_block_until
+                resuming = False
+            elif self._capture_resuming:
+                return
+            else:
+                self._capture_resuming = True
+                slots = list(self._paused_mic_slots)
+                self._paused_mic_slots = []
+                deadline = 0.0
+                resuming = True
+        if not resuming:
+            self._schedule_capture_resume(token, deadline)
+            return
+        for slot, method in slots:
+            with self._lock:
+                if not self._runtime_active:
+                    break
+            if not slot.enabled:
+                continue
+            try:
+                if not slot.cast(method):
+                    raise RuntimeError("plugin actor is not running")
+            except Exception as exc:
+                self.event_bus.emit(
+                    "plugin_fault",
+                    "microphone capture resume failed",
+                    plugin=slot.id,
+                    error=str(exc),
+                )
+        with self._lock:
+            if token != self._capture_gate_token:
+                if self._runtime_active:
+                    self._paused_mic_slots = slots + self._paused_mic_slots
+                self._capture_resuming = False
+                return
+            self._capture_paused = False
+            self._capture_resuming = False
+            self._capture_block_until = 0.0
+            self._capture_resume_timer = None
+        self._publish_capture_state("resumed", "playback_finished", 0.0)
+
+    def _handle_audio_stop(self, message: TopicMessage) -> None:
+        del message
+        with self._lock:
+            if not self._capture_blocked_locked():
+                return
+            deadline = min(
+                self._capture_block_until,
+                time.monotonic() + self.capture_tail_sec,
+            )
+            self._capture_block_until = deadline
+            self._capture_gate_token += 1
+            token = self._capture_gate_token
+        self._schedule_capture_resume(token, deadline)
+
+    def _publish_capture_state(self, state: str, reason: str, deadline: float) -> None:
+        remaining = max(0.0, deadline - time.monotonic()) if deadline else 0.0
+        self.topic_bus.publish_payload(
+            self._CAPTURE_TOPIC,
+            timestamp=time.time(),
+            source="interaction_core",
+            payload={
+                "state": state,
+                "reason": reason,
+                "resume_in_sec": remaining,
+            },
+        )
+
 
     def on_runtime_stop(self, reason: str) -> None:
         self._runtime_active = False
@@ -237,6 +693,22 @@ class InteractionCore:
             self._unsub_callbacks = []
         for unsub in callbacks:
             unsub()
+        if self._audio_stop_unsub is not None:
+            self._audio_stop_unsub()
+            self._audio_stop_unsub = None
+        with self._lock:
+            timer = self._capture_resume_timer
+            self._capture_resume_timer = None
+            self._capture_gate_token += 1
+            self._capture_block_until = 0.0
+            self._capture_paused = False
+            self._capture_resuming = False
+            self._paused_mic_slots = []
+            self._active_capture_utterance_id = None
+            self._suppressed_utterances.clear()
+            self._suppress_unidentified_until = 0.0
+        if timer is not None:
+            timer.cancel()
         self._worker_stop.set()
         try:
             self._work_queue.put_nowait(("stop", None))
@@ -325,6 +797,9 @@ class InteractionCore:
         metadata: dict[str, Any] | None = None,
     ) -> None:
         audio_format = format or Path(audio_url).suffix.lstrip(".") or "wav"
+        audio_metadata = dict(metadata or {})
+        duration_sec = self._audio_duration_sec(audio_url, audio_metadata)
+        self._begin_capture_pause(duration_sec, "tts_playback")
         self.topic_bus.publish_payload(
             "interaction_core.audio.play",
             timestamp=time.time(),
@@ -333,7 +808,8 @@ class InteractionCore:
                 "format": audio_format,
                 "data": audio_url,
                 "delete_after_play": delete_after_play,
-                **(metadata or {}),
+                "duration_sec": duration_sec,
+                **audio_metadata,
             },
         )
 
@@ -422,17 +898,44 @@ class InteractionCore:
 
     def status_snapshot(self) -> dict[str, Any]:
         with self._lock:
+            capture_paused = self._capture_blocked_locked()
+            capture_resume_in_sec = (
+                max(0.0, self._capture_block_until - time.monotonic())
+                if capture_paused
+                else 0.0
+            )
+            awaiting_confirmation = (
+                self._awaiting_confirmation_until > time.monotonic()
+            )
             return {
                 "last_incoming_text_at": self.last_incoming_text_at,
                 "last_stt_at": self.last_stt_at,
                 "last_astrbot_reply_at": self.last_astrbot_reply_at,
                 "last_tts_audio_at": self.last_tts_audio_at,
+                "last_backchannel_at": self.last_backchannel_at,
+                "last_confirmation_at": self.last_confirmation_at,
+                "capture_paused": capture_paused,
+                "capture_resume_in_sec": capture_resume_in_sec,
+                "awaiting_confirmation": awaiting_confirmation,
                 "last_error": dict(self.last_error) if self.last_error is not None else None,
             }
 
     def _handle_mic_text(self, message: TopicMessage) -> None:
-        text = message.payload.get("text", "")
+        text = str(message.payload.get("text", ""))
         if not text:
+            return
+        if self._mic_message_is_suppressed(message):
+            return
+        with self._lock:
+            turn_id = self._active_turn_id or uuid.uuid4().hex
+            generation = self._generation
+        text = self._accept_mic_text(
+            text,
+            message=message,
+            turn_id=turn_id,
+            generation=generation,
+        )
+        if text is None:
             return
         with self._lock:
             self.last_incoming_text_at = time.time()
@@ -440,11 +943,24 @@ class InteractionCore:
             "interaction_core.message.incoming",
             timestamp=message.timestamp,
             source=message.source,
-            payload={"text": text, "original_topic": message.topic},
+            payload={
+                "text": text,
+                "original_topic": message.topic,
+                "turn_id": turn_id,
+                "generation": generation,
+            },
         )
-        self.send_text(text, source=message.source)
+        self.send_text(
+            text,
+            source=message.source,
+            turn_id=turn_id,
+            generation=generation,
+        )
 
     def _handle_mic_raw(self, message: TopicMessage) -> None:
+        if self._mic_message_is_suppressed(message):
+            self._cleanup_mic_audio(message)
+            return
         audio_url = self._resolve_audio_url(message.payload)
         if audio_url is None:
             self.event_bus.emit(
@@ -466,7 +982,10 @@ class InteractionCore:
                 topic=message.topic.replace(".raw", ".text"),
                 timestamp=message.timestamp,
                 source=message.source,
-                payload={"text": text},
+                payload={
+                    "text": text,
+                    "utterance_id": message.payload.get("utterance_id"),
+                },
             )
             self._handle_mic_text(synthetic)
 
@@ -504,6 +1023,7 @@ class InteractionCore:
                 )
                 return
             self.publish_text(text)
+            self._update_confirmation_state(text, reply)
         if self.tts_provider is not None and text:
             turn_id = reply.get("turn_id")
             generation = reply.get("generation")
