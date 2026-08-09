@@ -37,6 +37,25 @@ function setText(id, value) {
   if (el) el.textContent = value;
 }
 
+function setTextWithTitle(id, value, fallback = "--") {
+  const text =
+    value === null || value === undefined || value === "" ? fallback : String(value);
+  setText(id, text);
+  const el = $(id);
+  if (el) el.title = text;
+}
+
+function formatProviderLabel(value) {
+  const text = String(value || "").trim();
+  if (!/^Provider/i.test(text) || !/API$/i.test(text)) return text;
+  return text
+    .replace(/^Provider\s*/i, "")
+    .replace(/API$/i, "")
+    .replace(/^\[/, "")
+    .replace(/\]$/, "")
+    .trim();
+}
+
 function showToast(message, kind = "ok") {
   const toast = $("toast");
   if (!toast) return;
@@ -1233,8 +1252,8 @@ async function refreshVoiceStatus() {
       reachEl.className = s.astrbot_reachable ? "state-ok" : "state-err";
     }
     setText("voiceAstrBotUrl", s.astrbot_base_url || "--");
-    setText("voiceSttProvider", s.stt_provider || "未配置");
-    setText("voiceTtsProvider", s.tts_provider || "未配置");
+    setTextWithTitle("voiceSttProvider", formatProviderLabel(s.stt_provider), "未配置");
+    setTextWithTitle("voiceTtsProvider", formatProviderLabel(s.tts_provider), "未配置");
     const micCount = Array.isArray(s.mic_plugins) ? s.mic_plugins.length : 0;
     const spkCount = Array.isArray(s.speaker_plugins) ? s.speaker_plugins.length : 0;
     setText("voiceMicCount", String(micCount));
