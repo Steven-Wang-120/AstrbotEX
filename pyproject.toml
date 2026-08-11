@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "AstrBotEX local embodied robotics runtime"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+  "pyzmq>=26.0.0",
+  "websockets>=14.2",
+]
 
 [build-system]
 requires = ["setuptools>=61.0"]

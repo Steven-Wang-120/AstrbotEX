@@ -8,6 +8,9 @@ ENV ASTRBOTEX_DATA_DIR=/app/data
 
 WORKDIR /app
 
+COPY requirements.txt ./requirements.txt
+RUN python -m pip install --no-cache-dir -r requirements.txt
+
 COPY astrbot_ex ./astrbot_ex
 COPY dashboard ./dashboard
 COPY scripts ./scripts

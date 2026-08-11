@@ -17,6 +17,7 @@ from typing import Any
 from urllib.parse import unquote, urlparse
 
 from astrbot_ex.core.astrbot_bridge import AstrBotBridge
+from astrbot_ex.core.connection_manager import ConnectionManager
 from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.interaction_core import InteractionCore
 from astrbot_ex.core.local_plugins import LocalPluginManager
@@ -179,6 +180,19 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         if path in {"/api/pubsub/publishers", "/api/v1/ex/pubsub/publishers"}:
             self._send_json({"publishers": self.server.local_plugins.list_publishers()})
             return
+        if path in {"/api/connections/types", "/api/v1/ex/connections/types"}:
+            self._send_json({"types": self.server.connections.list_types()})
+            return
+        if path in {"/api/connections", "/api/v1/ex/connections"}:
+            self._send_json({"connections": self.server.connections.list()})
+            return
+        connection_id = self._match_connection_id(path)
+        if connection_id:
+            try:
+                self._send_json({"connection": self.server.connections.get(connection_id)})
+            except KeyError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+            return
         if path in {"/api/bridge/context", "/api/v1/ex/bridge/context", "/api/v1/ex/llm/context"}:
             self._send_json(self.server.bridge.build_context())
             return
@@ -314,6 +328,37 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             self.server.interaction_core.handle_astrbot_reply(payload)
             self._send_json({"ok": True})
             return
+        if path in {"/api/connections", "/api/v1/ex/connections"}:
+            try:
+                connection = self.server.connections.create(self._read_json())
+            except ValueError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
+                return
+            self._send_json({"ok": True, "connection": connection}, HTTPStatus.CREATED)
+            return
+        connection_action = self._match_connection_action(path)
+        if connection_action:
+            connection_id, action = connection_action
+            try:
+                if action == "start":
+                    connection = self.server.connections.start(connection_id)
+                    self._send_json({"ok": True, "connection": connection})
+                elif action == "stop":
+                    connection = self.server.connections.stop(connection_id)
+                    self._send_json({"ok": True, "connection": connection})
+                else:
+                    payload = self._read_json()
+                    result = self.server.connections.send(
+                        connection_id,
+                        payload.get("data", ""),
+                        peer=str(payload.get("peer") or "") or None,
+                    )
+                    self._send_json(result)
+            except KeyError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+            except (RuntimeError, ValueError) as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return
         plugin_id = self._match_plugin_action(path, "enable")
         if plugin_id:
             try:
@@ -368,6 +413,18 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
 
     def do_PUT(self) -> None:
         path = self._path()
+        connection_id = self._match_connection_id(path)
+        if connection_id:
+            try:
+                connection = self.server.connections.update(connection_id, self._read_json())
+            except KeyError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+                return
+            except ValueError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
+                return
+            self._send_json({"ok": True, "connection": connection})
+            return
         source_id = self._match_source_id(path)
         if source_id:
             payload = self._read_json()
@@ -383,6 +440,15 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
 
     def do_DELETE(self) -> None:
         path = self._path()
+        connection_id = self._match_connection_id(path)
+        if connection_id:
+            try:
+                self.server.connections.delete(connection_id)
+            except KeyError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+                return
+            self._send_json({"ok": True, "connection_id": connection_id})
+            return
         source_id = self._match_source_id(path)
         if source_id:
             try:
@@ -425,6 +491,26 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         for prefix in ("/api/vision/sources/", "/api/v1/ex/vision/sources/"):
             if path.startswith(prefix) and not path.endswith("/test"):
                 return unquote(path.removeprefix(prefix).strip("/"))
+        return None
+
+    @staticmethod
+    def _match_connection_id(path: str) -> str | None:
+        for prefix in ("/api/connections/", "/api/v1/ex/connections/"):
+            if path.startswith(prefix):
+                tail = path.removeprefix(prefix).strip("/")
+                if tail and "/" not in tail and tail != "types":
+                    return unquote(tail)
+        return None
+
+    @staticmethod
+    def _match_connection_action(path: str) -> tuple[str, str] | None:
+        for action in ("start", "stop", "send"):
+            suffix = f"/{action}"
+            for prefix in ("/api/connections/", "/api/v1/ex/connections/"):
+                if path.startswith(prefix) and path.endswith(suffix):
+                    connection_id = path.removeprefix(prefix).removesuffix(suffix).strip("/")
+                    if connection_id and "/" not in connection_id:
+                        return unquote(connection_id), action
         return None
 
     @staticmethod
@@ -709,6 +795,7 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
     local_plugins: LocalPluginManager
     bridge: AstrBotBridge
     interaction_core: InteractionCore
+    connections: ConnectionManager
 
 
 def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
@@ -785,6 +872,12 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         event_bus=runtime.event_bus,
         topic_bus=runtime.topic_bus,
     )
+    server.connections = ConnectionManager(
+        data_root / "profiles" / "default" / "connections.json",
+        event_bus=runtime.event_bus,
+        topic_bus=runtime.topic_bus,
+    )
+    server.connections.start_enabled()
     return server
 
 
@@ -808,6 +901,7 @@ def main() -> None:
         print("Stopping AstrBotEX API server...")
     finally:
         server.controller.stop("api server shutdown")
+        server.connections.close()
         server.server_close()
 
 

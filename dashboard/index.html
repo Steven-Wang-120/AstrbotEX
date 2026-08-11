@@ -32,6 +32,9 @@
           <button class="nav-item" data-page="voice">
             <span class="nav-num">04</span><span class="nav-label">语音</span>
           </button>
+          <button class="nav-item" data-page="connections">
+            <span class="nav-num">05</span><span class="nav-label">连接</span>
+          </button>
         </nav>
 
         <div class="sidebar-foot">
@@ -355,7 +358,158 @@
             </section>
           </section>
 
-          <!-- ============ 04 PLUGIN DETAIL ============ -->
+          <!-- ============ 05 CONNECTIONS ============ -->
+          <section class="page" id="page-connections">
+            <header class="page-head connection-page-head">
+              <div class="page-head-num">05</div>
+              <div class="page-head-text">
+                <h1>连接</h1>
+                <p>ZeroMQ 与 WebSocket 连接管理</p>
+              </div>
+              <div class="page-head-actions connection-create-wrap">
+                <button class="btn btn-primary" id="connectionAddButton" aria-expanded="false" aria-controls="connectionAddMenu">
+                  <span class="button-plus" aria-hidden="true">+</span> 新增连接
+                </button>
+                <div class="connection-add-menu" id="connectionAddMenu" hidden>
+                  <div class="connection-menu-group">
+                    <div class="connection-menu-title">ZeroMQ</div>
+                    <button class="connection-type-option" data-connection-type="zmq_server">
+                      <span class="connection-type-mark">ZS</span>
+                      <span><b>ZeroMQ 服务器</b><small>绑定 ROUTER 端口</small></span>
+                    </button>
+                    <button class="connection-type-option" data-connection-type="zmq_client">
+                      <span class="connection-type-mark">ZC</span>
+                      <span><b>ZeroMQ 客户端</b><small>连接 DEALER 通道</small></span>
+                    </button>
+                  </div>
+                  <div class="connection-menu-group">
+                    <div class="connection-menu-title">WebSocket</div>
+                    <button class="connection-type-option" data-connection-type="websocket_server">
+                      <span class="connection-type-mark">WS</span>
+                      <span><b>WebSocket 服务器</b><small>监听正向连接</small></span>
+                    </button>
+                    <button class="connection-type-option" data-connection-type="websocket_client">
+                      <span class="connection-type-mark">WC</span>
+                      <span><b>WebSocket 客户端</b><small>连接反向服务</small></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </header>
+
+            <section class="connection-summary" aria-label="连接摘要">
+              <div><span>全部连接</span><b id="connectionTotal">0</b></div>
+              <div><span>正在运行</span><b id="connectionRunning">0</b></div>
+              <div><span>已连接对端</span><b id="connectionPeers">0</b></div>
+              <button class="btn btn-ghost btn-sm" id="connectionRefreshButton">刷新</button>
+            </section>
+
+            <section class="connection-grid" id="connectionGrid"></section>
+          </section>
+
+          <!-- ============ 05 CONNECTION DETAIL ============ -->
+          <section class="page" id="page-connection">
+            <header class="page-head">
+              <div class="page-head-num">05</div>
+              <div class="page-head-text">
+                <div class="breadcrumb">
+                  <button class="breadcrumb-link" id="connectionBackButton">05 连接</button>
+                  <span class="breadcrumb-sep">/</span>
+                  <span id="connectionDetailProtocol">连接配置</span>
+                </div>
+                <h1 id="connectionDetailTitle">连接配置</h1>
+                <p id="connectionDetailEndpoint">--</p>
+              </div>
+              <div class="page-head-actions">
+                <button class="btn btn-ghost" id="connectionDetailRefreshButton">刷新</button>
+                <button class="btn btn-primary" id="connectionSaveButton">保存配置</button>
+              </div>
+            </header>
+
+            <section class="connection-detail-layout">
+              <div class="connection-detail-main">
+                <section class="panel">
+                  <div class="panel-head">
+                    <span class="panel-num">05.A</span>
+                    <h2>基础设置</h2>
+                    <div class="connection-enable-control">
+                      <span id="connectionEnableLabel">已停止</span>
+                      <label class="switch" title="启用连接">
+                        <input type="checkbox" id="connectionEnabledInput" />
+                        <span></span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="connection-form-grid">
+                    <label class="connection-field">
+                      <span>连接名称</span>
+                      <input class="config-input" id="connectionNameInput" maxlength="80" />
+                    </label>
+                    <label class="connection-field">
+                      <span>连接 ID</span>
+                      <input class="config-input" id="connectionIdInput" readonly />
+                    </label>
+                    <label class="connection-field">
+                      <span>连接类型</span>
+                      <input class="config-input" id="connectionTypeInput" readonly />
+                    </label>
+                    <div class="connection-field">
+                      <span>运行状态</span>
+                      <div class="connection-state-box"><span class="connection-state-dot" id="connectionStateDot"></span><b id="connectionStateText">--</b></div>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="panel">
+                  <div class="panel-head">
+                    <span class="panel-num">05.B</span>
+                    <h2>传输配置</h2>
+                    <span class="panel-meta">修改后保存将重启连接</span>
+                  </div>
+                  <div class="connection-form-grid" id="connectionConfigForm"></div>
+                </section>
+
+                <section class="panel">
+                  <div class="panel-head">
+                    <span class="panel-num">05.C</span>
+                    <h2>消息测试</h2>
+                    <span class="panel-meta">JSON 或纯文本</span>
+                  </div>
+                  <div class="connection-send-row">
+                    <textarea class="config-input connection-message-input" id="connectionMessageInput" rows="4" spellcheck="false">{"type":"ping"}</textarea>
+                    <input class="config-input" id="connectionPeerInput" placeholder="可选：指定 peer identity" />
+                    <button class="btn btn-primary" id="connectionSendButton">发送</button>
+                  </div>
+                </section>
+              </div>
+
+              <aside class="connection-detail-side">
+                <section class="panel connection-runtime-panel">
+                  <div class="panel-head">
+                    <span class="panel-num">LIVE</span>
+                    <h2>运行数据</h2>
+                  </div>
+                  <div class="connection-stat-list">
+                    <div><span>对端</span><b id="connectionStatClients">0</b></div>
+                    <div><span>接收</span><b id="connectionStatReceived">0</b></div>
+                    <div><span>发送</span><b id="connectionStatSent">0</b></div>
+                    <div><span>最近消息</span><b id="connectionStatLast">--</b></div>
+                  </div>
+                  <div class="connection-error" id="connectionRuntimeError" hidden></div>
+                </section>
+                <section class="panel connection-message-panel">
+                  <div class="panel-head">
+                    <span class="panel-num">TRACE</span>
+                    <h2>最近消息</h2>
+                  </div>
+                  <div class="connection-trace" id="connectionTrace"></div>
+                </section>
+                <button class="btn btn-danger connection-delete-button" id="connectionDeleteButton">删除连接</button>
+              </aside>
+            </section>
+          </section>
+
+          <!-- ============ 06 PLUGIN DETAIL ============ -->
           <section class="page" id="page-plugin">
             <header class="page-head">
               <div class="page-head-num">04</div>
