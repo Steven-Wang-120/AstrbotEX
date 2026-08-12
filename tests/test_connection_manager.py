@@ -3,7 +3,9 @@ from __future__ import annotations
 import json
 import socket
 import tempfile
+import threading
 import time
+import uuid
 import unittest
 from pathlib import Path
 
@@ -55,6 +57,17 @@ class ConnectionManagerPersistenceTest(unittest.TestCase):
             reloaded.delete("a")
             self.assertEqual(reloaded.list(), [])
 
+    def test_only_one_enabled_astrbotex_client_per_feature(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = ConnectionManager(Path(temp_dir) / "connections.json", event_bus=EventBus(), topic_bus=TopicBus())
+            config = {"endpoint": "tcp://127.0.0.1:65534", "protocol_profile": "astrbotex", "channel": "audio"}
+            manager.create({"id": "audio-a", "name": "Audio A", "type": "zmq_client", "enabled": True, "config": config})
+            try:
+                with self.assertRaisesRegex(ValueError, "already assigned"):
+                    manager.create({"id": "audio-b", "name": "Audio B", "type": "zmq_client", "enabled": True, "config": config})
+            finally:
+                manager.close()
+
 
 @unittest.skipIf(zmq is None, "pyzmq is not installed")
 class ConnectionManagerZeroMQTest(unittest.TestCase):
@@ -105,6 +118,48 @@ class ConnectionManagerZeroMQTest(unittest.TestCase):
                 self.assertEqual(reply.payload["data"]["kind"], "pong")
             finally:
                 manager.close()
+
+    def test_astrbotex_profile_matches_response_and_binary_frames(self) -> None:
+        port = free_tcp_port()
+        context = zmq.Context.instance()
+        router = context.socket(zmq.ROUTER)
+        router.setsockopt(zmq.LINGER, 0)
+        router.bind(f"tcp://127.0.0.1:{port}")
+        stop = threading.Event()
+
+        def server_loop() -> None:
+            while not stop.is_set():
+                if not router.poll(100):
+                    continue
+                frames = router.recv_multipart()
+                peer, envelope = frames[0], json.loads(frames[1].decode("utf-8"))
+                method = envelope["method"]
+                payload = {"ok": True, "text": "hello"} if method == "stt.transcribe" else {"ok": True, "channel": "audio"}
+                response = {
+                    "protocol": "astrbotex-zmq", "version": 1, "channel": "audio",
+                    "kind": "response", "id": uuid.uuid4().hex, "reply_to": envelope["id"],
+                    "method": method, "timestamp": time.time(), "payload": payload,
+                }
+                router.send_multipart([peer, json.dumps(response).encode("utf-8")] + ([b"WAVE"] if method == "stt.transcribe" else []))
+
+        thread = threading.Thread(target=server_loop, daemon=True)
+        thread.start()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = ConnectionManager(Path(temp_dir) / "connections.json", event_bus=EventBus(), topic_bus=TopicBus())
+            manager.create({
+                "id": "audio", "name": "Audio", "type": "zmq_client", "enabled": True,
+                "config": {"endpoint": f"tcp://127.0.0.1:{port}", "identity": "test-audio", "protocol_profile": "astrbotex", "channel": "audio"},
+            })
+            try:
+                wait_until(lambda: manager.business_status()["audio"]["ready"])
+                payload, binary = manager.request_feature("audio", "stt.transcribe", {"filename": "test.wav"}, binary=b"RIFF")
+                self.assertEqual(payload["text"], "hello")
+                self.assertEqual(binary, b"WAVE")
+            finally:
+                manager.close()
+                stop.set()
+                thread.join(timeout=1)
+                router.close(linger=0)
 
 
 @unittest.skipIf(websocket_connect is None or websocket_serve is None, "websockets is not installed")

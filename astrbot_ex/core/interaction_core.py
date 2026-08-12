@@ -51,6 +51,7 @@ class InteractionCore:
         timeout_sec: float = 5.0,
         stt_provider: STTProvider | None = None,
         tts_provider: TTSProvider | None = None,
+        business_connections: Any | None = None,
         capture_tail_sec: float = 0.5,
         capture_fallback_playback_sec: float = 2.0,
     ) -> None:
@@ -62,6 +63,7 @@ class InteractionCore:
         self.timeout_sec = timeout_sec
         self.stt_provider = stt_provider
         self.tts_provider = tts_provider
+        self.business_connections = business_connections
         self.capture_tail_sec = max(0.0, float(capture_tail_sec))
         self.capture_fallback_playback_sec = max(
             0.0, float(capture_fallback_playback_sec)
@@ -739,7 +741,6 @@ class InteractionCore:
         turn_id: str | None = None,
         generation: int | None = None,
     ) -> dict[str, Any]:
-        url = f"{self.astrbot_base_url}/api/v1/ex/interaction/message"
         payload = {
             "text": text,
             "session_id": self.session_id,
@@ -753,6 +754,18 @@ class InteractionCore:
         if generation is not None:
             with self._lock:
                 self._last_request_generation = int(generation)
+        if self.business_connections is not None:
+            try:
+                result, _ = self.business_connections.request_feature(
+                    "text", "interaction.message", payload, timeout_sec=self.timeout_sec
+                )
+                self.event_bus.emit("interaction", "text sent to astrbot over ZeroMQ", text=text, source=source)
+                return result
+            except Exception as exc:
+                self.event_bus.emit("interaction", "ZeroMQ text send failed", text=text, source=source, error=str(exc))
+                return {"ok": False, "error": str(exc)}
+
+        url = f"{self.astrbot_base_url}/api/v1/ex/interaction/message"
         body = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(
             url,

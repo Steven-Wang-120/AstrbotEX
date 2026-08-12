@@ -9,7 +9,7 @@ import uuid
 from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.topic_bus import TopicBus
@@ -30,7 +30,11 @@ except ImportError:  # pragma: no cover - reported through runtime status
 
 
 MAX_MESSAGE_BYTES = 4 * 1024 * 1024
+MAX_ASTRBOTEX_MESSAGE_BYTES = 64 * 1024 * 1024
 MAX_RECENT_MESSAGES = 40
+ASTRBOTEX_PROTOCOL = "astrbotex-zmq"
+ASTRBOTEX_PROTOCOL_VERSION = 1
+ASTRBOTEX_CHANNELS = frozenset({"text", "audio", "vision"})
 _VALID_ID = re.compile(r"^[a-z][a-z0-9_-]{0,63}$")
 
 CONNECTION_TYPES: dict[str, dict[str, Any]] = {
@@ -45,7 +49,7 @@ CONNECTION_TYPES: dict[str, dict[str, Any]] = {
         "label": "ZeroMQ 客户端",
         "description": "DEALER 端，连接 ROUTER 服务并支持双向消息。",
         "protocol": "ZeroMQ",
-        "fields": ["endpoint", "identity", "channel", "protocol_profile"],
+        "fields": ["endpoint", "identity", "protocol_profile", "channel"],
         "defaults": {"endpoint": "tcp://127.0.0.1:8766", "identity": "astrbotex-main", "channel": "text", "protocol_profile": "raw"},
     },
     "websocket_server": {
@@ -233,7 +237,9 @@ class _ZmqAdapter(_Adapter):
         self._socket_lock = threading.RLock()
         self._latest_peer: bytes | None = None
         self._peers: dict[bytes, float] = {}
-        self._outbound: queue.Queue[tuple[Any, str | None, threading.Event, dict[str, Any]]] = queue.Queue(maxsize=100)
+        self._outbound: queue.Queue[tuple[Any, bytes | None, str | None, threading.Event, dict[str, Any]]] = queue.Queue(maxsize=100)
+        self._pending: dict[str, tuple[threading.Event, dict[str, Any]]] = {}
+        self._protocol_ready = False
 
     def _endpoint(self) -> str:
         config = self.record.config
@@ -268,7 +274,8 @@ class _ZmqAdapter(_Adapter):
         socket.setsockopt(zmq.LINGER, 0)
         socket.setsockopt(zmq.RCVHWM, 100)
         socket.setsockopt(zmq.SNDHWM, 100)
-        socket.setsockopt(zmq.MAXMSGSIZE, MAX_MESSAGE_BYTES)
+        message_limit = MAX_ASTRBOTEX_MESSAGE_BYTES if self.record.config.get("protocol_profile") == "astrbotex" else MAX_MESSAGE_BYTES
+        socket.setsockopt(zmq.MAXMSGSIZE, message_limit)
         if kind == zmq.ROUTER:
             socket.setsockopt(zmq.ROUTER_MANDATORY, 1)
             socket.bind(self._endpoint())
@@ -280,7 +287,7 @@ class _ZmqAdapter(_Adapter):
             self._socket = socket
         if kind == zmq.DEALER and self.record.config.get("protocol_profile") == "astrbotex":
             channel = str(self.record.config.get("channel") or "text")
-            self._send_now(socket, {"protocol": "astrbotex-zmq", "version": 1, "channel": channel, "kind": "request", "id": uuid.uuid4().hex, "method": "system.hello", "timestamp": _now(), "payload": {"client": "AstrBotEX", "instance_id": self.record.id}}, peer=None)
+            self._send_now(socket, self._envelope("request", "system.hello", {"client": "AstrBotEX", "instance_id": self.record.id}), peer=None)
         poller = zmq.Poller()
         poller.register(socket, zmq.POLLIN)
         while not self.stop_event.is_set():
@@ -300,9 +307,13 @@ class _ZmqAdapter(_Adapter):
             else:
                 peer, body = None, frames
             total = sum(len(frame) for frame in body)
-            if total > MAX_MESSAGE_BYTES:
+            if total > message_limit:
                 continue
-            self._received_message(self._decode(body), peer=peer.decode("utf-8", "replace") if peer else None, binary_bytes=total)
+            peer_text = peer.decode("utf-8", "replace") if peer else None
+            decoded = self._decode_protocol(body) if self.record.config.get("protocol_profile") == "astrbotex" else self._decode(body)
+            self._received_message(decoded, peer=peer_text, binary_bytes=total)
+            if self.record.config.get("protocol_profile") == "astrbotex" and isinstance(decoded, dict):
+                self._handle_protocol(socket, decoded, body[1] if len(body) > 1 else None, peer=peer_text)
         self._fail_outbound("connection stopped")
 
     def send(self, data: Any, *, peer: str | None = None) -> dict[str, Any]:
@@ -312,7 +323,7 @@ class _ZmqAdapter(_Adapter):
         completed = threading.Event()
         outcome: dict[str, Any] = {}
         try:
-            self._outbound.put_nowait((data, peer, completed, outcome))
+            self._outbound.put_nowait((data, None, peer, completed, outcome))
         except queue.Full as exc:
             raise RuntimeError("ZeroMQ send queue is full") from exc
         if not completed.wait(5.0):
@@ -322,29 +333,63 @@ class _ZmqAdapter(_Adapter):
             raise RuntimeError(str(error))
         return dict(outcome.get("result") or {"ok": True})
 
-    def _send_now(self, socket: Any, data: Any, *, peer: str | None) -> dict[str, Any]:
+    def request(self, method: str, payload: dict[str, Any], *, binary: bytes | None, timeout_sec: float) -> tuple[dict[str, Any], bytes | None]:
+        if self.record.type != "zmq_client" or self.record.config.get("protocol_profile") != "astrbotex":
+            raise RuntimeError("connection is not an AstrBotEX ZeroMQ client")
+        message_id = uuid.uuid4().hex
+        completed = threading.Event()
+        outcome: dict[str, Any] = {}
+        with self._lock:
+            self._pending[message_id] = (completed, outcome)
+        try:
+            self._outbound.put_nowait((self._envelope("request", method, payload, message_id=message_id), binary, None, threading.Event(), {}))
+        except queue.Full as exc:
+            with self._lock:
+                self._pending.pop(message_id, None)
+            raise RuntimeError("ZeroMQ send queue is full") from exc
+        try:
+            if not completed.wait(timeout_sec):
+                raise TimeoutError(f"{self.record.config.get('channel')}/{method} timed out after {timeout_sec:.1f}s")
+            if outcome.get("error"):
+                raise RuntimeError(str(outcome["error"]))
+            return dict(outcome.get("payload") or {}), outcome.get("binary")
+        finally:
+            with self._lock:
+                self._pending.pop(message_id, None)
+
+    @staticmethod
+    def _decode_protocol(frames: list[bytes]) -> Any:
+        try:
+            value = json.loads(frames[0].decode("utf-8"))
+        except (IndexError, UnicodeDecodeError, json.JSONDecodeError):
+            return {"frames": frames, "frame_count": len(frames)}
+        return value
+
+    def _send_now(self, socket: Any, data: Any, *, peer: str | None, binary: bytes | None = None) -> dict[str, Any]:
         encoded = self._encode(data)
-        if len(encoded) > MAX_MESSAGE_BYTES:
-            raise ValueError("message exceeds 4 MiB limit")
+        limit = MAX_ASTRBOTEX_MESSAGE_BYTES if self.record.config.get("protocol_profile") == "astrbotex" else MAX_MESSAGE_BYTES
+        if len(encoded) > limit or (binary is not None and len(binary) > limit):
+            raise ValueError("message exceeds configured limit")
         if self.record.type == "zmq_server":
             target = peer.encode("utf-8") if peer else self._latest_peer
             if target is None:
                 raise RuntimeError("no ZeroMQ peer is connected")
-            socket.send_multipart([target, encoded])
+            socket.send_multipart([target, encoded] + ([binary] if binary is not None else []))
             peer = target.decode("utf-8", "replace")
         else:
-            socket.send(encoded)
-        self._sent_message(data, peer=peer, binary_bytes=len(encoded))
-        return {"ok": True, "bytes": len(encoded), "peer": peer}
+            socket.send_multipart([encoded] + ([binary] if binary is not None else []))
+        total = len(encoded) + (len(binary) if binary is not None else 0)
+        self._sent_message(data, peer=peer, binary_bytes=total)
+        return {"ok": True, "bytes": total, "peer": peer}
 
     def _flush_outbound(self, socket: Any) -> None:
         while True:
             try:
-                data, peer, completed, outcome = self._outbound.get_nowait()
+                data, binary, peer, completed, outcome = self._outbound.get_nowait()
             except queue.Empty:
                 return
             try:
-                outcome["result"] = self._send_now(socket, data, peer=peer)
+                outcome["result"] = self._send_now(socket, data, peer=peer, binary=binary)
             except Exception as exc:  # noqa: BLE001
                 outcome["error"] = str(exc)
             finally:
@@ -353,11 +398,58 @@ class _ZmqAdapter(_Adapter):
     def _fail_outbound(self, reason: str) -> None:
         while True:
             try:
-                _, _, completed, outcome = self._outbound.get_nowait()
+                _, _, _, completed, outcome = self._outbound.get_nowait()
             except queue.Empty:
                 return
             outcome["error"] = reason
             completed.set()
+
+    def _envelope(self, kind: str, method: str, payload: dict[str, Any], *, message_id: str | None = None, reply_to: str | None = None) -> dict[str, Any]:
+        envelope = {"protocol": ASTRBOTEX_PROTOCOL, "version": ASTRBOTEX_PROTOCOL_VERSION, "channel": str(self.record.config.get("channel") or "text"), "kind": kind, "id": message_id or uuid.uuid4().hex, "method": method, "timestamp": _now(), "payload": payload}
+        if reply_to is not None:
+            envelope["reply_to"] = reply_to
+        return envelope
+
+    def _handle_protocol(self, socket: Any, envelope: dict[str, Any], binary: bytes | None, *, peer: str | None) -> None:
+        if envelope.get("protocol") != ASTRBOTEX_PROTOCOL or envelope.get("version") != ASTRBOTEX_PROTOCOL_VERSION:
+            return
+        if envelope.get("channel") != self.record.config.get("channel"):
+            return
+        kind = envelope.get("kind")
+        if kind == "response":
+            if envelope.get("method") == "system.hello":
+                with self._lock:
+                    self._protocol_ready = bool(envelope.get("payload", {}).get("ok", True))
+                    self._clients = 1 if self._protocol_ready else 0
+            reply_to = str(envelope.get("reply_to") or "")
+            with self._lock:
+                pending = self._pending.get(reply_to)
+            if pending is not None:
+                completed, outcome = pending
+                payload = envelope.get("payload", {})
+                outcome["payload"] = payload
+                outcome["binary"] = binary
+                if not payload.get("ok", True):
+                    outcome["error"] = payload.get("error", "remote request failed")
+                completed.set()
+            return
+        if kind not in {"request", "event"}:
+            return
+        result, response_binary = self.manager._handle_business_request(
+            str(self.record.config.get("channel") or "text"),
+            str(envelope.get("method") or ""),
+            dict(envelope.get("payload") or {}),
+            binary,
+        )
+        if kind == "request":
+            response = self._envelope("response", str(envelope.get("method") or ""), result, reply_to=str(envelope.get("id") or ""))
+            self._send_now(socket, response, peer=peer, binary=response_binary)
+
+    def status(self) -> dict[str, Any]:
+        result = super().status()
+        result["business_feature"] = self.record.config.get("channel") if self.record.config.get("protocol_profile") == "astrbotex" else None
+        result["business_ready"] = self._protocol_ready
+        return result
 
     def stop(self) -> None:
         self.stop_event.set()
@@ -522,6 +614,7 @@ class ConnectionManager:
         self._lock = threading.RLock()
         self._records: dict[str, ConnectionRecord] = {}
         self._adapters: dict[str, _Adapter] = {}
+        self._business_handler: Callable[[str, str, dict[str, Any], bytes | None], tuple[dict[str, Any], bytes | None]] | None = None
         self._load()
 
     @staticmethod
@@ -553,6 +646,7 @@ class ConnectionManager:
         with self._lock:
             if record.id in self._records:
                 raise ValueError(f"connection already exists: {record.id}")
+            self._ensure_feature_available_locked(record)
             self._records[record.id] = record
             self._save_locked()
         if record.enabled:
@@ -569,6 +663,7 @@ class ConnectionManager:
             merged["id"] = connection_id
             merged["updated_at"] = _now()
             record = self._record_from_payload(merged)
+            self._ensure_feature_available_locked(record, excluding=connection_id)
             restart = old.enabled or record.enabled
         self.stop(connection_id)
         with self._lock:
@@ -591,6 +686,7 @@ class ConnectionManager:
             record = self._records.get(connection_id)
             if record is None:
                 raise KeyError(f"connection not found: {connection_id}")
+            self._ensure_feature_available_locked(record, excluding=connection_id)
             record.enabled = True
             record.updated_at = _now()
             adapter = self._adapters.get(connection_id)
@@ -622,6 +718,38 @@ class ConnectionManager:
             raise RuntimeError("connection is not running")
         return adapter.send(data, peer=peer)
 
+    def set_business_handler(self, handler: Callable[[str, str, dict[str, Any], bytes | None], tuple[dict[str, Any], bytes | None]]) -> None:
+        self._business_handler = handler
+
+    def request_feature(self, feature: str, method: str, payload: dict[str, Any] | None = None, *, binary: bytes | None = None, timeout_sec: float = 10.0) -> tuple[dict[str, Any], bytes | None]:
+        if feature not in ASTRBOTEX_CHANNELS:
+            raise ValueError(f"unsupported AstrBotEX business feature: {feature}")
+        with self._lock:
+            matches = [
+                (record, self._adapters.get(record.id))
+                for record in self._records.values()
+                if record.enabled
+                and record.type == "zmq_client"
+                and record.config.get("protocol_profile") == "astrbotex"
+                and record.config.get("channel") == feature
+            ]
+        if not matches:
+            raise RuntimeError(f"AstrBotEX {feature} business connection is not configured or enabled")
+        adapter = matches[0][1]
+        if not isinstance(adapter, _ZmqAdapter):
+            raise RuntimeError(f"AstrBotEX {feature} business connection is not running")
+        return adapter.request(method, payload or {}, binary=binary, timeout_sec=timeout_sec)
+
+    def business_status(self) -> dict[str, Any]:
+        with self._lock:
+            result: dict[str, Any] = {}
+            for feature in sorted(ASTRBOTEX_CHANNELS):
+                record = next((item for item in self._records.values() if item.enabled and item.type == "zmq_client" and item.config.get("protocol_profile") == "astrbotex" and item.config.get("channel") == feature), None)
+                adapter = self._adapters.get(record.id) if record is not None else None
+                runtime = adapter.status() if adapter is not None else {}
+                result[feature] = {"connection_id": record.id if record is not None else None, "configured": record is not None, "ready": bool(runtime.get("business_ready")), "error": runtime.get("error")}
+            return result
+
     def close(self) -> None:
         with self._lock:
             adapters = list(self._adapters.values())
@@ -651,6 +779,21 @@ class ConnectionManager:
                 raise ValueError("WebSocket path must start with /")
         if str(config.get("protocol_profile") or "raw") not in {"raw", "astrbotex"}:
             raise ValueError("protocol_profile must be raw or astrbotex")
+        if record.type == "zmq_client" and config.get("protocol_profile") == "astrbotex" and str(config.get("channel") or "") not in ASTRBOTEX_CHANNELS:
+            raise ValueError("AstrBotEX business feature must be text, audio, or vision")
+
+    def _ensure_feature_available_locked(self, record: ConnectionRecord, *, excluding: str | None = None) -> None:
+        if not record.enabled or record.type != "zmq_client" or record.config.get("protocol_profile") != "astrbotex":
+            return
+        feature = record.config.get("channel")
+        conflict = next((item for item in self._records.values() if item.id != excluding and item.enabled and item.type == "zmq_client" and item.config.get("protocol_profile") == "astrbotex" and item.config.get("channel") == feature), None)
+        if conflict is not None:
+            raise ValueError(f"AstrBotEX business feature {feature} is already assigned to {conflict.id}")
+
+    def _handle_business_request(self, feature: str, method: str, payload: dict[str, Any], binary: bytes | None) -> tuple[dict[str, Any], bytes | None]:
+        if self._business_handler is None:
+            return {"ok": False, "error": "AstrBotEX business handler is not ready"}, None
+        return self._business_handler(feature, method, payload, binary)
 
     def _adapter_for(self, record: ConnectionRecord) -> _Adapter:
         if record.type.startswith("zmq_"):

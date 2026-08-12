@@ -17,7 +17,7 @@ const CONNECTION_FIELDS = {
   port: { label: "端口", type: "number", min: 1, max: 65535 },
   endpoint: { label: "连接地址", type: "text", placeholder: "tcp://127.0.0.1:8766" },
   identity: { label: "Identity", type: "text", placeholder: "astrbotex-main" },
-  channel: { label: "通道", type: "select", options: [["text", "文本"], ["audio", "音频"], ["vision", "视觉"]] },
+  channel: { label: "功能选择", type: "select", options: [["text", "文本"], ["audio", "语音"], ["vision", "视觉"]] },
   protocol_profile: { label: "协议配置", type: "select", options: [["raw", "原始消息"], ["astrbotex", "AstrBotEX ZMQ"]] },
   path: { label: "握手路径", type: "text", placeholder: "/" },
   url: { label: "服务地址", type: "text", placeholder: "ws://127.0.0.1:8780/" },
@@ -347,7 +347,11 @@ function renderConnectionConfig(connection) {
   const form = $("connectionConfigForm");
   if (!form) return;
   const meta = connectionTypeMeta(connection.type);
-  const fields = Array.isArray(meta.fields) ? meta.fields : Object.keys(connection.config || {});
+  const allFields = Array.isArray(meta.fields) ? meta.fields : Object.keys(connection.config || {});
+  const fields = allFields.filter((key) => key !== "channel" || (
+    connection.type === "zmq_client" &&
+    String(connection.config?.protocol_profile ?? meta.defaults?.protocol_profile ?? "raw") === "astrbotex"
+  ));
   form.dataset.connectionId = connection.id;
   form.innerHTML = fields.map((key) => {
     const field = CONNECTION_FIELDS[key] || { label: key, type: "text" };
@@ -361,7 +365,13 @@ function renderConnectionConfig(connection) {
     const numeric = field.type === "number";
     return `<label class="connection-field"><span>${escapeHtml(field.label)}</span><input class="config-input" data-connection-config="${escapeHtml(key)}" data-value-type="${numeric ? "number" : "string"}" type="${escapeHtml(field.type || "text")}" value="${escapeHtml(value)}" placeholder="${escapeHtml(field.placeholder || "")}" ${isPresent(field.min) ? `min="${field.min}"` : ""} ${isPresent(field.max) ? `max="${field.max}"` : ""} ${isPresent(field.step) ? `step="${field.step}"` : ""} /></label>`;
   }).join("");
-  form.querySelectorAll("input, select").forEach((input) => input.addEventListener("input", markConnectionDirty));
+  form.querySelectorAll("input, select").forEach((input) => input.addEventListener("input", (event) => {
+    markConnectionDirty();
+    if (event.currentTarget.dataset.connectionConfig === "protocol_profile") {
+      connection.config = { ...connection.config, ...collectConnectionConfig(), protocol_profile: event.currentTarget.value };
+      renderConnectionConfig(connection);
+    }
+  }));
 }
 
 function renderConnectionDetail(options = {}) {

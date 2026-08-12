@@ -17,12 +17,32 @@ class AstrBotSTTProvider(STTProvider):
         astrbot_base_url: str,
         timeout_sec: float = 10.0,
         event_bus: Any | None = None,
+        business_connections: Any | None = None,
     ) -> None:
         self._url = astrbot_base_url.rstrip("/") + "/api/v1/ex/interaction/stt"
         self._timeout = timeout_sec
         self._event_bus = event_bus
+        self._business_connections = business_connections
 
     async def get_text(self, audio_url: str) -> str:
+        if self._business_connections is not None:
+            payload_data: dict[str, Any] = {}
+            audio_bytes: bytes | None = None
+            if audio_url.startswith(("http://", "https://")):
+                payload_data["audio_url"] = audio_url
+            else:
+                audio_path = Path(audio_url)
+                if not audio_path.is_file():
+                    raise FileNotFoundError(f"audio file not found: {audio_url}")
+                audio_bytes = audio_path.read_bytes()
+                if len(audio_bytes) > 25 * 1024 * 1024:
+                    raise ValueError("audio file exceeds 25 MiB limit")
+                payload_data["filename"] = audio_path.name
+            result, _ = self._business_connections.request_feature(
+                "audio", "stt.transcribe", payload_data, binary=audio_bytes, timeout_sec=self._timeout
+            )
+            return str(result.get("text", ""))
+
         payload_data: dict[str, Any]
         if audio_url.startswith("http://") or audio_url.startswith("https://"):
             payload_data = {"audio_url": audio_url}
@@ -62,12 +82,27 @@ class AstrBotTTSProvider(TTSProvider):
         astrbot_base_url: str,
         timeout_sec: float = 30.0,
         event_bus: Any | None = None,
+        business_connections: Any | None = None,
     ) -> None:
         self._url = astrbot_base_url.rstrip("/") + "/api/v1/ex/interaction/tts"
         self._timeout = timeout_sec
         self._event_bus = event_bus
+        self._business_connections = business_connections
 
     async def get_audio(self, text: str) -> str:
+        if self._business_connections is not None:
+            result, audio_bytes = self._business_connections.request_feature(
+                "audio", "tts.synthesize", {"text": text}, timeout_sec=self._timeout
+            )
+            if not audio_bytes:
+                raise RuntimeError("tts returned no audio data")
+            audio_format = str(result.get("audio_format", "wav")).lower().lstrip(".")
+            if not audio_format.isalnum() or len(audio_format) > 8:
+                audio_format = "wav"
+            dest = Path(gettempdir()) / f"astrbotex_tts_{uuid.uuid4().hex}.{audio_format}"
+            dest.write_bytes(audio_bytes)
+            return str(dest)
+
         payload = json.dumps({"text": text}).encode("utf-8")
         req = urllib.request.Request(
             self._url,

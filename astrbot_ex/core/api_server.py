@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import os
 import queue
@@ -186,6 +187,27 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         if path in {"/api/connections", "/api/v1/ex/connections"}:
             self._send_json({"connections": self.server.connections.list()})
             return
+        if path in {"/api/connections/business", "/api/v1/ex/connections/business"}:
+            probes: dict[str, Any] = {}
+            for feature, method in (
+                ("text", "transport.status"),
+                ("audio", "providers.status"),
+                ("vision", "vision.status"),
+            ):
+                try:
+                    payload, _ = self.server.connections.request_feature(
+                        feature, method, timeout_sec=3.0
+                    )
+                    probes[feature] = {"ok": True, "response": payload}
+                except Exception as exc:
+                    probes[feature] = {"ok": False, "error": str(exc)}
+            self._send_json(
+                {
+                    "business_connections": self.server.connections.business_status(),
+                    "probes": probes,
+                }
+            )
+            return
         connection_id = self._match_connection_id(path)
         if connection_id:
             try:
@@ -327,6 +349,25 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             payload = self._read_json()
             self.server.interaction_core.handle_astrbot_reply(payload)
             self._send_json({"ok": True})
+            return
+        if path in {"/api/vision/publish", "/api/v1/ex/vision/publish"}:
+            payload = self._read_json()
+            binary = None
+            encoded = payload.pop("data_base64", None)
+            if encoded is not None:
+                try:
+                    binary = base64.b64decode(str(encoded), validate=True)
+                except ValueError:
+                    self._send_json({"ok": False, "error": "data_base64 must be valid base64"}, HTTPStatus.BAD_REQUEST)
+                    return
+            try:
+                result, _ = self.server.connections.request_feature(
+                    "vision", "vision.publish", payload, binary=binary, timeout_sec=10.0
+                )
+            except (RuntimeError, TimeoutError) as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_GATEWAY)
+                return
+            self._send_json(result)
             return
         if path in {"/api/connections", "/api/v1/ex/connections"}:
             try:
@@ -576,6 +617,42 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
 
     def _interaction_status(self) -> dict[str, Any]:
         ic = self.server.interaction_core
+        connection_manager = getattr(self.server, "connections", None)
+        business = connection_manager.business_status() if connection_manager is not None else {
+            feature: {"connection_id": None, "configured": False, "ready": False, "error": None}
+            for feature in ("text", "audio", "vision")
+        }
+        if business["audio"]["ready"]:
+            try:
+                provider_status, _ = connection_manager.request_feature(
+                    "audio", "providers.status", timeout_sec=2.0
+                )
+                astrbot_reachable = True
+                astrbot_error = None
+            except Exception as exc:
+                provider_status = {}
+                astrbot_reachable = False
+                astrbot_error = str(exc)
+            slots = self.server.controller.runtime.registry.list()
+            mic_plugins = [slot.plugin.id for slot in slots if slot.kind == "mic" and slot.enabled]
+            speaker_plugins = [slot.plugin.id for slot in slots if slot.kind == "speaker" and slot.enabled]
+            status = {
+                "transport": "zeromq",
+                "business_connections": business,
+                "astrbot_base_url": ic.astrbot_base_url,
+                "astrbot_reachable": astrbot_reachable,
+                "astrbot_error": astrbot_error,
+                "stt_provider": provider_status.get("stt"),
+                "tts_provider": provider_status.get("tts"),
+                "stt_proxy": type(ic.stt_provider).__name__ if ic.stt_provider is not None else None,
+                "tts_proxy": type(ic.tts_provider).__name__ if ic.tts_provider is not None else None,
+                "stt_ready": bool(astrbot_reachable and provider_status.get("stt") and ic.stt_provider),
+                "tts_ready": bool(astrbot_reachable and provider_status.get("tts") and ic.tts_provider),
+                "mic_plugins": mic_plugins,
+                "speaker_plugins": speaker_plugins,
+            }
+            status.update(ic.status_snapshot())
+            return status
         astrbot_reachable = False
         provider_status: dict[str, Any] = {}
         astrbot_error: str | None = None
@@ -595,6 +672,8 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         mic_plugins = [slot.plugin.id for slot in slots if slot.kind == "mic" and slot.enabled]
         speaker_plugins = [slot.plugin.id for slot in slots if slot.kind == "speaker" and slot.enabled]
         status = {
+            "transport": "http-compat",
+            "business_connections": business,
             "astrbot_base_url": ic.astrbot_base_url,
             "astrbot_reachable": astrbot_reachable,
             "astrbot_error": astrbot_error,
@@ -824,6 +903,11 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
     )
     _astrbot_base_url = os.environ.get("ASTRBOT_BASE_URL", "http://127.0.0.1:8766")
     _timeout_sec = float(os.environ.get("ASTRBOTEX_TIMEOUT_SEC", "5.0"))
+    connections = ConnectionManager(
+        data_root / "profiles" / "default" / "connections.json",
+        event_bus=runtime.event_bus,
+        topic_bus=runtime.topic_bus,
+    )
 
     _stt_provider: STTProvider | None = None
     _tts_provider: TTSProvider | None = None
@@ -832,12 +916,14 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
             astrbot_base_url=_astrbot_base_url,
             timeout_sec=_timeout_sec,
             event_bus=event_bus,
+            business_connections=connections,
         )
     if os.environ.get("ASTRBOTEX_TTS_ENABLED", "").lower() in ("true", "1"):
         _tts_provider = AstrBotTTSProvider(
             astrbot_base_url=_astrbot_base_url,
             timeout_sec=float(os.environ.get("ASTRBOTEX_TTS_TIMEOUT_SEC", "30.0")),
             event_bus=event_bus,
+            business_connections=connections,
         )
 
     interaction_core = InteractionCore(
@@ -849,6 +935,7 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         timeout_sec=_timeout_sec,
         stt_provider=_stt_provider,
         tts_provider=_tts_provider,
+        business_connections=connections,
     )
     runtime.interaction_core = interaction_core
     controller = RuntimeController(runtime=runtime, tick_hz=tick_hz)
@@ -872,11 +959,34 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         event_bus=runtime.event_bus,
         topic_bus=runtime.topic_bus,
     )
-    server.connections = ConnectionManager(
-        data_root / "profiles" / "default" / "connections.json",
-        event_bus=runtime.event_bus,
-        topic_bus=runtime.topic_bus,
-    )
+    server.connections = connections
+    def handle_zmq_business(
+        feature: str,
+        method: str,
+        payload: dict[str, Any],
+        binary: bytes | None,
+    ) -> tuple[dict[str, Any], bytes | None]:
+        del binary
+        if feature == "text" and method == "interaction.reply":
+            interaction_core.handle_astrbot_reply(payload)
+            return {"ok": True}, None
+        if feature == "text" and method == "bridge.context.get":
+            return server.bridge.build_context(), None
+        if feature == "text" and method == "bridge.proposal.submit":
+            return server.bridge.handle_proposal(payload), None
+        if feature == "text" and method == "runtime.status":
+            status = controller.status()
+            status.update(
+                {
+                    "ok": True,
+                    "text_peers": int(connections.business_status()["text"]["ready"]),
+                    "vision_streams": 0,
+                }
+            )
+            return status, None
+        return {"ok": False, "error": f"unsupported {feature} method: {method}"}, None
+
+    connections.set_business_handler(handle_zmq_business)
     server.connections.start_enabled()
     return server
 
