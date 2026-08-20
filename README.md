@@ -1,541 +1,176 @@
 # AstrBotEX
 
-AstrBotEX 是面向具身智能机器人的本地执行运行时。  
-当前落地场景是`智能救援赛道履带小车`，但整体架构目标不是只服务这一台车，而是后续可扩展到轮式、四足、多足、人形等多种机器人平台。
+AstrBotEX 是面向具身机器人与移动机器人场景的本地运行时和执行中枢。项目当前主要服务于履带式救援车辆，同时通过清晰的能力边界和插件体系，为其他机器人平台保留扩展空间。
 
-## 1. 当前架构定位
+AstrBotEX 位于 AstrBot 与机器人底层控制系统之间：AstrBot 负责对话、任务理解和高层决策，AstrBotEX 负责把高层意图转化为经过校验的本地任务，并协调感知、交互、技能与设备插件；底层控制器及设备侧组件负责实时 I/O、闭环控制和最终硬件保护。
 
-整体分层如下：
+## 项目定位
 
-```text
-AstrBot   = Planner / Supervisor
-            上层 LLM、任务规划、分解、复盘、工具调度
+大模型擅长理解开放式指令和制定任务级计划，但不适合直接输出轮速、CAN 帧等高风险、强实时的硬件命令。AstrBotEX 的职责是在语言智能与物理执行之间建立稳定边界，使两侧可以独立演进，同时让机器人行为具备可校验、可观测和可扩展的基础。
 
-AstrBotEX = Executor / Arbiter
-            中层世界状态、运行时、规则、策略、技能、插件系统、VLA Bridge、Dashboard
+系统中的主要职责划分如下：
 
-AstrBotC  = Motion Controller
-            下层 STM32 实时控制、电机闭环、IMU、编码器、舵机、急停、失联保护
-```
+- **AstrBot**：承载聊天平台、LLM/VLM、工具调用、任务理解与高层动作选择。
+- **AstrBotEX**：管理运行状态、汇总感知与世界信息、校验动作提案、编排规则与技能、协调插件并执行本地安全约束。
+- **EXplugin**：适配摄像头、视觉模型、激光雷达、麦克风、扬声器、CAN 和 ROS2 等设备或协议。
+- **底层控制系统**：完成运动闭环、执行器控制和独立于上层软件的物理安全保护。
 
-当前已经明确的原则：
+AstrBot 只选择 AstrBotEX 当前允许的高层动作，不直接调用硬件插件。AstrBotEX 保有动作执行权，并结合现场状态决定提案是否可以执行。
 
-- `AstrBot` 是军师，不是司机。
-- 比赛得分链路必须能够脱离外网和 LLM 独立运行。
-- `AstrBotEX` 不应直接发送底层轮速指令作为最终接口。
-- 视觉模型不应直接耦合进核心 runtime。
-- 视觉、定位、雷达等感知结果应先经过插件标准化，再进入 EX 内部世界模型。
-- `AstrBot` 和 `AstrBotEX` 之间不直接暴露插件对象或底层控制函数；两者通过结构化 context / proposal 连接。
+## 功能特性
 
-## 2. 当前项目状态
+### 运行时与任务编排
 
-目前已经完成的部分：
+- 统一管理任务的空闲、运行、暂停和故障状态。
+- 协调感知、规则、策略、技能、安全检查和运动输出。
+- 支持任务启动、停止、状态观察与故障事件记录。
+- 当关键组件缺失或运行异常时，以可诊断的状态呈现问题，避免无提示失败。
 
-- Python 核心 runtime 骨架
-- 世界状态、事件总线、规则、策略、技能、运动桥的运行主链路
-- 本地插件系统
-- 插件按`vision / perception / control / decision / special`五类管理
-- 插件启停、上传、卸载、配置保存
-- Dashboard 基础页面与插件控制台
-- SSE 运行日志流
-- 本地 API Server
-- `TopicBus` 插件间 pub/sub
-- 插件托管线程模型 `PluginActor`
-- VLA Bridge 核心模块，用于把 EX 状态聚合成 AstrBot 可读上下文，并校验 AstrBot 返回的 proposal
-- 独立 AstrBot 侧桥接插件雏形，当前放在同级目录 `D:\Code\astrbot_plugin_astrbotex_bridge`
+### 感知与世界状态
 
-当前尚未彻底打通的部分：
+- 接入视觉、激光雷达和机器人遥测等信息源。
+- 将不同来源、不同时间的观测整理为统一世界状态。
+- 标记观测时间与有效性，避免高层决策依赖已经过期的数据。
+- 支持视觉目标与距离信息融合，并允许后续扩展更多传感器与场景模型。
 
-- 真实 `YOLO` 视觉链路
-- 真实 `雷达 / 定位` 感知链路
-- 真实 `motion_bridge -> 下位机` 控制链路
-- 面向智能救援任务的正式 `policy / skill / rule` 插件
-- 完整的硬件闭环联调
-- AstrBot 与 AstrBotEX 的端到端 LLM tool 调用联调
-- 各真实任务插件的 `actions` 声明和 action topic 处理逻辑
+### 高层动作桥接
 
-## 3. 当前代码结构
+- 向 AstrBot 提供与当前现场状态相匹配的结构化上下文和可用动作。
+- 接收 AstrBot 的高层动作提案，并检查动作是否存在、是否属于正确组件、当前状态是否允许以及所依赖的现场信息是否仍然有效。
+- 支持运行时自带动作和插件声明的业务动作。
+- 将语言模型的开放式输出约束为可审查、可验证的机器人操作。
 
-```text
-astrbot_ex/
-  core/         Runtime、API Server、世界模型、插件管理器、TopicBus、VLA Bridge
-  interfaces/   各类插件稳定接口
-  profiles/     配置与任务资料
+### 文字与语音交互
 
-dashboard/      前端静态页面
-scripts/        本地启动脚本
-tests/          Runtime、Actor、TopicBus、插件管理、Bridge 单元测试与 Mock 夹具
+- 统一处理文字消息、麦克风输入、语音识别、语音合成和扬声器播放。
+- 支持麦克风直接产出文本，或先采集音频再交给 AstrBot 侧语音服务识别。
+- 在机器人播报时协调麦克风采集，降低回声造成的重复识别。
+- 汇总语音服务、麦克风、扬声器和消息链路的就绪状态，便于现场排查。
 
-同级独立目录：
+### 插件化设备接入
 
-D:\Code\EXplugin
-  AstrBotEX 具体插件仓库；核心仓库不再内置可部署插件。
+- 通过插件清单声明插件身份、能力、入口、主题和可执行动作。
+- 支持插件发现、安装、启用、停用、配置和卸载。
+- 隔离插件任务，防止单个慢设备或异常插件直接阻塞整个运行时。
+- 通过统一消息总线连接感知、交互和控制插件，降低设备实现与核心逻辑的耦合。
 
-D:\Code\astrbot_plugin_astrbotex_bridge
-  AstrBot 侧桥接插件，不属于 AstrBotEX 部署包，也不应放进 AstrBotEX 镜像。
-```
+### Dashboard 与运维
 
-## 4. Runtime 当前行为
+- 提供随服务启动的 Web Dashboard。
+- 集中展示运行状态、事件、插件、视觉源、连接和交互组件状态。
+- 支持常见运行控制、插件管理、视觉源测试和连接管理操作。
+- 适合开发联调、现场部署检查和故障定位。
 
-当前 runtime 的主链路是：
+## 架构概览
 
 ```text
-vision_provider
-  -> world_builder
-  -> rule plugins
-  -> policy plugin
-  -> skill plugin
-  -> safety guard
-  -> motion_bridge
+用户 / 聊天平台
+       |
+       v
+AstrBot
+消息接入、LLM/VLM、工具、高层规划
+       |
+       v
+AstrBotEX
+运行时、世界状态、动作校验、安全、交互、插件管理、Dashboard
+       |
+       v
+EXplugin 设备适配层
+摄像头 / 视觉模型 / 雷达 / 麦克风 / 扬声器 / CAN / ROS2
+       |
+       v
+底层控制器、传感器与执行器
 ```
 
-实际行为特点：
+### 分层原则
 
-- `start()` 负责启动本地运行循环，不把真实硬件链路作为启动前置条件
-- 缺少 `vision` 插件时，`tick()` 会记录 `vision provider unavailable`，并生成空视觉结果
-- 缺少 `motion` 插件时，`tick()` 会记录 `motion bridge unavailable`，并生成 `link_ok=false` 的机器人状态
-- `tick()` 会拉取视觉结果与机器人状态，更新世界模型
-- `rule` 可以对世界状态或意图进行拦截
-- `policy` 负责选目标
-- `skill` 负责执行目标
-- `motion_bridge` 负责将上层意图转给下游控制系统
+1. **高层推理与本地执行分离**：AstrBot 负责“做什么”，AstrBotEX 负责判断“现在是否能做”和“由谁执行”。
+2. **硬件适配与核心逻辑分离**：设备差异由插件吸收，核心围绕稳定的能力边界工作。
+3. **任务控制与硬实时控制分离**：AstrBotEX 负责任务级编排，底层控制器负责实时闭环和物理保护。
+4. **状态先于动作**：动作必须建立在明确、有效的世界状态上，过期或不完整的信息不能被默认为安全。
+5. **可观测性贯穿运行过程**：运行状态、插件状态和关键事件可通过 Dashboard 统一检查。
 
-这意味着当前 EX 已经不是纯界面原型，而是具备真实执行运行时骨架。
+### 典型工作过程
 
-## 5. Mock 现状
+1. 设备插件采集视觉、雷达、音频或机器人状态。
+2. AstrBotEX 汇总现场信息，形成可供高层理解的世界状态与可用动作。
+3. AstrBot 根据用户意图和现场上下文选择任务级动作。
+4. AstrBotEX 校验动作及其依赖状态，将通过校验的动作交给对应运行时或插件。
+5. 控制插件和底层控制器完成实际执行，并把新状态持续反馈到系统中。
 
-历史上项目中存在 mock 闭环，用于早期验证：
+## 快速开始
 
-```text
-MockVisionProvider
-MockMotionBridge
-BasicRulePlugin
-NearestEntityPolicy
-ApproachEntitySkill
-```
+### 环境要求
 
-当前状态：
+- Windows，或能够运行 Python/Docker 的 Linux 环境。
+- Python 3.12 或更高版本。
+- 若接入真实机器人，需要准备相应的 EXplugin、设备驱动，以及 ROS2、CAN 或音频运行环境。
+- 若需要自然语言与语音能力，需要准备 AstrBot 及 AstrBotEX 交互桥接插件。
 
-- 默认 runtime 已不再自动注册完整 mock 闭环
-- runtime 不会再自动刷 mock 视觉 / mock 技能日志
-- 缺少真实 vision 或 motion 插件时不会阻塞 API 层启动；运行循环会用缺失状态事件暴露链路问题
+### 本地运行
 
-这说明项目方向已经从“演示原型”切到“真实插件接入”。
-
-## 6. 插件系统现状
-
-本仓库只维护插件框架、稳定接口和管理能力，不再内置具体插件实现。可部署插件独立维护在 `D:\Code\EXplugin`，通过 Dashboard 上传 ZIP，或安装到运行数据目录的 `plugins/` 下。
-
-当前支持的 capability：
-
-```text
-motion_bridge
-vision_provider
-transport
-protocol_codec
-telemetry_provider
-rule_plugin
-policy_plugin
-skill_plugin
-tool_plugin
-trace_plugin
-```
-
-Dashboard 中按五大类展示：
-
-```text
-vision
-perception
-control
-decision
-special
-```
-
-默认映射关系：
-
-```text
-vision_provider    -> vision
-motion_bridge      -> control
-transport          -> control
-protocol_codec     -> control
-telemetry_provider -> perception
-rule_plugin        -> decision
-policy_plugin      -> decision
-skill_plugin       -> decision
-tool_plugin        -> decision
-trace_plugin       -> special
-```
-
-支持的插件目录形式：
-
-```text
-plugins\<plugin_id>
-plugins\vision\<plugin_id>
-plugins\perception\<plugin_id>
-plugins\control\<plugin_id>
-plugins\decision\<plugin_id>
-plugins\special\<plugin_id>
-```
-
-本地插件系统已经支持：
-
-- 扫描插件目录
-- 读取 `plugin.json`
-- 读取 `config.schema.json`
-- 读取 `config.json`
-- `zip` 上传安装插件
-- 启用 / 停用插件
-- 卸载插件
-- 配置更新后重新加载
-- 读取 `publishes / subscribes` topic 声明
-- 读取 `actions` 动作声明，供 VLA Bridge 生成 affordances 并分发 command topic
-
-`plugin.json` 中现在可以声明 `actions`。这是给 AstrBot / LLM 使用的任务级动作入口，不是直接暴露插件内部方法。
-
-示例：
-
-```json
-{
-  "actions": [
-    {
-      "action_id": "mission_controller.set_phase.v1",
-      "topic": "mission_controller.commands.set_phase",
-      "description": "切换任务阶段",
-      "schema": {
-        "type": "object",
-        "required": ["phase"],
-        "properties": {
-          "phase": {"type": "string"}
-        }
-      },
-      "requires_blocks": [],
-      "requires_runtime_state": ["running"],
-      "danger": "low"
-    }
-  ]
-}
-```
-
-约束：
-
-- `action_id` 是给 AstrBot 选择的动作 ID。
-- `topic` 是 EX 校验通过后发布 command block 的 TopicBus topic。
-- AstrBot 不能直接调用插件对象、插件方法、底层 CAN、轮速或设备 I/O。
-- EX Core 始终保留最终校验权和拒绝权。
-
-### 6.1 插件线程模型
-
-每个已加载插件由 Core 分配一个独立的 `PluginActor` 工作线程。插件的生命周期、`on_tick()`、设备读写和运行时方法都在该线程中串行执行。
-
-约束如下：
-
-- 插件不得自行创建 `threading.Thread`
-- 阻塞式设备插件通过有超时的 `on_worker_step()` 完成一次 I/O
-- 同一物理设备或总线只能由一个插件线程持有
-- Runtime 的 tick 投递会合并，慢插件不会无限积压旧 tick
-- 插件间数据通过 `TopicBus` 最新值或 `PluginContext.subscribe()` 有界 inbox 交换
-- 插件卸载前 Core 会停止运行期 I/O、执行生命周期回调并等待线程退出
-
-`GET /api/status` 的插件状态中会返回 Actor 线程名称、存活状态和最后一次错误。
-
-## 7. VLA Bridge 当前设计
-
-`AstrBotEX` 现在新增了核心模块 `astrbot_ex.core.astrbot_bridge.AstrBotBridge`。它不是插件，而是 EX 和 AstrBot 之间的 VLA 连接层。
-
-设计目标：
-
-- EX 插件继续通过 `TopicBus` 发布事实，例如位姿、目标、边界、任务阶段、健康状态。
-- Bridge 周期性或按请求读取最新 topic，聚合为可拆卸的 observation blocks。
-- Bridge 把 blocks、可用动作 `affordances`、proposal schema 和安全规则打包成 context。
-- AstrBot 在 LLM 请求中读取 context，并通过工具提交 proposal。
-- EX 收到 proposal 后按 context_id、action_id、schema、block freshness、runtime state 等规则校验。
-- 校验通过后，EX 将 command block 发布到对应 action topic；插件或 mission controller 再消费。
-
-整体链路：
-
-```text
-EX plugins
-  -> TopicBus observation blocks
-  -> AstrBotBridge context
-  -> AstrBot LLM prompt / tool loop
-  -> submit_astrbotex_proposal
-  -> AstrBotBridge validation
-  -> TopicBus command blocks
-  -> action owner plugin / mission controller
-```
-
-### 7.1 Context Block
-
-Bridge 生成的 block 统一包含：
-
-```json
-{
-  "block_id": "lidar_pose_plugin.pose.v1",
-  "contract_id": "短稳定标识",
-  "source_plugin": "lidar_pose_plugin",
-  "topic": "lidar_pose_plugin.pose",
-  "schema": "pose",
-  "seq": 128,
-  "timestamp": 1720000000.123,
-  "ttl_ms": 1000,
-  "fresh": true,
-  "payload": {}
-}
-```
-
-`contract_id` 用来做轻量、稳定的段标识，便于 AstrBot 在 proposal 中引用观察依据。它不是安全认证 token，也不承担加密鉴权职责。
-
-### 7.2 Proposal
-
-AstrBot 返回的 proposal 形如：
-
-```json
-{
-  "context_id": "ctx_xxx",
-  "commands": [
-    {
-      "action_id": "mission_controller.set_phase.v1",
-      "owner": "mission_controller",
-      "uses_blocks": [
-        {"block_id": "vision.current_target.v1", "seq": 77}
-      ],
-      "params": {
-        "phase": "approach_target"
-      },
-      "reason": "目标可见，且没有边界风险"
-    }
-  ]
-}
-```
-
-EX 会重新确认：
-
-- `context_id` 是否存在且未过期
-- `action_id` 是否在当前 affordances 中
-- `owner` 是否匹配 EX 内部 action registry
-- `params` 是否符合 action schema
-- `uses_blocks` 是否仍然新鲜，`seq` 是否匹配
-- 当前 runtime state 是否允许执行该动作
-
-只有校验通过，Bridge 才会发布 command topic。
-
-### 7.3 AstrBot 侧桥接插件
-
-AstrBot 侧桥接插件不放在 `AstrBotEX` 仓库部署包内，也不直接写入 `AstrBot-latest` 源码目录。当前独立目录为：
-
-```text
-D:\Code\astrbot_plugin_astrbotex_bridge
-```
-
-它负责：
-
-- 在 AstrBot LLM 请求前调用 `GET /api/v1/ex/bridge/context`
-- 将 EX context 作为临时动态上下文注入本轮 LLM 请求
-- 注册 `submit_astrbotex_proposal` 工具
-- 提供管理员命令：`/ex_status`、`/ex_context`、`/ex_start`、`/ex_stop`
-
-部署时应把该独立目录复制、打包或作为独立插件仓库安装到 AstrBot 的插件目录。
-
-## 8. Dashboard 当前能力
-
-当前 Dashboard 已具备：
-
-- runtime 状态卡片
-- 运行快照
-- SSE 运行日志页
-- 按分类展示插件
-- 单插件控制页面
-- 基于 schema 自动生成配置表单
-- 插件启用 / 停用
-- 插件卸载
-- 插件压缩包上传
-
-当前已经不再只是“列表 + 右侧详情”的静态壳子，而是开始向真正的插件控制台演进。
-
-## 9. API Server 当前状态
-
-启动方式：
+在 PowerShell 中执行：
 
 ```powershell
 cd D:\Code\AstrBotEX
-.\scripts\run_api_server.ps1
-```
-
-或者：
-
-```bash
+python -m pip install -e .
 python -m astrbot_ex.core.api_server --host 0.0.0.0 --port 8765 --tick-hz 20
 ```
 
-环境变量：
+也可以使用项目自带的启动脚本：
 
-```text
-ASTRBOTEX_HOST=0.0.0.0
-ASTRBOTEX_PORT=8765
-ASTRBOTEX_TICK_HZ=20
-ASTRBOTEX_DATA_DIR=/app/data
+```powershell
+.\scripts\run_api_server.ps1
 ```
 
-`ASTRBOTEX_DATA_DIR` 是可选项。未设置时继续使用项目根目录下的：
-
-```text
-plugins/
-profiles/
-```
-
-设置后，运行数据会改为：
-
-```text
-$ASTRBOTEX_DATA_DIR/plugins
-$ASTRBOTEX_DATA_DIR/profiles
-```
-
-Docker / compose 部署时建议只挂载统一数据目录：
-
-```text
-./data:/app/data
-```
-
-这样拉取新镜像时，核心代码、Dashboard 和脚本跟随镜像更新；插件、配置、启停状态和 profile 保留在宿主机 `data` 目录。
-
-当前要特别注意的一点：
-
-- API Server 仍然通过 `build_demo_runtime()` 构造 runtime
-- 这说明 server 骨架是真的，但默认启动组合仍不是最终智能救援正式组合
-
-当前核心接口：
-
-```text
-GET    /api/status
-GET    /api/events
-POST   /api/runtime/start
-POST   /api/runtime/stop
-GET    /healthz
-```
-
-当前 EX 接口：
-
-```text
-GET    /api/v1/ex/status
-GET    /api/v1/ex/events
-
-GET    /api/v1/ex/plugins
-GET    /api/v1/ex/plugins/{id}
-POST   /api/v1/ex/plugins/{id}/enable
-POST   /api/v1/ex/plugins/{id}/disable
-POST   /api/v1/ex/plugins/{id}/config
-DELETE /api/v1/ex/plugins/{id}
-POST   /api/v1/ex/plugins/upload
-GET    /api/v1/ex/plugins/{id}/cover
-GET    /api/v1/ex/plugins/{id}/dashboard
-
-GET    /api/v1/ex/vision/sources
-POST   /api/v1/ex/vision/sources
-PUT    /api/v1/ex/vision/sources/{id}
-DELETE /api/v1/ex/vision/sources/{id}
-POST   /api/v1/ex/vision/sources/{id}/test
-GET    /api/v1/ex/vision/active-source
-POST   /api/v1/ex/vision/active-source
-GET    /api/v1/ex/vision/latest
-
-GET    /api/v1/ex/pubsub/publishers
-
-GET    /api/v1/ex/bridge/context
-GET    /api/v1/ex/bridge/actions
-POST   /api/v1/ex/bridge/proposal
-```
-
-Bridge 兼容别名：
-
-```text
-GET    /api/v1/ex/llm/context
-GET    /api/v1/ex/llm/actions
-POST   /api/v1/ex/llm/proposal
-```
-
-## 10. 当前最真实的进度判断
-
-一句话概括：
-
-`AstrBotEX 的平台骨架和 VLA Bridge 骨架已经搭好，当前阶段是从“框架成立”进入“真实感知、真实控制与 AstrBot 端到端联调”。`
-
-换句话说，现在最值钱的东西已经不是“有没有页面”，而是：
-
-- runtime 的执行链路已经存在
-- plugin manager 已经可用
-- dashboard 已经具备管理插件的能力
-- API server 已经能提供前后端联通的基础能力
-- TopicBus、PluginActor 和本地插件管理已经支撑真实插件并发接入
-- Bridge 已经可以生成结构化 context，接收并校验 AstrBot proposal
-
-当前真正缺的是：
-
-- 真实视觉
-- 真实感知 / 定位
-- 真实下游控制
-- 真实任务技能
-- 真实任务 action registry 和 action owner 插件
-- AstrBot 侧 LLM tool 调用的端到端验证
-
-## 11. 推荐的下一步方向
-
-建议按下面顺序推进：
-
-1. 在独立插件仓库中给真实感知插件补齐稳定 `publishes` schema 和 block 命名
-2. 给任务控制 / mission controller 插件补齐 `actions` 声明和 command topic 消费逻辑
-3. 完成 AstrBot 侧桥接插件安装与 `submit_astrbotex_proposal` 真实 LLM tool 调用验证
-4. 完成真实 `vision_provider`、`perception`、`motion_bridge` 的统一任务闭环
-5. 补齐智能救援任务的 `rule / policy / skill` 或任务状态机插件
-6. 做端到端本地自治闭环验证：无 AstrBot 时 EX 能继续安全运行，有 AstrBot 时能接受高层 proposal
-
-## 12. 不建议现在做的事
-
-- 不要恢复默认 mock 自动闭环
-- 不要让视觉插件直接承担业务决策
-- 不要让 EX 核心直接绑定某一种 YOLO 原始 JSON 格式
-- 不要现在就把所有功能一次性插件化到底
-- 不要让 AstrBot 直接调用 EX 插件对象或插件内部方法
-- 不要让 LLM 直接输出轮速、CAN 帧、串口数据或底层设备命令
-- 不要把 AstrBot 桥接插件放进 AstrBotEX 部署包；它应作为独立 AstrBot 插件维护
-
-## 13. 测试状态
-
-当前本地单元测试状态：
-
-```text
-python -B -m unittest discover -s tests
-14 tests OK
-```
-
-已覆盖：
-
-- EventBus
-- TopicBus inbox
-- PluginActor
-- Runtime actor integration
-- LocalPluginManager 配置校验
-- AstrBotBridge context / proposal 校验与 command topic 发布
-
-具体插件测试随插件代码维护在 `D:\Code\EXplugin\tests`。
-
-尚未覆盖：
-
-- 真实 HTTP server 启动后的 bridge API 联调
-- AstrBot 插件安装后的 LLM tool 调用链路
-- 真实硬件闭环
-
-## 14. 访问 Dashboard
-
-启动服务后访问：
+服务启动后，在浏览器中打开：
 
 ```text
 http://127.0.0.1:8765/
 ```
 
-如果页面没有更新：
+### Docker 运行
+
+```powershell
+cd D:\Code\AstrBotEX
+docker compose up --build
+```
+
+容器编排文件包含 AstrBotEX 及其协作服务的部署示例。接入真实设备前，应根据目标机器检查容器网络、设备映射和外部服务是否可达。
+
+### 首次启动检查
+
+1. 确认 Dashboard 可以访问，运行状态和事件区域正常显示。
+2. 确认任务需要的插件已被发现并启用。
+3. 测试视觉源，确认能够获得符合预期的现场数据。
+4. 确认 AstrBot 交互链路以及文字、音频、视觉能力处于就绪状态。
+5. 确认麦克风、扬声器、雷达和控制插件与实际部署环境一致。
+6. 完成上述检查后再启动任务运行时，并优先在仿真或无动力环境验证行为。
+
+## 目录结构
 
 ```text
-Ctrl + C 停止旧服务
-重新执行 run_api_server.ps1
-浏览器 Ctrl + F5 强制刷新
+D:\Code\AstrBotEX
+|-- astrbot_ex\
+|   |-- core\                 # 核心运行服务与组件
+|   |-- interfaces\           # 插件能力边界
+|   `-- profiles\             # 随包提供的任务场景资料
+|-- dashboard\                # Web 运维界面
+|-- plugins\                  # 本地插件分类与部署入口
+|-- profiles\default\        # 默认运行资料
+|-- scripts\                  # 启动、检查和辅助脚本
+|-- tests\                    # 自动化测试
+|-- compose.yml               # 容器编排示例
+|-- pyproject.toml            # Python 项目与依赖声明
+`-- README.md                 # 项目总体介绍与入门说明
 ```
+
+## 相关项目
+
+AstrBotEX 与以下项目共同构成完整的 VLA/具身交互系统：
+
+- `D:\Code\AstrBot-latest`：AstrBot 主项目，承载消息平台、LLM/VLM 和工具系统。
+- `D:\Code\A.E.B`：AstrBot 侧的 AstrBotEX 交互桥接插件。
+- `D:\Code\EXplugin`：可部署的视觉、感知、语音和控制插件集合。
+
+开发新能力时，应先明确它属于高层语言推理、本地任务执行、设备适配还是硬实时控制，再放入对应项目和职责层，避免跨层直接调用。
