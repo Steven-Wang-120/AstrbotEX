@@ -757,6 +757,14 @@ class ConnectionManager:
         for adapter in adapters:
             adapter.stop()
 
+    def reload(self) -> None:
+        """Reload persisted connection records after an instance restore."""
+        self.close()
+        with self._lock:
+            self._records.clear()
+        self._load()
+        self.start_enabled()
+
     def _record_from_payload(self, payload: dict[str, Any]) -> ConnectionRecord:
         record = ConnectionRecord.from_dict(payload)
         defaults = dict(CONNECTION_TYPES[record.type]["defaults"])

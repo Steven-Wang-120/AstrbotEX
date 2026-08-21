@@ -5,6 +5,7 @@ import base64
 import json
 import os
 import queue
+import shutil
 import tempfile
 import threading
 import time
@@ -18,6 +19,7 @@ from typing import Any
 from urllib.parse import unquote, urlparse
 
 from astrbot_ex.core.astrbot_bridge import AstrBotBridge
+from astrbot_ex.core.backup import SnapshotError, SnapshotService
 from astrbot_ex.core.connection_manager import ConnectionManager
 from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.interaction_core import InteractionCore
@@ -141,6 +143,10 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         if self._try_send_static():
             return
         path = self._path()
+        backup_filename = self._match_backup_filename(path)
+        if backup_filename is not None:
+            self._send_backup_download(backup_filename)
+            return
         if path == "/api/status" or path == "/api/v1/ex/status":
             self._send_json(self.controller.status())
             return
@@ -246,6 +252,12 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         path = self._path()
+        if path == "/api/v1/ex/backups":
+            self._create_backup()
+            return
+        if path == "/api/v1/ex/backups/upload":
+            self._handle_backup_upload()
+            return
         if path == "/api/runtime/start" or path == "/api/v1/ex/runtime/start":
             try:
                 self.controller.start()
@@ -535,6 +547,14 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         return None
 
     @staticmethod
+    def _match_backup_filename(path: str) -> str | None:
+        prefix = "/api/v1/ex/backups/"
+        if not path.startswith(prefix):
+            return None
+        filename = unquote(path.removeprefix(prefix).strip("/"))
+        return filename if filename else None
+
+    @staticmethod
     def _match_connection_id(path: str) -> str | None:
         for prefix in ("/api/connections/", "/api/v1/ex/connections/"):
             if path.startswith(prefix):
@@ -605,6 +625,62 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         except json.JSONDecodeError:
             return {}
         return data if isinstance(data, dict) else {}
+
+    def _create_backup(self) -> None:
+        try:
+            self._send_json({"ok": True, "backup": self.server.snapshot_service.create()})
+        except SnapshotError as exc:
+            self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
+        except Exception as exc:
+            self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.INTERNAL_SERVER_ERROR)
+
+    def _send_backup_download(self, filename: str) -> None:
+        try:
+            path = self.server.snapshot_service.download_path(filename)
+        except SnapshotError as exc:
+            self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.NOT_FOUND)
+            return
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/zip")
+        self.send_header("Content-Disposition", f'attachment; filename="{path.name}"')
+        self.send_header("Content-Length", str(path.stat().st_size))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        with path.open("rb") as source:
+            shutil.copyfileobj(source, self.wfile, length=1024 * 1024)
+
+    def _handle_backup_upload(self) -> None:
+        content_length = int(self.headers.get("Content-Length", "0"))
+        if content_length <= 0:
+            self._send_json({"ok": False, "error": "missing request body"}, HTTPStatus.BAD_REQUEST)
+            return
+        if content_length > self.server.snapshot_service.limits.max_upload_bytes + 1024 * 1024:
+            self._send_json(
+                {"ok": False, "error": "uploaded request exceeds the size limit"},
+                HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+            )
+            return
+        if not self.headers.get("Content-Type", "").lower().startswith("multipart/form-data"):
+            self._send_json({"ok": False, "error": "multipart/form-data required"}, HTTPStatus.BAD_REQUEST)
+            return
+        try:
+            form = self._parse_multipart_form_data()
+            upload = form.get("file")
+            if not upload or not upload.get("filename"):
+                raise SnapshotError("missing snapshot ZIP file")
+            result = self.server.snapshot_service.restore_upload(
+                str(upload["filename"]),
+                bytes(upload.get("content") or b""),
+            )
+            result["ok"] = True
+            result["runtime_state"] = self.controller.runtime.state.value
+            result["restart_recommended"] = True
+            self._send_json(result)
+        except SnapshotError as exc:
+            self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
+        except Exception as exc:
+            self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def _send_json(self, payload: Any, status: HTTPStatus = HTTPStatus.OK) -> None:
         body = json.dumps(to_jsonable(payload), ensure_ascii=False).encode("utf-8")
@@ -875,6 +951,7 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
     bridge: AstrBotBridge
     interaction_core: InteractionCore
     connections: ConnectionManager
+    snapshot_service: SnapshotService
 
 
 def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
@@ -960,6 +1037,36 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         topic_bus=runtime.topic_bus,
     )
     server.connections = connections
+
+    def reload_instance_data() -> None:
+        """Reload all in-memory state that is persisted by an instance snapshot."""
+        perception_config = load_perception_config(data_root / "profiles" / "default" / "perception.json")
+        runtime.fusion = SceneFusion(perception_config)
+        runtime.perception_core.fusion = runtime.fusion
+        server.vision_sources.load()
+        server.connections.reload()
+        server.local_plugins.discover()
+        server.local_plugins.load_enabled()
+        interaction_core.refresh_mic_subscriptions()
+
+    def before_snapshot_restore() -> None:
+        controller.stop("instance snapshot restore")
+        unload_errors: list[str] = []
+        for slot in runtime.registry.list():
+            try:
+                runtime.registry.unregister(slot.id)
+            except Exception as exc:
+                unload_errors.append(f"{slot.id}: {exc}")
+        connections.close()
+        if unload_errors:
+            raise RuntimeError(f"plugin unload failed: {'; '.join(unload_errors)}")
+
+    server.snapshot_service = SnapshotService(
+        data_root,
+        before_restore=before_snapshot_restore,
+        after_restore=reload_instance_data,
+        after_rollback=reload_instance_data,
+    )
     def handle_zmq_business(
         feature: str,
         method: str,

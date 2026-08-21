@@ -35,6 +35,9 @@
           <button class="nav-item" data-page="connections">
             <span class="nav-num">05</span><span class="nav-label">连接</span>
           </button>
+          <button class="nav-item" data-page="archives">
+            <span class="nav-num">06</span><span class="nav-label">存档</span>
+          </button>
         </nav>
 
         <div class="sidebar-foot">
@@ -407,6 +410,39 @@
             <section class="connection-grid" id="connectionGrid"></section>
           </section>
 
+          <!-- ============ 06 ARCHIVES ============ -->
+          <section class="page" id="page-archives">
+            <header class="page-head">
+              <div class="page-head-num">06</div>
+              <div class="page-head-text">
+                <h1>存档</h1>
+                <p>实例数据快照</p>
+              </div>
+            </header>
+
+            <section class="archive-stage" aria-labelledby="archiveStageTitle">
+              <div class="archive-actions" id="archiveStageTitle">
+                <button class="archive-action archive-action-backup" id="archiveBackupButton" type="button">
+                  <span class="archive-action-icon" aria-hidden="true">↓</span>
+                  <span>备份存档</span>
+                  <small>PROFILES + PLUGINS</small>
+                </button>
+                <button class="archive-action archive-action-upload" id="archiveUploadButton" type="button">
+                  <span class="archive-action-icon" aria-hidden="true">↑</span>
+                  <span>上传存档</span>
+                  <small>ZIP SNAPSHOT</small>
+                </button>
+              </div>
+              <div class="archive-status" id="archiveStatus" data-state="idle" role="status" aria-live="polite">
+                <span class="archive-status-mark" aria-hidden="true"></span>
+                <div>
+                  <b id="archiveStatusTitle">存档服务就绪</b>
+                  <span id="archiveStatusDetail">当前实例数据可随时导出</span>
+                </div>
+              </div>
+            </section>
+          </section>
+
           <!-- ============ 05 CONNECTION DETAIL ============ -->
           <section class="page" id="page-connection">
             <header class="page-head">
@@ -638,6 +674,7 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <input id="pluginZipInput" type="file" accept=".zip,application/zip" hidden />
-    <script src="./app.js?v=20260726-industrial"></script>
+    <input id="archiveZipInput" type="file" accept=".zip,application/zip" hidden />
+    <script src="./app.js?v=20260821-archives"></script>
   </body>
 </html>

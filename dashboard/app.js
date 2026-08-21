@@ -162,6 +162,7 @@ function parseHash() {
     return { page: "connection", connectionId: decodeURIComponent(parts.slice(1).join("/")) };
   }
   if (parts[0] === "connections") return { page: "connections" };
+  if (parts[0] === "archives") return { page: "archives" };
   if (parts[0] === "logs") return { page: "logs" };
   if (parts[0] === "voice") return { page: "voice" };
   if (parts[0] === "core") return { page: "core" };
@@ -172,6 +173,7 @@ function writeHash() {
   let hash = "#/core";
   if (state.activePage === "plugins") hash = `#/plugins/${state.activePluginTab}`;
   else if (state.activePage === "connections") hash = "#/connections";
+  else if (state.activePage === "archives") hash = "#/archives";
   else if (state.activePage === "connection" && state.activeConnectionId) {
     hash = `#/connections/${encodeURIComponent(state.activeConnectionId)}`;
   }
@@ -201,6 +203,63 @@ function switchPage(page, options = {}) {
   if (page === "connections") refreshConnections({ preserveForm: true }).catch(() => {});
   if (page === "connection") renderConnectionDetail({ preserveForm: state.connectionDirty });
   if (!options.silent) writeHash();
+}
+
+/* ============ ARCHIVES ============ */
+
+function setArchiveStatus(stateName, title, detail) {
+  const status = $("archiveStatus");
+  if (status) status.dataset.state = stateName;
+  setText("archiveStatusTitle", title);
+  setText("archiveStatusDetail", detail);
+}
+
+async function createArchive() {
+  setArchiveStatus("busy", "正在打包实例数据", "正在生成 ZIP 快照");
+  try {
+    const data = await apiJson("/api/v1/ex/backups", { method: "POST", body: "{}" });
+    const backup = data.backup || {};
+    if (!backup.download_url) throw new Error("服务端未返回存档下载地址");
+    const link = document.createElement("a");
+    link.href = new URL(backup.download_url, `${API_BASE}/`).href;
+    link.download = backup.filename || "astrbotex_snapshot.zip";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    const fileCount = Number(backup.file_count || 0);
+    setArchiveStatus("success", "存档已生成并开始下载", `${backup.filename} · ${fileCount} 个文件`);
+    showToast("实例存档已开始下载");
+  } catch (error) {
+    setArchiveStatus("error", "备份存档失败", error.message);
+    throw error;
+  }
+}
+
+async function uploadArchive(file) {
+  setArchiveStatus("busy", "正在校验并恢复存档", file.name);
+  const form = new FormData();
+  form.append("file", file, file.name);
+  try {
+    const response = await fetch(`${API_BASE}/api/v1/ex/backups/upload`, {
+      method: "POST",
+      body: form,
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.ok === false) {
+      throw new Error(data.error || `${response.status} ${response.statusText}`);
+    }
+    await Promise.allSettled([
+      refreshStatus(),
+      refreshPlugins(),
+      refreshConnections({ preserveForm: false }),
+    ]);
+    const count = Number(data.restored_files || 0);
+    setArchiveStatus("success", "存档恢复完成", `${file.name} · 已恢复 ${count} 个文件 · 建议重启服务`);
+    showToast("实例存档恢复完成");
+  } catch (error) {
+    setArchiveStatus("error", "上传存档失败", error.message);
+    throw error;
+  }
 }
 
 /* ============ CONNECTIONS ============ */
@@ -1490,6 +1549,24 @@ function bindActions() {
     event.currentTarget.value = "";
   });
 
+  $("archiveBackupButton")?.addEventListener("click", (event) =>
+    runAction(event.currentTarget, "正在打包…", createArchive)
+  );
+  $("archiveUploadButton")?.addEventListener("click", () => {
+    const confirmed = window.confirm("上传存档会覆盖当前 profiles 和 plugins 数据，并停止运行时。是否继续选择 ZIP？");
+    if (!confirmed) return;
+    const input = $("archiveZipInput");
+    if (!input) return;
+    input.value = "";
+    input.click();
+  });
+  $("archiveZipInput")?.addEventListener("change", (event) => {
+    const file = event.currentTarget.files && event.currentTarget.files[0];
+    if (!file) return;
+    runAction($("archiveUploadButton"), "正在上传…", () => uploadArchive(file));
+    event.currentTarget.value = "";
+  });
+
   $("pluginBackButton").addEventListener("click", () => {
     if (state.activePluginCategory) {
       state.activePluginTab = state.activePluginCategory;
@@ -1618,6 +1695,10 @@ async function applyRoute(route) {
   }
   if (route.page === "connections") {
     switchPage("connections", { silent: true });
+    return;
+  }
+  if (route.page === "archives") {
+    switchPage("archives", { silent: true });
     return;
   }
   if (route.page === "plugin" && route.pluginId) {
