@@ -215,7 +215,7 @@ class InteractionCoreTest(unittest.TestCase):
         self.assertEqual(latest.payload["format"], "wav")
         self.assertEqual(latest.payload["data"], "/tmp/test.wav")
         self.assertFalse(latest.payload["delete_after_play"])
-        self.assertEqual(latest.payload["duration_sec"], 2.0)
+        self.assertEqual(latest.payload["duration_sec"], 15.0)
         self.assertTrue(self.core.status_snapshot()["capture_paused"])
 
     def test_send_text_posts_correct_json_and_returns_parsed_response(self) -> None:

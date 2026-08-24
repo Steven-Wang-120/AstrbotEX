@@ -980,6 +980,10 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
     )
     _astrbot_base_url = os.environ.get("ASTRBOT_BASE_URL", "http://127.0.0.1:8766")
     _timeout_sec = float(os.environ.get("ASTRBOTEX_TIMEOUT_SEC", "5.0"))
+    _capture_tail_sec = float(os.environ.get("ASTRBOTEX_CAPTURE_TAIL_SEC", "0.8"))
+    _capture_fallback_sec = float(
+        os.environ.get("ASTRBOTEX_CAPTURE_FALLBACK_SEC", "15.0")
+    )
     connections = ConnectionManager(
         data_root / "profiles" / "default" / "connections.json",
         event_bus=runtime.event_bus,
@@ -1013,6 +1017,8 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         stt_provider=_stt_provider,
         tts_provider=_tts_provider,
         business_connections=connections,
+        capture_tail_sec=_capture_tail_sec,
+        capture_fallback_playback_sec=_capture_fallback_sec,
     )
     runtime.interaction_core = interaction_core
     controller = RuntimeController(runtime=runtime, tick_hz=tick_hz)

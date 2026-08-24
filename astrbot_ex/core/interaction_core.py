@@ -53,7 +53,7 @@ class InteractionCore:
         tts_provider: TTSProvider | None = None,
         business_connections: Any | None = None,
         capture_tail_sec: float = 0.5,
-        capture_fallback_playback_sec: float = 2.0,
+        capture_fallback_playback_sec: float = 15.0,
     ) -> None:
         self.registry = registry
         self.topic_bus = topic_bus
@@ -544,14 +544,17 @@ class InteractionCore:
         if path_text.startswith("file://"):
             path_text = path_text[7:]
         path = Path(path_text)
-        if path.is_file() and path.suffix.lower() == ".wav":
+        if path.is_file():
             try:
+                # WAV files are identified by their container, not only by extension.
                 with wave.open(str(path), "rb") as wav_file:
                     rate = wav_file.getframerate()
                     if rate > 0:
                         return max(0.0, wav_file.getnframes() / rate)
             except (OSError, EOFError, wave.Error):
                 pass
+        # Unknown codecs are intentionally not decoded: keep capture paused long enough
+        # to avoid self-interruption without adding third-party dependencies.
         return self.capture_fallback_playback_sec
 
     def _begin_capture_pause(self, playback_duration_sec: float, reason: str) -> None:
@@ -821,8 +824,8 @@ class InteractionCore:
                 "format": audio_format,
                 "data": audio_url,
                 "delete_after_play": delete_after_play,
-                "duration_sec": duration_sec,
                 **audio_metadata,
+                "duration_sec": duration_sec,
             },
         )
 
