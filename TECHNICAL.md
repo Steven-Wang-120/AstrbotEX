@@ -3,7 +3,7 @@
 本文面向 AstrBotEX 的开发、集成与部署人员，记录当前代码中的接口契约、核心实现机制和配置项。项目定位、功能概览、启动方法与目录说明见 `README.md`，本文不重复这些入门内容。
 
 > 基准版本：`pyproject.toml` 中的 `0.1.0`  
-> 文档核对日期：2026-08-20  
+> 文档核对日期：2026-08-30（对齐 HEAD `36c00a9`）  
 > 行为依据：当前源码、测试、profile，以及 AstrBot/A.E.B/EXplugin 跨仓库契约。旧版无版本接口仍有兼容实现，新集成应优先使用 `/api/v1/ex` 路径。
 
 ## API 文档
@@ -152,6 +152,33 @@ YOLO 等视觉转发插件应把结构化 JSON 字段通过 `8766` 的 `vision.j
 
 `ASTRBOT_BASE_URL` 仍表示 HTTP 兼容地址，而 `8766` 在当前 A.E.B 设计中又是 ZeroMQ 文字端口。部署前必须确认实际启用的是 ZeroMQ DEALER 连接还是兼容 HTTP 服务，不能仅凭端口号推断协议。
 
+### 8b. 实例快照（备份与恢复）
+
+`astrbot_ex/core/backup.py` 提供实例级快照的导出与导入，由 `SnapshotService` 统一入口，`build_server()` 装配为 `server.snapshot_service`。
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| `POST` | `/api/v1/ex/backups` | 创建快照，返回文件名、大小、创建时间、文件数与 `download_url` |
+| `GET` | `/api/v1/ex/backups/{filename}` | 下载指定快照 ZIP（`application/zip`，`Cache-Control: no-store`） |
+| `POST` | `/api/v1/ex/backups/upload` | `multipart/form-data` 上传 ZIP 并恢复 |
+
+快照范围与格式：
+
+- 快照根为 `SNAPSHOT_ROOTS = ("profiles", "plugins")`，相对数据根目录解析（受 `ASTRBOTEX_DATA_DIR` 影响，见第 9 节）。源码、`.git`、`.agents`、`__pycache__`、`backups` 目录以及 `.log` / `.pyc` / `.pyo` / `.tmp` 文件被排除。**快照是运行态与插件部署的备份，不是代码备份。**
+- 格式标识 `astrbotex-instance-snapshot`，`format_version = 1`，ZIP 内必须含 `manifest.json`。
+- 版本兼容按 `major.minor` 家族判定：跨家族的快照被拒绝恢复，补丁号差异允许。
+- 落盘位置为数据根下的 `backups/`；文件名形如 `astrbotex_snapshot_YYYYmmdd_HHMMSS_*.zip`。
+
+导入侧的防护（全部抛 `SnapshotError`，HTTP 层转 400）：
+
+- 上传上限 256 MiB；单文件上限 128 MiB；解压总量上限 1 GiB；文件数上限 10000；压缩比上限 200:1；`manifest.json` 上限 2 MiB。这些是 ZIP 炸弹与资源耗尽防护，不要为了"支持更大快照"直接放大。
+- 逐条校验 ZIP 表项路径必须落在快照根内，拒绝绝对路径、`..` 穿越、符号链接与空字节。
+- 下载接口的文件名校验独立存在（必须是纯文件名、`.zip` 结尾、不含 `/` `\` `..` 与空字节），路径穿越在这里也拦一道。
+
+恢复流程是**先暂存、再替换、失败回滚**：解压到 `backups/.staging-<uuid>/` 校验通过后才替换目标目录，并通过 `before_replace` / `after_replace` / `after_rollback` 回调让调用方停机与重载。`SnapshotService` 内有 `RLock`，创建与恢复互斥。
+
+改这里要同时检查 `tests/test_backup.py`，以及 Dashboard 的备份面板调用方。
+
 ## 内部实现
 
 ### 9. 服务装配
@@ -192,7 +219,9 @@ YOLO 等视觉转发插件应把结构化 JSON 字段通过 `8766` 的 `vision.j
 - 视觉或扫描 provider 缺失时，感知层返回空或过期元数据，不阻止 API 服务启动。
 - motion bridge 不存在时，运动输出只记录事件，不会假定指令已执行。
 - tick 中未处理的异常会使运行时进入 `FAULT`，停止当前技能，并尝试下发停止动作。
-- `SafetyGuard` 核心默认限值为 `vx=0.35 m/s`、`vy=0.35 m/s`、`wz=1.2 rad/s`；急停状态强制三个分量为零。
+- `SafetyGuard` 核心默认限值为 `vx=0.35 m/s`、`vy=0.35 m/s`、`wz=1.2 rad/s`，另有 `max_duration_ms=1000`；急停状态强制三个分量为零。
+- `SafetyGuard.filter_intent()` 的四道处理，按顺序：急停时返回空 `MotionIntent` 并标记 `blocked by estop`；`vx`/`vy`/`wz` 中出现非有限值（`NaN` / `±inf`）时整条意图作废，返回空 `MotionIntent` 并标记 `blocked by non-finite motion`；三个速度分量各自对称限幅到 `[-limit, limit]`；`duration_ms` 钳到 `[1, max_duration_ms]`，非数值类型回落为 `1`，`+inf` 取 `max_duration_ms`、`-inf` 取 `1`。
+- 非有限值走的是**拦截**而不是限幅：单个分量为 `NaN` 会导致整条 `MotionIntent` 归零，不是只把该分量置零。
 - 核心限幅不是底层硬件保护的替代品，底层控制器仍需独立执行最终安全约束。
 
 ### 11. 感知与世界构建
@@ -392,4 +421,5 @@ AstrBotEX 协议连接至少需要正确指定：
 - proposal/action 变更：检查上下文 TTL、动作 owner、参数 schema、必需 block、新鲜度和运行状态限制。
 - ZeroMQ envelope 或 method 变更：同时检查 AstrBotEX `ConnectionManager` 与 A.E.B 的 `zmq_transport.py`/README。
 - 环境变量和 profile 变更：同步检查 `.env.example`、`compose.yml`、默认 profile 和部署数据目录。
+- 快照格式或限值变更：同步检查 `SNAPSHOT_ROOTS`、`SnapshotLimits`、`manifest.json` 字段、版本家族校验、`tests/test_backup.py` 和 Dashboard 备份面板；放宽任何限值前先确认 ZIP 炸弹防护仍然成立。
 - 本文记录当前已实现行为；异步视觉上下文、稳定追踪和更多 VLM 帧处理能力应在实现与测试落地后再加入正式接口章节。

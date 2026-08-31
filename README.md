@@ -54,11 +54,25 @@ AstrBot 只选择 AstrBotEX 当前允许的高层动作，不直接调用硬件�
 - 隔离插件任务，防止单个慢设备或异常插件直接阻塞整个运行时。
 - 通过统一消息总线连接感知、交互和控制插件，降低设备实现与核心逻辑的耦合。
 
+### 运动安全保护
+
+- 内置运动安全防护层，对运动意图执行多重检查和限幅。
+- 默认安全限值：线速度 0.35 m/s（vx, vy）、角速度 1.2 rad/s（wz）、动作持续时间 1000 ms。
+- 急停状态强制所有运动分量归零，非有限值（NaN、±inf）拦截整条运动意图。
+- 安全检查独立于底层控制器，提供多层防护。
+
+### 实例快照与备份
+
+- 支持运行时配置与插件状态的完整快照导出。
+- 快照范围覆盖 profiles 和 plugins 目录，格式为 astrbotex-instance-snapshot v1。
+- 提供 ZIP 格式的导入导出，支持跨环境的配置迁移与灾难恢复。
+- 内置防护机制应对 ZIP 炸弹、路径穿越等安全风险。
+
 ### Dashboard 与运维
 
 - 提供随服务启动的 Web Dashboard。
 - 集中展示运行状态、事件、插件、视觉源、连接和交互组件状态。
-- 支持常见运行控制、插件管理、视觉源测试和连接管理操作。
+- 支持常见运行控制、插件管理、视觉源测试、连接管理和实例备份操作。
 - 适合开发联调、现场部署检查和故障定位。
 
 ## 架构概览
@@ -84,7 +98,7 @@ EXplugin 设备适配层
 
 ### 分层原则
 
-1. **高层推理与本地执行分离**：AstrBot 负责“做什么”，AstrBotEX 负责判断“现在是否能做”和“由谁执行”。
+1. **高层推理与本地执行分离**：AstrBot 负责"做什么"，AstrBotEX 负责判断"现在是否能做"和"由谁执行"。
 2. **硬件适配与核心逻辑分离**：设备差异由插件吸收，核心围绕稳定的能力边界工作。
 3. **任务控制与硬实时控制分离**：AstrBotEX 负责任务级编排，底层控制器负责实时闭环和物理保护。
 4. **状态先于动作**：动作必须建立在明确、有效的世界状态上，过期或不完整的信息不能被默认为安全。
@@ -153,17 +167,44 @@ docker compose up --build
 D:\Code\AstrBotEX
 |-- astrbot_ex\
 |   |-- core\                 # 核心运行服务与组件
-|   |-- interfaces\           # 插件能力边界
+|   |   |-- providers\        # AstrBot STT/TTS 代理服务
+|   |   `-- backup.py         # 实例快照导出导入
+|   |-- interfaces\           # 插件能力边界定义
 |   `-- profiles\             # 随包提供的任务场景资料
 |-- dashboard\                # Web 运维界面
-|-- plugins\                  # 本地插件分类与部署入口
-|-- profiles\default\        # 默认运行资料
+|-- plugins\                  # 本地插件分类目录
+|   |-- control\              # 控制插件
+|   |-- decision\             # 决策插件  
+|   |-- interaction\          # 交互插件
+|   |-- perception\           # 感知插件
+|   |-- special\              # 特殊功能插件
+|   `-- vision\               # 视觉插件（内置 YOLO 插件）
+|-- profiles\default\        # 默认运行配置
 |-- scripts\                  # 启动、检查和辅助脚本
 |-- tests\                    # 自动化测试
 |-- compose.yml               # 容器编排示例
 |-- pyproject.toml            # Python 项目与依赖声明
 `-- README.md                 # 项目总体介绍与入门说明
 ```
+
+### 插件说明
+
+`plugins/` 目录包含六个分类目录，当前仅内置一个 YOLO 视觉插件（`astrbotex_embedded_yolo_vision_plugin`），默认不启用。其他插件需要从 EXplugin 项目部署或自行开发。
+
+## 开发与测试
+
+### 运行测试
+
+```powershell
+cd D:\Code\AstrBotEX
+python -m unittest discover -s tests
+```
+
+当前测试覆盖核心运行时、插件系统、安全检查、感知融合、交互链路、备份恢复等功能模块。
+
+### API 文档
+
+详细的 HTTP API 接口、ZeroMQ 协议、插件开发规范、配置参数说明见 `TECHNICAL.md`。该文档与当前代码版本保持同步，包含完整的接口契约和实现机制说明。
 
 ## 相关项目
 
