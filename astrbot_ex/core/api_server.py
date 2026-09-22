@@ -21,6 +21,11 @@ from urllib.parse import unquote, urlparse
 from astrbot_ex.core.astrbot_bridge import AstrBotBridge
 from astrbot_ex.core.backup import SnapshotError, SnapshotService
 from astrbot_ex.core.connection_manager import ConnectionManager
+from astrbot_ex.core.environments import (
+    EnvironmentBusyError,
+    EnvironmentManager,
+    EnvironmentRevisionConflict,
+)
 from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.interaction_core import InteractionCore
 from astrbot_ex.core.local_plugins import LocalPluginManager
@@ -148,10 +153,61 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             self._send_backup_download(backup_filename)
             return
         if path == "/api/status" or path == "/api/v1/ex/status":
-            self._send_json(self.controller.status())
+            status = self.controller.status()
+            environment_manager = getattr(self.server, "environment_manager", None)
+            if environment_manager is not None:
+                status["environment"] = environment_manager.status()
+            self._send_json(status)
             return
         if path == "/api/events" or path == "/api/v1/ex/events":
             self._send_events()
+            return
+        environment_manager = getattr(self.server, "environment_manager", None)
+        if environment_manager is not None and path in {
+            "/api/environments",
+            "/api/v1/ex/environments",
+        }:
+            self._send_json(environment_manager.status())
+            return
+        if environment_manager is not None and path in {
+            "/api/v1/ex/environments/ros2/status",
+        }:
+            payload = environment_manager.status()
+            self._send_json(
+                {
+                    "ok": payload.get("ok", True),
+                    "environment": payload.get("environment"),
+                    "ros2": payload.get("adapters", {}).get("ros2"),
+                    "active_adapter": (
+                        payload.get("active_adapter")
+                        if payload.get("environment", {}).get("active_mode") == "ros2"
+                        else None
+                    ),
+                    "config": payload.get("config", {}).get("ros2", {}),
+                }
+            )
+            return
+        if environment_manager is not None and path in {
+            "/api/v1/ex/environments/ros2/graph",
+        }:
+            self._send_json(environment_manager.graph())
+            return
+        if environment_manager is not None and path in {
+            "/api/v1/ex/environments/ros2/endpoints",
+        }:
+            self._send_json(environment_manager.endpoints())
+            return
+        operation_prefix = "/api/v1/ex/environments/operations/"
+        if environment_manager is not None and path.startswith(operation_prefix):
+            operation_id = unquote(path[len(operation_prefix):].strip("/"))
+            operation = environment_manager.get_operation(operation_id)
+            if operation is None:
+                self._send_json(
+                    {"ok": False, "error": "unknown environment operation"},
+                    HTTPStatus.NOT_FOUND,
+                )
+            else:
+                self._send_json({"ok": True, "operation": operation})
             return
         if path in {"/api/vision/sources", "/api/v1/ex/vision/sources"}:
             self._send_json(
@@ -257,6 +313,60 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             return
         if path == "/api/v1/ex/backups/upload":
             self._handle_backup_upload()
+            return
+        environment_manager = getattr(self.server, "environment_manager", None)
+        if environment_manager is not None and path in {
+            "/api/environments/select",
+            "/api/v1/ex/environments/select",
+        }:
+            payload = self._read_json()
+            try:
+                expected_revision = payload.get("expected_revision")
+                expected = int(expected_revision) if expected_revision is not None else None
+                result = environment_manager.select(
+                    payload.get("mode"),
+                    expected_revision=expected,
+                )
+            except EnvironmentRevisionConflict as exc:
+                self._send_json(
+                    {"ok": False, "code": "revision_conflict", "error": str(exc)},
+                    HTTPStatus.CONFLICT,
+                )
+                return
+            except EnvironmentBusyError as exc:
+                self._send_json(
+                    {"ok": False, "code": "environment_busy", "error": str(exc)},
+                    HTTPStatus.CONFLICT,
+                )
+                return
+            except ValueError as exc:
+                self._send_json(
+                    {"ok": False, "code": "invalid_environment", "error": str(exc)},
+                    HTTPStatus.BAD_REQUEST,
+                )
+                return
+            self._send_json(
+                result,
+                HTTPStatus.OK if result.get("ok") else HTTPStatus.SERVICE_UNAVAILABLE,
+            )
+            return
+        if environment_manager is not None and path in {
+            "/api/v1/ex/environments/ros2/config",
+        }:
+            try:
+                result = environment_manager.configure_ros2(self._read_json())
+            except ValueError as exc:
+                self._send_json(
+                    {"ok": False, "code": "invalid_ros2_config", "error": str(exc)},
+                    HTTPStatus.BAD_REQUEST,
+                )
+                return
+            self._send_json(result)
+            return
+        if environment_manager is not None and path in {
+            "/api/v1/ex/environments/ros2/discovery/refresh",
+        }:
+            self._send_json(environment_manager.graph())
             return
         if path == "/api/runtime/start" or path == "/api/v1/ex/runtime/start":
             try:
@@ -952,6 +1062,7 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
     interaction_core: InteractionCore
     connections: ConnectionManager
     snapshot_service: SnapshotService
+    environment_manager: EnvironmentManager
 
 
 def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
@@ -960,6 +1071,11 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
     data_root = Path(data_dir).resolve() if data_dir else project_root
     event_bus = EventBus()
     topic_bus = TopicBus()
+    environment_manager = EnvironmentManager(
+        data_root=data_root,
+        event_bus=event_bus,
+        topic_bus=topic_bus,
+    )
     fusion = None
     try:
         perception_config = load_perception_config(data_root / "profiles" / "default" / "perception.json")
@@ -1025,6 +1141,7 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
     server = AstrBotEXHTTPServer((host, port), AstrBotEXRequestHandler)
     server.controller = controller
     server.interaction_core = interaction_core
+    server.environment_manager = environment_manager
     server.static_root = (project_root / "dashboard").resolve()
     server.vision_sources = VisionSourceManager(data_root / "profiles" / "default" / "vision_sources.json")
     server.local_plugins = LocalPluginManager(
@@ -1033,6 +1150,7 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         registry=runtime.registry,
         event_bus=runtime.event_bus,
         topic_bus=runtime.topic_bus,
+        environment_manager=environment_manager,
     )
     server.local_plugins.discover()
     server.local_plugins.load_enabled()
@@ -1051,6 +1169,7 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         runtime.perception_core.fusion = runtime.fusion
         server.vision_sources.load()
         server.connections.reload()
+        environment_manager.reload()
         server.local_plugins.discover()
         server.local_plugins.load_enabled()
         interaction_core.refresh_mic_subscriptions()
@@ -1063,6 +1182,7 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
                 runtime.registry.unregister(slot.id)
             except Exception as exc:
                 unload_errors.append(f"{slot.id}: {exc}")
+        environment_manager.reset_after_restore()
         connections.close()
         if unload_errors:
             raise RuntimeError(f"plugin unload failed: {'; '.join(unload_errors)}")
@@ -1124,6 +1244,7 @@ def main() -> None:
         print("Stopping AstrBotEX API server...")
     finally:
         server.controller.stop("api server shutdown")
+        server.environment_manager.close("api server shutdown")
         server.connections.close()
         server.server_close()
 

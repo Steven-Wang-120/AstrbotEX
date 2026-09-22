@@ -12,6 +12,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
+from astrbot_ex.core.environments.plugin_api import PluginRosFacade
 from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.plugin_registry import PluginRegistry
 from astrbot_ex.core.topic_bus import TopicBus, TopicInbox
@@ -122,12 +123,14 @@ class PluginContext:
         config: dict[str, Any],
         event_bus: EventBus,
         topic_bus: TopicBus,
+        ros: PluginRosFacade | None = None,
     ) -> None:
         self.plugin_id = plugin_id
         self.plugin_root = plugin_root
         self.config = config
         self.event_bus = event_bus
         self.topic_bus = topic_bus
+        self.ros = ros or PluginRosFacade(plugin_id=plugin_id, topic_bus=topic_bus)
 
     def subscribe(self, topic: str, *, max_messages: int = 1) -> TopicInbox:
         return self.topic_bus.subscribe_inbox(topic, max_messages=max_messages)
@@ -142,12 +145,14 @@ class LocalPluginManager:
         registry: PluginRegistry,
         event_bus: EventBus,
         topic_bus: TopicBus,
+        environment_manager: Any = None,
     ) -> None:
         self.plugins_root = plugins_root
         self.state_path = state_path
         self.registry = registry
         self.event_bus = event_bus
         self.topic_bus = topic_bus
+        self.environment_manager = environment_manager
         self.records: dict[str, LocalPluginRecord] = {}
         self.plugins_root.mkdir(parents=True, exist_ok=True)
         for category in PLUGIN_CATEGORIES:
@@ -380,6 +385,11 @@ class LocalPluginManager:
             config=config,
             event_bus=self.event_bus,
             topic_bus=self.topic_bus,
+            ros=PluginRosFacade(
+                plugin_id=record.manifest.id,
+                topic_bus=self.topic_bus,
+                environment_manager=self.environment_manager,
+            ),
         )
         factory = getattr(module, "create_plugin", None)
         if callable(factory):

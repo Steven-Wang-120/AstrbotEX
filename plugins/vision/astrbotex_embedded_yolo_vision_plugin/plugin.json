@@ -1,0 +1,17 @@
+{
+  "id": "astrbotex_embedded_yolo_vision_plugin",
+  "name": "AstrBotEX Embedded YOLO Vision",
+  "version": "0.1.0",
+  "description": "Runs an isolated YOLO worker and publishes compatible JSON/JPEG vision packets.",
+  "author": "Codex",
+  "entry": "main.py",
+  "provides": ["vision_provider"],
+  "config_schema": "config.schema.json",
+  "enabled_default": false,
+  "publishes": [
+    {"topic": "astrbotex_embedded_yolo_vision_plugin.detections", "label": "YOLO detections", "schema": "detections"},
+    {"topic": "astrbotex_embedded_yolo_vision_plugin.current_target", "label": "Current target", "schema": "target"},
+    {"topic": "astrbotex_embedded_yolo_vision_plugin.raw_packet", "label": "Raw packet", "schema": "raw_json"}
+  ],
+  "subscribes": []
+}

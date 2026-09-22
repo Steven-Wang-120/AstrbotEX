@@ -1,0 +1,1 @@
+"""Isolated YOLO worker implementation."""

@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "properties": {
+    "runtime_mode": {"type": "string", "enum": ["embedded"]},
+    "worker_mode": {"type": "string", "enum": ["bundled", "python"]},
+    "source_mode": {"type": "string", "enum": ["mjpeg_http", "camera_index", "video_file", "rtsp"]},
+    "source": {"type": "string"},
+    "weights": {"type": "string"},
+    "device": {"type": "string"},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "imgsz": {"type": "integer", "minimum": 32},
+    "frame_interval": {"type": "integer", "minimum": 1},
+    "max_frame_bytes": {"type": "integer", "minimum": 1024},
+    "worker_restart": {"type": "boolean"},
+    "worker_restart_sec": {"type": "number", "minimum": 0.1},
+    "json_zmq_endpoint": {"type": "string"},
+    "jpeg_zmq_endpoint": {"type": "string"},
+    "stream_id": {"type": "string"},
+    "publish_topics": {"type": "boolean"},
+    "vision_target_topic": {"type": "string"}
+  },
+  "additionalProperties": true
+}
