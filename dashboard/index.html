@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ASTRBOTEX · CONTROL PANEL</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=20260923-environments" />
   </head>
   <body>
     <div class="app-shell">
@@ -35,8 +35,11 @@
           <button class="nav-item" data-page="connections">
             <span class="nav-num">05</span><span class="nav-label">连接</span>
           </button>
+          <button class="nav-item" data-page="environments">
+            <span class="nav-num">06</span><span class="nav-label">环境</span>
+          </button>
           <button class="nav-item" data-page="archives">
-            <span class="nav-num">06</span><span class="nav-label">存档</span>
+            <span class="nav-num">07</span><span class="nav-label">存档</span>
           </button>
         </nav>
 
@@ -410,10 +413,97 @@
             <section class="connection-grid" id="connectionGrid"></section>
           </section>
 
-          <!-- ============ 06 ARCHIVES ============ -->
-          <section class="page" id="page-archives">
+          <!-- ============ 06 ENVIRONMENTS ============ -->
+          <section class="page" id="page-environments">
             <header class="page-head">
               <div class="page-head-num">06</div>
+              <div class="page-head-text">
+                <h1>环境适配</h1>
+                <p>切换运行环境，保留内部 TopicBus 并按需接入 ROS 2</p>
+              </div>
+              <div class="page-head-actions">
+                <button class="btn btn-ghost btn-sm" id="environmentRefreshButton">刷新</button>
+              </div>
+            </header>
+
+            <section class="tab-rail environment-modes" id="environmentModeGrid" aria-label="运行环境"></section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <span class="panel-num">06.A</span>
+                <h2>当前环境</h2>
+                <span class="panel-meta" id="environmentOperation">--</span>
+              </div>
+              <div class="environment-status-grid">
+                <div class="kv"><span class="kv-label">模式</span><span class="kv-dots"></span><b class="kv-value" id="environmentActiveMode">--</b></div>
+                <div class="kv"><span class="kv-label">阶段</span><span class="kv-dots"></span><b class="kv-value" id="environmentPhase">--</b></div>
+                <div class="kv"><span class="kv-label">健康</span><span class="kv-dots"></span><b class="kv-value" id="environmentHealth">--</b></div>
+                <div class="kv"><span class="kv-label">代次</span><span class="kv-dots"></span><b class="kv-value" id="environmentGeneration">--</b></div>
+                <div class="kv"><span class="kv-label">内部 TopicBus</span><span class="kv-dots"></span><b class="kv-value state-ok" id="environmentTopicBus">--</b></div>
+                <div class="kv"><span class="kv-label">ROS 节点</span><span class="kv-dots"></span><b class="kv-value" id="environmentRosNode">--</b></div>
+              </div>
+              <div class="environment-error" id="environmentError" hidden></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <span class="panel-num">06.B</span>
+                <h2>ROS 2 配置</h2>
+                <span class="panel-meta">保存后切回普通环境，再启用 ROS 2 生效</span>
+              </div>
+              <div class="environment-config-grid" id="ros2ConfigForm">
+                <label class="connection-field"><span>Domain ID</span><input class="config-input" id="ros2DomainId" type="number" min="0" max="232" /></label>
+                <label class="connection-field"><span>Namespace</span><input class="config-input" id="ros2Namespace" type="text" placeholder="/astrbotex" /></label>
+                <label class="connection-field"><span>节点名</span><input class="config-input" id="ros2NodeName" type="text" placeholder="environment" /></label>
+                <label class="connection-field"><span>发现间隔（秒）</span><input class="config-input" id="ros2DiscoveryInterval" type="number" min="0.2" max="60" step="0.1" /></label>
+                <label class="connection-field"><span>显示内部 Topic</span><input id="ros2IncludeHidden" type="checkbox" /></label>
+              </div>
+              <div class="environment-actions">
+                <button class="btn btn-ghost btn-sm" id="ros2ConfigSaveButton">保存配置</button>
+                <button class="btn btn-primary btn-sm" id="ros2ConfigResetButton">放弃草稿</button>
+                <span class="panel-meta" id="environmentConfigNote"></span>
+              </div>
+              <p class="pubsub-help" id="environmentEffectiveConfig"></p>
+            </section>
+
+            <section class="environment-two-column">
+              <section class="panel">
+                <div class="panel-head"><span class="panel-num">06.C</span><h2>ROS 图</h2><span class="panel-meta" id="environmentGraphMeta">--</span></div>
+                <div class="environment-list" id="environmentGraphList"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-head"><span class="panel-num">06.D</span><h2>节点</h2><span class="panel-meta" id="environmentNodeMeta">--</span></div>
+                <div class="environment-list" id="environmentNodeList"></div>
+              </section>
+            </section>
+
+            <section class="environment-two-column">
+              <section class="panel">
+                <div class="panel-head"><span class="panel-num">06.E</span><h2>EX 接收 Topic</h2><span class="panel-meta" id="environmentReceivedMeta">--</span></div>
+                <div class="environment-list" id="environmentReceivedList"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-head"><span class="panel-num">06.F</span><h2>EX 发送 Topic</h2><span class="panel-meta" id="environmentSentMeta">--</span></div>
+                <div class="environment-list" id="environmentSentList"></div>
+              </section>
+            </section>
+            <section class="panel">
+              <div class="panel-head"><span class="panel-num">06.G</span><h2>消息接口检查</h2></div>
+              <div class="environment-actions">
+                <input class="config-input" id="rosInterfaceType" placeholder="my_robot_interfaces/msg/Target" aria-label="ROS 消息类型" />
+                <button class="btn btn-ghost btn-sm" id="rosInterfaceCheckButton">检查类型支持</button>
+              </div>
+              <p class="pubsub-help">自定义类型需要在容器中预装完整接口包和依赖，更新后重启容器。</p>
+              <div class="environment-list" id="rosInterfaceResult"></div>
+              <p class="pubsub-help" id="rosInterfaceMissing"></p>
+              <div class="environment-list" id="rosInterfacePackages"></div>
+            </section>
+          </section>
+
+          <!-- ============ 07 ARCHIVES ============ -->
+          <section class="page" id="page-archives">
+            <header class="page-head">
+              <div class="page-head-num">07</div>
               <div class="page-head-text">
                 <h1>存档</h1>
                 <p>实例数据快照</p>
@@ -672,9 +762,19 @@
       </div>
     </div>
 
+    <section class="panel" id="pluginRosPanel" hidden>
+      <div class="panel-head"><span class="panel-num">ROS</span><h2>ROS 2 端口</h2>
+        <button class="btn btn-primary btn-sm" id="pluginRosSaveButton">保存 ROS 配置</button>
+        <button class="btn btn-ghost btn-sm" id="pluginRosResetButton">放弃草稿</button>
+      </div>
+      <p class="pubsub-help" id="pluginRosNotice">ROS 配置与内部发布订阅相互独立。</p>
+      <div id="pluginRosFields"></div><datalist id="rosTopicSuggestions"></datalist>
+    </section>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <input id="pluginZipInput" type="file" accept=".zip,application/zip" hidden />
     <input id="archiveZipInput" type="file" accept=".zip,application/zip" hidden />
-    <script src="./app.js?v=20260821-archives"></script>
+    <script src="./environments.js?v=20260923"></script>
+    <script src="./app.js?v=20260923-environments"></script>
   </body>
 </html>

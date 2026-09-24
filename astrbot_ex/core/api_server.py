@@ -162,52 +162,7 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         if path == "/api/events" or path == "/api/v1/ex/events":
             self._send_events()
             return
-        environment_manager = getattr(self.server, "environment_manager", None)
-        if environment_manager is not None and path in {
-            "/api/environments",
-            "/api/v1/ex/environments",
-        }:
-            self._send_json(environment_manager.status())
-            return
-        if environment_manager is not None and path in {
-            "/api/v1/ex/environments/ros2/status",
-        }:
-            payload = environment_manager.status()
-            self._send_json(
-                {
-                    "ok": payload.get("ok", True),
-                    "environment": payload.get("environment"),
-                    "ros2": payload.get("adapters", {}).get("ros2"),
-                    "active_adapter": (
-                        payload.get("active_adapter")
-                        if payload.get("environment", {}).get("active_mode") == "ros2"
-                        else None
-                    ),
-                    "config": payload.get("config", {}).get("ros2", {}),
-                }
-            )
-            return
-        if environment_manager is not None and path in {
-            "/api/v1/ex/environments/ros2/graph",
-        }:
-            self._send_json(environment_manager.graph())
-            return
-        if environment_manager is not None and path in {
-            "/api/v1/ex/environments/ros2/endpoints",
-        }:
-            self._send_json(environment_manager.endpoints())
-            return
-        operation_prefix = "/api/v1/ex/environments/operations/"
-        if environment_manager is not None and path.startswith(operation_prefix):
-            operation_id = unquote(path[len(operation_prefix):].strip("/"))
-            operation = environment_manager.get_operation(operation_id)
-            if operation is None:
-                self._send_json(
-                    {"ok": False, "error": "unknown environment operation"},
-                    HTTPStatus.NOT_FOUND,
-                )
-            else:
-                self._send_json({"ok": True, "operation": operation})
+        if self._environment_api(path, "GET"):
             return
         if path in {"/api/vision/sources", "/api/v1/ex/vision/sources"}:
             self._send_json(
@@ -306,6 +261,66 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             return
         self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
 
+    def _environment_api(self, path: str, method: str) -> bool:
+        manager = getattr(self.server, "environment_manager", None)
+        if manager is None:
+            return False
+        prefix = "/api/v1/ex/environments"
+        plugin_prefix = "/api/v1/ex/plugins/"
+        plugin_ros = path.startswith(plugin_prefix) and path.endswith("/ros2")
+        if not (path.startswith(prefix) or path in {"/api/environments", "/api/environments/select"} or plugin_ros):
+            return False
+        try:
+            status = HTTPStatus.OK
+            if method == "GET":
+                if plugin_ros:
+                    result = {"ok": True, "ros2": self.server.local_plugins.get_ros2(unquote(path[len(plugin_prefix):-5])),
+                              "environment": manager.snapshot()}
+                elif path in {prefix, "/api/environments", prefix + "/ros2/status"}:
+                    result = manager.status()
+                elif path == prefix + "/ros2/graph":
+                    result = manager.graph()
+                elif path == prefix + "/ros2/endpoints":
+                    result = manager.endpoints()
+                elif path == prefix + "/ros2/interfaces":
+                    result = manager.interfaces()
+                elif path.startswith(prefix + "/operations/"):
+                    operation = manager.get_operation(unquote(path.rsplit("/", 1)[-1]))
+                    if operation is None: raise KeyError("unknown environment operation")
+                    result = {"ok": True, "operation": operation}
+                else:
+                    return False
+            else:
+                payload = self._read_json()
+                if not isinstance(payload, dict): raise ValueError("request body must be an object")
+                if plugin_ros:
+                    manager._check_revision(expected_session=payload.get("expected_session"))
+                    result = self.server.local_plugins.update_ros2(unquote(path[len(plugin_prefix):-5]),
+                                                                   payload.get("bindings"), payload.get("expected_revision"))
+                elif path in {prefix + "/select", "/api/environments/select"}:
+                    result = manager.select(payload.get("mode"), expected_revision=payload.get("expected_revision"),
+                                            expected_session=payload.get("expected_session"))
+                    if result.get("accepted"): status = HTTPStatus.ACCEPTED
+                elif path == prefix + "/ros2/config":
+                    config = payload.get("config", {k: v for k, v in payload.items() if k not in ("expected_revision", "expected_session")})
+                    result = manager.configure_ros2(config, expected_revision=payload.get("expected_revision"),
+                                                    expected_session=payload.get("expected_session"))
+                elif path == prefix + "/ros2/discovery/refresh":
+                    result, status = manager.refresh(), HTTPStatus.ACCEPTED
+                elif path == prefix + "/ros2/interfaces/check":
+                    result = manager.check_interface(payload.get("message_type"))
+                else:
+                    return False
+            self._send_json(result, status)
+        except (EnvironmentRevisionConflict, EnvironmentBusyError) as exc:
+            code = "revision_conflict" if isinstance(exc, EnvironmentRevisionConflict) else "environment_busy"
+            self._send_json({"ok": False, "code": code, "message": str(exc), "error": str(exc), "details": manager.snapshot()}, HTTPStatus.CONFLICT)
+        except KeyError as exc:
+            self._send_json({"ok": False, "code": "not_found", "message": str(exc), "error": str(exc), "details": {}}, HTTPStatus.NOT_FOUND)
+        except ValueError as exc:
+            self._send_json({"ok": False, "code": "invalid_environment_request", "message": str(exc), "error": str(exc), "details": {}}, HTTPStatus.BAD_REQUEST)
+        return True
+
     def do_POST(self) -> None:
         path = self._path()
         if path == "/api/v1/ex/backups":
@@ -314,59 +329,7 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         if path == "/api/v1/ex/backups/upload":
             self._handle_backup_upload()
             return
-        environment_manager = getattr(self.server, "environment_manager", None)
-        if environment_manager is not None and path in {
-            "/api/environments/select",
-            "/api/v1/ex/environments/select",
-        }:
-            payload = self._read_json()
-            try:
-                expected_revision = payload.get("expected_revision")
-                expected = int(expected_revision) if expected_revision is not None else None
-                result = environment_manager.select(
-                    payload.get("mode"),
-                    expected_revision=expected,
-                )
-            except EnvironmentRevisionConflict as exc:
-                self._send_json(
-                    {"ok": False, "code": "revision_conflict", "error": str(exc)},
-                    HTTPStatus.CONFLICT,
-                )
-                return
-            except EnvironmentBusyError as exc:
-                self._send_json(
-                    {"ok": False, "code": "environment_busy", "error": str(exc)},
-                    HTTPStatus.CONFLICT,
-                )
-                return
-            except ValueError as exc:
-                self._send_json(
-                    {"ok": False, "code": "invalid_environment", "error": str(exc)},
-                    HTTPStatus.BAD_REQUEST,
-                )
-                return
-            self._send_json(
-                result,
-                HTTPStatus.OK if result.get("ok") else HTTPStatus.SERVICE_UNAVAILABLE,
-            )
-            return
-        if environment_manager is not None and path in {
-            "/api/v1/ex/environments/ros2/config",
-        }:
-            try:
-                result = environment_manager.configure_ros2(self._read_json())
-            except ValueError as exc:
-                self._send_json(
-                    {"ok": False, "code": "invalid_ros2_config", "error": str(exc)},
-                    HTTPStatus.BAD_REQUEST,
-                )
-                return
-            self._send_json(result)
-            return
-        if environment_manager is not None and path in {
-            "/api/v1/ex/environments/ros2/discovery/refresh",
-        }:
-            self._send_json(environment_manager.graph())
+        if self._environment_api(path, "POST"):
             return
         if path == "/api/runtime/start" or path == "/api/v1/ex/runtime/start":
             try:
@@ -968,7 +931,7 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             relative = "index.html"
         elif path.startswith("/dashboard/"):
             relative = path.removeprefix("/dashboard/")
-        elif path in {"/index.html", "/styles.css", "/app.js"}:
+        elif path in {"/index.html", "/styles.css", "/app.js", "/environments.js"}:
             relative = path.lstrip("/")
         else:
             return False
@@ -1136,6 +1099,7 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         capture_tail_sec=_capture_tail_sec,
         capture_fallback_playback_sec=_capture_fallback_sec,
     )
+    environment_manager.runtime_running = lambda: runtime.state.value == 'running'
     runtime.interaction_core = interaction_core
     controller = RuntimeController(runtime=runtime, tick_hz=tick_hz)
     server = AstrBotEXHTTPServer((host, port), AstrBotEXRequestHandler)
@@ -1173,6 +1137,7 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         server.local_plugins.discover()
         server.local_plugins.load_enabled()
         interaction_core.refresh_mic_subscriptions()
+        environment_manager.restore_selected_mode()
 
     def before_snapshot_restore() -> None:
         controller.stop("instance snapshot restore")
@@ -1221,6 +1186,9 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
 
     connections.set_business_handler(handle_zmq_business)
     server.connections.start_enabled()
+    selected_mode = environment_manager.status()["config"]["selected_mode"]
+    if selected_mode != "normal":
+        environment_manager.select(selected_mode)
     return server
 
 

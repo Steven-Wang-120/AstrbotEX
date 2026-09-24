@@ -54,6 +54,9 @@ class PluginRegistry:
             runtime_active = self._runtime_active
 
         actor = PluginActor(plugin)
+        ros = getattr(plugin, '_astrbotex_ros', None)
+        if ros is not None:
+            ros.actor = actor
         actor.start()
         try:
             actor.call("on_load")
@@ -71,7 +74,11 @@ class PluginRegistry:
                     actor.call(method, *args)
                 except Exception:
                     pass
-            actor.stop()
+            try:
+                if ros is not None:
+                    ros.close()
+            finally:
+                actor.stop()
             raise
 
         slot = PluginSlot(
@@ -98,7 +105,12 @@ class PluginRegistry:
                 slot.call("on_disable")
             slot.call("on_unload")
         finally:
-            slot.actor.stop()
+            try:
+                ros = getattr(slot.plugin, "_astrbotex_ros", None)
+                if ros is not None:
+                    ros.close()
+            finally:
+                slot.actor.stop()
 
     def get_one(self, kind: str) -> Any | None:
         slot = self.get_slot(kind)

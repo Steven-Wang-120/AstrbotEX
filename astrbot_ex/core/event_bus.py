@@ -61,7 +61,7 @@ class EventBus:
 
     @staticmethod
     def _should_publish(event: RuntimeEvent) -> bool:
-        if event.type == "environment":
+        if event.type in {"environment", "environment_changed", "ros_graph_changed", "ros_endpoints_changed"}:
             return True
         if event.type in {"fault", "plugin_fault", "runtime_state", "rule_rejected"}:
             return True

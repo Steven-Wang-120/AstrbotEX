@@ -48,6 +48,7 @@ const state = {
   connectionDirty: false,
   connectionDeleteArmed: false,
   connectionDeleteTimer: null,
+  environment: null,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -162,6 +163,7 @@ function parseHash() {
     return { page: "connection", connectionId: decodeURIComponent(parts.slice(1).join("/")) };
   }
   if (parts[0] === "connections") return { page: "connections" };
+  if (parts[0] === "environments") return { page: "environments" };
   if (parts[0] === "archives") return { page: "archives" };
   if (parts[0] === "logs") return { page: "logs" };
   if (parts[0] === "voice") return { page: "voice" };
@@ -173,6 +175,7 @@ function writeHash() {
   let hash = "#/core";
   if (state.activePage === "plugins") hash = `#/plugins/${state.activePluginTab}`;
   else if (state.activePage === "connections") hash = "#/connections";
+  else if (state.activePage === "environments") hash = "#/environments";
   else if (state.activePage === "archives") hash = "#/archives";
   else if (state.activePage === "connection" && state.activeConnectionId) {
     hash = `#/connections/${encodeURIComponent(state.activeConnectionId)}`;
@@ -201,6 +204,7 @@ function switchPage(page, options = {}) {
   if (page === "plugin") renderPluginDashboard();
   if (page === "voice") refreshVoiceStatus().catch(() => {});
   if (page === "connections") refreshConnections({ preserveForm: true }).catch(() => {});
+  if (page === "environments") refreshEnvironment().catch(() => {});
   if (page === "connection") renderConnectionDetail({ preserveForm: state.connectionDirty });
   if (!options.silent) writeHash();
 }
@@ -731,11 +735,13 @@ function connectEvents() {
   if (state.eventSource) state.eventSource.close();
   const source = new EventSource(`${API_BASE}/api/events`);
   state.eventSource = source;
-  source.onopen = () => setEventConnection(true, "SSE 已连接");
+  source.onopen = () => { setEventConnection(true, "SSE 已连接"); scheduleEnvironmentRefresh(); };
   source.onerror = () => setEventConnection(false, "SSE 重连中");
   source.addEventListener("event", (message) => {
     try {
-      pushEvent(JSON.parse(message.data));
+      const event = JSON.parse(message.data);
+      pushEvent(event);
+      if (["environment", "environment_changed", "ros_graph_changed", "ros_endpoints_changed"].includes(event.type)) scheduleEnvironmentRefresh();
     } catch {
       // ignore malformed events
     }
@@ -989,6 +995,7 @@ function renderPluginDashboard() {
 
   renderPluginConfigForm(plugin);
   renderPluginPubSub(plugin);
+  renderPluginRos(plugin);
 }
 
 function normalizeSchemaField(key, schema) {
@@ -1503,7 +1510,7 @@ function setPluginDashboardTitle(text) {
 }
 
 window.addEventListener("beforeunload", (event) => {
-  if (state.configDirty || state.pubsubDirty || state.connectionDirty) {
+  if (state.configDirty || state.pubsubDirty || state.connectionDirty || environmentHasDrafts()) {
     event.preventDefault();
     event.returnValue = "";
   }
@@ -1548,6 +1555,8 @@ function bindActions() {
     runAction(fabEl, "+", () => uploadPluginZip(file, category));
     event.currentTarget.value = "";
   });
+
+  bindEnvironmentActions();
 
   $("archiveBackupButton")?.addEventListener("click", (event) =>
     runAction(event.currentTarget, "正在打包…", createArchive)
@@ -1697,6 +1706,10 @@ async function applyRoute(route) {
     switchPage("connections", { silent: true });
     return;
   }
+  if (route.page === "environments") {
+    switchPage("environments", { silent: true });
+    return;
+  }
   if (route.page === "archives") {
     switchPage("archives", { silent: true });
     return;
@@ -1834,6 +1847,7 @@ async function boot() {
   if (fab) fab.hidden = true;
 
   refreshStatus().catch(() => {});
+  refreshEnvironment().catch(() => {});
   await refreshPlugins().catch(() => {});
   connectEvents();
 

@@ -1,5 +1,9 @@
 # AstrBotEX 插件系统规范
 
+ROS 2 端口声明、`context.ros`、绑定配置、队列限制和退出钩子以
+[ROS 2 SDK 规范](docs/ROS2-SDK.md) 为准。ROS 能力与内部 TopicBus 并存。
+过去的设备插件已经归档；新插件从 `examples/ros2_echo` 开始，不迁移旧插件私建 ROS 节点的实现。
+
 本文档用于统一 `AstrBotEX` 当前插件系统的结构、语法、分类方式，以及后续插件间 `pub/sub` 的设计约定。
 
 当前目标不是复刻 ROS，而是做一套更轻、更适合智能救援项目的本地插件执行框架。

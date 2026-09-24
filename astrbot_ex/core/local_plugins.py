@@ -6,6 +6,8 @@ import math
 import shutil
 import sys
 import time
+import threading
+from functools import wraps
 import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -13,6 +15,8 @@ from types import ModuleType
 from typing import Any
 
 from astrbot_ex.core.environments.plugin_api import PluginRosFacade
+from astrbot_ex.core.environments.contracts import parse_ports, normalize_bindings
+from astrbot_ex.core.environments.models import EnvironmentRevisionConflict
 from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.plugin_registry import PluginRegistry
 from astrbot_ex.core.topic_bus import TopicBus, TopicInbox
@@ -63,6 +67,14 @@ RUNTIME_KIND_BY_CAPABILITY = {
 }
 
 
+def _config_locked(method):
+    @wraps(method)
+    def call(self, *args, **kwargs):
+        with self._config_lock:
+            return method(self, *args, **kwargs)
+    return call
+
+
 @dataclass(slots=True)
 class TopicDeclaration:
     topic: str
@@ -98,6 +110,7 @@ class PluginManifest:
     publishes: list[TopicDeclaration] = field(default_factory=list)
     subscribes: list[TopicDeclaration] = field(default_factory=list)
     actions: list[ActionDeclaration] = field(default_factory=list)
+    ros2_ports: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -112,6 +125,7 @@ class LocalPluginRecord:
     module_name: str | None = None
     plugin: Any = None
     config_schema: dict[str, Any] | None = None
+    ros: PluginRosFacade | None = None
 
 
 class PluginContext:
@@ -153,12 +167,15 @@ class LocalPluginManager:
         self.event_bus = event_bus
         self.topic_bus = topic_bus
         self.environment_manager = environment_manager
+        self._config_lock = threading.RLock()
         self.records: dict[str, LocalPluginRecord] = {}
         self.plugins_root.mkdir(parents=True, exist_ok=True)
         for category in PLUGIN_CATEGORIES:
             (self.plugins_root / category).mkdir(parents=True, exist_ok=True)
 
+    @_config_locked
     def discover(self) -> None:
+        previous = self.records.copy()
         self.records.clear()
         state = self._load_state()
         for child in sorted(self.plugins_root.iterdir()):
@@ -172,6 +189,14 @@ class LocalPluginManager:
                 continue
             self._discover_plugin_dir(child, None, state)
 
+        # Preserve live owners when an unrelated plugin is installed/discovered.
+        for plugin_id, old in previous.items():
+            slot = self.registry.get(plugin_id)
+            if plugin_id in self.records and old.loaded and slot and slot.plugin is old.plugin:
+                self.records[plugin_id] = old
+            elif old.ros is not None:
+                old.ros.close()
+
     def load_enabled(self) -> None:
         for record in list(self.records.values()):
             if record.enabled:
@@ -183,12 +208,18 @@ class LocalPluginManager:
     def get_plugin(self, plugin_id: str) -> dict[str, Any]:
         return self._serialize(self._record(plugin_id), include_schema=True)
 
+    @_config_locked
     def update_config(self, plugin_id: str, config: dict[str, Any]) -> dict[str, Any]:
         record = self._record(plugin_id)
         if not isinstance(config, dict):
             raise ValueError("config must be an object")
         merged_config = self._load_plugin_config(record)
+        stored_ros = merged_config.get("ros2")
         merged_config.update(config)
+        if record.manifest.ros2_ports:
+            # ROS bindings have their own revision-checked API.
+            if stored_ros is not None: merged_config["ros2"] = stored_ros
+            else: merged_config.pop("ros2", None)
         self._validate_config(record, merged_config)
         self._write_plugin_config(record, merged_config)
         if record.loaded:
@@ -210,9 +241,41 @@ class LocalPluginManager:
         config["pubsub"] = self._normalize_pubsub(record, pubsub)
         return self.update_config(plugin_id, config)
 
+    @_config_locked
+    def get_ros2(self, plugin_id: str) -> dict[str, Any]:
+        record = self._record(plugin_id)
+        raw = self._load_plugin_config(record).get("ros2", {})
+        bindings = normalize_bindings(record.manifest.ros2_ports, raw.get("bindings", {}))
+        live = record.ros.status()["endpoints"] if record.ros and not record.ros.closed else []
+        return {"ports": record.manifest.ros2_ports, "bindings": bindings,
+                "revision": int(raw.get("revision", 0)), "endpoints": live,
+                "owner_id": record.ros.owner_id if record.ros and not record.ros.closed else None}
+
+    @_config_locked
+    def update_ros2(self, plugin_id: str, bindings: dict[str, Any], expected_revision: int) -> dict[str, Any]:
+        record = self._record(plugin_id)
+        config = self._load_plugin_config(record)
+        current = config.get("ros2", {})
+        revision = int(current.get("revision", 0))
+        if isinstance(expected_revision, bool) or not isinstance(expected_revision, int) or expected_revision != revision:
+            raise EnvironmentRevisionConflict("ROS binding revision changed; refresh first")
+        normalized = normalize_bindings(record.manifest.ros2_ports, bindings)
+        if record.ros is not None and not record.ros.closed:
+            record.ros.validate_reconfigure(normalized)
+        config["ros2"] = {"bindings": normalized, "revision": revision + 1}
+        self._write_plugin_config(record, config)
+        if record.ros is not None and not record.ros.closed:
+            record.ros.reconfigure(normalized)
+        result = self.get_ros2(plugin_id)
+        applied = all(not b["enabled"] or any(e["port_id"] == name and e["resource_created"] for e in result["endpoints"])
+                      for name, b in normalized.items())
+        self.event_bus.emit("environment", "plugin ROS bindings updated", plugin_id=plugin_id)
+        return {"ok": True, "saved": True, "applied": applied, "ros2": result}
+
     def list_publishers(self) -> list[dict[str, Any]]:
         return [self._publisher_payload(record) for record in self.records.values() if record.manifest.publishes]
 
+    @_config_locked
     def uninstall(self, plugin_id: str) -> None:
         record = self._record(plugin_id)
         if record.loaded:
@@ -223,6 +286,7 @@ class LocalPluginManager:
         self.event_bus.emit("plugin", "plugin uninstalled", plugin=plugin_id)
         self.discover()
 
+    @_config_locked
     def set_enabled(self, plugin_id: str, enabled: bool) -> dict[str, Any]:
         record = self._record(plugin_id)
         if enabled:
@@ -358,6 +422,8 @@ class LocalPluginManager:
             record.status = "enabled"
             record.error = None
         except Exception as exc:
+            if record.ros is not None:
+                record.ros.close()
             record.loaded = False
             record.status = "fault"
             record.error = str(exc)
@@ -389,8 +455,11 @@ class LocalPluginManager:
                 plugin_id=record.manifest.id,
                 topic_bus=self.topic_bus,
                 environment_manager=self.environment_manager,
+                ports=record.manifest.ros2_ports,
+                bindings=config.get("ros2", {}).get("bindings", {}),
             ),
         )
+        record.ros = context.ros
         factory = getattr(module, "create_plugin", None)
         if callable(factory):
             try:
@@ -405,6 +474,7 @@ class LocalPluginManager:
                 plugin = plugin_cls(context)
             except TypeError:
                 plugin = plugin_cls()
+        plugin._astrbotex_ros = context.ros
         plugin.id = record.manifest.id
         plugin.name = record.manifest.name
         return plugin
@@ -432,6 +502,7 @@ class LocalPluginManager:
             "subscribes": [self._topic_dict(item) for item in manifest.subscribes],
             "actions": [self._action_dict(item) for item in manifest.actions],
             "pubsub": self._pubsub_payload(record),
+            "ros2": self.get_ros2(manifest.id),
             "enabled": record.enabled,
             "loaded": record.loaded,
             "status": "fault" if actor_error else record.status,
@@ -493,6 +564,7 @@ class LocalPluginManager:
             publishes=self._parse_topics(data.get("publishes", [])),
             subscribes=self._parse_topics(data.get("subscribes", [])),
             actions=self._parse_actions(data.get("actions", [])),
+            ros2_ports=parse_ports(data.get("ros2")),
         )
 
     def _validate_manifest(self, manifest: PluginManifest) -> None:
@@ -527,7 +599,9 @@ class LocalPluginManager:
 
     def _write_plugin_config(self, record: LocalPluginRecord, config: dict[str, Any]) -> None:
         config_path = record.root / "config.json"
-        config_path.write_text(json.dumps(config, indent=2, ensure_ascii=False), encoding="utf-8")
+        temporary = config_path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(config, indent=2, ensure_ascii=False), encoding="utf-8")
+        temporary.replace(config_path)
 
     def _load_state(self) -> dict[str, bool]:
         if not self.state_path.is_file():
@@ -610,6 +684,7 @@ class LocalPluginManager:
             "publishes": [self._topic_dict(item) for item in manifest.publishes],
             "subscribes": [self._topic_dict(item) for item in manifest.subscribes],
             "actions": [self._action_dict(item) for item in manifest.actions],
+            "ros2": {"schema_version": 1, "ports": manifest.ros2_ports},
         }
 
     def _find_manifest_member(self, members: list[zipfile.ZipInfo]) -> zipfile.ZipInfo | None:

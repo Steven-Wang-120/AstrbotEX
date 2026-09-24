@@ -1674,3 +1674,50 @@ body {
   .connection-summary b { font-size: 16px; }
   .connection-summary span { font-size: 10px; }
 }
+
+
+/* ============ ENVIRONMENT PAGE ============ */
+.environment-mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.environment-mode-card { display: flex; align-items: center; gap: 12px; min-height: 92px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-raise); text-align: left; transition: border-color 120ms ease, box-shadow 120ms ease; }
+.environment-mode-card:hover, .environment-mode-card.active { border-color: var(--accent); box-shadow: var(--shadow); }
+.environment-mode-card.unavailable { opacity: .65; cursor: not-allowed; }
+.environment-mode-mark { display: grid; place-items: center; width: 48px; height: 48px; flex: 0 0 auto; border: 1px solid var(--line); border-radius: 8px; color: var(--accent); font-family: var(--font-mono); font-weight: 700; }
+.environment-mode-copy { display: grid; gap: 3px; min-width: 0; }
+.environment-mode-copy b { font-size: 15px; }
+.environment-mode-copy small { color: var(--ink-2); font-size: 11px; }
+.environment-mode-copy em { overflow: hidden; color: var(--err); font-size: 10px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+.environment-status-grid, .environment-config-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.environment-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.environment-two-column { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+.environment-list { display: grid; gap: 8px; max-height: 360px; overflow: auto; }
+.environment-list-item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 10px; border: 1px solid var(--line-soft); background: var(--bg-sunk); font-size: 11px; }
+.environment-list-item b, .environment-list-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.environment-list-item span, .environment-list-item small { color: var(--ink-2); }
+.environment-empty { display: grid; min-height: 110px; place-items: center; border: 1px dashed var(--line); color: var(--ink-3); font-size: 11px; }
+.environment-error { margin-top: 12px; padding: 9px 10px; border-left: 3px solid var(--err); background: #FFF5F5; color: var(--err); font-size: 11px; overflow-wrap: anywhere; }
+.environment-error[hidden] { display: none; }
+@media (max-width: 900px) {
+  .environment-status-grid, .environment-config-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .environment-mode-grid, .environment-two-column { grid-template-columns: 1fr; }
+  .environment-status-grid, .environment-config-grid { grid-template-columns: 1fr; }
+}
+
+/* ROS details reuse the existing tab rail and panel typography. */
+.environment-modes { margin-bottom: 18px; }
+.environment-modes .tab-item:disabled { opacity: .6; cursor: progress; }
+.ros-graph-topic, .ros-endpoint, .ros-port { padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-raise); overflow-wrap: anywhere; }
+.ros-graph-topic summary { cursor: pointer; display: grid; gap: 4px; }
+.ros-graph-topic summary span, .ros-graph-topic small, .ros-endpoint small, .ros-port small { color: var(--ink-2); font-size: 12px; }
+.ros-graph-topic > div { margin-top: 12px; }
+.ros-graph-topic p { margin-top: 8px; }
+.ros-graph-topic small { display: block; }
+.ros-endpoint { display: grid; gap: 5px; }
+.ros-port { margin-top: 12px; }
+.ros-port > div:first-child { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+#pluginRosPanel[hidden] { display: none; }
+#rosInterfaceType { max-width: 480px; }
+#environmentConfigNote, #environmentGraphMeta { overflow-wrap: anywhere; }
+.environment-status-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+@media (max-width: 680px) { .environment-status-grid { grid-template-columns: 1fr; } }

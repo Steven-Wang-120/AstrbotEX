@@ -1,0 +1,12 @@
+services:
+  astrbotex:
+    build:
+      dockerfile: Dockerfile.ros2
+      args:
+        ROS_BASE_IMAGE: ${ASTRBOTEX_ROS_BASE_IMAGE:-ros:humble-ros-base-jammy}
+    image: ${ASTRBOTEX_ROS_IMAGE:-local/astrbotex:ros2-humble}
+    environment:
+      ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-}
+      RMW_IMPLEMENTATION: ${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
+      ASTRBOTEX_ROS_NAMESPACE: ${ASTRBOTEX_ROS_NAMESPACE:-}
+      ASTRBOTEX_ROS_NODE_NAME: ${ASTRBOTEX_ROS_NODE_NAME:-}

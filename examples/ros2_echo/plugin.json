@@ -1,0 +1,13 @@
+{
+  "id": "ros2_echo", "name": "ROS 2 通信示例", "version": "0.1.0",
+  "entry": "main.py", "provides": ["trace_plugin"], "enabled_default": false,
+  "publishes": [{"topic": "ros2_echo.received", "schema": "echo"}],
+  "ros2": {"schema_version": 1, "ports": [
+    {"id": "text_in", "label": "文字输入", "direction": "subscribe",
+     "message_types": ["std_msgs/msg/String"], "default_topic": "/ex_demo/input",
+     "qos_preset": "reliable_volatile", "queue": {"capacity": 8, "overflow": "reject_new"}},
+    {"id": "text_out", "label": "文字输出", "direction": "publish",
+     "message_types": ["std_msgs/msg/String"], "default_topic": "/ex_demo/output",
+     "qos_preset": "reliable_volatile", "queue": {"capacity": 8, "overflow": "reject_new"}}
+  ]}
+}

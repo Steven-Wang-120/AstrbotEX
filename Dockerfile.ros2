@@ -1,0 +1,25 @@
+ARG ROS_BASE_IMAGE=ros:humble-ros-base-jammy
+FROM ${ROS_BASE_IMAGE}
+ENV PYTHONUNBUFFERED=1 ASTRBOTEX_HOST=0.0.0.0 ASTRBOTEX_PORT=8765 ASTRBOTEX_DATA_DIR=/app/data
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-venv python3-colcon-common-extensions build-essential cmake \
+    ros-${ROS_DISTRO}-rosidl-default-generators ros-${ROS_DISTRO}-rosidl-runtime-py \
+    ros-${ROS_DISTRO}-sensor-msgs ros-${ROS_DISTRO}-geometry-msgs ros-${ROS_DISTRO}-vision-msgs \
+    ros-${ROS_DISTRO}-rmw-cyclonedds-cpp && rm -rf /var/lib/apt/lists/*
+RUN python3 -m venv --system-site-packages /opt/ex-venv
+ENV PATH="/opt/ex-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+WORKDIR /app
+COPY requirements.txt .
+RUN python -m pip install --no-cache-dir -r requirements.txt
+COPY ros_interfaces /opt/astrbotex_interfaces/src
+RUN /bin/bash -c 'source /opt/ros/${ROS_DISTRO}/setup.bash && cd /opt/astrbotex_interfaces && colcon build --merge-install'
+COPY astrbot_ex ./astrbot_ex
+COPY dashboard ./dashboard
+COPY scripts ./scripts
+COPY tests ./tests
+COPY examples ./examples
+COPY README.md docker-entrypoint.sh docker-entrypoint.ros2.sh ./
+RUN chmod +x /app/docker-entrypoint.sh /app/docker-entrypoint.ros2.sh
+EXPOSE 8765
+ENTRYPOINT ["/app/docker-entrypoint.ros2.sh"]
+CMD ["python", "-m", "astrbot_ex.core.api_server", "--host", "0.0.0.0", "--port", "8765", "--tick-hz", "20"]

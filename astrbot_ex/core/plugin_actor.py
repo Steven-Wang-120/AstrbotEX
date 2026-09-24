@@ -141,9 +141,17 @@ class PluginActor:
 
     def _invoke(self, method: str, args: tuple[Any, ...], kwargs: dict[str, Any]) -> Any:
         callback = getattr(self.plugin, method, None)
+        operation_token = kwargs.pop('_astrbotex_environment_token', None)
+        ros = getattr(self.plugin, '_astrbotex_ros', None)
         if method == "on_runtime_stop":
             self._runtime_active = False
-        result = callback(*args, **kwargs) if callable(callback) else None
+        if ros is not None and method == 'on_environment_deactivating':
+            ros._hook_local.token = operation_token
+        try:
+            result = callback(*args, **kwargs) if callable(callback) else None
+        finally:
+            if ros is not None and method == 'on_environment_deactivating':
+                ros._hook_local.token = None
         if method == "on_enable":
             self._enabled = True
         elif method == "on_disable":
