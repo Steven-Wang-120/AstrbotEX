@@ -1,0 +1,48 @@
+{
+  "snapshot": {
+    "schema_version": 1,
+    "snapshot_id": "b07-snap-1",
+    "created_monotonic_ns": 42,
+    "versions": {
+      "ex_session": "isolated-b07", "goal_revision": 7, "config_revision": 1,
+      "catalog_revision": 2, "environment_generation": 3, "gate_epoch": 4,
+      "plugin_generations": {"arm": 5, "base": 6}
+    },
+    "goal": {
+      "task_id": "mock-task", "goal_id": "mock-goal", "goal_text_en": "Select the bound cup; keep the base stopped.",
+      "allowed_actions": ["arm.pick.v1"],
+      "parameters": {"arm.pick.v1": {"target": {"observation_id": "cup-1", "object_id": "bound-object", "depth_m": 0.3}}}
+    },
+    "observations": [{
+      "schema_version": 1, "observation_id": "cup-1", "source_id": "front",
+      "source_epoch": "mock-boot", "seq": 1, "received_monotonic_ns": 40,
+      "age_ms": 0.25, "description_hash": "mock-guide-v1",
+      "health": {"status": "ok", "reason_code": ""},
+      "data": {"selected": true, "depth_m": 0.3, "original_json_field": ["unchanged", 1]}
+    }],
+    "owners": [{
+      "owner": "arm", "plugin_generation": 5, "status": "ready",
+      "candidates": [
+        {"option_id": "arm-start", "kind": "start", "description": "Pick only the bound cup", "eligible": true, "action_id": "arm.pick.v1"},
+        {"option_id": "arm-wait", "kind": "wait", "description": "Wait without extending a lease", "eligible": true},
+        {"option_id": "arm-replan", "kind": "request_replan", "description": "Request clarification; do not replace the goal", "eligible": true},
+        {"option_id": "arm-blocked", "kind": "start", "description": "Blocked by EX", "eligible": false, "action_id": "arm.pick.v1"}
+      ]
+    }, {
+      "owner": "base", "plugin_generation": 6, "status": "running: mock-command",
+      "candidates": [
+        {"option_id": "base-wait", "kind": "wait", "description": "Wait", "eligible": true},
+        {"option_id": "base-keep", "kind": "keep", "description": "Keep the existing stopped-base command", "eligible": true, "command_id": "mock-command"},
+        {"option_id": "base-cancel", "kind": "cancel", "description": "Cancel existing command", "eligible": true, "command_id": "mock-command"}
+      ]
+    }]
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "arm": {"type": "choice", "choice": "arm-start", "confidence": 0.9, "probabilities": {"arm-start": 0.8, "arm-wait": 0.15, "arm-replan": 0.05}},
+      "base": {"type": "choice", "choice": "base-wait", "confidence": 0.8, "probabilities": {"base-wait": 0.8, "base-keep": 0.1, "base-cancel": 0.1}}
+    },
+    "usage": {"input_tokens": 250, "output_tokens": 35}
+  }
+}

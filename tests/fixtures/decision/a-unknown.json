@@ -1,0 +1,30 @@
+{
+  "fixture_id": "a-unknown",
+  "category": "action",
+  "scenario_id": "A_UNKNOWN",
+  "guide_refs": [],
+  "purpose": "No authoritative stop; keep resource held until reconciliation",
+  "expected": {
+    "outcome": "unresolved",
+    "reason_code": "a-unknown",
+    "reason": "No authoritative stop; keep resource held until reconciliation",
+    "stop_confirmed": false
+  },
+  "payload": {
+    "action_event": {
+      "event_id": "event-a-unknown",
+      "event_seq": 6,
+      "ex_session": "ex-1",
+      "task_id": "task-1",
+      "goal_id": "goal-1",
+      "goal_revision": 0,
+      "command_id": "cmd-a-unknown",
+      "owner": "sim_arm",
+      "status": "unknown",
+      "reason_code": "a-unknown",
+      "details": {
+        "stop_confirmed": false
+      }
+    }
+  }
+}

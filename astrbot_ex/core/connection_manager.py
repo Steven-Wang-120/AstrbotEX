@@ -440,6 +440,7 @@ class _ZmqAdapter(_Adapter):
             str(envelope.get("method") or ""),
             dict(envelope.get("payload") or {}),
             binary,
+            connection_id=self.record.id,
         )
         if kind == "request":
             response = self._envelope("response", str(envelope.get("method") or ""), result, reply_to=str(envelope.get("id") or ""))
@@ -614,6 +615,8 @@ class ConnectionManager:
         self._lock = threading.RLock()
         self._records: dict[str, ConnectionRecord] = {}
         self._adapters: dict[str, _Adapter] = {}
+        self._decision_transport = None
+        self._task_public_handler = None
         self._business_handler: Callable[[str, str, dict[str, Any], bytes | None], tuple[dict[str, Any], bytes | None]] | None = None
         self._load()
 
@@ -798,7 +801,32 @@ class ConnectionManager:
         if conflict is not None:
             raise ValueError(f"AstrBotEX business feature {feature} is already assigned to {conflict.id}")
 
-    def _handle_business_request(self, feature: str, method: str, payload: dict[str, Any], binary: bytes | None) -> tuple[dict[str, Any], bytes | None]:
+    def set_decision_handler(self, handler: Callable, *, public_validator: Callable | None = None,
+                             public_handler: Callable | None = None) -> None:
+        from astrbot_ex.core.decision_transport import DecisionTransport
+        self._decision_transport = DecisionTransport(handler, public_validator=public_validator)
+        self._task_public_handler = public_handler
+
+    def _handle_business_request(self, feature: str, method: str, payload: dict[str, Any], binary: bytes | None,
+                                 *, connection_id: str = "") -> tuple[dict[str, Any], bytes | None]:
+        if method.startswith("decision."):
+            if self._decision_transport is None:
+                return {"ok": False, "error": {"code": "unsupported_method"}}, None
+            return self._decision_transport.handle(connection_id, feature, method, payload, binary)
+        if method == "interaction.reply" and any(k in payload for k in ("task_id", "visibility", "route_ref")):
+            if feature != "text" or self._decision_transport is None:
+                return {"ok": False, "error": "task_public_gate_unavailable"}, None
+            # Do not fall through to legacy InteractionCore: it may text+TTS
+            # broadcast and lacks task generation/audio commit checks.
+            if self._task_public_handler is None:
+                return {"ok": False, "error": "task_public_handler_unavailable"}, None
+            admission = self._decision_transport.admit_public(connection_id, payload, binary)
+            if not admission["ok"] or admission.get("duplicate"):
+                return admission, None
+            try:
+                return self._task_public_handler(connection_id, payload), None
+            except Exception:
+                return {"ok": False, "error": "task_public_delivery_unknown"}, None
         if self._business_handler is None:
             return {"ok": False, "error": "AstrBotEX business handler is not ready"}, None
         return self._business_handler(feature, method, payload, binary)

@@ -1,0 +1,4257 @@
+{
+  "fixture": "b00-decision-contracts",
+  "schema_version": 1,
+  "protocol": "astrbotex-zmq",
+  "protocol_version": 1,
+  "note": "Shared golden fixtures for B00. Both AstrBotEX and A.E.B parse this same file; identical outcomes are the cross-endpoint proof.",
+  "cases": [
+    {
+      "id": "S-GOAL-OK",
+      "kind": "goal_submit",
+      "purpose": "B00 §2.2 example round-trips",
+      "expect": {
+        "outcome": "accept"
+      },
+      "payload": {
+        "schema_version": 1,
+        "request_id": "req-17",
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "step_id": "step-2",
+        "goal_id": "goal-9",
+        "expected_revision": 8,
+        "goal_text_en": "Pick the selected cup using the arm. Keep the base stopped.",
+        "allowed_actions": [
+          "new_arm.pick_selected.v1",
+          "new_yolo.detect.start.v1"
+        ],
+        "parameters": {
+          "new_arm.pick_selected.v1": {
+            "target": {
+              "observation_id": "obs-40",
+              "stream_id": "front",
+              "frame_id": 40,
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        },
+        "completion": {
+          "required_success_actions": [
+            "new_arm.pick_selected.v1"
+          ]
+        },
+        "lease_ms": 10000
+      }
+    },
+    {
+      "id": "S-GOAL-EMPTY",
+      "kind": "goal_submit",
+      "purpose": "empty goal is refused before side effects",
+      "expect": {
+        "outcome": "reject",
+        "code": "empty_string"
+      },
+      "payload": {
+        "schema_version": 1,
+        "request_id": "req-17",
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "step_id": "step-2",
+        "goal_id": "goal-9",
+        "expected_revision": 8,
+        "goal_text_en": "",
+        "allowed_actions": [
+          "new_arm.pick_selected.v1",
+          "new_yolo.detect.start.v1"
+        ],
+        "parameters": {
+          "new_arm.pick_selected.v1": {
+            "target": {
+              "observation_id": "obs-40",
+              "stream_id": "front",
+              "frame_id": 40,
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        },
+        "completion": {
+          "required_success_actions": [
+            "new_arm.pick_selected.v1"
+          ]
+        },
+        "lease_ms": 10000
+      }
+    },
+    {
+      "id": "S-GOAL-BLANK",
+      "kind": "goal_submit",
+      "purpose": "whitespace-only goal is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "empty_string"
+      },
+      "payload": {
+        "schema_version": 1,
+        "request_id": "req-17",
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "step_id": "step-2",
+        "goal_id": "goal-9",
+        "expected_revision": 8,
+        "goal_text_en": "   \t  ",
+        "allowed_actions": [
+          "new_arm.pick_selected.v1",
+          "new_yolo.detect.start.v1"
+        ],
+        "parameters": {
+          "new_arm.pick_selected.v1": {
+            "target": {
+              "observation_id": "obs-40",
+              "stream_id": "front",
+              "frame_id": 40,
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        },
+        "completion": {
+          "required_success_actions": [
+            "new_arm.pick_selected.v1"
+          ]
+        },
+        "lease_ms": 10000
+      }
+    },
+    {
+      "id": "S-GOAL-LONG",
+      "kind": "goal_submit",
+      "purpose": "goal beyond MAX_GOAL_TEXT_LEN is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "text_too_long"
+      },
+      "payload": {
+        "schema_version": 1,
+        "request_id": "req-17",
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "step_id": "step-2",
+        "goal_id": "goal-9",
+        "expected_revision": 8,
+        "goal_text_en": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "allowed_actions": [
+          "new_arm.pick_selected.v1",
+          "new_yolo.detect.start.v1"
+        ],
+        "parameters": {
+          "new_arm.pick_selected.v1": {
+            "target": {
+              "observation_id": "obs-40",
+              "stream_id": "front",
+              "frame_id": 40,
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        },
+        "completion": {
+          "required_success_actions": [
+            "new_arm.pick_selected.v1"
+          ]
+        },
+        "lease_ms": 10000
+      }
+    },
+    {
+      "id": "S-GOAL-PROPER-NOUN",
+      "kind": "goal_submit",
+      "purpose": "non-ASCII proper nouns are accepted; language is not an ASCII gate",
+      "expect": {
+        "outcome": "accept"
+      },
+      "payload": {
+        "schema_version": 1,
+        "request_id": "req-17",
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "step_id": "step-2",
+        "goal_id": "goal-9",
+        "expected_revision": 8,
+        "goal_text_en": "Place the café sign beside Björk's crate.",
+        "allowed_actions": [
+          "new_arm.pick_selected.v1",
+          "new_yolo.detect.start.v1"
+        ],
+        "parameters": {
+          "new_arm.pick_selected.v1": {
+            "target": {
+              "observation_id": "obs-40",
+              "stream_id": "front",
+              "frame_id": 40,
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        },
+        "completion": {
+          "required_success_actions": [
+            "new_arm.pick_selected.v1"
+          ]
+        },
+        "lease_ms": 10000
+      }
+    },
+    {
+      "id": "S-GOAL-NON-ENGLISH",
+      "kind": "goal_submit",
+      "purpose": "a fully non-English goal parses; only an advisory marker is raised",
+      "expect": {
+        "outcome": "accept",
+        "marker": "not_english_marker"
+      },
+      "payload": {
+        "schema_version": 1,
+        "request_id": "req-17",
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "step_id": "step-2",
+        "goal_id": "goal-9",
+        "expected_revision": 8,
+        "goal_text_en": "拿起选中的杯子",
+        "allowed_actions": [
+          "new_arm.pick_selected.v1",
+          "new_yolo.detect.start.v1"
+        ],
+        "parameters": {
+          "new_arm.pick_selected.v1": {
+            "target": {
+              "observation_id": "obs-40",
+              "stream_id": "front",
+              "frame_id": 40,
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        },
+        "completion": {
+          "required_success_actions": [
+            "new_arm.pick_selected.v1"
+          ]
+        },
+        "lease_ms": 10000
+      }
+    },
+    {
+      "id": "S-GOAL-NO-SCHEMA",
+      "kind": "goal_submit",
+      "purpose": "business schema_version is mandatory",
+      "expect": {
+        "outcome": "reject",
+        "code": "missing_field"
+      },
+      "payload": {
+        "request_id": "req-17",
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "step_id": "step-2",
+        "goal_id": "goal-9",
+        "expected_revision": 8,
+        "goal_text_en": "Pick the selected cup using the arm. Keep the base stopped.",
+        "allowed_actions": [
+          "new_arm.pick_selected.v1",
+          "new_yolo.detect.start.v1"
+        ],
+        "parameters": {
+          "new_arm.pick_selected.v1": {
+            "target": {
+              "observation_id": "obs-40",
+              "stream_id": "front",
+              "frame_id": 40,
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        },
+        "completion": {
+          "required_success_actions": [
+            "new_arm.pick_selected.v1"
+          ]
+        },
+        "lease_ms": 10000
+      }
+    },
+    {
+      "id": "S-GOAL-BAD-SCHEMA",
+      "kind": "goal_submit",
+      "purpose": "unknown schema_version is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "unsupported_schema_version"
+      },
+      "payload": {
+        "schema_version": 2,
+        "request_id": "req-17",
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "step_id": "step-2",
+        "goal_id": "goal-9",
+        "expected_revision": 8,
+        "goal_text_en": "Pick the selected cup using the arm. Keep the base stopped.",
+        "allowed_actions": [
+          "new_arm.pick_selected.v1",
+          "new_yolo.detect.start.v1"
+        ],
+        "parameters": {
+          "new_arm.pick_selected.v1": {
+            "target": {
+              "observation_id": "obs-40",
+              "stream_id": "front",
+              "frame_id": 40,
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        },
+        "completion": {
+          "required_success_actions": [
+            "new_arm.pick_selected.v1"
+          ]
+        },
+        "lease_ms": 10000
+      }
+    },
+    {
+      "id": "S-GOAL-NEG-TTL",
+      "kind": "goal_submit",
+      "purpose": "negative lease is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "negative_ttl"
+      },
+      "payload": {
+        "schema_version": 1,
+        "request_id": "req-17",
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "step_id": "step-2",
+        "goal_id": "goal-9",
+        "expected_revision": 8,
+        "goal_text_en": "Pick the selected cup using the arm. Keep the base stopped.",
+        "allowed_actions": [
+          "new_arm.pick_selected.v1",
+          "new_yolo.detect.start.v1"
+        ],
+        "parameters": {
+          "new_arm.pick_selected.v1": {
+            "target": {
+              "observation_id": "obs-40",
+              "stream_id": "front",
+              "frame_id": 40,
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        },
+        "completion": {
+          "required_success_actions": [
+            "new_arm.pick_selected.v1"
+          ]
+        },
+        "lease_ms": -1
+      }
+    },
+    {
+      "id": "S-GOAL-ZERO-LEASE",
+      "kind": "goal_submit",
+      "purpose": "zero lease is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "non_positive_lease"
+      },
+      "payload": {
+        "schema_version": 1,
+        "request_id": "req-17",
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "step_id": "step-2",
+        "goal_id": "goal-9",
+        "expected_revision": 8,
+        "goal_text_en": "Pick the selected cup using the arm. Keep the base stopped.",
+        "allowed_actions": [
+          "new_arm.pick_selected.v1",
+          "new_yolo.detect.start.v1"
+        ],
+        "parameters": {
+          "new_arm.pick_selected.v1": {
+            "target": {
+              "observation_id": "obs-40",
+              "stream_id": "front",
+              "frame_id": 40,
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        },
+        "completion": {
+          "required_success_actions": [
+            "new_arm.pick_selected.v1"
+          ]
+        },
+        "lease_ms": 0
+      }
+    },
+    {
+      "id": "S-GOAL-COMPLETION",
+      "kind": "goal_submit",
+      "purpose": "completion may only cite actions the goal allowed",
+      "expect": {
+        "outcome": "reject",
+        "code": "unknown_action"
+      },
+      "payload": {
+        "schema_version": 1,
+        "request_id": "req-17",
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "step_id": "step-2",
+        "goal_id": "goal-9",
+        "expected_revision": 8,
+        "goal_text_en": "Pick the selected cup using the arm. Keep the base stopped.",
+        "allowed_actions": [
+          "new_arm.pick_selected.v1",
+          "new_yolo.detect.start.v1"
+        ],
+        "parameters": {
+          "new_arm.pick_selected.v1": {
+            "target": {
+              "observation_id": "obs-40",
+              "stream_id": "front",
+              "frame_id": 40,
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        },
+        "completion": {
+          "required_success_actions": [
+            "new_arm.not_allowed.v1"
+          ]
+        },
+        "lease_ms": 10000
+      }
+    },
+    {
+      "id": "S-PHASE-NEW",
+      "kind": "phase",
+      "purpose": "a non-replacing goal becomes active",
+      "expect": {
+        "outcome": "accept",
+        "phase": "active"
+      },
+      "arguments": {
+        "accepted": true,
+        "replacing": false,
+        "old_stopped": false
+      }
+    },
+    {
+      "id": "S-PHASE-REPLACE-STOPPED",
+      "kind": "phase",
+      "purpose": "a replacing goal is active once the old stop is confirmed",
+      "expect": {
+        "outcome": "accept",
+        "phase": "active"
+      },
+      "arguments": {
+        "accepted": true,
+        "replacing": true,
+        "old_stopped": true
+      }
+    },
+    {
+      "id": "S-PHASE-REPLACE-UNSTOPPED",
+      "kind": "phase",
+      "purpose": "a replacing goal is blocked, never silently switched, if the old stop is unconfirmed",
+      "expect": {
+        "outcome": "accept",
+        "phase": "blocked"
+      },
+      "arguments": {
+        "accepted": true,
+        "replacing": true,
+        "old_stopped": false
+      }
+    },
+    {
+      "id": "S-PHASE-REJECTED",
+      "kind": "phase",
+      "purpose": "a refused goal is rejected",
+      "expect": {
+        "outcome": "accept",
+        "phase": "rejected"
+      },
+      "arguments": {
+        "accepted": false,
+        "replacing": false,
+        "old_stopped": false
+      }
+    },
+    {
+      "id": "S-ST-ADMIT",
+      "kind": "status",
+      "purpose": "admitted -> accepted is legal",
+      "expect": {
+        "outcome": "accept",
+        "result": "accepted"
+      },
+      "current": "admitted",
+      "incoming": "accepted"
+    },
+    {
+      "id": "S-ST-RUN",
+      "kind": "status",
+      "purpose": "accepted -> running is legal",
+      "expect": {
+        "outcome": "accept",
+        "result": "running"
+      },
+      "current": "accepted",
+      "incoming": "running"
+    },
+    {
+      "id": "S-ST-DONE",
+      "kind": "status",
+      "purpose": "running -> succeeded is legal",
+      "expect": {
+        "outcome": "accept",
+        "result": "succeeded"
+      },
+      "current": "running",
+      "incoming": "succeeded"
+    },
+    {
+      "id": "S-ST-PROGRESS-IDEMPOTENT",
+      "kind": "status",
+      "purpose": "re-reporting running merges idempotently",
+      "expect": {
+        "outcome": "accept",
+        "result": "running"
+      },
+      "current": "running",
+      "incoming": "running"
+    },
+    {
+      "id": "S-ST-REJECT",
+      "kind": "status",
+      "purpose": "admitted -> rejected is legal",
+      "expect": {
+        "outcome": "accept",
+        "result": "rejected"
+      },
+      "current": "admitted",
+      "incoming": "rejected"
+    },
+    {
+      "id": "S-ST-SKIP",
+      "kind": "status",
+      "purpose": "admitted -> running (skipping acceptance) is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "illegal_transition"
+      },
+      "current": "admitted",
+      "incoming": "running"
+    },
+    {
+      "id": "S-ST-BACKWARD",
+      "kind": "status",
+      "purpose": "running -> admitted is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "illegal_transition"
+      },
+      "current": "running",
+      "incoming": "admitted"
+    },
+    {
+      "id": "S-ST-TERMINAL-WINS",
+      "kind": "status",
+      "purpose": "succeeded is terminal and cannot be overwritten",
+      "expect": {
+        "outcome": "reject",
+        "code": "illegal_transition"
+      },
+      "current": "succeeded",
+      "incoming": "running"
+    },
+    {
+      "id": "S-ST-TERMINAL-FAILED",
+      "kind": "status",
+      "purpose": "canceled cannot become failed",
+      "expect": {
+        "outcome": "reject",
+        "code": "illegal_transition"
+      },
+      "current": "canceled",
+      "incoming": "failed"
+    },
+    {
+      "id": "S-ST-TERMINAL-UNKNOWN",
+      "kind": "status",
+      "purpose": "timed_out cannot become unknown",
+      "expect": {
+        "outcome": "reject",
+        "code": "illegal_transition"
+      },
+      "current": "timed_out",
+      "incoming": "unknown"
+    },
+    {
+      "id": "S-CANCEL-EVIDENCE",
+      "kind": "cancel",
+      "purpose": "canceled requires positive stop evidence",
+      "expect": {
+        "outcome": "accept",
+        "result": "canceled"
+      },
+      "has_stop_evidence": true,
+      "timed_out": false
+    },
+    {
+      "id": "S-CANCEL-PENDING",
+      "kind": "cancel",
+      "purpose": "no evidence and no timeout yet leaves the action non-terminal",
+      "expect": {
+        "outcome": "accept",
+        "result": null
+      },
+      "has_stop_evidence": false,
+      "timed_out": false
+    },
+    {
+      "id": "S-CANCEL-TIMEOUT",
+      "kind": "cancel",
+      "purpose": "a stop timeout is reported as timed_out, never faked as canceled",
+      "expect": {
+        "outcome": "accept",
+        "result": "timed_out"
+      },
+      "has_stop_evidence": false,
+      "timed_out": true
+    },
+    {
+      "id": "S-EVENT-CANCELED",
+      "kind": "action_event",
+      "purpose": "positive stop evidence in details round-trips",
+      "expect": {
+        "outcome": "accept"
+      },
+      "payload": {
+        "event_id": "evt-1",
+        "event_seq": 1,
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "command_id": "cmd-21",
+        "owner": "new_arm",
+        "status": "canceled",
+        "reason_code": "",
+        "details": {
+          "stop_evidence": {
+            "stopped": true,
+            "source": "new_arm",
+            "reference": "cmd-21"
+          }
+        }
+      }
+    },
+    {
+      "id": "S-EVENT-NO-STOP",
+      "kind": "action_event",
+      "purpose": "canceled without evidence is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "missing_field"
+      },
+      "payload": {
+        "event_id": "evt-1",
+        "event_seq": 1,
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "command_id": "cmd-21",
+        "owner": "new_arm",
+        "status": "canceled",
+        "reason_code": "",
+        "details": {}
+      }
+    },
+    {
+      "id": "S-EVENT-STOP-FALSE",
+      "kind": "action_event",
+      "purpose": "false stop claim cannot cancel",
+      "expect": {
+        "outcome": "reject",
+        "code": "enum_violation"
+      },
+      "payload": {
+        "event_id": "evt-1",
+        "event_seq": 1,
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "command_id": "cmd-21",
+        "owner": "new_arm",
+        "status": "canceled",
+        "reason_code": "",
+        "details": {
+          "stop_evidence": {
+            "stopped": false,
+            "source": "new_arm",
+            "reference": "cmd-21"
+          }
+        }
+      }
+    },
+    {
+      "id": "S-MF-V2-OK",
+      "kind": "action_manifest_v2",
+      "purpose": "B00 §2.4 example parses",
+      "expect": {
+        "outcome": "accept"
+      },
+      "owner": "new_base",
+      "payload": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_base.forward.v1",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          }
+        ],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-LEGACY",
+      "kind": "action_manifest_v2",
+      "purpose": "a v1 manifest cannot be parsed as v2",
+      "expect": {
+        "outcome": "reject",
+        "code": "legacy_isolation"
+      },
+      "owner": "",
+      "payload": {
+        "id": "legacy_demo",
+        "actions": []
+      }
+    },
+    {
+      "id": "S-MF-BAD-VERSION",
+      "kind": "action_manifest_v2",
+      "purpose": "only action_api_version 2 is supported",
+      "expect": {
+        "outcome": "reject",
+        "code": "unsupported_action_api_version"
+      },
+      "owner": "new_base",
+      "payload": {
+        "action_api_version": 1,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_base.forward.v1",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          }
+        ],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-OWNER",
+      "kind": "action_manifest_v2",
+      "purpose": "action_id must belong to the declaring owner",
+      "expect": {
+        "outcome": "reject",
+        "code": "owner_mismatch"
+      },
+      "owner": "new_base",
+      "payload": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "other_owner.forward.v1",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          }
+        ],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-DUP",
+      "kind": "action_manifest_v2",
+      "purpose": "duplicate action_id is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "duplicate_action_id"
+      },
+      "owner": "new_base",
+      "payload": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_base.forward.v1",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_base.forward.v1",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          }
+        ],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-BAD-ID",
+      "kind": "action_manifest_v2",
+      "purpose": "malformed action_id is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "invalid_action_id"
+      },
+      "owner": "",
+      "payload": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "NotAnActionId",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          }
+        ],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-CANCEL-NO-TIMEOUT",
+      "kind": "action_manifest_v2",
+      "purpose": "declaring cancel requires a cancel_timeout_ms",
+      "expect": {
+        "outcome": "reject",
+        "code": "cancel_unsupported"
+      },
+      "owner": "new_base",
+      "payload": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_base.forward.v1",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "danger": "high"
+          }
+        ],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-TIMEOUT-NO-CANCEL",
+      "kind": "action_manifest_v2",
+      "purpose": "cancel_timeout_ms without cancel is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "cancel_unsupported"
+      },
+      "owner": "new_base",
+      "payload": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_base.forward.v1",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          }
+        ],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-KEYWORD",
+      "kind": "action_manifest_v2",
+      "purpose": "an unsupported schema keyword is refused, not silently ignored",
+      "expect": {
+        "outcome": "reject",
+        "code": "schema_unsupported_keyword"
+      },
+      "owner": "new_base",
+      "payload": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_base.forward.v1",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false,
+              "oneOf": [
+                {
+                  "type": "object"
+                }
+              ]
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          }
+        ],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-RUNTIME-STATE",
+      "kind": "action_manifest_v2",
+      "purpose": "unknown runtime state is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "enum_violation"
+      },
+      "owner": "new_base",
+      "payload": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_base.forward.v1",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "teleporting"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          }
+        ],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-DANGER",
+      "kind": "action_manifest_v2",
+      "purpose": "danger must be a declared level",
+      "expect": {
+        "outcome": "reject",
+        "code": "enum_violation"
+      },
+      "owner": "new_base",
+      "payload": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_base.forward.v1",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "cancel_timeout_ms": 300,
+            "danger": "catastrophic"
+          }
+        ],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-EMPTY",
+      "kind": "action_manifest_v2",
+      "purpose": "an action manifest must declare at least one action",
+      "expect": {
+        "outcome": "reject",
+        "code": "length_violation"
+      },
+      "owner": "new_base",
+      "payload": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-OPERATION",
+      "kind": "action_manifest_v2",
+      "purpose": "only declared operations are accepted",
+      "expect": {
+        "outcome": "reject",
+        "code": "unsupported_operation"
+      },
+      "owner": "new_base",
+      "payload": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_base.forward.v1",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start",
+              "detonate"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          }
+        ],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-LEGACY-PARSE",
+      "kind": "legacy_manifest",
+      "purpose": "a v2 manifest cannot be parsed as a legacy topic manifest",
+      "expect": {
+        "outcome": "reject",
+        "code": "legacy_isolation"
+      },
+      "payload": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_base.forward.v1",
+            "description": "Move forward using the bounded local controller. Stop when its lease expires.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "enum": [
+                    "slow"
+                  ]
+                }
+              },
+              "required": [
+                "profile"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "base_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 1000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          }
+        ],
+        "observation_guide": "output_description.md"
+      }
+    },
+    {
+      "id": "S-MF-LEGACY-OK",
+      "kind": "legacy_manifest",
+      "purpose": "a v1 topic manifest parses on the legacy path",
+      "expect": {
+        "outcome": "accept",
+        "actions": 1
+      },
+      "payload": {
+        "id": "legacy_demo",
+        "actions": [
+          {
+            "action_id": "legacy_demo.move.v1",
+            "topic": "legacy_demo.move.v1",
+            "description": "Legacy move."
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-OK",
+      "kind": "action_command",
+      "purpose": "B00 §2.3 example is admitted",
+      "expect": {
+        "outcome": "accept",
+        "action_id": "new_arm.pick_selected.v1"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-UNKNOWN-ACTION",
+      "kind": "action_command",
+      "purpose": "an action not in the catalog is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "unknown_action"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.teleport.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-OWNER",
+      "kind": "action_command",
+      "purpose": "owner is bound by prefix, not by payload claim",
+      "expect": {
+        "outcome": "reject",
+        "code": "owner_mismatch"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_yolo",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-NO-PARAMS",
+      "kind": "action_command",
+      "purpose": "params is mandatory",
+      "expect": {
+        "outcome": "reject",
+        "code": "missing_params"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-EXTRA-FIELD",
+      "kind": "action_command",
+      "purpose": "additionalProperties:false rejects an undeclared field",
+      "expect": {
+        "outcome": "reject",
+        "code": "unknown_field"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true,
+            "color": "red"
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-ENUM",
+      "kind": "action_command",
+      "purpose": "a boolean field rejects a string",
+      "expect": {
+        "outcome": "reject",
+        "code": "invalid_type"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": "yes"
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-RANGE",
+      "kind": "action_command",
+      "purpose": "a numeric bound is enforced",
+      "expect": {
+        "outcome": "reject",
+        "code": "range_violation"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true,
+            "depth_m": 5.0
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-NAN",
+      "kind": "action_command",
+      "purpose": "NaN is refused at the parse layer",
+      "expect": {
+        "outcome": "reject",
+        "code": "non_finite_number"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true,
+            "depth_m": {
+              "__fixture_non_finite__": "nan"
+            }
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-INF",
+      "kind": "action_command",
+      "purpose": "Infinity is refused at the parse layer",
+      "expect": {
+        "outcome": "reject",
+        "code": "non_finite_number"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true,
+            "depth_m": {
+              "__fixture_non_finite__": "infinity"
+            }
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-NEG-TTL",
+      "kind": "action_command",
+      "purpose": "negative lease is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "negative_ttl"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true
+          }
+        },
+        "lease_ms": -5
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-ZERO-LEASE",
+      "kind": "action_command",
+      "purpose": "zero lease is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "non_positive_lease"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true
+          }
+        },
+        "lease_ms": 0
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-NO-SCHEMA",
+      "kind": "action_command",
+      "purpose": "business schema_version is mandatory",
+      "expect": {
+        "outcome": "reject",
+        "code": "missing_field"
+      },
+      "payload": {
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-OPERATION",
+      "kind": "action_command",
+      "purpose": "an undeclared operation is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "unsupported_operation"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "launch",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-CANCEL-UNSUPPORTED",
+      "kind": "action_command",
+      "purpose": "cancel on an action that never declared it is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "cancel_unsupported"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.report_pose.v1",
+        "operation": "cancel",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-CMD-STALE-SESSION",
+      "kind": "action_command",
+      "purpose": "a command from a previous EX boot is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "stale_ex_session"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-old",
+        "goal_id": "goal-9",
+        "goal_revision": 9,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      },
+      "current_ex_session": "ex-boot-a"
+    },
+    {
+      "id": "S-CMD-BAD-REVISION",
+      "kind": "action_command",
+      "purpose": "a command bound to an old goal revision is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "revision_conflict"
+      },
+      "payload": {
+        "schema_version": 1,
+        "command_id": "cmd-21",
+        "ex_session": "ex-boot-a",
+        "goal_id": "goal-9",
+        "goal_revision": 3,
+        "decision_id": "dec-12",
+        "owner": "new_arm",
+        "plugin_generation": 3,
+        "action_id": "new_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-40",
+            "object_id": "track-8",
+            "selected": true
+          }
+        },
+        "lease_ms": 1000
+      },
+      "manifest": {
+        "action_api_version": 2,
+        "observation_sources": {
+          "front_clearance": {
+            "topic": "front_sensor.clearance",
+            "max_age_ms": 200,
+            "required_fields": [
+              "distance_m",
+              "valid"
+            ]
+          }
+        },
+        "actions": [
+          {
+            "action_id": "new_arm.pick_selected.v1",
+            "description": "Pick the operator-selected target with the arm.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "observation_id": {
+                      "type": "string"
+                    },
+                    "object_id": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "depth_m": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 2
+                    }
+                  },
+                  "required": [
+                    "observation_id",
+                    "object_id",
+                    "selected"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            "resources": [
+              "arm_motion"
+            ],
+            "operations": [
+              "start",
+              "cancel"
+            ],
+            "requires_runtime_state": [
+              "running"
+            ],
+            "requires_observations": [
+              "front_clearance"
+            ],
+            "max_duration_ms": 5000,
+            "cancel_timeout_ms": 300,
+            "danger": "high"
+          },
+          {
+            "action_id": "new_arm.report_pose.v1",
+            "description": "Report the current arm pose. Not cancelable.",
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            },
+            "resources": [],
+            "operations": [
+              "start"
+            ],
+            "danger": "low"
+          }
+        ]
+      },
+      "current_revision": 9
+    },
+    {
+      "id": "S-IDEM-REPLAY",
+      "kind": "idempotency",
+      "purpose": "the same request_id with the same payload replays",
+      "expect": {
+        "outcome": "accept",
+        "results": [
+          "new",
+          "replay"
+        ]
+      },
+      "request_id": "req-17",
+      "payloads": [
+        {
+          "schema_version": 1,
+          "request_id": "req-17",
+          "ex_session": "ex-boot-a",
+          "task_id": "task-4",
+          "step_id": "step-2",
+          "goal_id": "goal-9",
+          "expected_revision": 8,
+          "goal_text_en": "Pick the selected cup using the arm. Keep the base stopped.",
+          "allowed_actions": [
+            "new_arm.pick_selected.v1",
+            "new_yolo.detect.start.v1"
+          ],
+          "parameters": {
+            "new_arm.pick_selected.v1": {
+              "target": {
+                "observation_id": "obs-40",
+                "stream_id": "front",
+                "frame_id": 40,
+                "object_id": "track-8",
+                "selected": true
+              }
+            }
+          },
+          "completion": {
+            "required_success_actions": [
+              "new_arm.pick_selected.v1"
+            ]
+          },
+          "lease_ms": 10000
+        },
+        {
+          "schema_version": 1,
+          "request_id": "req-17",
+          "ex_session": "ex-boot-a",
+          "task_id": "task-4",
+          "step_id": "step-2",
+          "goal_id": "goal-9",
+          "expected_revision": 8,
+          "goal_text_en": "Pick the selected cup using the arm. Keep the base stopped.",
+          "allowed_actions": [
+            "new_arm.pick_selected.v1",
+            "new_yolo.detect.start.v1"
+          ],
+          "parameters": {
+            "new_arm.pick_selected.v1": {
+              "target": {
+                "observation_id": "obs-40",
+                "stream_id": "front",
+                "frame_id": 40,
+                "object_id": "track-8",
+                "selected": true
+              }
+            }
+          },
+          "completion": {
+            "required_success_actions": [
+              "new_arm.pick_selected.v1"
+            ]
+          },
+          "lease_ms": 10000
+        }
+      ]
+    },
+    {
+      "id": "S-IDEM-CONFLICT",
+      "kind": "idempotency",
+      "purpose": "the same request_id with a different payload conflicts",
+      "expect": {
+        "outcome": "reject",
+        "code": "duplicate_request_id_conflict"
+      },
+      "request_id": "req-17",
+      "payloads": [
+        {
+          "schema_version": 1,
+          "request_id": "req-17",
+          "ex_session": "ex-boot-a",
+          "task_id": "task-4",
+          "step_id": "step-2",
+          "goal_id": "goal-9",
+          "expected_revision": 8,
+          "goal_text_en": "Pick the selected cup using the arm. Keep the base stopped.",
+          "allowed_actions": [
+            "new_arm.pick_selected.v1",
+            "new_yolo.detect.start.v1"
+          ],
+          "parameters": {
+            "new_arm.pick_selected.v1": {
+              "target": {
+                "observation_id": "obs-40",
+                "stream_id": "front",
+                "frame_id": 40,
+                "object_id": "track-8",
+                "selected": true
+              }
+            }
+          },
+          "completion": {
+            "required_success_actions": [
+              "new_arm.pick_selected.v1"
+            ]
+          },
+          "lease_ms": 10000
+        },
+        {
+          "schema_version": 1,
+          "command_id": "cmd-21",
+          "ex_session": "ex-boot-a",
+          "goal_id": "goal-9",
+          "goal_revision": 9,
+          "decision_id": "dec-12",
+          "owner": "new_arm",
+          "plugin_generation": 3,
+          "action_id": "new_arm.pick_selected.v1",
+          "operation": "start",
+          "params": {
+            "target": {
+              "observation_id": "obs-40",
+              "object_id": "track-8",
+              "selected": true
+            }
+          },
+          "lease_ms": 1000
+        }
+      ]
+    },
+    {
+      "id": "S-RES-FREE",
+      "kind": "resources",
+      "purpose": "an unheld resource is granted",
+      "expect": {
+        "outcome": "accept"
+      },
+      "holders": {},
+      "requested": [
+        "base_motion"
+      ],
+      "command_id": "cmd-21"
+    },
+    {
+      "id": "S-RES-SELF",
+      "kind": "resources",
+      "purpose": "a command may re-declare a resource it already holds",
+      "expect": {
+        "outcome": "accept"
+      },
+      "holders": {
+        "base_motion": "cmd-21"
+      },
+      "requested": [
+        "base_motion"
+      ],
+      "command_id": "cmd-21"
+    },
+    {
+      "id": "S-RES-CONFLICT",
+      "kind": "resources",
+      "purpose": "a resource held by another live command is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "resource_conflict"
+      },
+      "holders": {
+        "base_motion": "cmd-99"
+      },
+      "requested": [
+        "base_motion"
+      ],
+      "command_id": "cmd-21"
+    },
+    {
+      "id": "S-METHOD-UNKNOWN",
+      "kind": "request_parse",
+      "purpose": "an unknown method must be reported unsupported, never fall back to a legacy proposal",
+      "expect": {
+        "outcome": "reject",
+        "code": "unsupported_method"
+      },
+      "method": "bridge.proposal.submit",
+      "payload": {}
+    },
+    {
+      "id": "S-METHOD-KNOWN",
+      "kind": "request_parse",
+      "purpose": "a known decision method parses",
+      "expect": {
+        "outcome": "accept",
+        "type": "GoalSubmit"
+      },
+      "method": "decision.goal.submit",
+      "payload": {
+        "schema_version": 1,
+        "request_id": "req-17",
+        "ex_session": "ex-boot-a",
+        "task_id": "task-4",
+        "step_id": "step-2",
+        "goal_id": "goal-9",
+        "expected_revision": 8,
+        "goal_text_en": "Pick the selected cup using the arm. Keep the base stopped.",
+        "allowed_actions": [
+          "new_arm.pick_selected.v1",
+          "new_yolo.detect.start.v1"
+        ],
+        "parameters": {
+          "new_arm.pick_selected.v1": {
+            "target": {
+              "observation_id": "obs-40",
+              "stream_id": "front",
+              "frame_id": 40,
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        },
+        "completion": {
+          "required_success_actions": [
+            "new_arm.pick_selected.v1"
+          ]
+        },
+        "lease_ms": 10000
+      }
+    },
+    {
+      "id": "S-REV-MATCH",
+      "kind": "revision",
+      "purpose": "a matching expected_revision advances by one",
+      "expect": {
+        "outcome": "accept",
+        "result": 9
+      },
+      "expected": 8,
+      "current": 8
+    },
+    {
+      "id": "S-REV-MISMATCH",
+      "kind": "revision",
+      "purpose": "a stale expected_revision is refused",
+      "expect": {
+        "outcome": "reject",
+        "code": "revision_conflict"
+      },
+      "expected": 7,
+      "current": 8
+    },
+    {
+      "id": "S-REV-NONE",
+      "kind": "revision",
+      "purpose": "an omitted expected_revision is not a compare step",
+      "expect": {
+        "outcome": "accept",
+        "result": 9
+      },
+      "expected": null,
+      "current": 8
+    },
+    {
+      "id": "S-OBS-FRACTIONAL-AGE",
+      "kind": "snapshot_contract",
+      "purpose": "fractional age and 64-bit monotonic time parse",
+      "expect": {
+        "outcome": "accept"
+      },
+      "parser": "ObservationEnvelope",
+      "payload": {
+        "schema_version": 1,
+        "observation_id": "obs-40",
+        "source_id": "front",
+        "source_epoch": "camera-boot-a",
+        "seq": 40,
+        "received_monotonic_ns": 9007199254740993,
+        "age_ms": 12.5,
+        "description_hash": "hash-40",
+        "health": {
+          "status": "ok",
+          "reason_code": ""
+        },
+        "data": {
+          "object_id": "track-8",
+          "selected": true
+        }
+      }
+    },
+    {
+      "id": "S-OBS-NEG-AGE",
+      "kind": "snapshot_contract",
+      "purpose": "negative age rejected",
+      "expect": {
+        "outcome": "reject",
+        "code": "range_violation"
+      },
+      "parser": "ObservationEnvelope",
+      "payload": {
+        "schema_version": 1,
+        "observation_id": "obs-40",
+        "source_id": "front",
+        "source_epoch": "camera-boot-a",
+        "seq": 40,
+        "received_monotonic_ns": 9007199254740993,
+        "age_ms": -1,
+        "description_hash": "hash-40",
+        "health": {
+          "status": "ok",
+          "reason_code": ""
+        },
+        "data": {
+          "object_id": "track-8",
+          "selected": true
+        }
+      }
+    },
+    {
+      "id": "S-VERS-INT-ENV",
+      "kind": "snapshot_contract",
+      "purpose": "environment generation is integer",
+      "expect": {
+        "outcome": "accept"
+      },
+      "parser": "VersionSet",
+      "payload": {
+        "ex_session": "ex-boot-a",
+        "goal_revision": 9,
+        "config_revision": 1,
+        "catalog_revision": 2,
+        "environment_generation": 3,
+        "gate_epoch": 4,
+        "plugin_generations": {
+          "new_arm": 5
+        }
+      }
+    },
+    {
+      "id": "S-SNAP-BOUND-OWNER",
+      "kind": "snapshot_contract",
+      "purpose": "snapshot binds goal candidates and owner generation",
+      "expect": {
+        "outcome": "accept"
+      },
+      "parser": "DecisionSnapshot",
+      "payload": {
+        "schema_version": 1,
+        "snapshot_id": "snap-1",
+        "created_monotonic_ns": 9007199254740994,
+        "versions": {
+          "ex_session": "ex-boot-a",
+          "goal_revision": 9,
+          "config_revision": 1,
+          "catalog_revision": 2,
+          "environment_generation": 3,
+          "gate_epoch": 4,
+          "plugin_generations": {
+            "new_arm": 5
+          }
+        },
+        "goal": {
+          "task_id": "task-4",
+          "goal_id": "goal-9",
+          "goal_text_en": "Pick the selected cup.",
+          "allowed_actions": [
+            "new_arm.pick_selected.v1"
+          ],
+          "parameters": {
+            "new_arm.pick_selected.v1": {
+              "target": {
+                "observation_id": "obs-40"
+              }
+            }
+          }
+        },
+        "observations": [
+          {
+            "schema_version": 1,
+            "observation_id": "obs-40",
+            "source_id": "front",
+            "source_epoch": "camera-boot-a",
+            "seq": 40,
+            "received_monotonic_ns": 9007199254740993,
+            "age_ms": 12.5,
+            "description_hash": "hash-40",
+            "health": {
+              "status": "ok",
+              "reason_code": ""
+            },
+            "data": {
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        ],
+        "owners": [
+          {
+            "owner": "new_arm",
+            "plugin_generation": 5,
+            "status": "ready",
+            "candidates": [
+              {
+                "option_id": "opt-pick",
+                "kind": "start",
+                "description": "Pick cup",
+                "eligible": true,
+                "action_id": "new_arm.pick_selected.v1"
+              },
+              {
+                "option_id": "opt-wait",
+                "kind": "wait",
+                "description": "Wait",
+                "eligible": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-SNAP-ENV-STRING",
+      "kind": "snapshot_contract",
+      "purpose": "environment generation cannot be a string",
+      "expect": {
+        "outcome": "reject",
+        "code": "invalid_type"
+      },
+      "parser": "DecisionSnapshot",
+      "payload": {
+        "schema_version": 1,
+        "snapshot_id": "snap-1",
+        "created_monotonic_ns": 9007199254740994,
+        "versions": {
+          "ex_session": "ex-boot-a",
+          "goal_revision": 9,
+          "config_revision": 1,
+          "catalog_revision": 2,
+          "environment_generation": "env-3",
+          "gate_epoch": 4,
+          "plugin_generations": {
+            "new_arm": 5
+          }
+        },
+        "goal": {
+          "task_id": "task-4",
+          "goal_id": "goal-9",
+          "goal_text_en": "Pick the selected cup.",
+          "allowed_actions": [
+            "new_arm.pick_selected.v1"
+          ],
+          "parameters": {
+            "new_arm.pick_selected.v1": {
+              "target": {
+                "observation_id": "obs-40"
+              }
+            }
+          }
+        },
+        "observations": [
+          {
+            "schema_version": 1,
+            "observation_id": "obs-40",
+            "source_id": "front",
+            "source_epoch": "camera-boot-a",
+            "seq": 40,
+            "received_monotonic_ns": 9007199254740993,
+            "age_ms": 12.5,
+            "description_hash": "hash-40",
+            "health": {
+              "status": "ok",
+              "reason_code": ""
+            },
+            "data": {
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        ],
+        "owners": [
+          {
+            "owner": "new_arm",
+            "plugin_generation": 5,
+            "status": "ready",
+            "candidates": [
+              {
+                "option_id": "opt-pick",
+                "kind": "start",
+                "description": "Pick cup",
+                "eligible": true,
+                "action_id": "new_arm.pick_selected.v1"
+              },
+              {
+                "option_id": "opt-wait",
+                "kind": "wait",
+                "description": "Wait",
+                "eligible": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-BACKEND-OPTION",
+      "kind": "snapshot_contract",
+      "purpose": "backend chooses a bound eligible option",
+      "expect": {
+        "outcome": "accept"
+      },
+      "parser": "BackendDecision",
+      "payload": {
+        "schema_version": 1,
+        "snapshot_id": "snap-1",
+        "versions": {
+          "ex_session": "ex-boot-a",
+          "goal_revision": 9,
+          "config_revision": 1,
+          "catalog_revision": 2,
+          "environment_generation": 3,
+          "gate_epoch": 4,
+          "plugin_generations": {
+            "new_arm": 5
+          }
+        },
+        "backend": "mock",
+        "model": "policy-1",
+        "elapsed_ms": 12.5,
+        "choices": [
+          {
+            "owner": "new_arm",
+            "option_id": "opt-pick",
+            "confidence": 0.75,
+            "probabilities": {
+              "opt-pick": 0.75,
+              "opt-wait": 0.25
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S-BACKEND-SELECT",
+      "kind": "snapshot_selection",
+      "purpose": "selection validates against snapshot and versions",
+      "expect": {
+        "outcome": "accept",
+        "options": [
+          "opt-pick"
+        ]
+      },
+      "snapshot": {
+        "schema_version": 1,
+        "snapshot_id": "snap-1",
+        "created_monotonic_ns": 9007199254740994,
+        "versions": {
+          "ex_session": "ex-boot-a",
+          "goal_revision": 9,
+          "config_revision": 1,
+          "catalog_revision": 2,
+          "environment_generation": 3,
+          "gate_epoch": 4,
+          "plugin_generations": {
+            "new_arm": 5
+          }
+        },
+        "goal": {
+          "task_id": "task-4",
+          "goal_id": "goal-9",
+          "goal_text_en": "Pick the selected cup.",
+          "allowed_actions": [
+            "new_arm.pick_selected.v1"
+          ],
+          "parameters": {
+            "new_arm.pick_selected.v1": {
+              "target": {
+                "observation_id": "obs-40"
+              }
+            }
+          }
+        },
+        "observations": [
+          {
+            "schema_version": 1,
+            "observation_id": "obs-40",
+            "source_id": "front",
+            "source_epoch": "camera-boot-a",
+            "seq": 40,
+            "received_monotonic_ns": 9007199254740993,
+            "age_ms": 12.5,
+            "description_hash": "hash-40",
+            "health": {
+              "status": "ok",
+              "reason_code": ""
+            },
+            "data": {
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        ],
+        "owners": [
+          {
+            "owner": "new_arm",
+            "plugin_generation": 5,
+            "status": "ready",
+            "candidates": [
+              {
+                "option_id": "opt-pick",
+                "kind": "start",
+                "description": "Pick cup",
+                "eligible": true,
+                "action_id": "new_arm.pick_selected.v1"
+              },
+              {
+                "option_id": "opt-wait",
+                "kind": "wait",
+                "description": "Wait",
+                "eligible": true
+              }
+            ]
+          }
+        ]
+      },
+      "decision": {
+        "schema_version": 1,
+        "snapshot_id": "snap-1",
+        "versions": {
+          "ex_session": "ex-boot-a",
+          "goal_revision": 9,
+          "config_revision": 1,
+          "catalog_revision": 2,
+          "environment_generation": 3,
+          "gate_epoch": 4,
+          "plugin_generations": {
+            "new_arm": 5
+          }
+        },
+        "backend": "mock",
+        "model": "policy-1",
+        "elapsed_ms": 12.5,
+        "choices": [
+          {
+            "owner": "new_arm",
+            "option_id": "opt-pick",
+            "confidence": 0.75,
+            "probabilities": {
+              "opt-pick": 0.75,
+              "opt-wait": 0.25
+            }
+          }
+        ]
+      },
+      "current_versions": {
+        "ex_session": "ex-boot-a",
+        "goal_revision": 9,
+        "config_revision": 1,
+        "catalog_revision": 2,
+        "environment_generation": 3,
+        "gate_epoch": 4,
+        "plugin_generations": {
+          "new_arm": 5
+        }
+      }
+    },
+    {
+      "id": "S-BACKEND-UNKNOWN",
+      "kind": "snapshot_selection",
+      "purpose": "unlisted option cannot execute",
+      "expect": {
+        "outcome": "reject",
+        "code": "unknown_action"
+      },
+      "snapshot": {
+        "schema_version": 1,
+        "snapshot_id": "snap-1",
+        "created_monotonic_ns": 9007199254740994,
+        "versions": {
+          "ex_session": "ex-boot-a",
+          "goal_revision": 9,
+          "config_revision": 1,
+          "catalog_revision": 2,
+          "environment_generation": 3,
+          "gate_epoch": 4,
+          "plugin_generations": {
+            "new_arm": 5
+          }
+        },
+        "goal": {
+          "task_id": "task-4",
+          "goal_id": "goal-9",
+          "goal_text_en": "Pick the selected cup.",
+          "allowed_actions": [
+            "new_arm.pick_selected.v1"
+          ],
+          "parameters": {
+            "new_arm.pick_selected.v1": {
+              "target": {
+                "observation_id": "obs-40"
+              }
+            }
+          }
+        },
+        "observations": [
+          {
+            "schema_version": 1,
+            "observation_id": "obs-40",
+            "source_id": "front",
+            "source_epoch": "camera-boot-a",
+            "seq": 40,
+            "received_monotonic_ns": 9007199254740993,
+            "age_ms": 12.5,
+            "description_hash": "hash-40",
+            "health": {
+              "status": "ok",
+              "reason_code": ""
+            },
+            "data": {
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        ],
+        "owners": [
+          {
+            "owner": "new_arm",
+            "plugin_generation": 5,
+            "status": "ready",
+            "candidates": [
+              {
+                "option_id": "opt-pick",
+                "kind": "start",
+                "description": "Pick cup",
+                "eligible": true,
+                "action_id": "new_arm.pick_selected.v1"
+              },
+              {
+                "option_id": "opt-wait",
+                "kind": "wait",
+                "description": "Wait",
+                "eligible": true
+              }
+            ]
+          }
+        ]
+      },
+      "decision": {
+        "schema_version": 1,
+        "snapshot_id": "snap-1",
+        "versions": {
+          "ex_session": "ex-boot-a",
+          "goal_revision": 9,
+          "config_revision": 1,
+          "catalog_revision": 2,
+          "environment_generation": 3,
+          "gate_epoch": 4,
+          "plugin_generations": {
+            "new_arm": 5
+          }
+        },
+        "backend": "mock",
+        "model": "policy-1",
+        "elapsed_ms": 12.5,
+        "choices": [
+          {
+            "owner": "new_arm",
+            "option_id": "opt-other",
+            "confidence": 0.75,
+            "probabilities": {
+              "opt-pick": 0.75,
+              "opt-wait": 0.25
+            }
+          }
+        ]
+      },
+      "current_versions": {
+        "ex_session": "ex-boot-a",
+        "goal_revision": 9,
+        "config_revision": 1,
+        "catalog_revision": 2,
+        "environment_generation": 3,
+        "gate_epoch": 4,
+        "plugin_generations": {
+          "new_arm": 5
+        }
+      }
+    },
+    {
+      "id": "S-BACKEND-STALE",
+      "kind": "snapshot_selection",
+      "purpose": "stale gate invalidates backend choice",
+      "expect": {
+        "outcome": "reject",
+        "code": "revision_conflict"
+      },
+      "snapshot": {
+        "schema_version": 1,
+        "snapshot_id": "snap-1",
+        "created_monotonic_ns": 9007199254740994,
+        "versions": {
+          "ex_session": "ex-boot-a",
+          "goal_revision": 9,
+          "config_revision": 1,
+          "catalog_revision": 2,
+          "environment_generation": 3,
+          "gate_epoch": 4,
+          "plugin_generations": {
+            "new_arm": 5
+          }
+        },
+        "goal": {
+          "task_id": "task-4",
+          "goal_id": "goal-9",
+          "goal_text_en": "Pick the selected cup.",
+          "allowed_actions": [
+            "new_arm.pick_selected.v1"
+          ],
+          "parameters": {
+            "new_arm.pick_selected.v1": {
+              "target": {
+                "observation_id": "obs-40"
+              }
+            }
+          }
+        },
+        "observations": [
+          {
+            "schema_version": 1,
+            "observation_id": "obs-40",
+            "source_id": "front",
+            "source_epoch": "camera-boot-a",
+            "seq": 40,
+            "received_monotonic_ns": 9007199254740993,
+            "age_ms": 12.5,
+            "description_hash": "hash-40",
+            "health": {
+              "status": "ok",
+              "reason_code": ""
+            },
+            "data": {
+              "object_id": "track-8",
+              "selected": true
+            }
+          }
+        ],
+        "owners": [
+          {
+            "owner": "new_arm",
+            "plugin_generation": 5,
+            "status": "ready",
+            "candidates": [
+              {
+                "option_id": "opt-pick",
+                "kind": "start",
+                "description": "Pick cup",
+                "eligible": true,
+                "action_id": "new_arm.pick_selected.v1"
+              },
+              {
+                "option_id": "opt-wait",
+                "kind": "wait",
+                "description": "Wait",
+                "eligible": true
+              }
+            ]
+          }
+        ]
+      },
+      "decision": {
+        "schema_version": 1,
+        "snapshot_id": "snap-1",
+        "versions": {
+          "ex_session": "ex-boot-a",
+          "goal_revision": 9,
+          "config_revision": 1,
+          "catalog_revision": 2,
+          "environment_generation": 3,
+          "gate_epoch": 4,
+          "plugin_generations": {
+            "new_arm": 5
+          }
+        },
+        "backend": "mock",
+        "model": "policy-1",
+        "elapsed_ms": 12.5,
+        "choices": [
+          {
+            "owner": "new_arm",
+            "option_id": "opt-pick",
+            "confidence": 0.75,
+            "probabilities": {
+              "opt-pick": 0.75,
+              "opt-wait": 0.25
+            }
+          }
+        ]
+      },
+      "current_versions": {
+        "ex_session": "ex-boot-a",
+        "goal_revision": 9,
+        "config_revision": 1,
+        "catalog_revision": 2,
+        "environment_generation": 3,
+        "gate_epoch": 5,
+        "plugin_generations": {
+          "new_arm": 5
+        }
+      }
+    }
+  ]
+}

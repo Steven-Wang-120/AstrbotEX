@@ -1,0 +1,35 @@
+{
+  "fixture_id": "e-revision",
+  "category": "errors_boundaries",
+  "scenario_id": "E_REVISION",
+  "guide_refs": [],
+  "purpose": "Input goal revision differs from trusted current revision",
+  "expected": {
+    "outcome": "reject_revision",
+    "reason_code": "e-revision",
+    "reason": "Input goal revision differs from trusted current revision",
+    "error_code": "revision_conflict"
+  },
+  "payload": {
+    "invalid_input": {
+      "action_event": {
+        "event_id": "event-e-revision",
+        "event_seq": 8,
+        "ex_session": "ex-1",
+        "task_id": "task-1",
+        "goal_id": "goal-1",
+        "goal_revision": 1,
+        "command_id": "cmd-e-revision",
+        "owner": "sim_arm",
+        "status": "accepted",
+        "reason_code": "e-revision",
+        "details": {
+          "accepted": true
+        }
+      }
+    },
+    "trusted_context": {
+      "current_revision": 0
+    }
+  }
+}

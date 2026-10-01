@@ -1,0 +1,29 @@
+{
+  "fixture_id": "a-running",
+  "category": "action",
+  "scenario_id": "A_RUNNING",
+  "guide_refs": [],
+  "purpose": "Progress reported, not complete",
+  "expected": {
+    "outcome": "not_complete",
+    "reason_code": "a-running",
+    "reason": "Progress reported, not complete"
+  },
+  "payload": {
+    "action_event": {
+      "event_id": "event-a-running",
+      "event_seq": 2,
+      "ex_session": "ex-1",
+      "task_id": "task-1",
+      "goal_id": "goal-1",
+      "goal_revision": 0,
+      "command_id": "cmd-a-running",
+      "owner": "sim_arm",
+      "status": "running",
+      "reason_code": "a-running",
+      "details": {
+        "progress_percent": 50
+      }
+    }
+  }
+}

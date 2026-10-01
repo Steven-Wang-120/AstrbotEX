@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import importlib.util
+import copy
+import hashlib
 import json
+import ntpath
 import math
 import shutil
 import sys
@@ -14,6 +17,13 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
+from astrbot_ex.core.actions.models import (
+    ACTION_OWNER_CAPABILITY, ACTION_OWNER_CATEGORY, ACTION_OWNER_RUNTIME_KIND,
+    ActionManifestV2, parse_action_manifest,
+)
+from astrbot_ex.core.actions.plugin_api import PluginActionAPI
+from astrbot_ex.core.actions.ledger import OwnerBinding
+from astrbot_ex.core.decision.catalog import CapabilityCatalog, CapabilityInput
 from astrbot_ex.core.environments.plugin_api import PluginRosFacade
 from astrbot_ex.core.environments.contracts import parse_ports, normalize_bindings
 from astrbot_ex.core.environments.models import EnvironmentRevisionConflict
@@ -23,6 +33,7 @@ from astrbot_ex.core.topic_bus import TopicBus, TopicInbox
 
 
 ALLOWED_PLUGIN_TYPES = {
+    ACTION_OWNER_CAPABILITY,
     "motion_bridge",
     "vision_provider",
     "transport",
@@ -41,6 +52,7 @@ ALLOWED_PLUGIN_TYPES = {
 PLUGIN_CATEGORIES = ("vision", "perception", "control", "decision", "special", "interaction")
 
 DEFAULT_CATEGORY_BY_CAPABILITY = {
+    ACTION_OWNER_CAPABILITY: ACTION_OWNER_CATEGORY,
     "vision_provider": "vision",
     "motion_bridge": "control",
     "transport": "control",
@@ -57,6 +69,7 @@ DEFAULT_CATEGORY_BY_CAPABILITY = {
 }
 
 RUNTIME_KIND_BY_CAPABILITY = {
+    ACTION_OWNER_CAPABILITY: ACTION_OWNER_RUNTIME_KIND,
     "motion_bridge": "motion",
     "vision_provider": "vision",
     "rule_plugin": "rule",
@@ -65,6 +78,45 @@ RUNTIME_KIND_BY_CAPABILITY = {
     "mic_input": "mic",
     "speaker_output": "speaker",
 }
+
+
+def load_observation_guide(root: Path, relative_path: str) -> dict[str, str]:
+    """Read one bounded plain-text guide; status is available/unavailable/rejected."""
+    def result(status: str, reason: str = "", text: str = "", content_hash: str = "") -> dict[str, str]:
+        return {"status": status, "reason": reason, "text": text, "content_hash": content_hash}
+
+    if not isinstance(relative_path, str) or not relative_path or len(relative_path) > 256:
+        return result("unavailable" if relative_path == "" else "rejected", "invalid path")
+    if (relative_path.startswith(("/", "\\")) or ntpath.isabs(relative_path)
+            or ntpath.splitdrive(relative_path)[0] or "\\" in relative_path
+            or ".." in relative_path.replace("\\", "/").split("/")
+            or "\x00" in relative_path):
+        return result("rejected", "unsafe path")
+    try:
+        base = root.resolve()
+        target = (base / relative_path).resolve()
+    except (OSError, RuntimeError, ValueError) as exc:
+        return result("rejected", f"cannot resolve guide path: {exc}")
+    if target == base or base not in target.parents:
+        return result("rejected", "path escapes plugin root")
+    try:
+        with target.open("rb") as stream:
+            raw = stream.read(8193)
+    except FileNotFoundError:
+        return result("unavailable", "missing guide")
+    except (OSError, ValueError) as exc:
+        return result("rejected", f"cannot read guide: {exc}")
+    if len(raw) > 8192:
+        return result("rejected", "guide exceeds 8192 bytes")
+    try:
+        text = raw.decode("utf-8", errors="strict")
+    except UnicodeDecodeError:
+        return result("rejected", "guide is not UTF-8")
+    if (any((ord(char) < 32 and char not in "\n\r\t") or
+            127 <= ord(char) <= 159 or ord(char) in (0xFFFE, 0xFFFF)
+            for char in text)):
+        return result("rejected", "guide contains control or binary characters")
+    return result("available", text=text, content_hash=hashlib.sha256(raw).hexdigest())
 
 
 def _config_locked(method):
@@ -111,6 +163,8 @@ class PluginManifest:
     subscribes: list[TopicDeclaration] = field(default_factory=list)
     actions: list[ActionDeclaration] = field(default_factory=list)
     ros2_ports: list[dict[str, Any]] = field(default_factory=list)
+    action_manifest_v2: ActionManifestV2 | None = None
+    v2_optional_topics: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass(slots=True)
@@ -126,6 +180,11 @@ class LocalPluginRecord:
     plugin: Any = None
     config_schema: dict[str, Any] | None = None
     ros: PluginRosFacade | None = None
+    action_binding: OwnerBinding | None = None
+    loaded_config: dict[str, Any] | None = None
+    loaded_manifest_hash: str | None = None
+    loaded_config_hash: str | None = None
+    binding_cleanup_error: str | None = None
 
 
 class PluginContext:
@@ -145,6 +204,7 @@ class PluginContext:
         self.event_bus = event_bus
         self.topic_bus = topic_bus
         self.ros = ros or PluginRosFacade(plugin_id=plugin_id, topic_bus=topic_bus)
+        self.actions = PluginActionAPI()
 
     def subscribe(self, topic: str, *, max_messages: int = 1) -> TopicInbox:
         return self.topic_bus.subscribe_inbox(topic, max_messages=max_messages)
@@ -160,6 +220,8 @@ class LocalPluginManager:
         event_bus: EventBus,
         topic_bus: TopicBus,
         environment_manager: Any = None,
+        action_dispatcher: Any = None,
+        capability_catalog: CapabilityCatalog | None = None,
     ) -> None:
         self.plugins_root = plugins_root
         self.state_path = state_path
@@ -167,6 +229,8 @@ class LocalPluginManager:
         self.event_bus = event_bus
         self.topic_bus = topic_bus
         self.environment_manager = environment_manager
+        self.action_dispatcher = action_dispatcher
+        self.capability_catalog = capability_catalog
         self._config_lock = threading.RLock()
         self.records: dict[str, LocalPluginRecord] = {}
         self.plugins_root.mkdir(parents=True, exist_ok=True)
@@ -189,18 +253,69 @@ class LocalPluginManager:
                 continue
             self._discover_plugin_dir(child, None, state)
 
-        # Preserve live owners when an unrelated plugin is installed/discovered.
+        # Retain every registered owner, including blocked owners awaiting stop proof.
         for plugin_id, old in previous.items():
             slot = self.registry.get(plugin_id)
-            if plugin_id in self.records and old.loaded and slot and slot.plugin is old.plugin:
+            if slot is not None and slot.plugin is old.plugin:
                 self.records[plugin_id] = old
             elif old.ros is not None:
                 old.ros.close()
+        self.refresh_capabilities()
 
+    @_config_locked
     def load_enabled(self) -> None:
         for record in list(self.records.values()):
             if record.enabled:
                 self._load_record(record)
+        self.refresh_capabilities()
+
+    @_config_locked
+    def refresh_capabilities(self):
+        """Capture installed v2 owners and the current directory at one refresh boundary."""
+        if self.capability_catalog is None:
+            return None
+        inputs = []
+        for record in self.records.values():
+            manifest = record.manifest.action_manifest_v2
+            if manifest is None:
+                continue
+            slot = self.registry.get(record.manifest.id)
+            active = slot is not None and slot.plugin is record.plugin
+            directory_version = ""
+            directory_status = ""
+            try:
+                manifest_bytes = (record.root / "plugin.json").read_bytes()
+                directory_manifest = self._manifest_from_bytes(manifest_bytes)
+                self._validate_manifest(directory_manifest)
+                directory_version = directory_manifest.version
+                if active and record.loaded_manifest_hash != hashlib.sha256(manifest_bytes).hexdigest():
+                    directory_status = ("version_changed" if directory_version != record.manifest.version
+                                        else "manifest_changed")
+                config_path = record.root / "config.json"
+                config_bytes = config_path.read_bytes() if config_path.is_file() else None
+                if active and record.loaded_config_hash != self._config_hash(config_bytes):
+                    directory_status = directory_status or "config_changed"
+            except (OSError, ValueError, UnicodeError, TypeError):
+                directory_status = "directory_unavailable"
+            try:
+                snapshot_config = (copy.deepcopy(record.loaded_config) if active and record.loaded_config is not None
+                                   else self._load_plugin_config(record))
+            except (OSError, ValueError, UnicodeError, TypeError):
+                snapshot_config = {}
+                directory_status = "directory_unavailable"
+            inputs.append(CapabilityInput(
+                owner=record.manifest.id,
+                generation=slot.generation if active else 0,
+                manifest=manifest,
+                config=snapshot_config,
+                guide=load_observation_guide(record.root, manifest.observation_guide),
+                enabled=record.enabled and active and slot.enabled,
+                version=record.manifest.version,
+                state=slot.state if active else "unloaded",
+                directory_version=directory_version,
+                directory_status=directory_status,
+            ))
+        return self.capability_catalog.refresh(inputs)
 
     def list_plugins(self) -> list[dict[str, Any]]:
         return [self._serialize(record) for record in self.records.values()]
@@ -221,17 +336,47 @@ class LocalPluginManager:
             if stored_ros is not None: merged_config["ros2"] = stored_ros
             else: merged_config.pop("ros2", None)
         self._validate_config(record, merged_config)
-        self._write_plugin_config(record, merged_config)
-        if record.loaded:
-            self.registry.unregister(record.manifest.id)
-            record.loaded = False
-            record.plugin = None
-            record.module_name = None
-            record.status = "installed"
-        if record.enabled:
-            self._load_record(record)
+        self._reload_plugin_config(record, merged_config)
         self.event_bus.emit("plugin", "plugin config updated", plugin=plugin_id)
         return self._serialize(record, include_schema=True)
+
+    def _reload_plugin_config(self, record: LocalPluginRecord, config: dict[str, Any]) -> None:
+        old_bytes = (record.root / "config.json").read_bytes() if (record.root / "config.json").is_file() else None
+        if record.loaded:
+            try:
+                self.registry.unregister(record.manifest.id)
+            except Exception as exc:
+                record.status = "blocked"
+                record.error = f"plugin stop blocked: {exc}"
+                self.refresh_capabilities()
+                raise RuntimeError(record.error) from exc
+            record.loaded = False
+            self._remove_action_owner(record)
+            record.plugin = None
+            record.module_name = None
+            record.loaded_config = None
+            record.loaded_config_hash = None
+            record.loaded_manifest_hash = None
+            record.status = "installed"
+        try:
+            self._write_plugin_config(record, config)
+            if record.enabled:
+                self._load_record(record)
+                if record.error:
+                    raise RuntimeError(record.error)
+        except Exception as exc:
+            if old_bytes is None:
+                try:
+                    (record.root / "config.json").unlink()
+                except FileNotFoundError:
+                    pass
+            else:
+                (record.root / "config.json").write_bytes(old_bytes)
+            record.error = f"config reload failed: {exc}"
+            record.status = "fault"
+            self.refresh_capabilities()
+            raise ValueError(record.error) from exc
+        self.refresh_capabilities()
 
     def update_pubsub(self, plugin_id: str, pubsub: dict[str, Any]) -> dict[str, Any]:
         record = self._record(plugin_id)
@@ -260,12 +405,17 @@ class LocalPluginManager:
         if isinstance(expected_revision, bool) or not isinstance(expected_revision, int) or expected_revision != revision:
             raise EnvironmentRevisionConflict("ROS binding revision changed; refresh first")
         normalized = normalize_bindings(record.manifest.ros2_ports, bindings)
-        if record.ros is not None and not record.ros.closed:
+        if (record.manifest.action_manifest_v2 is None and record.ros is not None
+                and not record.ros.closed):
             record.ros.validate_reconfigure(normalized)
         config["ros2"] = {"bindings": normalized, "revision": revision + 1}
-        self._write_plugin_config(record, config)
-        if record.ros is not None and not record.ros.closed:
-            record.ros.reconfigure(normalized)
+        if record.manifest.action_manifest_v2 is not None:
+            self._reload_plugin_config(record, config)
+        else:
+            self._write_plugin_config(record, config)
+            if record.ros is not None and not record.ros.closed:
+                record.ros.reconfigure(normalized)
+        self.refresh_capabilities()
         result = self.get_ros2(plugin_id)
         applied = all(not b["enabled"] or any(e["port_id"] == name and e["resource_created"] for e in result["endpoints"])
                       for name, b in normalized.items())
@@ -279,10 +429,24 @@ class LocalPluginManager:
     def uninstall(self, plugin_id: str) -> None:
         record = self._record(plugin_id)
         if record.loaded:
-            self.registry.unregister(record.manifest.id)
+            try:
+                self.registry.unregister(record.manifest.id)
+            except Exception as exc:
+                record.status = "blocked"
+                record.error = f"plugin stop blocked: {exc}"
+                self.refresh_capabilities()
+                raise RuntimeError(record.error) from exc
+            self._remove_action_owner(record)
+            record.loaded = False
+            record.plugin = None
+            record.module_name = None
+            record.loaded_config = None
+            record.loaded_config_hash = None
+            record.loaded_manifest_hash = None
         self.records.pop(plugin_id, None)
         shutil.rmtree(record.root)
         self._save_enabled_state()
+        self.refresh_capabilities()
         self.event_bus.emit("plugin", "plugin uninstalled", plugin=plugin_id)
         self.discover()
 
@@ -290,19 +454,30 @@ class LocalPluginManager:
     def set_enabled(self, plugin_id: str, enabled: bool) -> dict[str, Any]:
         record = self._record(plugin_id)
         if enabled:
+            previous_enabled = record.enabled
             record.enabled = True
             self._load_record(record)
             if record.error:
-                record.enabled = False
+                record.enabled = previous_enabled
                 self._save_enabled_state()
+                self.refresh_capabilities()
                 raise ValueError(f"failed to enable plugin: {record.error}")
         else:
             if record.loaded:
-                self.registry.unregister(record.manifest.id)
-                record.loaded = False
+                try:
+                    self.registry.disable(record.manifest.id)
+                except Exception as exc:
+                    record.status = "blocked"
+                    record.error = f"plugin stop blocked: {exc}"
+                    self.refresh_capabilities()
+                    raise RuntimeError(record.error) from exc
+                record.enabled = False
                 record.status = "disabled"
-            record.enabled = False
+            else:
+                record.enabled = False
+                record.status = "disabled"
         self._save_enabled_state()
+        self.refresh_capabilities()
         self.event_bus.emit(
             "plugin",
             "plugin enabled changed",
@@ -398,18 +573,40 @@ class LocalPluginManager:
         record = self._record(manifest.id)
         if record.enabled:
             self._load_record(record)
+        self.refresh_capabilities()
         self.event_bus.emit("plugin", "plugin installed", plugin=manifest.id)
         return self._serialize(record, include_schema=True)
 
     def _load_record(self, record: LocalPluginRecord) -> None:
         try:
             if record.loaded:
-                if not record.enabled:
+                slot = self.registry.get(record.manifest.id)
+                if slot is None or slot.plugin is not record.plugin:
+                    raise RuntimeError("registered plugin instance changed")
+                if not slot.enabled:
                     self.registry.enable(record.manifest.id)
+                if slot.state != "ready":
+                    raise RuntimeError(f"plugin is {slot.state}")
                 record.status = "enabled"
+                record.error = None
+                self.refresh_capabilities()
                 return
+            manifest_bytes = (record.root / "plugin.json").read_bytes()
+            record.manifest = self._load_manifest(record.root, raw=manifest_bytes)
+            record.config_schema = self._load_config_schema(record.root, record.manifest)
+            manifest_hash = hashlib.sha256(manifest_bytes).hexdigest()
+            config_path = record.root / "config.json"
+            config_bytes = config_path.read_bytes() if config_path.is_file() else None
+            config = json.loads(config_bytes.decode("utf-8")) if config_bytes is not None else {}
+            if not isinstance(config, dict):
+                config = {}
+            loaded_config = copy.deepcopy(config)
             module = self._import_module(record)
-            plugin = self._create_plugin(module, record)
+            plugin = self._create_plugin(module, record, config=config)
+            record.loaded_manifest_hash = manifest_hash
+            record.loaded_config_hash = self._config_hash(config_bytes)
+            record.loaded_config = loaded_config
+            record.binding_cleanup_error = None
             record.plugin = plugin
             record.module_name = module.__name__
             self.registry.register(
@@ -417,16 +614,61 @@ class LocalPluginManager:
                 plugin,
                 enabled=True,
                 metadata=self._manifest_dict(record.manifest),
+                before_load=(self._before_action_load(record) if record.manifest.action_manifest_v2 else None),
             )
             record.loaded = True
             record.status = "enabled"
             record.error = None
+            self.refresh_capabilities()
         except Exception as exc:
-            if record.ros is not None:
+            slot = self.registry.get(record.manifest.id)
+            retained = slot is not None and slot.plugin is record.plugin
+            if not retained and record.ros is not None:
                 record.ros.close()
-            record.loaded = False
-            record.status = "fault"
-            record.error = str(exc)
+            record.loaded = retained
+            record.status = "blocked" if retained else "fault"
+            record.error = (str(exc.__cause__)
+                            if retained and exc.__cause__ is not None else str(exc))
+            if record.binding_cleanup_error:
+                record.error += f"; action owner cleanup failed: {record.binding_cleanup_error}"
+            if not retained:
+                try:
+                    self._remove_action_owner(record)
+                except Exception as cleanup_error:
+                    record.error += f"; action owner cleanup failed: {cleanup_error}"
+                record.loaded_config = None
+                record.loaded_config_hash = None
+                record.loaded_manifest_hash = None
+            self.refresh_capabilities()
+
+    def _before_action_load(self, record: LocalPluginRecord):
+        def bind(slot):
+            if slot.id != record.manifest.id or slot.plugin is not record.plugin:
+                raise RuntimeError("action owner slot mismatch")
+            binding = OwnerBinding(slot.id, slot.generation)
+            if self.action_dispatcher is not None:
+                try:
+                    self.action_dispatcher.register_owner(binding, slot.actor, record.manifest.action_manifest_v2)
+                    record.plugin._astrbotex_context.actions._bind(binding, self.action_dispatcher.report)
+                except Exception as exc:
+                    record.plugin._astrbotex_context.actions._revoke()
+                    try:
+                        self.action_dispatcher.remove_owner(binding)
+                    except Exception as cleanup_error:
+                        record.binding_cleanup_error = str(cleanup_error)
+                        record.action_binding = binding
+                    raise
+            record.action_binding = binding
+        return bind
+
+    def _remove_action_owner(self, record: LocalPluginRecord) -> None:
+        binding = record.action_binding
+        if binding is None:
+            return
+        if self.action_dispatcher is not None:
+            record.plugin._astrbotex_context.actions._revoke()
+            self.action_dispatcher.remove_owner(binding)
+        record.action_binding = None
 
     def _import_module(self, record: LocalPluginRecord) -> ModuleType:
         entry = (record.root / record.manifest.entry).resolve()
@@ -443,8 +685,10 @@ class LocalPluginManager:
         spec.loader.exec_module(module)
         return module
 
-    def _create_plugin(self, module: ModuleType, record: LocalPluginRecord) -> Any:
-        config = self._load_plugin_config(record)
+    def _create_plugin(self, module: ModuleType, record: LocalPluginRecord,
+                       *, config: dict[str, Any] | None = None) -> Any:
+        if config is None:
+            config = self._load_plugin_config(record)
         context = PluginContext(
             plugin_id=record.manifest.id,
             plugin_root=record.root,
@@ -475,11 +719,14 @@ class LocalPluginManager:
             except TypeError:
                 plugin = plugin_cls()
         plugin._astrbotex_ros = context.ros
+        plugin._astrbotex_context = context
         plugin.id = record.manifest.id
         plugin.name = record.manifest.name
         return plugin
 
     def _runtime_kind(self, manifest: PluginManifest) -> str:
+        if manifest.action_manifest_v2 is not None:
+            return ACTION_OWNER_RUNTIME_KIND
         for capability in manifest.provides:
             if capability in RUNTIME_KIND_BY_CAPABILITY:
                 return RUNTIME_KIND_BY_CAPABILITY[capability]
@@ -518,16 +765,21 @@ class LocalPluginManager:
             "dashboard_url": f"/api/plugins/{manifest.id}/dashboard" if manifest.dashboard else None,
             "path": str(record.root),
         }
+        if manifest.action_manifest_v2 is not None:
+            payload["action_manifest_v2"] = manifest.action_manifest_v2.to_dict()
+            payload["v2_optional_topics"] = dict(manifest.v2_optional_topics)
+            payload["observation_guide"] = load_observation_guide(record.root, manifest.action_manifest_v2.observation_guide)
         if include_schema:
             payload["config_schema"] = record.config_schema
             payload["config"] = self._load_plugin_config(record)
         return payload
 
-    def _load_manifest(self, root: Path) -> PluginManifest:
+    def _load_manifest(self, root: Path, *, raw: bytes | None = None) -> PluginManifest:
         manifest_path = root / "plugin.json"
         if not manifest_path.is_file():
             raise ValueError("missing plugin.json")
-        manifest = self._manifest_from_bytes(manifest_path.read_bytes())
+        raw = manifest_path.read_bytes() if raw is None else raw
+        manifest = self._manifest_from_bytes(raw)
         self._validate_manifest(manifest)
         entry_path = (root / manifest.entry).resolve()
         if not entry_path.is_file():
@@ -538,12 +790,42 @@ class LocalPluginManager:
             raise ValueError(f"cover not found: {manifest.cover}")
         if manifest.dashboard and not (root / manifest.dashboard).is_file():
             raise ValueError(f"dashboard not found: {manifest.dashboard}")
+        if manifest.action_manifest_v2 and manifest.action_manifest_v2.observation_guide:
+            guide = load_observation_guide(root, manifest.action_manifest_v2.observation_guide)
+            if guide["status"] == "rejected":
+                raise ValueError(f"invalid observation guide: {guide['reason']}")
         return manifest
 
     def _manifest_from_bytes(self, raw: bytes) -> PluginManifest:
-        data = json.loads(raw.decode("utf-8"))
+        def unique_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+            result: dict[str, Any] = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ValueError(f"duplicate manifest key: {key}")
+                result[key] = value
+            return result
+
+        data = json.loads(raw.decode("utf-8"), object_pairs_hook=unique_pairs)
         if not isinstance(data, dict):
             raise ValueError("plugin.json must be an object")
+        action_projection = {key: data[key] for key in
+                             ("id", "action_api_version", "actions", "observation_sources",
+                              "observation_guide", "provides") if key in data}
+        optional_topics: dict[str, str] = {}
+        if "action_api_version" in data and isinstance(data.get("actions"), list):
+            projected_actions = []
+            for item in data["actions"]:
+                if not isinstance(item, dict):
+                    projected_actions.append(item)
+                    continue
+                if "topic" in item:
+                    if (not isinstance(item["topic"], str) or not item["topic"].strip()
+                            or len(item["topic"]) > 256):
+                        raise ValueError("invalid optional v2 topic")
+                    optional_topics[item.get("action_id", "")] = item["topic"]
+                projected_actions.append({key: value for key, value in item.items() if key != "topic"})
+            action_projection["actions"] = projected_actions
+        action_projection["ros2_ports"] = parse_ports(data.get("ros2"))
         return PluginManifest(
             id=str(data.get("id", "")).strip(),
             name=str(data.get("name", "")).strip(),
@@ -563,8 +845,11 @@ class LocalPluginManager:
             dashboard=str(data["dashboard"]).strip() if data.get("dashboard") else None,
             publishes=self._parse_topics(data.get("publishes", [])),
             subscribes=self._parse_topics(data.get("subscribes", [])),
-            actions=self._parse_actions(data.get("actions", [])),
+            actions=(self._parse_actions(data.get("actions", [])) if "action_api_version" not in data else []),
             ros2_ports=parse_ports(data.get("ros2")),
+            action_manifest_v2=(parse_action_manifest(action_projection, owner=data.get("id", ""))
+                                if "action_api_version" in data else None),
+            v2_optional_topics=optional_topics,
         )
 
     def _validate_manifest(self, manifest: PluginManifest) -> None:
@@ -581,6 +866,8 @@ class LocalPluginManager:
         unknown = [item for item in manifest.provides if item not in ALLOWED_PLUGIN_TYPES]
         if unknown:
             raise ValueError(f"unsupported provides: {', '.join(unknown)}")
+        if manifest.action_manifest_v2 is not None and ACTION_OWNER_CAPABILITY not in manifest.provides:
+            raise ValueError("v2 actions require action_owner capability")
         self._validate_topics(manifest.id, manifest.publishes)
         self._validate_topics(manifest.id, manifest.subscribes, require_prefix=False)
         self._validate_actions(manifest.id, manifest.actions)
@@ -589,6 +876,10 @@ class LocalPluginManager:
         if not manifest.config_schema:
             return None
         return json.loads((root / manifest.config_schema).read_text(encoding="utf-8"))
+
+    @staticmethod
+    def _config_hash(raw: bytes | None) -> str:
+        return hashlib.sha256(b"\x01" + raw if raw is not None else b"\x00").hexdigest()
 
     def _load_plugin_config(self, record: LocalPluginRecord) -> dict[str, Any]:
         config_path = record.root / "config.json"
@@ -673,7 +964,7 @@ class LocalPluginManager:
             )
 
     def _manifest_dict(self, manifest: PluginManifest) -> dict[str, Any]:
-        return {
+        result = {
             "id": manifest.id,
             "name": manifest.name,
             "version": manifest.version,
@@ -686,6 +977,10 @@ class LocalPluginManager:
             "actions": [self._action_dict(item) for item in manifest.actions],
             "ros2": {"schema_version": 1, "ports": manifest.ros2_ports},
         }
+        if manifest.action_manifest_v2 is not None:
+            result["action_manifest_v2"] = manifest.action_manifest_v2.to_dict()
+            result["v2_optional_topics"] = dict(manifest.v2_optional_topics)
+        return result
 
     def _find_manifest_member(self, members: list[zipfile.ZipInfo]) -> zipfile.ZipInfo | None:
         candidates = [item for item in members if item.filename.strip("/").endswith("plugin.json")]
@@ -730,6 +1025,8 @@ class LocalPluginManager:
                 continue
             action_id = str(raw.get("action_id", raw.get("id", ""))).strip()
             topic = str(raw.get("topic", "")).strip()
+            if action_id and not topic:
+                raise ValueError(f"legacy action topic is required: {action_id}")
             if not action_id or not topic:
                 continue
             schema = raw.get("schema", {"type": "object", "properties": {}})

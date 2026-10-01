@@ -1,0 +1,29 @@
+{
+  "fixture_id": "a-succeeded",
+  "category": "action",
+  "scenario_id": "A_SUCCEEDED",
+  "guide_refs": [],
+  "purpose": "Success result for a separate command",
+  "expected": {
+    "outcome": "success",
+    "reason_code": "a-succeeded",
+    "reason": "Success result for a separate command"
+  },
+  "payload": {
+    "action_event": {
+      "event_id": "event-a-succeeded",
+      "event_seq": 3,
+      "ex_session": "ex-1",
+      "task_id": "task-1",
+      "goal_id": "goal-1",
+      "goal_revision": 0,
+      "command_id": "cmd-a-succeeded",
+      "owner": "sim_arm",
+      "status": "succeeded",
+      "reason_code": "a-succeeded",
+      "details": {
+        "result": "simulated completion"
+      }
+    }
+  }
+}

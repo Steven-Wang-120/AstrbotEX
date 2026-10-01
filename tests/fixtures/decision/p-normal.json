@@ -1,0 +1,58 @@
+{
+  "fixture_id": "p-normal",
+  "category": "perception",
+  "scenario_id": "P_NORMAL",
+  "guide_refs": [
+    "yolo-front-detections"
+  ],
+  "purpose": "Fresh 2D detection; target selection is separate",
+  "expected": {
+    "outcome": "usable_2d",
+    "reason_code": "p-normal",
+    "reason": "Fresh 2D detection; target selection is separate"
+  },
+  "payload": {
+    "observation": {
+      "schema_version": 1,
+      "observation_id": "obs-p-normal",
+      "source_id": "camera.front",
+      "source_epoch": "epoch-1",
+      "seq": 42,
+      "received_monotonic_ns": 1042000000,
+      "age_ms": 12.5,
+      "description_hash": "sha256:b01-illustrative",
+      "data": {
+        "stream_id": "front",
+        "frame_id": "front-42",
+        "image_width": 1280,
+        "image_height": 720,
+        "objects": [
+          {
+            "object_id": "track-7",
+            "label": "bottle",
+            "confidence": 0.94,
+            "bbox_xyxy": [
+              120,
+              80,
+              260,
+              410
+            ],
+            "depth_m": 1.2,
+            "track_session": "tracks-1"
+          }
+        ]
+      },
+      "health": {
+        "status": "ok",
+        "reason_code": "fresh"
+      }
+    },
+    "target_ref": {
+      "source_epoch": "epoch-1",
+      "stream_id": "front",
+      "track_session": "tracks-1",
+      "object_id": "track-7",
+      "observation_id": "obs-p-normal"
+    }
+  }
+}

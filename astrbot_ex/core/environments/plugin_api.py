@@ -198,7 +198,7 @@ class _Port:
         with self.lock:
             manager = self.facade.environment_manager
             stop_token = manager.stop_permission(self.facade) if stop and manager else None
-            if stop and (not stop_token or not self.declaration['requires_runtime_running']):
+            if stop and (not stop_token):
                 self.stats['rejected'] += 1
                 return RosPublishResult('stop_not_authorized')
             if self.closed or self.native is None or not manager or (not manager.accepting and not stop_token):

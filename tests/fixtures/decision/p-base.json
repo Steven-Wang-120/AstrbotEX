@@ -1,0 +1,46 @@
+{
+  "fixture_id": "p-base",
+  "category": "perception",
+  "scenario_id": "P_BASE",
+  "guide_refs": [
+    "simulated-base-status"
+  ],
+  "purpose": "Simulated base state is descriptive, not permission",
+  "expected": {
+    "outcome": "descriptive_only",
+    "reason_code": "p-base",
+    "reason": "Simulated base state is descriptive, not permission"
+  },
+  "payload": {
+    "observation": {
+      "schema_version": 1,
+      "observation_id": "obs-p-base",
+      "source_id": "sim.base",
+      "source_epoch": "epoch-1",
+      "seq": 42,
+      "received_monotonic_ns": 1042000000,
+      "age_ms": 12.5,
+      "description_hash": "sha256:b01-illustrative",
+      "data": {
+        "base_id": "sim-base-1",
+        "status": "idle",
+        "pose": {
+          "frame_id": "map",
+          "x_m": 1.2,
+          "y_m": -0.4,
+          "yaw_rad": 0.0
+        },
+        "velocity": {
+          "linear_mps": 0.0,
+          "angular_radps": 0.0
+        },
+        "battery_percent": 87.0,
+        "sim_time_s": 12.5
+      },
+      "health": {
+        "status": "ok",
+        "reason_code": "fresh"
+      }
+    }
+  }
+}

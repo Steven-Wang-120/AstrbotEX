@@ -28,6 +28,8 @@ class EnvironmentManager:
         self._closed = False
         self.accepting = False
         self.runtime_running = lambda: False
+        self.action_service = None
+        self.decision_service = None
         self.quiesce_timeout = 3.0
         self._stop_token = None
         self._stop_owners = set()
@@ -116,6 +118,11 @@ class EnvironmentManager:
         self._stop_token = operation_id
         self._stop_owners = {owner.owner_id for owner in controls}
         self._stop_errors = []
+        if self.action_service is not None:
+            self.action_service.request_stops(reason)
+        for owner in controls:
+            if owner.actor is not None:
+                owner.actor.set_stop_token(operation_id)
         try:
             for port in ports:
                 port.discard_queue()
@@ -139,6 +146,8 @@ class EnvironmentManager:
                     raise EnvironmentBusyError(f'{owner.plugin_id}: deactivation hook exceeded deadline') from exc
                 if result is False:
                     raise EnvironmentBusyError('plugin refused environment deactivation')
+            if self.action_service is not None and not self.action_service.await_stop_proof(reason):
+                raise EnvironmentBusyError(self.action_service.status()['error'] or 'action stop not proven')
             while any(port.status()['queue_depth'] or port.status()['in_flight'] for port in ports
                       if port.declaration['direction'] == 'publish'):
                 if time.monotonic() >= self._stop_deadline:
@@ -149,6 +158,9 @@ class EnvironmentManager:
         finally:
             self._stop_token = None
             self._stop_owners = set()
+            for owner in controls:
+                if owner.actor is not None:
+                    owner.actor.set_stop_token(None)
             for port in ports:
                 port.discard_queue()
 
@@ -169,6 +181,10 @@ class EnvironmentManager:
                 raise EnvironmentBusyError("another environment operation is running")
             if mode == self._snapshot.active_mode and self._snapshot.phase == "idle":
                 return {"ok": True, "accepted": False, "changed": False, "environment": self.snapshot()}
+            if self.decision_service is not None:
+                self.decision_service.request_stop('environment_switch')
+            if self.action_service is not None:
+                self.action_service.revoke()
             if mode == 'ros2' and self._snapshot.active_mode == 'ros2':
                 raise EnvironmentBusyError('finish deactivating the retained ROS environment before enabling it again')
             # Never tear down a live controller's output path without its stop protocol.
@@ -189,6 +205,8 @@ class EnvironmentManager:
             while len(self._operations) > 32: self._operations.pop(next(iter(self._operations)))
             self._worker = threading.Thread(target=self._transition, args=(mode, op), name="ex-environment-switch", daemon=True)
             self._worker.start()
+        if self.decision_service is not None:
+            self.decision_service.request_stop('environment_switch')
         self._emit_change("environment switching")
         return {"ok": True, "accepted": True, "changed": True, "operation_id": op, "environment": self.snapshot()}
 
@@ -200,6 +218,8 @@ class EnvironmentManager:
         try:
             if mode == 'normal' and self._snapshot.active_mode == 'ros2':
                 self._quiesce('switch to normal', op)
+            elif self.action_service is not None and not self.action_service.stop_actions('environment switch'):
+                raise EnvironmentBusyError(self.action_service.status()['error'] or 'action stop not proven')
             with self.resources_lock:
                 with self._lock:
                     old = self._adapter
@@ -340,6 +360,10 @@ class EnvironmentManager:
         return None
 
     def reset_after_restore(self):
+        if self.action_service is not None:
+            self.action_service.revoke()
+            if not self.action_service.stop_actions('snapshot restore'):
+                raise EnvironmentBusyError(self.action_service.status()['error'] or 'action stop not proven')
         self._finish_worker()
         with self.resources_lock:
             self.accepting = False
@@ -363,6 +387,8 @@ class EnvironmentManager:
             if worker.is_alive(): raise EnvironmentBusyError("environment operation has not stopped")
 
     def close(self, reason="shutdown"):
+        if self.action_service is not None:
+            self.action_service.revoke()
         self._finish_worker()
         self.accepting = False
         errors = []
@@ -371,6 +397,10 @@ class EnvironmentManager:
                 self._quiesce(reason, uuid.uuid4().hex)
             except Exception as exc:
                 errors.append(str(exc))
+        elif self.action_service is not None and not self.action_service.stop_actions(reason):
+            errors.append(self.action_service.status()['error'] or 'action stop not proven')
+        if errors:
+            raise EnvironmentBusyError('; '.join(errors))
         with self.resources_lock:
             self._closed = True
             try:
@@ -390,5 +420,7 @@ class EnvironmentManager:
 
     def _emit_change(self, message, event_type='environment_changed', **data):
         snapshot = self.snapshot()
+        if self.action_service is not None:
+            self.action_service.update_versions(environment_revision=snapshot['revision'])
         self.event_bus.emit(event_type, message, session_id=snapshot["session_id"], revision=snapshot["revision"],
                             generation=snapshot["generation"], **data)

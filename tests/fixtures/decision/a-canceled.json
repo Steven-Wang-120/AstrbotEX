@@ -1,0 +1,34 @@
+{
+  "fixture_id": "a-canceled",
+  "category": "action",
+  "scenario_id": "A_CANCELED",
+  "guide_refs": [],
+  "purpose": "Positive controller stop proof for a separate command",
+  "expected": {
+    "outcome": "stopped",
+    "reason_code": "a-canceled",
+    "reason": "Positive controller stop proof for a separate command",
+    "stop_confirmed": true
+  },
+  "payload": {
+    "action_event": {
+      "event_id": "event-a-canceled",
+      "event_seq": 5,
+      "ex_session": "ex-1",
+      "task_id": "task-1",
+      "goal_id": "goal-1",
+      "goal_revision": 0,
+      "command_id": "cmd-a-canceled",
+      "owner": "sim_arm",
+      "status": "canceled",
+      "reason_code": "a-canceled",
+      "details": {
+        "stop_evidence": {
+          "stopped": true,
+          "source": "sim_controller",
+          "reference": "stop-report-5"
+        }
+      }
+    }
+  }
+}

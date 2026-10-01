@@ -1,0 +1,39 @@
+{
+  "fixture_id": "e-expiredlease",
+  "category": "errors_boundaries",
+  "scenario_id": "E_EXPIREDLEASE",
+  "guide_refs": [],
+  "purpose": "Execution time passes the trusted receive plus lease deadline",
+  "expected": {
+    "outcome": "reject_lease",
+    "reason_code": "e-expiredlease",
+    "reason": "Execution time passes the trusted receive plus lease deadline",
+    "error_code": "expired_lease"
+  },
+  "payload": {
+    "invalid_input": {
+      "action_command": {
+        "schema_version": 1,
+        "command_id": "cmd-expired",
+        "ex_session": "ex-1",
+        "goal_id": "goal-1",
+        "goal_revision": 0,
+        "decision_id": "dec-2",
+        "owner": "sim_arm",
+        "plugin_generation": 1,
+        "action_id": "sim_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "observation_id": "obs-p-normal"
+          }
+        },
+        "lease_ms": 1000
+      }
+    },
+    "trusted_context": {
+      "received_monotonic_ns": 1000000000,
+      "execution_monotonic_ns": 2100000000
+    }
+  }
+}

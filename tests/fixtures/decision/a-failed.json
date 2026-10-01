@@ -1,0 +1,29 @@
+{
+  "fixture_id": "a-failed",
+  "category": "action",
+  "scenario_id": "A_FAILED",
+  "guide_refs": [],
+  "purpose": "Failure result for a separate command",
+  "expected": {
+    "outcome": "failure",
+    "reason_code": "a-failed",
+    "reason": "Failure result for a separate command"
+  },
+  "payload": {
+    "action_event": {
+      "event_id": "event-a-failed",
+      "event_seq": 4,
+      "ex_session": "ex-1",
+      "task_id": "task-1",
+      "goal_id": "goal-1",
+      "goal_revision": 0,
+      "command_id": "cmd-a-failed",
+      "owner": "sim_arm",
+      "status": "failed",
+      "reason_code": "a-failed",
+      "details": {
+        "error": "simulated fault"
+      }
+    }
+  }
+}

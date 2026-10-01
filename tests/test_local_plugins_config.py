@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from astrbot_ex.core.event_bus import EventBus
-from astrbot_ex.core.local_plugins import LocalPluginManager
+from astrbot_ex.core.local_plugins import LocalPluginManager, load_observation_guide
 from astrbot_ex.core.plugin_registry import PluginRegistry
 from astrbot_ex.core.topic_bus import TopicBus
 
@@ -129,6 +131,110 @@ class LocalPluginConfigTest(unittest.TestCase):
         self.assertEqual(plugin["status"], "fault")
         state = json.loads(self.manager.state_path.read_text(encoding="utf-8"))
         self.assertFalse(state["enabled_plugins"]["test_plugin"])
+
+    def test_v2_manifest_is_not_legacy_topic_action(self) -> None:
+        raw = json.loads((self.plugin_root / "plugin.json").read_text(encoding="utf-8"))
+        raw.update({"provides": ["action_owner"], "action_api_version": 2,
+                    "actions": [{"action_id": "test_plugin.check.v2", "description": "Check",
+                                 "schema": {"type": "object", "properties": {}},
+                                 "operations": ["start"]}]})
+        manifest = self.manager._manifest_from_bytes(json.dumps(raw).encode())
+        self.manager._validate_manifest(manifest)
+        self.assertEqual(manifest.actions, [])
+        self.assertEqual(manifest.action_manifest_v2.actions[0].action_id, "test_plugin.check.v2")
+        self.assertEqual(self.manager._runtime_kind(manifest), "action")
+        for broken in ({**raw, "action_api_version": True},
+                       {**raw, "actions": raw["actions"] * 2},
+                       {**raw, "actions": [{**raw["actions"][0], "schema": {"type": "object", "bad": 1}}]}):
+            with self.assertRaises(ValueError):
+                self.manager._manifest_from_bytes(json.dumps(broken).encode())
+        with self.assertRaisesRegex(ValueError, "duplicate manifest key"):
+            self.manager._manifest_from_bytes(
+                b'{"id":"test_plugin","id":"test_plugin","name":"Duplicate"}')
+        with self.assertRaisesRegex(ValueError, "duplicate manifest key"):
+            self.manager._manifest_from_bytes(
+                b'{"id":"test_plugin","action_api_version":2,"actions":[],"observation_sources":{"x":{},"x":{}}}')
+        raw["actions"] = [{"action_id": "test_plugin.check.v2", "description": "Check",
+                           "topic": "test_plugin.optional", "schema": {"type": "object"},
+                           "operations": ["start"]}]
+        raw["action_api_version"] = 2
+        optional = self.manager._manifest_from_bytes(json.dumps(raw).encode())
+        self.assertEqual(optional.actions, [])
+        self.assertEqual(optional.v2_optional_topics["test_plugin.check.v2"], "test_plugin.optional")
+        raw.pop("action_api_version")
+        raw["actions"] = [{"action_id": "test_plugin.check.v1", "topic": "test_plugin.command"}]
+        legacy = self.manager._manifest_from_bytes(json.dumps(raw).encode())
+        self.assertEqual(legacy.actions[0].topic, "test_plugin.command")
+        raw["actions"] = [{"action_id": "test_plugin.check.v1"}]
+        with self.assertRaisesRegex(ValueError, "legacy action topic is required"):
+            self.manager._manifest_from_bytes(json.dumps(raw).encode())
+
+    def test_context_exposes_closed_action_facade(self) -> None:
+        record = self.manager.records["test_plugin"]
+        from types import ModuleType
+        module = ModuleType("test_context")
+        seen = []
+
+        def create_plugin(context):
+            seen.append(context)
+            return type("MockPlugin", (), {})()
+
+        module.create_plugin = create_plugin
+        plugin = self.manager._create_plugin(module, record)
+        self.assertIs(plugin._astrbotex_context, seen[0])
+        with self.assertRaises(RuntimeError):
+            seen[0].actions.report("cmd", "running")
+        seen[0].ros.close()
+
+    def test_real_b01_guides_allow_markdown_comparisons(self) -> None:
+        fixture_root = Path(__file__).parent / "fixtures" / "decision"
+        for filename in ("yolo-front-detections.md", "simulated-base-status.md", "simulated-arm-status.md"):
+            guide = load_observation_guide(fixture_root, filename)
+            expected = (fixture_root / filename).read_bytes()
+            self.assertEqual(guide["status"], "available", filename)
+            self.assertEqual(guide["text"], expected.decode("utf-8"), filename)
+            self.assertEqual(guide["content_hash"], hashlib.sha256(expected).hexdigest(), filename)
+        detection = load_observation_guide(fixture_root, "yolo-front-detections.md")["text"]
+        self.assertIn("front-<seq>", detection)
+        self.assertIn("0<=left<right<=image_width", detection)
+
+    def test_guide_bytes_and_paths(self) -> None:
+        root = self.plugin_root
+        target = root / "guide.txt"
+        target.write_bytes("hello\n".encode())
+        guide = load_observation_guide(root, "guide.txt")
+        self.assertEqual(guide["status"], "available")
+        self.assertEqual(guide["content_hash"], hashlib.sha256(b"hello\n").hexdigest())
+        for path in ("../outside", "sub/../outside", "/tmp/outside", "C:\\outside",
+                     "C:relative.txt", "//server/share", "\\\\server\\share", "sub\\..\\outside"):
+            self.assertEqual(load_observation_guide(root, path)["status"], "rejected")
+        self.assertEqual(load_observation_guide(root, "missing.txt")["status"], "unavailable")
+        for data in (b"x" * 8193, b"\xff", b"hello\x00world", b"a\x7fb",
+                     b"a" + bytes((0xC2, 0x85)) + b"b"):
+            target.write_bytes(data)
+            self.assertEqual(load_observation_guide(root, "guide.txt")["status"], "rejected")
+        target.write_bytes(b"x" * 8192)
+        self.assertEqual(load_observation_guide(root, "guide.txt")["status"], "available")
+        with patch.object(Path, "resolve", side_effect=RuntimeError("symlink loop")):
+            self.assertEqual(load_observation_guide(root, "guide.txt")["status"], "rejected")
+        outside = self.root / "outside.txt"
+        outside.write_text("secret", encoding="utf-8")
+        link = root / "linked.txt"
+        try:
+            link.symlink_to(outside)
+        except (OSError, NotImplementedError) as exc:
+            print(f"real symlink unavailable in test environment: {exc}")
+            original_resolve = Path.resolve
+
+            def escaping_resolve(path, *args, **kwargs):
+                if path == link:
+                    return outside
+                return original_resolve(path, *args, **kwargs)
+
+            with patch.object(Path, "resolve", escaping_resolve):
+                self.assertEqual(load_observation_guide(root, "linked.txt")["status"], "rejected")
+        else:
+            self.assertEqual(load_observation_guide(root, "linked.txt")["status"], "rejected")
 
 
 if __name__ == "__main__":

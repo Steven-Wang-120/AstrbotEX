@@ -1,0 +1,35 @@
+{
+  "fixture_id": "e-stalesession",
+  "category": "errors_boundaries",
+  "scenario_id": "E_STALESESSION",
+  "guide_refs": [],
+  "purpose": "Input EX session differs from trusted current session",
+  "expected": {
+    "outcome": "reject_stale",
+    "reason_code": "e-stalesession",
+    "reason": "Input EX session differs from trusted current session",
+    "error_code": "stale_ex_session"
+  },
+  "payload": {
+    "invalid_input": {
+      "action_event": {
+        "event_id": "event-e-stalesession",
+        "event_seq": 7,
+        "ex_session": "ex-1",
+        "task_id": "task-1",
+        "goal_id": "goal-1",
+        "goal_revision": 0,
+        "command_id": "cmd-e-stalesession",
+        "owner": "sim_arm",
+        "status": "accepted",
+        "reason_code": "e-stalesession",
+        "details": {
+          "accepted": true
+        }
+      }
+    },
+    "trusted_context": {
+      "current_ex_session": "ex-2"
+    }
+  }
+}

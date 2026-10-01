@@ -1,0 +1,51 @@
+{
+  "fixture_id": "p-bbox-outofbounds",
+  "category": "perception",
+  "scenario_id": "P_BBOX_OUTOFBOUNDS",
+  "guide_refs": [
+    "yolo-front-detections"
+  ],
+  "purpose": "Negative pixel left coordinate violates image bounds",
+  "expected": {
+    "outcome": "reject_bbox",
+    "reason_code": "p-bbox-outofbounds",
+    "reason": "Negative pixel left coordinate violates image bounds"
+  },
+  "payload": {
+    "observation": {
+      "schema_version": 1,
+      "observation_id": "obs-p-bbox-outofbounds",
+      "source_id": "camera.front",
+      "source_epoch": "epoch-1",
+      "seq": 47,
+      "received_monotonic_ns": 1047000000,
+      "age_ms": 12.5,
+      "description_hash": "sha256:b01-illustrative",
+      "data": {
+        "stream_id": "front",
+        "frame_id": "front-47",
+        "image_width": 1280,
+        "image_height": 720,
+        "objects": [
+          {
+            "object_id": "track-7",
+            "label": "bottle",
+            "confidence": 0.94,
+            "bbox_xyxy": [
+              -4,
+              80,
+              260,
+              410
+            ],
+            "depth_m": 1.2,
+            "track_session": "tracks-1"
+          }
+        ]
+      },
+      "health": {
+        "status": "ok",
+        "reason_code": "fresh"
+      }
+    }
+  }
+}

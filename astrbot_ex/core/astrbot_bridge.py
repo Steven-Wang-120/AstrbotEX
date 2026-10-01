@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from astrbot_ex.core.event_bus import EventBus
+from astrbot_ex.core.actions.ledger import OwnerBinding
+from astrbot_ex.core.actions.models import ActionCommand
 from astrbot_ex.core.local_plugins import LocalPluginManager
 from astrbot_ex.core.models import RuntimeState
 from astrbot_ex.core.serialization import to_jsonable
@@ -64,6 +66,9 @@ class AstrBotBridge:
         self._core_seq_lock = threading.RLock()
 
     def build_context(self) -> dict[str, Any]:
+        if getattr(getattr(self.controller.runtime, "action_service", None), "control_mode", "legacy") == "decision":
+            return {"ok": False, "error": "legacy proposal context unavailable in decision mode",
+                    "affordances": []}
         now = time.time()
         status = self.controller.status()
         actions = [action.to_dict() for action in self.list_actions()]
@@ -94,6 +99,8 @@ class AstrBotBridge:
         return context
 
     def list_actions(self) -> list[BridgeAction]:
+        if getattr(getattr(self.controller.runtime, "action_service", None), "control_mode", "legacy") == "decision":
+            return []
         actions = [
             BridgeAction(
                 action_id="runtime.start.v1",
@@ -115,6 +122,8 @@ class AstrBotBridge:
             if not record.enabled:
                 continue
             for action in getattr(record.manifest, "actions", []):
+                if not action.topic:
+                    continue
                 actions.append(
                     BridgeAction(
                         action_id=action.action_id,
@@ -129,7 +138,42 @@ class AstrBotBridge:
                 )
         return actions
 
+    def direct_action_start(self, command: dict[str, Any]):
+        service = getattr(self.controller.runtime, "action_service", None)
+        if service is None:
+            return {"ok": False, "error": "direct action service unavailable"}
+        if service.control_mode != "decision":
+            return {"ok": False, "error": "direct actions require decision mode"}
+        try:
+            future = service.start(command)
+            snapshot = future.result(timeout=0.1)
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True, "command": snapshot}
+
+    def direct_action_query(self, command_id: str):
+        service = getattr(self.controller.runtime, "action_service", None)
+        if service is None:
+            return {"ok": False, "error": "direct action service unavailable"}
+        try:
+            snapshot = service.query(command_id).result(timeout=0.1)
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True, "command": snapshot}
+
+    def direct_action_cancel(self, command_id: str, binding: OwnerBinding, reason: str = "framework stop"):
+        service = getattr(self.controller.runtime, "action_service", None)
+        if service is None:
+            return {"ok": False, "error": "direct action service unavailable"}
+        try:
+            snapshot = service.cancel(command_id, binding, str(reason)[:256]).result(timeout=0.1)
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True, "command": snapshot}
+
     def handle_proposal(self, proposal: dict[str, Any]) -> dict[str, Any]:
+        if getattr(getattr(self.controller.runtime, "action_service", None), "control_mode", "legacy") == "decision":
+            return {"ok": False, "error": "legacy proposals disabled in decision mode"}
         if not isinstance(proposal, dict):
             return {"ok": False, "error": "proposal must be an object"}
         commands = proposal.get("commands")
@@ -172,6 +216,8 @@ class AstrBotBridge:
                 return {"ok": False, "error": block_error}
             prepared.append((command, action))
 
+        if getattr(getattr(self.controller.runtime, "action_service", None), "control_mode", "legacy") == "decision":
+            return {"ok": False, "error": "legacy proposals disabled in decision mode"}
         accepted = [self._execute(command, action, context_id) for command, action in prepared]
         self.event_bus.emit("bridge", "AstrBot proposal accepted", context_id=context_id, commands=len(accepted))
         return {"ok": True, "context_id": context_id, "accepted": accepted}
@@ -201,6 +247,8 @@ class AstrBotBridge:
         }
 
     def _execute(self, command: dict[str, Any], action: BridgeAction, context_id: str) -> dict[str, Any]:
+        if getattr(getattr(self.controller.runtime, "action_service", None), "control_mode", "legacy") == "decision":
+            raise RuntimeError("legacy proposals disabled in decision mode")
         params = dict(command.get("params", {}) or {})
         reason = str(command.get("reason", "AstrBot proposal")).strip() or "AstrBot proposal"
         if action.action_id == "runtime.start.v1":

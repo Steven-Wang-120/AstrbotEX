@@ -1,0 +1,299 @@
+{
+  "scenarios": [
+    {
+      "scenario_id": "P_NORMAL",
+      "purpose": "Fresh 2D detection; target selection is separate",
+      "guide_refs": [
+        "yolo-front-detections"
+      ],
+      "expected": {
+        "outcome": "usable_2d",
+        "reason_code": "p-normal",
+        "reason": "Fresh 2D detection; target selection is separate"
+      },
+      "fixture": "p-normal.json"
+    },
+    {
+      "scenario_id": "P_EMPTY",
+      "purpose": "Empty frame means no detections, not a sensor error",
+      "guide_refs": [
+        "yolo-front-detections"
+      ],
+      "expected": {
+        "outcome": "no_detection",
+        "reason_code": "p-empty",
+        "reason": "Empty frame means no detections, not a sensor error"
+      },
+      "fixture": "p-empty.json"
+    },
+    {
+      "scenario_id": "P_MISSING_DEPTH",
+      "purpose": "Null depth is unknown, never a zero-distance grasp pose",
+      "guide_refs": [
+        "yolo-front-detections"
+      ],
+      "expected": {
+        "outcome": "usable_2d_only",
+        "reason_code": "p-missing-depth",
+        "reason": "Null depth is unknown, never a zero-distance grasp pose"
+      },
+      "fixture": "p-missing-depth.json"
+    },
+    {
+      "scenario_id": "P_DROPPED_FRAME",
+      "purpose": "Scenario policy requests fresh frame after a sequence gap; not a universal framework rejection",
+      "guide_refs": [
+        "yolo-front-detections"
+      ],
+      "expected": {
+        "outcome": "request_fresh",
+        "reason_code": "p-dropped-frame",
+        "reason": "Scenario policy requests fresh frame after a sequence gap; not a universal framework rejection"
+      },
+      "fixture": "p-dropped-frame.json"
+    },
+    {
+      "scenario_id": "P_OLD_FRAME",
+      "purpose": "Old stale frame cannot establish command-time freshness",
+      "guide_refs": [
+        "yolo-front-detections"
+      ],
+      "expected": {
+        "outcome": "reject_stale",
+        "reason_code": "p-old-frame",
+        "reason": "Old stale frame cannot establish command-time freshness"
+      },
+      "fixture": "p-old-frame.json"
+    },
+    {
+      "scenario_id": "P_BBOX_OUTOFBOUNDS",
+      "purpose": "Negative pixel left coordinate violates image bounds",
+      "guide_refs": [
+        "yolo-front-detections"
+      ],
+      "expected": {
+        "outcome": "reject_bbox",
+        "reason_code": "p-bbox-outofbounds",
+        "reason": "Negative pixel left coordinate violates image bounds"
+      },
+      "fixture": "p-bbox-outofbounds.json"
+    },
+    {
+      "scenario_id": "P_TARGET_GONE",
+      "purpose": "Prior target is absent from current frame",
+      "guide_refs": [
+        "yolo-front-detections"
+      ],
+      "expected": {
+        "outcome": "request_fresh",
+        "reason_code": "p-target-gone",
+        "reason": "Prior target is absent from current frame"
+      },
+      "fixture": "p-target-gone.json"
+    },
+    {
+      "scenario_id": "P_EPOCH_CHANGE",
+      "purpose": "Same track ID in new epoch is a new lifecycle",
+      "guide_refs": [
+        "yolo-front-detections"
+      ],
+      "expected": {
+        "outcome": "new_lifecycle",
+        "reason_code": "p-epoch-change",
+        "reason": "Same track ID in new epoch is a new lifecycle"
+      },
+      "fixture": "p-epoch-change.json"
+    },
+    {
+      "scenario_id": "P_BASE",
+      "purpose": "Simulated base state is descriptive, not permission",
+      "guide_refs": [
+        "simulated-base-status"
+      ],
+      "expected": {
+        "outcome": "descriptive_only",
+        "reason_code": "p-base",
+        "reason": "Simulated base state is descriptive, not permission"
+      },
+      "fixture": "p-base.json"
+    },
+    {
+      "scenario_id": "P_ARM",
+      "purpose": "Simulated arm joints have explicit order and frame",
+      "guide_refs": [
+        "simulated-arm-status"
+      ],
+      "expected": {
+        "outcome": "descriptive_only",
+        "reason_code": "p-arm",
+        "reason": "Simulated arm joints have explicit order and frame"
+      },
+      "fixture": "p-arm.json"
+    },
+    {
+      "scenario_id": "A_ACCEPTED",
+      "purpose": "Intake acknowledged, not complete",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "not_complete",
+        "reason_code": "a-accepted",
+        "reason": "Intake acknowledged, not complete"
+      },
+      "fixture": "a-accepted.json"
+    },
+    {
+      "scenario_id": "A_RUNNING",
+      "purpose": "Progress reported, not complete",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "not_complete",
+        "reason_code": "a-running",
+        "reason": "Progress reported, not complete"
+      },
+      "fixture": "a-running.json"
+    },
+    {
+      "scenario_id": "A_SUCCEEDED",
+      "purpose": "Success result for a separate command",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "success",
+        "reason_code": "a-succeeded",
+        "reason": "Success result for a separate command"
+      },
+      "fixture": "a-succeeded.json"
+    },
+    {
+      "scenario_id": "A_FAILED",
+      "purpose": "Failure result for a separate command",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "failure",
+        "reason_code": "a-failed",
+        "reason": "Failure result for a separate command"
+      },
+      "fixture": "a-failed.json"
+    },
+    {
+      "scenario_id": "A_CANCELED",
+      "purpose": "Positive controller stop proof for a separate command",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "stopped",
+        "reason_code": "a-canceled",
+        "reason": "Positive controller stop proof for a separate command",
+        "stop_confirmed": true
+      },
+      "fixture": "a-canceled.json"
+    },
+    {
+      "scenario_id": "A_UNKNOWN",
+      "purpose": "No authoritative stop; keep resource held until reconciliation",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "unresolved",
+        "reason_code": "a-unknown",
+        "reason": "No authoritative stop; keep resource held until reconciliation",
+        "stop_confirmed": false
+      },
+      "fixture": "a-unknown.json"
+    },
+    {
+      "scenario_id": "E_BADPARAMS",
+      "purpose": "Malformed start params bbox has only three coordinates",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "reject",
+        "reason_code": "e-badparams",
+        "reason": "Malformed start params bbox has only three coordinates",
+        "error_code": "length_violation"
+      },
+      "fixture": "e-badparams.json"
+    },
+    {
+      "scenario_id": "E_STALESESSION",
+      "purpose": "Input EX session differs from trusted current session",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "reject_stale",
+        "reason_code": "e-stalesession",
+        "reason": "Input EX session differs from trusted current session",
+        "error_code": "stale_ex_session"
+      },
+      "fixture": "e-stalesession.json"
+    },
+    {
+      "scenario_id": "E_REVISION",
+      "purpose": "Input goal revision differs from trusted current revision",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "reject_revision",
+        "reason_code": "e-revision",
+        "reason": "Input goal revision differs from trusted current revision",
+        "error_code": "revision_conflict"
+      },
+      "fixture": "e-revision.json"
+    },
+    {
+      "scenario_id": "E_EXPIREDLEASE",
+      "purpose": "Execution time passes the trusted receive plus lease deadline",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "reject_lease",
+        "reason_code": "e-expiredlease",
+        "reason": "Execution time passes the trusted receive plus lease deadline",
+        "error_code": "expired_lease"
+      },
+      "fixture": "e-expiredlease.json"
+    },
+    {
+      "scenario_id": "E_UNSAFE",
+      "purpose": "BBox-only 2D target has no metric depth or calibrated grasp pose",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "reject_unsafe",
+        "reason_code": "e-unsafe",
+        "reason": "BBox-only 2D target has no metric depth or calibrated grasp pose",
+        "error_code": "insufficient_3d_evidence"
+      },
+      "fixture": "e-unsafe.json"
+    },
+    {
+      "scenario_id": "E_NONFINITE",
+      "purpose": "Strict JSON marker requests decoder reconstruction of non-finite Python value",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "reject_nonfinite",
+        "reason_code": "e-nonfinite",
+        "reason": "Strict JSON marker requests decoder reconstruction of non-finite Python value",
+        "error_code": "non_finite_number"
+      },
+      "fixture": "e-nonfinite.json"
+    },
+    {
+      "scenario_id": "E_INJECTION",
+      "purpose": "Untrusted plugin output cannot authorize another plugin",
+      "guide_refs": [],
+      "expected": {
+        "outcome": "no_new_authority",
+        "reason_code": "e-injection",
+        "reason": "Untrusted plugin output cannot authorize another plugin",
+        "error_code": "untrusted_text"
+      },
+      "fixture": "e-injection.json"
+    },
+    {
+      "scenario_id": "E_HEALTH_ERROR",
+      "purpose": "Sensor error is not an empty healthy frame",
+      "guide_refs": [
+        "yolo-front-detections"
+      ],
+      "expected": {
+        "outcome": "reject_error",
+        "reason_code": "e-health-error",
+        "reason": "Sensor error is not an empty healthy frame"
+      },
+      "fixture": "e-health-error.json"
+    }
+  ]
+}

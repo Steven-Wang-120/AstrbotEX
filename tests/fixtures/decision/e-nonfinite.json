@@ -1,0 +1,38 @@
+{
+  "fixture_id": "e-nonfinite",
+  "category": "errors_boundaries",
+  "scenario_id": "E_NONFINITE",
+  "guide_refs": [],
+  "purpose": "Strict JSON marker requests decoder reconstruction of non-finite Python value",
+  "expected": {
+    "outcome": "reject_nonfinite",
+    "reason_code": "e-nonfinite",
+    "reason": "Strict JSON marker requests decoder reconstruction of non-finite Python value",
+    "error_code": "non_finite_number"
+  },
+  "payload": {
+    "invalid_input": {
+      "action_command": {
+        "schema_version": 1,
+        "command_id": "cmd-nonfinite",
+        "ex_session": "ex-1",
+        "goal_id": "goal-1",
+        "goal_revision": 0,
+        "decision_id": "dec-3",
+        "owner": "sim_arm",
+        "plugin_generation": 1,
+        "action_id": "sim_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "speed": {
+            "__fixture_non_finite__": "NaN"
+          }
+        },
+        "lease_ms": 1000
+      }
+    },
+    "trusted_context": {
+      "decoder": "Replace the exact __fixture_non_finite__ marker with Python float('nan') before B00 value validation; marker itself is valid JSON, not a wire value"
+    }
+  }
+}

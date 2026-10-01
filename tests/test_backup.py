@@ -185,5 +185,108 @@ class SnapshotHttpApiTest(unittest.TestCase):
                 server.server_close()
 
 
+class SnapshotActionFactsTest(unittest.TestCase):
+    def setUp(self):
+        from astrbot_ex.core.actions.ledger import OwnerBinding
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        with mock.patch.dict(os.environ, {"ASTRBOTEX_DATA_DIR": str(self.root),
+                                          "ASTRBOTEX_STT_ENABLED": "", "ASTRBOTEX_TTS_ENABLED": ""}):
+            self.server = build_server("127.0.0.1", 0, 20)
+        self.addCleanup(self.server.server_close)
+        self.binding = OwnerBinding("snapshot-owner", 1)
+        self.ledger = self.server.action_ledger
+        self.profile = self.root / "profiles/default/perception.json"
+        self.original = self.profile.read_bytes()
+        created = self.server.snapshot_service.create()
+        self.archive = self.server.snapshot_service.download_path(created["filename"]).read_bytes()
+
+    def command(self, name):
+        from astrbot_ex.core.actions.models import ActionCommand
+        return ActionCommand.parse({
+            "schema_version": 1, "command_id": name, "ex_session": "snapshot-session",
+            "goal_id": "snapshot-goal", "goal_revision": 1, "decision_id": "snapshot-decision",
+            "owner": self.binding.owner, "plugin_generation": self.binding.generation,
+            "action_id": "snapshot-owner.move.v2", "operation": "start", "params": {}, "lease_ms": 1000,
+        })
+
+    def facts(self):
+        return self.ledger._submit(lambda connection: {
+            table: connection.execute(f"SELECT * FROM {table} ORDER BY 1").fetchall()
+            for table in ("commands", "events", "resources", "stop_evidence", "sqlite_sequence")
+        }).result(3)
+
+    def test_restore_keeps_post_snapshot_execution_facts_and_open_ledger(self):
+        from astrbot_ex.core.actions.ledger import StopEvidence
+        with zipfile.ZipFile(io.BytesIO(self.archive)) as archive:
+            self.assertFalse(any("actions.sqlite3" in name or name.startswith("data/execution/")
+                                 for name in archive.namelist()))
+        for name, status in (("completed", "succeeded"), ("proven-unknown", "unknown")):
+            self.ledger.admit(self.command(name), (name + "-resource",), self.binding,
+                              task_id="snapshot-task").result(3)
+            self.ledger.report(name, self.binding, "accepted").result(3)
+            self.ledger.report(name, self.binding, "running").result(3)
+            self.ledger.report(name, self.binding, status).result(3)
+        proof = StopEvidence("proven-unknown", True, "mock-controller", "parked")
+        self.ledger.reconcile_stop("proven-unknown", self.binding, proof).result(3)
+        events = self.ledger.events(limit=100).result(3)
+        self.ledger.ack(events[0].event_seq).result(3)
+        before = self.facts()
+        self.profile.write_text('{"changed": true}', encoding="utf-8")
+        self.server.action_dispatcher.set_gate(True)
+        result = self.server.snapshot_service.restore_upload("snapshot.zip", self.archive)
+        self.assertEqual(result["restored_roots"], ["profiles", "plugins"])
+        self.assertEqual(self.profile.read_bytes(), self.original)
+        self.assertIs(self.server.action_ledger, self.ledger)
+        self.assertFalse(self.ledger.health.closed)
+        self.assertEqual(self.facts(), before)
+        self.assertEqual(self.ledger.stop_proof("proven-unknown", self.binding).result(3), proof)
+        for name in ("completed", "proven-unknown"):
+            self.assertFalse(self.ledger.admit(self.command(name), (name + "-resource",), self.binding,
+                                              task_id="snapshot-task").result(3).admitted_new)
+        self.assertEqual(self.facts(), before)
+        self.assertFalse(self.server.action_service.status()["gate_open"])
+        self.assertEqual(self.server.controller.runtime.state.value, "idle")
+
+    def test_unproven_admitted_running_and_unknown_restore_fail_closed_without_losing_resources(self):
+        for name, status in (("admitted", "admitted"), ("running", "running"), ("unknown", "unknown")):
+            self.ledger.admit(self.command(name), (name + "-resource",), self.binding,
+                              task_id="snapshot-task").result(3)
+            if status != "admitted":
+                self.ledger.report(name, self.binding, "accepted").result(3)
+                self.ledger.report(name, self.binding, status).result(3)
+        before = self.facts()
+        with self.assertRaisesRegex(SnapshotError, "stop proof pending"):
+            self.server.snapshot_service.restore_upload("snapshot.zip", self.archive)
+        self.assertEqual(self.facts(), before)
+        self.assertEqual(self.profile.read_bytes(), self.original)
+        for name in ("admitted", "running", "unknown"):
+            self.assertEqual(self.ledger.get(name).result(3).held_resources, (name + "-resource",))
+            self.assertIsNone(self.ledger.stop_proof(name, self.binding).result(3))
+        self.assertFalse(self.server.action_service.status()["gate_open"])
+        self.assertTrue(self.server.action_service.status()["blocked"])
+        # Supply Mock stop proof only after checking the failed restore retained facts.
+        from astrbot_ex.core.actions.ledger import StopEvidence
+        for name in ("admitted", "running", "unknown"):
+            if name != "unknown":
+                self.ledger.report(name, self.binding, "unknown").result(3)
+            self.ledger.reconcile_stop(name, self.binding, StopEvidence(name, True, "mock", name)).result(3)
+        self.assertTrue(self.server.action_service.await_stop_proof())
+
+    def test_reload_rollback_does_not_rollback_execution_facts(self):
+        self.ledger.admit(self.command("after-export"), (), self.binding, task_id="snapshot-task").result(3)
+        self.ledger.report("after-export", self.binding, "rejected").result(3)
+        before = self.facts()
+        with mock.patch.object(self.server.snapshot_service, "after_restore",
+                               side_effect=RuntimeError("forced reload failure")):
+            with self.assertRaisesRegex(SnapshotError, "forced reload failure"):
+                self.server.snapshot_service.restore_upload("snapshot.zip", self.archive)
+        self.assertEqual(self.facts(), before)
+        self.assertFalse(self.ledger.health.closed)
+        self.assertFalse(self.server.action_service.status()["gate_open"])
+        self.assertEqual(self.server.controller.runtime.state.value, "idle")
+
+
 if __name__ == "__main__":
     unittest.main()

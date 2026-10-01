@@ -1,0 +1,67 @@
+{
+  "fixture_id": "e-badparams",
+  "category": "errors_boundaries",
+  "scenario_id": "E_BADPARAMS",
+  "guide_refs": [],
+  "purpose": "Malformed start params bbox has only three coordinates",
+  "expected": {
+    "outcome": "reject",
+    "reason_code": "e-badparams",
+    "reason": "Malformed start params bbox has only three coordinates",
+    "error_code": "length_violation"
+  },
+  "payload": {
+    "invalid_input": {
+      "action_command": {
+        "schema_version": 1,
+        "command_id": "cmd-badparams",
+        "ex_session": "ex-1",
+        "goal_id": "goal-1",
+        "goal_revision": 0,
+        "decision_id": "dec-1",
+        "owner": "sim_arm",
+        "plugin_generation": 1,
+        "action_id": "sim_arm.pick_selected.v1",
+        "operation": "start",
+        "params": {
+          "target": {
+            "bbox_xyxy": [
+              120,
+              80,
+              260
+            ]
+          }
+        },
+        "lease_ms": 1000
+      }
+    },
+    "trusted_context": {
+      "parameter_schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "bbox_xyxy": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 4,
+                "maxItems": 4
+              }
+            },
+            "required": [
+              "bbox_xyxy"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

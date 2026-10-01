@@ -1,0 +1,1900 @@
+{
+  "fields": {
+    "fixture_id": [
+      {
+        "meaning": "Stable fixture filename stem for one independent replay example.",
+        "document": "docs/templates/output_description.md",
+        "field": "fixture_id",
+        "scope": "fixture"
+      }
+    ],
+    "category": [
+      {
+        "meaning": "Coverage bucket: perception, action, or errors_boundaries; not a runtime class.",
+        "document": "docs/templates/output_description.md",
+        "field": "category",
+        "scope": "fixture"
+      }
+    ],
+    "scenario_id": [
+      {
+        "meaning": "Uppercase stable replay key corresponding to the fixture ID.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenario_id",
+        "scope": "fixture"
+      }
+    ],
+    "guide_refs": [
+      {
+        "meaning": "IDs of plugin-data guides needed to interpret this scenario; empty for action-only fixtures.",
+        "document": "docs/templates/output_description.md",
+        "field": "guide_refs",
+        "scope": "fixture"
+      }
+    ],
+    "guide_refs[]": [
+      {
+        "meaning": "One guide ID referring to a Markdown payload description in this directory.",
+        "document": "docs/templates/output_description.md",
+        "field": "guide_refs[]",
+        "scope": "fixture"
+      }
+    ],
+    "purpose": [
+      {
+        "meaning": "Specific scenario and comparison rationale for replay consumers.",
+        "document": "docs/templates/output_description.md",
+        "field": "purpose",
+        "scope": "fixture"
+      }
+    ],
+    "expected": [
+      {
+        "meaning": "Expected interpretation for this scenario, not a production dispatcher result.",
+        "document": "docs/templates/output_description.md",
+        "field": "expected",
+        "scope": "fixture"
+      }
+    ],
+    "expected.outcome": [
+      {
+        "meaning": "Scenario-specific intended result, such as request_fresh or reject_revision.",
+        "document": "docs/templates/output_description.md",
+        "field": "expected.outcome",
+        "scope": "fixture"
+      }
+    ],
+    "expected.reason_code": [
+      {
+        "meaning": "Stable fixture reason label matching fixture_id, not necessarily a B00 error code.",
+        "document": "docs/templates/output_description.md",
+        "field": "expected.reason_code",
+        "scope": "fixture"
+      }
+    ],
+    "expected.reason": [
+      {
+        "meaning": "Human-readable reason for the expected outcome.",
+        "document": "docs/templates/output_description.md",
+        "field": "expected.reason",
+        "scope": "fixture"
+      }
+    ],
+    "expected.stop_confirmed": [
+      {
+        "meaning": "Scenario expectation for stop observation; true only for proven cancellation, false for this unknown example.",
+        "document": "docs/templates/output_description.md",
+        "field": "expected.stop_confirmed",
+        "scope": "fixture"
+      }
+    ],
+    "expected.error_code": [
+      {
+        "meaning": "Anticipated validation or boundary error label; pure-file tests verify inputs, not runtime emission.",
+        "document": "docs/templates/output_description.md",
+        "field": "expected.error_code",
+        "scope": "fixture"
+      }
+    ],
+    "payload": [
+      {
+        "meaning": "Scenario evidence and, for boundary cases, invalid input with independent trusted comparison context.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload",
+        "scope": "fixture"
+      }
+    ],
+    "payload.observation": [
+      {
+        "meaning": "Received observation wrapper; fields documented in Wrapper fields and its raw data guide.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.observation",
+        "scope": "fixture"
+      }
+    ],
+    "payload.action_event": [
+      {
+        "meaning": "Action lifecycle report with complete identity; fields documented in Action-event fields.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.action_event",
+        "scope": "fixture"
+      }
+    ],
+    "payload.target_ref": [
+      {
+        "meaning": "Separate historical target selection; fields documented in Separate target_ref.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.target_ref",
+        "scope": "fixture"
+      }
+    ],
+    "payload.context": [
+      {
+        "meaning": "Scenario-specific interpretation context, not plugin output.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.context",
+        "scope": "fixture"
+      }
+    ],
+    "payload.context.previous_seq": [
+      {
+        "meaning": "Last observed source sequence in the same epoch/stream; gap handling is scenario policy.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.context.previous_seq",
+        "scope": "fixture"
+      }
+    ],
+    "payload.invalid_input": [
+      {
+        "meaning": "Actual candidate data to interpret or reject, never a trusted authority source.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.invalid_input",
+        "scope": "fixture"
+      }
+    ],
+    "payload.trusted_context": [
+      {
+        "meaning": "Explicit comparison facts for the scenario, supplied outside untrusted candidate data.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context",
+        "scope": "fixture"
+      }
+    ],
+    "scenarios": [
+      {
+        "meaning": "Array indexing every scenario fixture exactly once.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios",
+        "scope": "index"
+      }
+    ],
+    "scenarios[]": [
+      {
+        "meaning": "One replay-index entry with an ID, relative filename, purpose, guide references and expectation.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios[]",
+        "scope": "index"
+      }
+    ],
+    "scenarios[].scenario_id": [
+      {
+        "meaning": "Stable scenario key copied from the referenced fixture.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios[].scenario_id",
+        "scope": "index"
+      }
+    ],
+    "scenarios[].fixture": [
+      {
+        "meaning": "Basename of its strict-JSON fixture in this directory; no absolute path.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios[].fixture",
+        "scope": "index"
+      }
+    ],
+    "scenarios[].purpose": [
+      {
+        "meaning": "Scenario rationale copied from the referenced fixture.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios[].purpose",
+        "scope": "index"
+      }
+    ],
+    "scenarios[].guide_refs": [
+      {
+        "meaning": "Required plugin-data guide IDs copied from the fixture.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios[].guide_refs",
+        "scope": "index"
+      }
+    ],
+    "scenarios[].guide_refs[]": [
+      {
+        "meaning": "One referenced Markdown guide ID.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios[].guide_refs[]",
+        "scope": "index"
+      }
+    ],
+    "scenarios[].expected": [
+      {
+        "meaning": "Expected interpretation copied verbatim from the fixture.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios[].expected",
+        "scope": "index"
+      }
+    ],
+    "scenarios[].expected.outcome": [
+      {
+        "meaning": "Intended result copied from expected.outcome in the fixture.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios[].expected.outcome",
+        "scope": "index"
+      }
+    ],
+    "scenarios[].expected.reason_code": [
+      {
+        "meaning": "Stable fixture reason label copied from the fixture.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios[].expected.reason_code",
+        "scope": "index"
+      }
+    ],
+    "scenarios[].expected.reason": [
+      {
+        "meaning": "Human-readable expected reason copied from the fixture.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios[].expected.reason",
+        "scope": "index"
+      }
+    ],
+    "scenarios[].expected.stop_confirmed": [
+      {
+        "meaning": "Copied positive canceled proof or negative unknown observation expectation, if present.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios[].expected.stop_confirmed",
+        "scope": "index"
+      }
+    ],
+    "scenarios[].expected.error_code": [
+      {
+        "meaning": "Copied anticipated boundary label when a scenario supplies invalid input.",
+        "document": "docs/templates/output_description.md",
+        "field": "scenarios[].expected.error_code",
+        "scope": "index"
+      }
+    ],
+    "payload.observation.schema_version": [
+      {
+        "meaning": "Integer observation schema version, 1 here.",
+        "document": "docs/templates/output_description.md",
+        "field": "schema_version",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.observation.observation_id": [
+      {
+        "meaning": "Unique ID for this received observation.",
+        "document": "docs/templates/output_description.md",
+        "field": "observation_id",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.observation.source_id": [
+      {
+        "meaning": "Logical source ID, key in observation_sources.",
+        "document": "docs/templates/output_description.md",
+        "field": "source_id",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.observation.source_epoch": [
+      {
+        "meaning": "String epoch of source/stream lifecycle; tracks do not survive a change.",
+        "document": "docs/templates/output_description.md",
+        "field": "source_epoch",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.observation.seq": [
+      {
+        "meaning": "Nonnegative integer source sequence; a gap can indicate dropped frames.",
+        "document": "docs/templates/output_description.md",
+        "field": "seq",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.observation.received_monotonic_ns": [
+      {
+        "meaning": "Nonnegative integer monotonic EX receive time in nanoseconds.",
+        "document": "docs/templates/output_description.md",
+        "field": "received_monotonic_ns",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.observation.age_ms": [
+      {
+        "meaning": "Finite nonnegative age in milliseconds at snapshot time only; never cached authority.",
+        "document": "docs/templates/output_description.md",
+        "field": "age_ms",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.observation.description_hash": [
+      {
+        "meaning": "Description/version ID, not an authenticity signature.",
+        "document": "docs/templates/output_description.md",
+        "field": "description_hash",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.observation.data": [
+      {
+        "meaning": "Original plugin JSON, preserved without a universal perception payload schema.",
+        "document": "docs/templates/output_description.md",
+        "field": "data",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.observation.health": [
+      {
+        "meaning": "Source-health object; stale/error cannot supply current evidence.",
+        "document": "docs/templates/output_description.md",
+        "field": "health",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.observation.health.status": [
+      {
+        "meaning": "Descriptive ok/stale/error value.",
+        "document": "docs/templates/output_description.md",
+        "field": "health.status",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.observation.health.reason_code": [
+      {
+        "meaning": "Descriptive health reason string; not an instruction.",
+        "document": "docs/templates/output_description.md",
+        "field": "health.reason_code",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.observation.data.stream_id": [
+      {
+        "meaning": "Camera stream ID, string; scopes frame_id together with source_epoch.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "stream_id",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.frame_id": [
+      {
+        "meaning": "Frame ID string, scoped to source_epoch and stream_id; synthetic B01 frames use front-<seq> within each epoch, not a universal naming rule.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "frame_id",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.image_width": [
+      {
+        "meaning": "Positive image width in pixels.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "image_width",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.image_height": [
+      {
+        "meaning": "Positive image height in pixels.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "image_height",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.objects": [
+      {
+        "meaning": "Array of detections; empty means no objects, not sensor failure.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.objects[]": [
+      {
+        "meaning": "One raw detection; array order does not select a target.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[]",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.objects[].object_id": [
+      {
+        "meaning": "Track ID string, scoped to epoch, stream and track_session; not permanent identity.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].object_id",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.objects[].label": [
+      {
+        "meaning": "Detector class string, not assured semantic identity; untrusted data.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].label",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.objects[].confidence": [
+      {
+        "meaning": "Finite detector confidence in [0,1], not grasp-success probability.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].confidence",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.objects[].bbox_xyxy": [
+      {
+        "meaning": "[left, top, right, bottom] pixel array, origin top-left, x right, y down; 0<=left<right<=image_width and 0<=top<bottom<=image_height.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].bbox_xyxy",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.objects[].bbox_xyxy[]": [
+      {
+        "meaning": "One finite pixel coordinate in the stated ordering.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].bbox_xyxy[]",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.objects[].depth_m": [
+      {
+        "meaning": "Optional positive metric depth in metres; null means unknown, never zero.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].depth_m",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.objects[].track_session": [
+      {
+        "meaning": "Tracker-session ID; reused object IDs start a new lifecycle across sessions.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].track_session",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.observation.data.base_id": [
+      {
+        "meaning": "Simulated base identifier string.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "base_id",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.observation.data.status": [
+      {
+        "meaning": "Descriptive idle/moving/fault string; not motion permission.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "status",
+        "scope": "simulated-base-status"
+      },
+      {
+        "meaning": "Descriptive ready/moving/fault string; not actuation permission.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "status",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.pose": [
+      {
+        "meaning": "Simulated planar pose in the explicitly named coordinate frame.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "pose",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.observation.data.pose.frame_id": [
+      {
+        "meaning": "Coordinate-frame ID; map in this example.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "pose.frame_id",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.observation.data.pose.x_m": [
+      {
+        "meaning": "Map-frame x in metres.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "pose.x_m",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.observation.data.pose.y_m": [
+      {
+        "meaning": "Map-frame y in metres.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "pose.y_m",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.observation.data.pose.yaw_rad": [
+      {
+        "meaning": "Counter-clockwise heading from map x in radians.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "pose.yaw_rad",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.observation.data.velocity": [
+      {
+        "meaning": "Planar velocity object, not a command.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "velocity",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.observation.data.velocity.linear_mps": [
+      {
+        "meaning": "Forward metres per second.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "velocity.linear_mps",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.observation.data.velocity.angular_radps": [
+      {
+        "meaning": "Radians per second, positive counter-clockwise.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "velocity.angular_radps",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.observation.data.battery_percent": [
+      {
+        "meaning": "Finite percentage in [0,100].",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "battery_percent",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.observation.data.sim_time_s": [
+      {
+        "meaning": "Simulation seconds, not monotonic receive time or observation age.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "sim_time_s",
+        "scope": "simulated-base-status"
+      },
+      {
+        "meaning": "Simulation seconds, not receive age.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "sim_time_s",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.arm_id": [
+      {
+        "meaning": "Simulated arm identifier string.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "arm_id",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.joint_order": [
+      {
+        "meaning": "Joint-name array defining both numeric array indices.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "joint_order",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.joint_order[]": [
+      {
+        "meaning": "Unique configured joint name string.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "joint_order[]",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.joint_positions_rad": [
+      {
+        "meaning": "Position array, same length/order as joint_order.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "joint_positions_rad",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.joint_positions_rad[]": [
+      {
+        "meaning": "Finite joint angle in radians.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "joint_positions_rad[]",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.joint_velocities_radps": [
+      {
+        "meaning": "Velocity array, same length/order as joint_order.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "joint_velocities_radps",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.joint_velocities_radps[]": [
+      {
+        "meaning": "Finite joint velocity in radians per second.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "joint_velocities_radps[]",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.effector_pose": [
+      {
+        "meaning": "Simulated end-effector position, not a grasp claim.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "effector_pose",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.effector_pose.frame_id": [
+      {
+        "meaning": "Coordinate-frame ID; arm_base in this example, not camera frame.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "effector_pose.frame_id",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.effector_pose.x_m": [
+      {
+        "meaning": "End-effector x in metres in effector_pose.frame_id.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "effector_pose.x_m",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.effector_pose.y_m": [
+      {
+        "meaning": "End-effector y in metres in effector_pose.frame_id.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "effector_pose.y_m",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.effector_pose.z_m": [
+      {
+        "meaning": "End-effector z in metres in effector_pose.frame_id.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "effector_pose.z_m",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.observation.data.holding_object_id": [
+      {
+        "meaning": "Nullable local simulator object ID; null means no known holding state; not cross-sensor target authority.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "holding_object_id",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.schema_version": [
+      {
+        "meaning": "Integer observation schema version, 1 here.",
+        "document": "docs/templates/output_description.md",
+        "field": "schema_version",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.invalid_input.observation.observation_id": [
+      {
+        "meaning": "Unique ID for this received observation.",
+        "document": "docs/templates/output_description.md",
+        "field": "observation_id",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.invalid_input.observation.source_id": [
+      {
+        "meaning": "Logical source ID, key in observation_sources.",
+        "document": "docs/templates/output_description.md",
+        "field": "source_id",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.invalid_input.observation.source_epoch": [
+      {
+        "meaning": "String epoch of source/stream lifecycle; tracks do not survive a change.",
+        "document": "docs/templates/output_description.md",
+        "field": "source_epoch",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.invalid_input.observation.seq": [
+      {
+        "meaning": "Nonnegative integer source sequence; a gap can indicate dropped frames.",
+        "document": "docs/templates/output_description.md",
+        "field": "seq",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.invalid_input.observation.received_monotonic_ns": [
+      {
+        "meaning": "Nonnegative integer monotonic EX receive time in nanoseconds.",
+        "document": "docs/templates/output_description.md",
+        "field": "received_monotonic_ns",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.invalid_input.observation.age_ms": [
+      {
+        "meaning": "Finite nonnegative age in milliseconds at snapshot time only; never cached authority.",
+        "document": "docs/templates/output_description.md",
+        "field": "age_ms",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.invalid_input.observation.description_hash": [
+      {
+        "meaning": "Description/version ID, not an authenticity signature.",
+        "document": "docs/templates/output_description.md",
+        "field": "description_hash",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.invalid_input.observation.data": [
+      {
+        "meaning": "Original plugin JSON, preserved without a universal perception payload schema.",
+        "document": "docs/templates/output_description.md",
+        "field": "data",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.invalid_input.observation.health": [
+      {
+        "meaning": "Source-health object; stale/error cannot supply current evidence.",
+        "document": "docs/templates/output_description.md",
+        "field": "health",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.invalid_input.observation.health.status": [
+      {
+        "meaning": "Descriptive ok/stale/error value.",
+        "document": "docs/templates/output_description.md",
+        "field": "health.status",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.invalid_input.observation.health.reason_code": [
+      {
+        "meaning": "Descriptive health reason string; not an instruction.",
+        "document": "docs/templates/output_description.md",
+        "field": "health.reason_code",
+        "scope": "wrapper"
+      }
+    ],
+    "payload.invalid_input.observation.data.stream_id": [
+      {
+        "meaning": "Camera stream ID, string; scopes frame_id together with source_epoch.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "stream_id",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.frame_id": [
+      {
+        "meaning": "Frame ID string, scoped to source_epoch and stream_id; synthetic B01 frames use front-<seq> within each epoch, not a universal naming rule.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "frame_id",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.image_width": [
+      {
+        "meaning": "Positive image width in pixels.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "image_width",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.image_height": [
+      {
+        "meaning": "Positive image height in pixels.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "image_height",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.objects": [
+      {
+        "meaning": "Array of detections; empty means no objects, not sensor failure.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.objects[]": [
+      {
+        "meaning": "One raw detection; array order does not select a target.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[]",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.objects[].object_id": [
+      {
+        "meaning": "Track ID string, scoped to epoch, stream and track_session; not permanent identity.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].object_id",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.objects[].label": [
+      {
+        "meaning": "Detector class string, not assured semantic identity; untrusted data.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].label",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.objects[].confidence": [
+      {
+        "meaning": "Finite detector confidence in [0,1], not grasp-success probability.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].confidence",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.objects[].bbox_xyxy": [
+      {
+        "meaning": "[left, top, right, bottom] pixel array, origin top-left, x right, y down; 0<=left<right<=image_width and 0<=top<bottom<=image_height.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].bbox_xyxy",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.objects[].bbox_xyxy[]": [
+      {
+        "meaning": "One finite pixel coordinate in the stated ordering.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].bbox_xyxy[]",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.objects[].depth_m": [
+      {
+        "meaning": "Optional positive metric depth in metres; null means unknown, never zero.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].depth_m",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.objects[].track_session": [
+      {
+        "meaning": "Tracker-session ID; reused object IDs start a new lifecycle across sessions.",
+        "document": "tests/fixtures/decision/yolo-front-detections.md",
+        "field": "objects[].track_session",
+        "scope": "yolo-front-detections"
+      }
+    ],
+    "payload.invalid_input.observation.data.base_id": [
+      {
+        "meaning": "Simulated base identifier string.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "base_id",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.status": [
+      {
+        "meaning": "Descriptive idle/moving/fault string; not motion permission.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "status",
+        "scope": "simulated-base-status"
+      },
+      {
+        "meaning": "Descriptive ready/moving/fault string; not actuation permission.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "status",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.pose": [
+      {
+        "meaning": "Simulated planar pose in the explicitly named coordinate frame.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "pose",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.pose.frame_id": [
+      {
+        "meaning": "Coordinate-frame ID; map in this example.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "pose.frame_id",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.pose.x_m": [
+      {
+        "meaning": "Map-frame x in metres.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "pose.x_m",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.pose.y_m": [
+      {
+        "meaning": "Map-frame y in metres.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "pose.y_m",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.pose.yaw_rad": [
+      {
+        "meaning": "Counter-clockwise heading from map x in radians.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "pose.yaw_rad",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.velocity": [
+      {
+        "meaning": "Planar velocity object, not a command.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "velocity",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.velocity.linear_mps": [
+      {
+        "meaning": "Forward metres per second.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "velocity.linear_mps",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.velocity.angular_radps": [
+      {
+        "meaning": "Radians per second, positive counter-clockwise.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "velocity.angular_radps",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.battery_percent": [
+      {
+        "meaning": "Finite percentage in [0,100].",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "battery_percent",
+        "scope": "simulated-base-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.sim_time_s": [
+      {
+        "meaning": "Simulation seconds, not monotonic receive time or observation age.",
+        "document": "tests/fixtures/decision/simulated-base-status.md",
+        "field": "sim_time_s",
+        "scope": "simulated-base-status"
+      },
+      {
+        "meaning": "Simulation seconds, not receive age.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "sim_time_s",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.arm_id": [
+      {
+        "meaning": "Simulated arm identifier string.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "arm_id",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.joint_order": [
+      {
+        "meaning": "Joint-name array defining both numeric array indices.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "joint_order",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.joint_order[]": [
+      {
+        "meaning": "Unique configured joint name string.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "joint_order[]",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.joint_positions_rad": [
+      {
+        "meaning": "Position array, same length/order as joint_order.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "joint_positions_rad",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.joint_positions_rad[]": [
+      {
+        "meaning": "Finite joint angle in radians.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "joint_positions_rad[]",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.joint_velocities_radps": [
+      {
+        "meaning": "Velocity array, same length/order as joint_order.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "joint_velocities_radps",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.joint_velocities_radps[]": [
+      {
+        "meaning": "Finite joint velocity in radians per second.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "joint_velocities_radps[]",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.effector_pose": [
+      {
+        "meaning": "Simulated end-effector position, not a grasp claim.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "effector_pose",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.effector_pose.frame_id": [
+      {
+        "meaning": "Coordinate-frame ID; arm_base in this example, not camera frame.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "effector_pose.frame_id",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.effector_pose.x_m": [
+      {
+        "meaning": "End-effector x in metres in effector_pose.frame_id.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "effector_pose.x_m",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.effector_pose.y_m": [
+      {
+        "meaning": "End-effector y in metres in effector_pose.frame_id.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "effector_pose.y_m",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.effector_pose.z_m": [
+      {
+        "meaning": "End-effector z in metres in effector_pose.frame_id.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "effector_pose.z_m",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.invalid_input.observation.data.holding_object_id": [
+      {
+        "meaning": "Nullable local simulator object ID; null means no known holding state; not cross-sensor target authority.",
+        "document": "tests/fixtures/decision/simulated-arm-status.md",
+        "field": "holding_object_id",
+        "scope": "simulated-arm-status"
+      }
+    ],
+    "payload.target_ref.source_epoch": [
+      {
+        "meaning": "Selected observation's epoch string.",
+        "document": "docs/templates/output_description.md",
+        "field": "source_epoch",
+        "scope": "target"
+      }
+    ],
+    "payload.target_ref.stream_id": [
+      {
+        "meaning": "Selected camera stream ID.",
+        "document": "docs/templates/output_description.md",
+        "field": "stream_id",
+        "scope": "target"
+      }
+    ],
+    "payload.target_ref.track_session": [
+      {
+        "meaning": "Selected track session ID.",
+        "document": "docs/templates/output_description.md",
+        "field": "track_session",
+        "scope": "target"
+      }
+    ],
+    "payload.target_ref.object_id": [
+      {
+        "meaning": "Selected object ID, scoped by epoch/stream/session.",
+        "document": "docs/templates/output_description.md",
+        "field": "object_id",
+        "scope": "target"
+      }
+    ],
+    "payload.target_ref.observation_id": [
+      {
+        "meaning": "ID of observation on which selection was made.",
+        "document": "docs/templates/output_description.md",
+        "field": "observation_id",
+        "scope": "target"
+      }
+    ],
+    "payload.invalid_input.target_ref.source_epoch": [
+      {
+        "meaning": "Selected observation's epoch string.",
+        "document": "docs/templates/output_description.md",
+        "field": "source_epoch",
+        "scope": "target"
+      }
+    ],
+    "payload.invalid_input.target_ref.stream_id": [
+      {
+        "meaning": "Selected camera stream ID.",
+        "document": "docs/templates/output_description.md",
+        "field": "stream_id",
+        "scope": "target"
+      }
+    ],
+    "payload.invalid_input.target_ref.track_session": [
+      {
+        "meaning": "Selected track session ID.",
+        "document": "docs/templates/output_description.md",
+        "field": "track_session",
+        "scope": "target"
+      }
+    ],
+    "payload.invalid_input.target_ref.object_id": [
+      {
+        "meaning": "Selected object ID, scoped by epoch/stream/session.",
+        "document": "docs/templates/output_description.md",
+        "field": "object_id",
+        "scope": "target"
+      }
+    ],
+    "payload.invalid_input.target_ref.observation_id": [
+      {
+        "meaning": "ID of observation on which selection was made.",
+        "document": "docs/templates/output_description.md",
+        "field": "observation_id",
+        "scope": "target"
+      }
+    ],
+    "payload.action_event.event_id": [
+      {
+        "meaning": "Unique event ID string.",
+        "document": "docs/templates/output_description.md",
+        "field": "event_id",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.event_seq": [
+      {
+        "meaning": "Positive EX event sequence integer.",
+        "document": "docs/templates/output_description.md",
+        "field": "event_seq",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.ex_session": [
+      {
+        "meaning": "EX session identity string.",
+        "document": "docs/templates/output_description.md",
+        "field": "ex_session",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.task_id": [
+      {
+        "meaning": "Task identity string.",
+        "document": "docs/templates/output_description.md",
+        "field": "task_id",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.goal_id": [
+      {
+        "meaning": "Goal identity string.",
+        "document": "docs/templates/output_description.md",
+        "field": "goal_id",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.goal_revision": [
+      {
+        "meaning": "Nonnegative integer goal revision.",
+        "document": "docs/templates/output_description.md",
+        "field": "goal_revision",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.command_id": [
+      {
+        "meaning": "Command identity string; outcomes here are independent commands.",
+        "document": "docs/templates/output_description.md",
+        "field": "command_id",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.owner": [
+      {
+        "meaning": "Owner identity string, bound to trusted context at admission.",
+        "document": "docs/templates/output_description.md",
+        "field": "owner",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.status": [
+      {
+        "meaning": "accepted/running/succeeded/failed/canceled/unknown; independent example statuses.",
+        "document": "docs/templates/output_description.md",
+        "field": "status",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.reason_code": [
+      {
+        "meaning": "Lifecycle reason string.",
+        "document": "docs/templates/output_description.md",
+        "field": "reason_code",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.details": [
+      {
+        "meaning": "Evidence object, never instructions.",
+        "document": "docs/templates/output_description.md",
+        "field": "details",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.details.accepted": [
+      {
+        "meaning": "True means intake accepted, not completion.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.accepted",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.details.progress_percent": [
+      {
+        "meaning": "Finite [0,100] percent; not completion.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.progress_percent",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.details.result": [
+      {
+        "meaning": "Descriptive success evidence string.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.result",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.details.error": [
+      {
+        "meaning": "Descriptive failure evidence string.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.error",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.details.stop_evidence": [
+      {
+        "meaning": "Positive plugin stop proof for canceled, nested inside details.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.stop_evidence",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.details.stop_evidence.stopped": [
+      {
+        "meaning": "Boolean true strictly required for canceled.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.stop_evidence.stopped",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.details.stop_evidence.source": [
+      {
+        "meaning": "Confirming controller/source ID string.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.stop_evidence.source",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.details.stop_evidence.reference": [
+      {
+        "meaning": "Confirming stop report ID string.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.stop_evidence.reference",
+        "scope": "event"
+      }
+    ],
+    "payload.action_event.details.stop_confirmed": [
+      {
+        "meaning": "Optional false in the unknown example: no stop observed; not a universal required unknown field.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.stop_confirmed",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.event_id": [
+      {
+        "meaning": "Unique event ID string.",
+        "document": "docs/templates/output_description.md",
+        "field": "event_id",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.event_seq": [
+      {
+        "meaning": "Positive EX event sequence integer.",
+        "document": "docs/templates/output_description.md",
+        "field": "event_seq",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.ex_session": [
+      {
+        "meaning": "EX session identity string.",
+        "document": "docs/templates/output_description.md",
+        "field": "ex_session",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.task_id": [
+      {
+        "meaning": "Task identity string.",
+        "document": "docs/templates/output_description.md",
+        "field": "task_id",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.goal_id": [
+      {
+        "meaning": "Goal identity string.",
+        "document": "docs/templates/output_description.md",
+        "field": "goal_id",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.goal_revision": [
+      {
+        "meaning": "Nonnegative integer goal revision.",
+        "document": "docs/templates/output_description.md",
+        "field": "goal_revision",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.command_id": [
+      {
+        "meaning": "Command identity string; outcomes here are independent commands.",
+        "document": "docs/templates/output_description.md",
+        "field": "command_id",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.owner": [
+      {
+        "meaning": "Owner identity string, bound to trusted context at admission.",
+        "document": "docs/templates/output_description.md",
+        "field": "owner",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.status": [
+      {
+        "meaning": "accepted/running/succeeded/failed/canceled/unknown; independent example statuses.",
+        "document": "docs/templates/output_description.md",
+        "field": "status",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.reason_code": [
+      {
+        "meaning": "Lifecycle reason string.",
+        "document": "docs/templates/output_description.md",
+        "field": "reason_code",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.details": [
+      {
+        "meaning": "Evidence object, never instructions.",
+        "document": "docs/templates/output_description.md",
+        "field": "details",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.details.accepted": [
+      {
+        "meaning": "True means intake accepted, not completion.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.accepted",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.details.progress_percent": [
+      {
+        "meaning": "Finite [0,100] percent; not completion.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.progress_percent",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.details.result": [
+      {
+        "meaning": "Descriptive success evidence string.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.result",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.details.error": [
+      {
+        "meaning": "Descriptive failure evidence string.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.error",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.details.stop_evidence": [
+      {
+        "meaning": "Positive plugin stop proof for canceled, nested inside details.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.stop_evidence",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.details.stop_evidence.stopped": [
+      {
+        "meaning": "Boolean true strictly required for canceled.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.stop_evidence.stopped",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.details.stop_evidence.source": [
+      {
+        "meaning": "Confirming controller/source ID string.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.stop_evidence.source",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.details.stop_evidence.reference": [
+      {
+        "meaning": "Confirming stop report ID string.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.stop_evidence.reference",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_event.details.stop_confirmed": [
+      {
+        "meaning": "Optional false in the unknown example: no stop observed; not a universal required unknown field.",
+        "document": "docs/templates/output_description.md",
+        "field": "details.stop_confirmed",
+        "scope": "event"
+      }
+    ],
+    "payload.invalid_input.action_command.schema_version": [
+      {
+        "meaning": "Integer B00 business-payload version, 1 for these sample commands.",
+        "document": "docs/templates/output_description.md",
+        "field": "schema_version",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.command_id": [
+      {
+        "meaning": "Distinct command identity, not an action ID; used for idempotent command tracking.",
+        "document": "docs/templates/output_description.md",
+        "field": "command_id",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.ex_session": [
+      {
+        "meaning": "Claimed EX session; compare to trusted current_ex_session before admission.",
+        "document": "docs/templates/output_description.md",
+        "field": "ex_session",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.goal_id": [
+      {
+        "meaning": "Goal identity to which this attempted command belongs.",
+        "document": "docs/templates/output_description.md",
+        "field": "goal_id",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.goal_revision": [
+      {
+        "meaning": "Nonnegative revision; admission must compare against trusted current revision.",
+        "document": "docs/templates/output_description.md",
+        "field": "goal_revision",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.decision_id": [
+      {
+        "meaning": "ID of the decision that selected the command option.",
+        "document": "docs/templates/output_description.md",
+        "field": "decision_id",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.owner": [
+      {
+        "meaning": "Claimed action owner; real authority comes from trusted plugin context.",
+        "document": "docs/templates/output_description.md",
+        "field": "owner",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.plugin_generation": [
+      {
+        "meaning": "Nonnegative owner generation; must be current for real dispatch.",
+        "document": "docs/templates/output_description.md",
+        "field": "plugin_generation",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.action_id": [
+      {
+        "meaning": "Qualified declared action identity; not the command identity.",
+        "document": "docs/templates/output_description.md",
+        "field": "action_id",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.operation": [
+      {
+        "meaning": "Requested start/cancel/pause/resume operation; examples use start.",
+        "document": "docs/templates/output_description.md",
+        "field": "operation",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.params": [
+      {
+        "meaning": "Candidate action parameters to validate against the declared parameter schema.",
+        "document": "docs/templates/output_description.md",
+        "field": "params",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.lease_ms": [
+      {
+        "meaning": "Positive command lease duration in milliseconds, measured from trusted receipt.",
+        "document": "docs/templates/output_description.md",
+        "field": "lease_ms",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.params.target": [
+      {
+        "meaning": "Candidate target parameter object, not a mutation of observation data.",
+        "document": "docs/templates/output_description.md",
+        "field": "params.target",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.params.target.bbox_xyxy": [
+      {
+        "meaning": "Candidate box coordinate array; malformed three-element boundary input.",
+        "document": "docs/templates/output_description.md",
+        "field": "params.target.bbox_xyxy",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.params.target.bbox_xyxy[]": [
+      {
+        "meaning": "One pixel coordinate in the malformed box used to demonstrate length rejection.",
+        "document": "docs/templates/output_description.md",
+        "field": "params.target.bbox_xyxy[]",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.params.target.observation_id": [
+      {
+        "meaning": "ID of observation referenced by the candidate target parameter.",
+        "document": "docs/templates/output_description.md",
+        "field": "params.target.observation_id",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.params.speed": [
+      {
+        "meaning": "Candidate numeric speed; marker object is only a fixture decoder sentinel.",
+        "document": "docs/templates/output_description.md",
+        "field": "params.speed",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command.params.speed.__fixture_non_finite__": [
+      {
+        "meaning": "Exact string NaN marker; a fixture runner reconstructs Python float('nan') BEFORE B00 value validation, never as wire JSON NaN.",
+        "document": "docs/templates/output_description.md",
+        "field": "params.speed.__fixture_non_finite__",
+        "scope": "command"
+      }
+    ],
+    "payload.invalid_input.action_command": [
+      {
+        "meaning": "Candidate B00 action command; compare with trusted state and validate params before execution.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.invalid_input.action_command",
+        "scope": "boundary"
+      }
+    ],
+    "payload.invalid_input.action_event": [
+      {
+        "meaning": "Candidate event carrying a claimed session/revision; must not replace trusted state.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.invalid_input.action_event",
+        "scope": "boundary"
+      }
+    ],
+    "payload.invalid_input.observation": [
+      {
+        "meaning": "Candidate observation wrapper, including original plugin data and health.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.invalid_input.observation",
+        "scope": "boundary"
+      }
+    ],
+    "payload.invalid_input.target_ref": [
+      {
+        "meaning": "Selection for this candidate observation; matching identity alone does not supply 3D pose.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.invalid_input.target_ref",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.parameter_schema": [
+      {
+        "meaning": "Illustrative bounded object/array/number JSON Schema for candidate params, not a manifest parser change.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context.parameter_schema",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.current_ex_session": [
+      {
+        "meaning": "Trusted active EX session; differs from invalid event's claimed ex_session.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context.current_ex_session",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.current_revision": [
+      {
+        "meaning": "Trusted current goal revision; differs from invalid event's goal_revision.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context.current_revision",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.received_monotonic_ns": [
+      {
+        "meaning": "Trusted command receipt timestamp in monotonic nanoseconds, not observation age.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context.received_monotonic_ns",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.execution_monotonic_ns": [
+      {
+        "meaning": "Actual queued execution timestamp in the same monotonic clock; here after receipt plus lease_ms.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context.execution_monotonic_ns",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.operation": [
+      {
+        "meaning": "Requested interpretation: 3d_grasp needs more than a 2D detector box.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context.operation",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.requires": [
+      {
+        "meaning": "Evidence requirements for this illustrative 3D grasp scenario.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context.requires",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.requires[]": [
+      {
+        "meaning": "Required positive metric depth or calibrated 3D pose, neither established by a bbox-only sample.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context.requires[]",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.decoder": [
+      {
+        "meaning": "Fixture-only instruction to reconstruct a Python non-finite value before B00 validation; not a wire decoder requirement.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context.decoder",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.provenance": [
+      {
+        "meaning": "Untrusted plugin-data provenance; detector label has no instruction authority.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context.provenance",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.authorized_actions": [
+      {
+        "meaning": "Actions already authorized independently of plugin text.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context.authorized_actions",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.authorized_actions[]": [
+      {
+        "meaning": "One independently authorized action ID; injection cannot extend this list.",
+        "document": "docs/templates/output_description.md",
+        "field": "payload.trusted_context.authorized_actions[]",
+        "scope": "boundary"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.type": [
+      {
+        "meaning": "Supported JSON Schema type keyword; object, array and number constrain each nested instance.",
+        "document": "docs/templates/output_description.md",
+        "field": "type",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties": [
+      {
+        "meaning": "Map of named object properties and their nested schemas; only declared names are accepted here.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties.target": [
+      {
+        "meaning": "Nested object schema for the target parameter.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties.target",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties.target.properties": [
+      {
+        "meaning": "Property-schema map inside the target object.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties.target.properties",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties.target.properties.bbox_xyxy": [
+      {
+        "meaning": "Array schema for the selected box; candidate has only three coordinates.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties.target.properties.bbox_xyxy",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties.target.properties.bbox_xyxy.type": [
+      {
+        "meaning": "Array type required for bbox_xyxy.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties.target.properties.bbox_xyxy.type",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties.target.properties.bbox_xyxy.items": [
+      {
+        "meaning": "Schema applied to every box coordinate.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties.target.properties.bbox_xyxy.items",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties.target.properties.bbox_xyxy.items.type": [
+      {
+        "meaning": "Each coordinate must be a JSON number.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties.target.properties.bbox_xyxy.items.type",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties.target.properties.bbox_xyxy.minItems": [
+      {
+        "meaning": "Four coordinates required at minimum.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties.target.properties.bbox_xyxy.minItems",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties.target.properties.bbox_xyxy.maxItems": [
+      {
+        "meaning": "Four coordinates allowed at maximum.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties.target.properties.bbox_xyxy.maxItems",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties.target.type": [
+      {
+        "meaning": "Target parameter must be an object.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties.target.type",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties.target.required": [
+      {
+        "meaning": "Required properties inside the target object.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties.target.required",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties.target.required[]": [
+      {
+        "meaning": "bbox_xyxy must be present, independent of its array length.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties.target.required[]",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.properties.target.additionalProperties": [
+      {
+        "meaning": "False forbids undeclared target properties.",
+        "document": "docs/templates/output_description.md",
+        "field": "properties.target.additionalProperties",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.required": [
+      {
+        "meaning": "Required properties at the command params root.",
+        "document": "docs/templates/output_description.md",
+        "field": "required",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.required[]": [
+      {
+        "meaning": "target must be present at the command params root.",
+        "document": "docs/templates/output_description.md",
+        "field": "required[]",
+        "scope": "schema"
+      }
+    ],
+    "payload.trusted_context.parameter_schema.additionalProperties": [
+      {
+        "meaning": "False forbids undeclared command params properties.",
+        "document": "docs/templates/output_description.md",
+        "field": "additionalProperties",
+        "scope": "schema"
+      }
+    ]
+  }
+}

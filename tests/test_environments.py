@@ -7,6 +7,8 @@ import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+from types import SimpleNamespace
+from astrbot_ex.core.environments import plugin_api as plugin_api_module
 from astrbot_ex.core.environments.manager import EnvironmentManager
 from astrbot_ex.core.environments.plugin_api import PluginRosFacade, RosBindingError, RosUnavailableError
 from astrbot_ex.core.environments.models import EnvironmentBusyError, EnvironmentRevisionConflict
@@ -51,6 +53,13 @@ def finish(manager,mode):
     if worker: worker.join(3)
     assert manager.snapshot()["phase"]=="idle", manager.snapshot()
     return result
+
+class ControlledPortClock:
+    def __init__(self): self.nanoseconds=time.monotonic_ns()
+    def advance_ns(self,nanoseconds): self.nanoseconds+=nanoseconds
+    def monotonic_ns(self): return self.nanoseconds
+    def monotonic(self): return self.nanoseconds/1_000_000_000
+
 
 class EnvironmentTest(unittest.TestCase):
     def setUp(self):
@@ -98,15 +107,53 @@ class EnvironmentTest(unittest.TestCase):
 
     def test_expiry_and_runtime_gate_drop_unsent_control(self):
         p=self.f.publisher("output");c=self.f.publisher("control");finish(self.m,"ros2")
-        p.publish(Message());time.sleep(.06);p._port.flush_one()
-        self.assertEqual(p.status()["tx_published"],0);self.assertEqual(p.status()["expired"],1)
-        self.assertEqual(c.publish(Message()).status,"runtime_inactive")
-        self.m.runtime_running=lambda:True
-        self.assertEqual(c.publish(Message()).status,"queued")
-        with self.assertRaises(EnvironmentBusyError): self.m.select("normal")
-        self.m.runtime_running=lambda:False
-        c._port.flush_one()
-        self.assertEqual(c.status()["tx_published"],0)
+        clock=ControlledPortClock()
+        port_time=SimpleNamespace(monotonic_ns=clock.monotonic_ns,monotonic=clock.monotonic,time=time.time)
+        with patch.object(plugin_api_module,"time",port_time):
+            p.publish(Message());clock.advance_ns(51_000_000);p._port.flush_one()
+            self.assertEqual(p.status()["tx_published"],0);self.assertEqual(p.status()["expired"],1)
+            self.assertEqual(c.publish(Message()).status,"runtime_inactive")
+            self.m.runtime_running=lambda:True
+            self.assertEqual(c.publish(Message()).status,"queued")
+            with self.assertRaises(EnvironmentBusyError): self.m.select("normal")
+            self.m.runtime_running=lambda:False
+            c._port.flush_one()
+            self.assertEqual(c.status()["tx_published"],0)
+
+    def test_output_queue_age_boundary(self):
+        p=self.f.publisher("output");c=self.f.publisher("control");finish(self.m,"ros2")
+        clock=ControlledPortClock()
+        port_time=SimpleNamespace(monotonic_ns=clock.monotonic_ns,monotonic=clock.monotonic,time=time.time)
+        with patch.object(plugin_api_module,"time",port_time):
+            self.assertEqual(p.publish(Message()).status,"queued")
+            clock.advance_ns(50_000_000)
+            p._port.flush_one()
+            self.assertEqual(p.status()["tx_published"],1)
+            self.assertEqual(p.status()["expired"],0)
+            self.assertEqual(p.publish(Message()).status,"queued")
+            clock.advance_ns(50_000_001)
+            p._port.flush_one()
+            self.assertEqual(p.status()["tx_published"],1)
+            self.assertEqual(p.status()["expired"],1)
+            self.assertEqual(p.status()["queue_depth"],0)
+            # The control port uses the default 200 ms age limit.
+            self.assertEqual(c._port.declaration["queue"]["max_age_ms"],200)
+            original_runtime_running=self.m.runtime_running
+            self.m.runtime_running=lambda:True
+            try:
+                self.assertEqual(c.publish(Message()).status,"queued")
+                clock.advance_ns(200_000_000)
+                c._port.flush_one()
+                self.assertEqual(c.status()["tx_published"],1)
+                self.assertEqual(c.status()["expired"],0)
+                self.assertEqual(c.publish(Message()).status,"queued")
+                clock.advance_ns(200_000_001)
+                c._port.flush_one()
+                self.assertEqual(c.status()["tx_published"],1)
+                self.assertEqual(c.status()["expired"],1)
+                self.assertEqual(c.status()["queue_depth"],0)
+            finally:
+                self.m.runtime_running=original_runtime_running
 
     def test_subscriptions_are_per_owner_and_bounded(self):
         other=PluginRosFacade(plugin_id="other",environment_manager=self.m,ports=PORTS)
