@@ -380,6 +380,112 @@ class JevBackendTests(unittest.TestCase):
             release.set()
             backend.close()
 
+    def test_invalid_transport_reply_and_secret_are_redacted_without_retry(self):
+        for value in (None, {}, jev.HTTPReply(True, b""), jev.HTTPReply(600, b""), jev.HTTPReply(200, "not-bytes")):
+            with self.subTest(value=value):
+                backend = self.backend(lambda *a: value, max_retries=2)
+                self.rejected(backend, "invalid_transport_reply")
+                self.assertEqual(backend.last_record.attempts, 1)
+        for secret in (None, "", "fake\nheader", "fake key", "非密钥", "x" * 4097):
+            with self.subTest(secret_type=type(secret).__name__):
+                calls = []
+                backend = jev.JevBackend(config(), transport=lambda *a: calls.append(a), secret_provider=lambda: secret)
+                self.addCleanup(backend.close)
+                self.rejected(backend, "missing_or_invalid_secret")
+                self.assertEqual(calls, [])
+                self.assertEqual(backend.last_record.input_tokens, None)
+
+    def test_all_local_input_limits_reject_before_secret_or_http(self):
+        cases = [(config(max_owners=1), snapshot(), "owner_limit"),
+                 (config(max_request_bytes=1), snapshot(), "request_too_large")]
+        empty = snapshot()
+        empty.owners.clear()
+        cases.append((config(), empty, "owner_limit"))
+        blocked = snapshot()
+        for option in blocked.owners[0]["candidates"]:
+            option["eligible"] = False
+        cases.append((config(), blocked, "no_eligible_candidate"))
+        for settings, original, code in cases:
+            with self.subTest(code=code):
+                calls = []
+                backend = jev.JevBackend(settings, transport=lambda *a: calls.append("http"),
+                                         secret_provider=lambda: calls.append("secret"))
+                self.addCleanup(backend.close)
+                self.rejected(backend, code, original)
+                self.assertEqual(calls, [])
+                self.assertEqual(backend.last_record.attempts, 0)
+
+    def test_retry_exhaustion_has_exact_attempt_count_and_no_background_retry(self):
+        calls = []
+        backend = self.backend(lambda *a: (calls.append(a), reply(status=429, retry_after="0"))[1], max_retries=2)
+        self.rejected(backend, "http_429")
+        backend._worker.join(1)
+        self.assertFalse(backend._worker.is_alive())
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(backend.last_record.attempts, 3)
+        self.assertIsNone(backend.last_record.input_tokens)
+
+    def test_request_build_and_response_parse_time_are_in_total_deadline(self):
+        for boundary in ("_request", "_response"):
+            with self.subTest(boundary=boundary):
+                calls = []
+                backend = self.backend(lambda *a: (calls.append(a), reply())[1], deadline_ms=40)
+                original = getattr(backend, boundary)
+                def expire(*args):
+                    time.sleep(0.06)
+                    return original(*args)
+                with patch.object(backend, boundary, side_effect=expire):
+                    self.rejected(backend, "deadline_exceeded")
+                self.assertEqual(len(calls), int(boundary == "_response"))
+                self.assertEqual(backend.last_record.reject_code, "deadline_exceeded")
+
+    def test_guide_change_after_response_parse_cannot_publish_old_selection(self):
+        backend = self.backend()
+        original = backend._response
+        def change(*args):
+            result = original(*args)
+            backend.reconfigure(replace(backend.config, observation_guides=(("front", "new guide version"),)))
+            return result
+        with patch.object(backend, "_response", side_effect=change):
+            self.rejected(backend, "config_changed")
+        self.assertEqual(backend.last_record.reject_code, "config_changed")
+        self.assertIsNone(backend.last_record.input_tokens)
+        self.assertFalse(backend.execution_allowed)
+
+    def test_retry_wait_config_change_drops_old_request_and_does_not_retry(self):
+        entered = threading.Event()
+        calls, errors = [], []
+        backend = self.backend(lambda *a: (calls.append(a), entered.set(), reply(status=429, retry_after="1"))[2],
+                               max_retries=2, deadline_ms=1500)
+        def decide():
+            try:
+                backend.decide(snapshot())
+            except jev.JevBackendError as exc:
+                errors.append(exc.code)
+        thread = threading.Thread(target=decide)
+        thread.start()
+        try:
+            self.assertTrue(entered.wait(1))
+            backend.reconfigure(replace(backend.config, min_confidence=0.7))
+            thread.join(0.5)
+            self.assertFalse(thread.is_alive())
+            self.assertEqual(errors, ["config_changed"])
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(backend.last_record.attempts, 1)
+        finally:
+            backend.cancel()
+            thread.join(2)
+
+    def test_request_response_byte_limits_are_inclusive(self):
+        backend = self.backend()
+        original = snapshot()
+        _, body = backend._request(original, backend.config)
+        response_size = len(reply().body)
+        inclusive = self.backend(max_request_bytes=len(body), max_response_bytes=response_size)
+        self.assertEqual(inclusive.decide(original).choices[0]["option_id"], "arm-start")
+        self.rejected(self.backend(max_request_bytes=len(body) - 1), "request_too_large", original)
+        self.rejected(self.backend(max_response_bytes=response_size - 1), "response_too_large", original)
+
     def test_single_live_rate_limit_close_and_invalid_configs(self):
         backend = self.backend(min_interval_ms=500)
         backend.decide(snapshot())
@@ -417,6 +523,87 @@ class HTTPBoundaryTests(unittest.TestCase):
         backend = jev.JevBackend(config(allow_live_http=True, **kwargs), secret_provider=lambda: "loopback-fake-only")
         self.addCleanup(backend.close)
         return backend
+
+    def test_content_length_premature_eof_rejects_even_complete_json(self):
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *a):
+                pass
+            def do_POST(self):
+                self.rfile.read(int(self.headers["Content-Length"]))
+                body = reply().body
+                self.send_response(200)
+                self.send_header("Content-Length", str(len(body) + 10))
+                self.end_headers()
+                self.wfile.write(body)
+        backend = self.local_backend(self.server(Handler))
+        with self.assertRaises(jev.JevBackendError) as caught:
+            backend.decide(snapshot())
+        self.assertEqual(caught.exception.code, "incomplete_response")
+        self.assertEqual(backend.last_record.reject_code, "incomplete_response")
+
+    def test_chunked_and_connection_close_complete_json_remain_supported(self):
+        for chunked in (True, False):
+            with self.subTest(chunked=chunked):
+                class Handler(BaseHTTPRequestHandler):
+                    def log_message(self, *a):
+                        pass
+                    def do_POST(self):
+                        self.rfile.read(int(self.headers["Content-Length"]))
+                        body = reply().body
+                        self.send_response(200)
+                        if chunked:
+                            self.send_header("Transfer-Encoding", "chunked")
+                        self.end_headers()
+                        if chunked:
+                            midpoint = len(body) // 2
+                            for part in (body[:midpoint], body[midpoint:]):
+                                self.wfile.write(("%x\r\n" % len(part)).encode() + part + b"\r\n")
+                            self.wfile.write(b"0\r\n\r\n")
+                        else:
+                            self.wfile.write(body)
+                backend = self.local_backend(self.server(Handler))
+                decision = backend.decide(snapshot())
+                self.assertEqual(decision.choices[0]["option_id"], "arm-start")
+                self.assertIsNone(backend.last_record.reject_code)
+                self.assertEqual(backend.last_record.attempts, 1)
+
+    def test_invalid_content_length_fails_closed_without_retry(self):
+        for length in ("-1", "not-an-integer", "1.5"):
+            with self.subTest(length=length):
+                class Handler(BaseHTTPRequestHandler):
+                    def log_message(self, *a):
+                        pass
+                    def do_POST(self):
+                        self.rfile.read(int(self.headers["Content-Length"]))
+                        self.send_response(200)
+                        self.send_header("Content-Length", length)
+                        self.end_headers()
+                        self.wfile.write(reply().body)
+                backend = self.local_backend(self.server(Handler), max_retries=2)
+                with self.assertRaises(jev.JevBackendError) as caught:
+                    backend.decide(snapshot())
+                self.assertEqual(caught.exception.code, "response_too_large")
+                self.assertEqual(backend.last_record.reject_code, "response_too_large")
+                self.assertEqual(backend.last_record.attempts, 1)
+
+    def test_truncated_chunked_complete_json_fails_closed_without_retry(self):
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *a):
+                pass
+            def do_POST(self):
+                self.rfile.read(int(self.headers["Content-Length"]))
+                body = reply().body
+                self.send_response(200)
+                self.send_header("Transfer-Encoding", "chunked")
+                self.end_headers()
+                # JSON is complete, but the declared chunk and final framing are not.
+                self.wfile.write(("%x\r\n" % (len(body) + 10)).encode() + body)
+        backend = self.local_backend(self.server(Handler), max_retries=2)
+        with self.assertRaises(jev.JevBackendError) as caught:
+            backend.decide(snapshot())
+        self.assertEqual(caught.exception.code, "transport_failure")
+        self.assertEqual(backend.last_record.reject_code, "transport_failure")
+        self.assertEqual(backend.last_record.attempts, 1)
 
     def test_real_http_request_and_body(self):
         received = []

@@ -195,6 +195,13 @@ class InteractionCoreTest(unittest.TestCase):
         self.assertTrue(suppressed)
 
         with self.core._lock:
+            timer = self.core._capture_resume_timer
+        self.assertIsNotNone(timer)
+        assert timer is not None
+        timer.cancel()
+        timer.join(timeout=1.0)
+        self.assertFalse(timer.is_alive())
+        with self.core._lock:
             self.core._capture_block_until = time.monotonic() - 0.01
             token = self.core._capture_gate_token
         self.core._resume_capture_if_due(token)

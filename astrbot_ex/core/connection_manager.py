@@ -238,7 +238,7 @@ class _ZmqAdapter(_Adapter):
         self._latest_peer: bytes | None = None
         self._peers: dict[bytes, float] = {}
         self._outbound: queue.Queue[tuple[Any, bytes | None, str | None, threading.Event, dict[str, Any]]] = queue.Queue(maxsize=100)
-        self._pending: dict[str, tuple[threading.Event, dict[str, Any]]] = {}
+        self._pending: dict[str, tuple[str, str, str, threading.Event, dict[str, Any]]] = {}
         self._protocol_ready = False
 
     def _endpoint(self) -> str:
@@ -340,7 +340,7 @@ class _ZmqAdapter(_Adapter):
         completed = threading.Event()
         outcome: dict[str, Any] = {}
         with self._lock:
-            self._pending[message_id] = (completed, outcome)
+            self._pending[message_id] = (self.record.id, str(self.record.config.get("channel")), method, completed, outcome)
         try:
             self._outbound.put_nowait((self._envelope("request", method, payload, message_id=message_id), binary, None, threading.Event(), {}))
         except queue.Full as exc:
@@ -424,9 +424,12 @@ class _ZmqAdapter(_Adapter):
             reply_to = str(envelope.get("reply_to") or "")
             with self._lock:
                 pending = self._pending.get(reply_to)
-            if pending is not None:
-                completed, outcome = pending
+            if (pending is not None and peer is None and self.record.type == "zmq_client"
+                    and pending[:3] == (self.record.id, envelope.get("channel"), envelope.get("method"))):
+                _, _, _, completed, outcome = pending
                 payload = envelope.get("payload", {})
+                if not isinstance(payload, dict):
+                    return
                 outcome["payload"] = payload
                 outcome["binary"] = binary
                 if not payload.get("ok", True):
@@ -617,6 +620,7 @@ class ConnectionManager:
         self._adapters: dict[str, _Adapter] = {}
         self._decision_transport = None
         self._task_public_handler = None
+        self._task_turn_handler = None
         self._business_handler: Callable[[str, str, dict[str, Any], bytes | None], tuple[dict[str, Any], bytes | None]] | None = None
         self._load()
 
@@ -738,6 +742,8 @@ class ConnectionManager:
             ]
         if not matches:
             raise RuntimeError(f"AstrBotEX {feature} business connection is not configured or enabled")
+        if len(matches) != 1:
+            raise RuntimeError(f"AstrBotEX {feature} business connection is ambiguous")
         adapter = matches[0][1]
         if not isinstance(adapter, _ZmqAdapter):
             raise RuntimeError(f"AstrBotEX {feature} business connection is not running")
@@ -801,6 +807,29 @@ class ConnectionManager:
         if conflict is not None:
             raise ValueError(f"AstrBotEX business feature {feature} is already assigned to {conflict.id}")
 
+    def decision_connection_id(self) -> str:
+        with self._lock:
+            matches = [record.id for record in self._records.values() if record.enabled
+                and record.type == "zmq_client" and record.config.get("protocol_profile") == "astrbotex"
+                and record.config.get("channel") == "text"]
+        if len(matches) != 1:
+            raise RuntimeError("decision text route missing or ambiguous")
+        return matches[0]
+
+    def request_connection(self, connection_id: str, feature: str, method: str, payload: dict,
+                           *, timeout_sec: float = 1) -> tuple[dict, bytes | None]:
+        with self._lock:
+            record = self._records.get(connection_id)
+            adapter = self._adapters.get(connection_id)
+            if (record is None or not record.enabled or record.type != "zmq_client"
+                    or record.config.get("protocol_profile") != "astrbotex"
+                    or record.config.get("channel") != feature or not isinstance(adapter, _ZmqAdapter)):
+                raise RuntimeError("scoped business route unavailable")
+        return adapter.request(method, payload, binary=None, timeout_sec=timeout_sec)
+
+    def set_task_turn_handler(self, handler: Callable) -> None:
+        self._task_turn_handler = handler
+
     def set_decision_handler(self, handler: Callable, *, public_validator: Callable | None = None,
                              public_handler: Callable | None = None) -> None:
         from astrbot_ex.core.decision_transport import DecisionTransport
@@ -809,6 +838,10 @@ class ConnectionManager:
 
     def _handle_business_request(self, feature: str, method: str, payload: dict[str, Any], binary: bytes | None,
                                  *, connection_id: str = "") -> tuple[dict[str, Any], bytes | None]:
+        if method == "interaction.task.turn":
+            if self._task_turn_handler is None:
+                return {"ok": False, "error": "task_turn_unavailable"}, None
+            return self._task_turn_handler(connection_id, feature, payload, binary), None
         if method.startswith("decision."):
             if self._decision_transport is None:
                 return {"ok": False, "error": {"code": "unsupported_method"}}, None

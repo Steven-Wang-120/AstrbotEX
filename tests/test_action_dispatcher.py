@@ -387,6 +387,7 @@ class DispatcherTests(unittest.TestCase):
         plugin.callback = callback
         self.dispatcher.start(command("arm", "timely-failure")).result(3)
         snap = self.wait_status("timely-failure", ActionStatus.UNKNOWN)
+        self.dispatcher._enqueue(lambda: None).result(1)
         self.assertEqual((snap.reason_code, snap.held_resources), ("actor_callback_failed", ("joint",)))
         self.assertEqual(len(plugin.commands), 1)
         self.assertTrue(self.dispatcher.blocked)
@@ -1244,6 +1245,7 @@ class DispatcherTests(unittest.TestCase):
         self.assertEqual(self.ledger.stop_proof("unreserved", OwnerBinding("arm", 3)).result(3), proof)
         self.assertEqual(len(self.dispatcher.review_stops().result(3)), 1)
         self.assertFalse(self.dispatcher.blocked)
+        self.plugins["arm"].close()
         fresh = self.owner("arm")
         self.enabled("arm")
         self.dispatcher.start(command("arm", "after-review")).result(3)

@@ -7,7 +7,7 @@ from astrbot_ex.core.models import FusedScene, RobotState, ScanResult, VisionRes
 from astrbot_ex.core.perception_core import PerceptionCore
 from astrbot_ex.core.plugin_registry import PluginRegistry
 from astrbot_ex.core.runtime import AstrBotEXRuntime
-from mock_plugins import FailingScanProvider, MockScanProvider, MockVisionProvider
+from tests.mock_plugins import FailingScanProvider, MockScanProvider, MockVisionProvider
 
 
 class StaticFusion:

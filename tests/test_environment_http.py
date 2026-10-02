@@ -8,7 +8,7 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from astrbot_ex.core.api_server import build_server
-from test_environments import FakeAdapter
+from tests.test_environments import FakeAdapter
 
 
 class EnvironmentHttpTest(unittest.TestCase):

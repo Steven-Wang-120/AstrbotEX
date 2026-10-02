@@ -8,7 +8,10 @@ import time
 import uuid
 from collections import deque
 
-from ..actions.ledger import OwnerBinding
+from concurrent.futures import TimeoutError as FutureTimeout
+
+from ..actions.dispatcher import DispatcherBusy
+from ..actions.ledger import LedgerBusy, LedgerClosed, LedgerFault, OwnerBinding
 from ..actions.models import ActionCommand, ActionStatus, ContractError, TERMINAL_STATUSES, validate_params
 from .backends import MockBackend
 from .goal_manager import GoalManager
@@ -22,6 +25,10 @@ class ShutdownErrors(RuntimeError):
     def __init__(self, message: str, exceptions) -> None:
         self.exceptions = tuple(exceptions)
         super().__init__(message + f" ({len(self.exceptions)} errors)")
+
+
+class _ApplicationIOError(RuntimeError):
+    """Application refresh failed, independently of backend choice validation."""
 
 
 class DecisionService:
@@ -45,7 +52,7 @@ class DecisionService:
         self._closed = False
         self.mode = "disabled"
         self.config_revision = 0
-        self.goals = GoalManager(self.catalog, revoke=self.actions.revoke, clock_ns=clock_ns)
+        self.goals = GoalManager(self.catalog, revoke=self._revoke_goal, clock_ns=clock_ns)
         if self.actions.dispatcher.blocked:
             self.goals.block("startup_recovery_requires_explicit_review")
         self.observations = ObservationStore(topic_bus, clock_ns=clock_ns, on_update=self.notify)
@@ -75,10 +82,17 @@ class DecisionService:
         self._batches = deque(maxlen=64)
         self._last_poll_ns = 0
         self._last_stop_epoch = -1
+        self.completion_hook = None
         self._control = threading.Thread(target=self._run, name="decision-control", daemon=True)
         self._backend_worker = threading.Thread(target=self._backend_loop, name="decision-backend", daemon=True)
         self._backend_worker.start()
         self._control.start()
+
+    def _revoke_goal(self) -> None:
+        if getattr(self, "completion_hook", None) is not None and self.actions.control_mode == "decision":
+            self.actions.revoke_decision()
+        else:
+            self.actions.revoke()  # independent B04/SDK retains generic safety behavior
 
     def notify(self) -> None:
         with self._condition:
@@ -118,9 +132,11 @@ class DecisionService:
 
     def cancel_goal(self, raw) -> dict:
         with self._condition:
+            epoch = self.goals.gate_epoch
             result = self.goals.cancel(raw)
-            self._stop_pending = True
-            self._condition.notify_all()
+            if self.goals.gate_epoch != epoch:
+                self._stop_pending = True
+                self._condition.notify_all()
             return result
 
     def renew_goal(self, raw) -> dict:
@@ -347,9 +363,12 @@ class DecisionService:
         return validate_backend_selection(snapshot, decision, current)
 
     def _apply(self, snapshot, decision) -> None:
-        if self.environment is not None:
-            self._environment_snapshot = self.environment.snapshot()
-        self._poll_rows()
+        try:
+            if self.environment is not None:
+                self._environment_snapshot = self.environment.snapshot()
+            self._poll_rows()
+        except Exception as exc:
+            raise _ApplicationIOError(str(exc)) from exc
         with self._lock:
             selected = self._validate_response(snapshot, decision)
             catalog = self.catalog.snapshot()
@@ -478,7 +497,19 @@ class DecisionService:
                         for cid in batch["commands"]):
                     batch["rolled_back"] = True
                     if self.goals.phase == "active":
-                        self.request_stop("partial_owner_rejection")
+                        goal = self.goals.active
+                        failed = (self.completion_hook is not None and goal is not None
+                            and self.goals.pending_replace is None and any(
+                                row.status == ActionStatus.FAILED and row.command_id in self._proven_uncertain
+                                and not row.held_resources and row.event_seq > 0
+                                and row.details.get("stop_evidence", {}).get("stopped") is True
+                                for row, _ in self._current_rows(goal)))
+                        if failed:
+                            self.goals.stop("partial_owner_rejection", terminal_status="failed")
+                            self._stop_pending = True
+                            self._condition.notify_all()
+                        else:
+                            self.request_stop("partial_owner_rejection")
                     # A stop already in progress owns the cancellation. Do not
                     # erase its pending replacement or revoke its epoch again.
                     self._record(None, "partial_execution", "partial_owner_rejection", commands=batch["commands"])
@@ -513,6 +544,105 @@ class DecisionService:
                     return
                 self._backend_result = (result, error)
                 self._condition.notify_all()
+
+    def _finish_proven_completion(self, goal, epoch) -> None:
+        """Post-stop hook; all refresh/journal I/O is outside safety locks."""
+        hook = self.completion_hook
+        if hook is None or goal is None:
+            return
+        self._poll_rows()
+        with self._condition, self.goals._lock, self.actions.dispatcher._lock:
+            if (self.goals.active != goal or self.goals.revision != goal.revision
+                    or self.goals.gate_epoch != epoch or self.goals.pending_replace is not None
+                    or self.goals.phase != "awaiting_llm"
+                    or self.goals.reason != "completion_evidence_committed"
+                    or self._clock() >= goal.expires_ns
+                    or self.actions.dispatcher._gate
+                    or self.actions._stop_proof_epoch < self.actions.dispatcher._epoch):
+                return
+            current = self._current_rows(goal)
+            required = set(goal.payload()["completion"].get("required_success_actions", []))
+            succeeded = {cmd["action_id"] for row, cmd in current
+                         if row.status == ActionStatus.SUCCEEDED and row.event_seq > 0}
+            if (not required or not required <= succeeded
+                    or any(row.status not in TERMINAL_STATUSES or row.held_resources for row, _ in current)):
+                return
+            summary = {"status": "succeeded", "reason_code": "completion_evidence_committed",
+                "details": {"completion_evidence": {"verified": True,
+                    "goal_id": goal.payload()["goal_id"], "goal_revision": goal.revision,
+                    "required_actions": sorted(required), "succeeded_actions": sorted(succeeded),
+                    "stop_proof_epoch": self.actions._stop_proof_epoch,
+                    "commands": [{"command_id": row.command_id, "action_id": cmd["action_id"],
+                                  "event_seq": row.event_seq, "status": row.status}
+                                 for row, cmd in current]}}}
+        hook(goal, epoch, summary)
+
+    def _finish_proven_terminal(self, terminal) -> None:
+        """Proven revoked goal only, after full stop; no persistence under locks."""
+        goal, epoch, status, reason, _ = terminal
+        self._poll_rows()
+        with self._condition:
+            rows = tuple(self._current_rows(goal))
+            unresolved = any(row.held_resources or (row.status not in {
+                ActionStatus.SUCCEEDED, ActionStatus.REJECTED, ActionStatus.CANCELED}
+                and not (row.status in {ActionStatus.FAILED, ActionStatus.UNKNOWN, ActionStatus.TIMED_OUT}
+                         and row.command_id in self._proven_uncertain)) for row in self._rows)
+            failed_commands = {row.command_id for row, _ in rows
+                if row.status == ActionStatus.FAILED and row.command_id in self._proven_uncertain
+                and not row.held_resources and row.event_seq > 0
+                and row.details.get("stop_evidence", {}).get("stopped") is True}
+        if unresolved:
+            with self._condition, self.goals._lock:
+                if self.goals._terminal_stop == terminal and self.goals.gate_epoch == epoch:
+                    self.goals.block("terminal_stop_requires_explicit_review")
+            return
+        if status == "failed" and not failed_commands:
+            return
+        commands = []
+        deadline = time.monotonic() + self._io_timeout
+        for row, command in rows:
+            if row.held_resources or (row.status not in {
+                    ActionStatus.SUCCEEDED, ActionStatus.REJECTED, ActionStatus.CANCELED}
+                    and not (status == "failed" and row.command_id in failed_commands)):
+                with self._condition, self.goals._lock:
+                    if self.goals._terminal_stop == terminal and self.goals.gate_epoch == epoch:
+                        self.goals.block("terminal_stop_requires_explicit_review")
+                return
+            item = {"command_id": row.command_id, "ex_session": command["ex_session"],
+                "goal_id": command["goal_id"],
+                "goal_revision": command["goal_revision"], "status": row.status, "event_seq": row.event_seq}
+            if row.status in {ActionStatus.CANCELED, ActionStatus.FAILED}:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise TimeoutError("terminal stop evidence deadline")
+                proof = self.actions.ledger.stop_proof(
+                    row.command_id, OwnerBinding(row.owner, row.generation)).result(remaining)
+                if proof is None or proof.stopped is not True:
+                    return
+                item["stop_evidence"] = {"stopped": True, "source": proof.source, "reference": proof.reference}
+            commands.append(item)
+        failure_evidence = ([item for item in commands if item["command_id"] in failed_commands]
+                            if status == "failed" else [])
+        with self._condition, self.goals._lock, self.actions.dispatcher._lock:
+            if (self._closed or self.completion_hook is None or self.goals._terminal_stop != terminal
+                    or self.goals.gate_epoch != epoch or self.goals.revision != goal.revision
+                    or self.goals.pending_replace is not None or self.goals.phase != "stopping"
+                    or self.actions.dispatcher._gate or self.actions.dispatcher.blocked
+                    or self.actions._stop_proof_epoch < self.actions.dispatcher._epoch):
+                return
+            hook = self.completion_hook
+            proof_epoch = self.actions._stop_proof_epoch
+            summary = {"status": status, "reason_code": reason,
+                "details": {"stop_evidence": {"stopped": True, "source": "ex-framework",
+                    "reference": self.goals.ex_session + ":" + str(proof_epoch)},
+                    "terminal_evidence": {"verified": True, "goal_id": goal.payload()["goal_id"],
+                        "goal_revision": goal.revision, "stop_proof_epoch": proof_epoch,
+                        "dispatcher_epoch": self.actions.dispatcher._epoch, "commands": commands}}}
+            if status == "failed":
+                summary["details"]["failure_evidence"] = {"verified": True,
+                    "goal_id": goal.payload()["goal_id"], "goal_revision": goal.revision,
+                    "commands": failure_evidence}
+        hook(goal, epoch, summary)
 
     def _process_control(self) -> None:
         """Bounded safety work independent of observation/backend reads."""
@@ -562,15 +692,20 @@ class DecisionService:
         if not stopping:
             return
         self._stop_attempts += 1
+        controlled = self.completion_hook is not None and self.actions.control_mode == "decision"
         try:
             if self._stop_attempts == 1:
-                proven = (self.actions.stop_actions(reason, after_epoch=stop_dispatcher_epoch)
+                proven = (self.actions.stop_actions(reason, decision_controlled=True) if controlled else
+                          self.actions.stop_actions(reason, after_epoch=stop_dispatcher_epoch)
                           if passive_stop else self.actions.stop_actions(reason))
             else:
                 if self._stop_request_retry:
                     # A failed request scan may never have reached cancel. Retry
                     # only that request, never on every subsequent poll failure.
-                    self.actions.request_stops(reason)
+                    if controlled:
+                        self.actions.request_stops(reason, decision_controlled=True)
+                    else:
+                        self.actions.request_stops(reason)
                 proven = self.actions.await_stop_proof(reason)
             self._stop_request_retry = not proven and "unavailable" in (self.actions._last_error or "")
             error = "" if proven else self.actions._last_error or "stop_not_proven"
@@ -582,10 +717,18 @@ class DecisionService:
             self._stop_error = error[:256]
             if self.goals.gate_epoch != epoch:
                 return  # a new explicit intent keeps its own pending flag
+            if controlled and proven and self.actions.dispatcher.blocked:
+                if self.goals.phase != "blocked":
+                    self.goals.block("action_fault_requires_explicit_review")
+                return  # full physical proof never clears an independent fault latch
             phase_before = self.goals.phase
+            terminal = self.goals._terminal_stop
+            terminal_hook = (self.completion_hook is not None and terminal is not None
+                             and terminal[1] == epoch and phase_before == "stopping")
             activated = self.goals.resolve_stop(epoch, proven,
                 activate=self.mode != "disabled" and self.actions.control_mode == "decision" and
-                self.actions._runtime_state in {"ready", "running"}) if phase_before != "awaiting_llm" else False
+                self.actions._runtime_state in {"ready", "running"}) if (
+                    phase_before != "awaiting_llm" and not terminal_hook) else False
             if not proven:
                 # resolve_stop already marks an ordinary failed stop blocked;
                 # do not revoke/change goal epoch repeatedly while proving it.
@@ -594,6 +737,10 @@ class DecisionService:
                 self._stop_attempt_epoch = self.goals.gate_epoch
                 self._stop_pending = self._stop_attempts < 3
                 self._next_stop_time = time.monotonic() + 0.1 * 2 ** (self._stop_attempts - 1)
+        if proven and terminal_hook:
+            self._finish_proven_terminal(terminal)
+        if proven and phase_before == "awaiting_llm":
+            self._finish_proven_completion(goal, epoch)
         if activated:
             try:
                 self.actions.dispatcher.review_stops().result(self._io_timeout)
@@ -658,6 +805,11 @@ class DecisionService:
             else:
                 try:
                     self._apply(snapshot, BackendDecision.parse(result.to_dict()))
+                except (_ApplicationIOError, OSError, FutureTimeout, LedgerBusy, LedgerClosed, LedgerFault, DispatcherBusy):
+                    # Execution/storage failures are worker faults, not invalid
+                    # backend choices. _run revokes authority before publishing
+                    # them, then the independent control path requests stop.
+                    raise
                 except Exception as exc:
                     reason = exc.error.code + ":" + exc.error.path if isinstance(exc, ContractError) else str(exc)
                     self._record(snapshot, "discarded", reason)

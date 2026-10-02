@@ -39,6 +39,7 @@ class GoalManager:
         self.gate_epoch = 0
         self.active: GoalRecord | None = None
         self.pending_replace: GoalRecord | None = None
+        self._terminal_stop = None  # one revoked goal/epoch, never new execution authority
         self.phase = "idle"
         self.reason = "new_authorization_required"
         self._requests: dict[str, tuple[str, dict]] = {}
@@ -103,9 +104,12 @@ class GoalManager:
             self._history.append({"revision": revision, "goal_id": goal.goal_id, "phase": response["phase"]})
             return self._remember(goal.request_id, digest, response)
 
-    def stop(self, reason: str = "stopped") -> int:
+    def stop(self, reason: str = "stopped", *, terminal_status: str | None = None) -> int:
         with self._lock:
+            target, active = self.pending_replace or self.active, self.active
             self._close_gate(reason)
+            self._terminal_stop = ((target, self.gate_epoch, terminal_status, reason[:256], active)
+                if target is not None and terminal_status in {"canceled", "timed_out", "failed"} else None)
             self.pending_replace = None
             if self.phase != "blocked":
                 self.phase = "stopping"
@@ -127,6 +131,21 @@ class GoalManager:
             self.pending_replace = None
             self.phase, self.reason = "idle", "new_authorization_required"
             return False
+
+    def finish_stopped(self, goal: GoalRecord, epoch: int) -> bool:
+        """One completion CAS permit; never consume a pending replacement."""
+        with self._lock:
+            terminal = self._terminal_stop
+            revoked = (terminal is not None and terminal[:2] == (goal, epoch)
+                       and self.phase == "stopping" and self.active == terminal[4])
+            if ((self.active != goal and not revoked) or self.gate_epoch != epoch
+                    or self.pending_replace is not None or self.revision != goal.revision
+                    or self.phase == "blocked"):
+                return False
+            self.active = None
+            self._terminal_stop = None
+            self.phase, self.reason = "idle", "new_authorization_required"
+            return True
 
     def block(self, reason: str) -> None:
         with self._lock:
@@ -152,7 +171,7 @@ class GoalManager:
         with self._lock:
             goal = self.pending_replace or self.active
             if goal and self._clock() >= goal.expires_ns and self.phase not in {"blocked", "stopping"}:
-                self.stop("goal_lease_expired")
+                self.stop("goal_lease_expired", terminal_status="timed_out")
                 return True
             return False
 
@@ -164,7 +183,7 @@ class GoalManager:
             if replay is not None:
                 return replay
             self._match(req.goal_id, req.goal_revision)
-            self.stop(req.reason_code or "goal_canceled")
+            self.stop(req.reason_code or "goal_canceled", terminal_status="canceled")
             return self._remember(req.request_id, digest, {"ok": True, "accepted": True, "stopped": False})
 
     def renew(self, raw: dict | GoalRenew) -> dict:

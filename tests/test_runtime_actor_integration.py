@@ -8,7 +8,7 @@ from astrbot_ex.core.perception_config import CameraConfig, FusionConfig, Percep
 from astrbot_ex.core.plugin_registry import PluginRegistry
 from astrbot_ex.core.runtime import AstrBotEXRuntime
 from astrbot_ex.core.scene_fusion import SceneFusion
-from mock_plugins import (
+from tests.mock_plugins import (
     ApproachEntitySkill,
     BasicRulePlugin,
     FailingScanProvider,

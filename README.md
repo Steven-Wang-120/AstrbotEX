@@ -219,12 +219,19 @@ D:\Code\AstrBotEX
 
 ### 运行测试
 
+在本仓库根运行保留的单元测试：
+
 ```powershell
-cd D:\Code\AstrBotEX
-python -m unittest discover -s tests
+python -B -m unittest discover -s tests -t . -v
 ```
 
-当前测试覆盖核心运行时、插件系统、安全检查、感知融合、交互链路、备份恢复等功能模块。
+当前单元测试覆盖核心运行时、插件系统、安全检查、感知融合、交互链路、备份恢复等功能模块。系统组合、ROS 和评估测试迁至独立 [AstrBotVLA-tests](https://github.com/Steven-Wang-120/AstrBotVLA-tests) 仓库；测试驱动命名空间为 `validation_drivers`。从其根目录运行严格验收（显式指定两个独立功能仓库）：
+
+```powershell
+python -B run_validation.py ex-offline --ex-checkout ../ex --aeb-checkout ../aeb
+```
+
+精确提交锁、开发态 `--allow-dirty`、离线 Host 镜像与 native ROS 的使用见该仓库 README；没有 ROS 的 skip 不计入验收。
 
 ### API 文档
 

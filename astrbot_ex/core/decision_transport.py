@@ -4,6 +4,7 @@ from __future__ import annotations
 import threading
 from typing import Any, Callable
 
+from astrbot_ex.core.actions.models import ContractError as ActionContractError
 from astrbot_ex.core.contracts import ContractError, parse_request, require_id, require_sequence, require_text
 
 
@@ -24,8 +25,10 @@ class DecisionTransport:
             if not isinstance(result, dict):
                 raise ValueError("invalid decision handler response")
             return result, None
-        except ContractError as exc:
-            return {"ok": False, "error": exc.error.to_dict()}, None
+        except (ContractError, ActionContractError) as exc:
+            error = exc.error.to_dict()
+            error["message"] = "Decision request rejected."
+            return {"ok": False, "error": error}, None
         except Exception:
             return {"ok": False, "error": {"code": "decision_handler_failed"}}, None
 

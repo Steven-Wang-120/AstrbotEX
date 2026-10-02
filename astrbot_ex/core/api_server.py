@@ -25,6 +25,8 @@ from astrbot_ex.core.actions.service import ActionService
 from astrbot_ex.core.actions.storage import prepare_action_ledger
 from astrbot_ex.core.decision.catalog import CapabilityCatalog
 from astrbot_ex.core.decision.service import DecisionService, ShutdownErrors
+from astrbot_ex.core.decision.controller import DecisionController
+from astrbot_ex.core.decision.public_delivery import TaskPublicDelivery
 from astrbot_ex.core.backup import SnapshotError, SnapshotService
 from astrbot_ex.core.connection_manager import ConnectionManager
 from astrbot_ex.core.environments import (
@@ -1129,6 +1131,12 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
             super().server_close()
             raise
         errors = []
+        for name in ("task_public_delivery", "decision_controller"):
+            try:
+                if hasattr(self, name):
+                    getattr(self, name).close()
+            except Exception as exc:
+                errors.append(exc)
         try:
             try:
                 if hasattr(self, "connections"):
@@ -1345,6 +1353,17 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         return {"ok": False, "error": f"unsupported {feature} method: {method}"}, None
 
     connections.set_business_handler(handle_zmq_business)
+    try:
+        server.decision_controller = DecisionController(decision_service, connections, interaction_core, data_root)
+        server.task_public_delivery = TaskPublicDelivery(server.decision_controller, interaction_core)
+        connections.set_decision_handler(server.decision_controller.handle,
+            public_validator=server.decision_controller.validate_public,
+            public_handler=server.task_public_delivery.enqueue)
+        connections.set_task_turn_handler(server.decision_controller.turn)
+        interaction_core.task_authority_invalidator = server.decision_controller.invalidate_local
+    except BaseException:
+        server.server_close()
+        raise
     server.connections.start_enabled()
     selected_mode = environment_manager.status()["config"]["selected_mode"]
     if selected_mode != "normal":

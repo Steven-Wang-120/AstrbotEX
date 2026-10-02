@@ -481,7 +481,8 @@ class DecisionServiceTests(unittest.TestCase):
             return original(*args, **kwargs)
         with patch.object(service, "_poll_rows", side_effect=OSError("persistent proof read failure")), \
                 patch.object(self.actions, "await_stop_proof", side_effect=prove):
-            self.assertTrue(wait_for(lambda: len(epochs) >= 2 and not service._stop_pending))
+            self.assertTrue(wait_for(lambda: len(epochs) >= 2 and not service._stop_pending
+                                     and service.status()["stop_error"] == ""))
             self.assertEqual(epochs[0], epochs[1])
             self.assertEqual(service.goals.phase, "blocked")
             self.assertIs(service.goals.active, goal)
@@ -652,7 +653,8 @@ class DecisionServiceTests(unittest.TestCase):
         self.assertTrue(backend.entered.wait(1))
         service.configuration_changed()
         backend.release.set()
-        self.assertTrue(wait_for(lambda: not service.status()["backend_live"]))
+        self.assertTrue(wait_for(lambda: not service.status()["backend_live"] and any(
+            d["reason_code"] == "config_revision_changed" for d in service.status()["decisions"])))
         self.assertEqual(self.plugins["arm"].commands, [])
         self.assertTrue(any("config_revision_changed" == d["reason_code"]
                             for d in service.status()["decisions"]))
@@ -702,7 +704,8 @@ class DecisionServiceTests(unittest.TestCase):
         service.observations.ingest("arm_pose", {"position": 2}, source_epoch="sensor-b", seq=1,
                                     source_timestamp=time.time())
         backend.release.set()
-        self.assertTrue(wait_for(lambda: not service.status()["backend_live"]))
+        self.assertTrue(wait_for(lambda: not service.status()["backend_live"] and any(
+            d["reason_code"] == "observation_source_epoch_changed" for d in service.status()["decisions"])))
         self.assertEqual(self.plugins["arm"].commands, [])
         self.assertTrue(any(d["reason_code"] == "observation_source_epoch_changed"
                             for d in service.status()["decisions"]))
@@ -717,7 +720,8 @@ class DecisionServiceTests(unittest.TestCase):
         # Advance only the observation clock; no sleep hides worker responsiveness.
         service.observations._clock = lambda: time.monotonic_ns() + 100_000_000
         backend.release.set()
-        self.assertTrue(wait_for(lambda: not service.status()["backend_live"]))
+        self.assertTrue(wait_for(lambda: not service.status()["backend_live"] and any(
+            d["reason_code"] == "observation_expired" for d in service.status()["decisions"])))
         self.assertEqual(self.plugins["arm"].commands, [])
         self.assertTrue(any(d["reason_code"] == "observation_expired"
                             for d in service.status()["decisions"]))
@@ -733,7 +737,9 @@ class DecisionServiceTests(unittest.TestCase):
         service.catalog.refresh([CapabilityInput("arm", 2, parse_action_manifest(entry["manifest"], owner="arm"),
             {}, entry["guide"], True, "2")])
         backend.release.set()
-        self.assertTrue(wait_for(lambda: not service.status()["backend_live"]))
+        self.assertTrue(wait_for(lambda: not service.status()["backend_live"] and any(
+            d["reason_code"] in {"catalog_revision_changed", "plugin_generations_changed"}
+            for d in service.status()["decisions"])))
         self.assertEqual(self.plugins["arm"].commands, [])
         self.assertTrue(any(d["reason_code"] in {"catalog_revision_changed", "plugin_generations_changed"}
                             for d in service.status()["decisions"]))
@@ -749,7 +755,8 @@ class DecisionServiceTests(unittest.TestCase):
         self.assertTrue(backend.entered.wait(1))
         environment.generation = 2
         backend.release.set()
-        self.assertTrue(wait_for(lambda: not service.status()["backend_live"]))
+        self.assertTrue(wait_for(lambda: not service.status()["backend_live"] and any(
+            d["reason_code"] == "environment_generation_changed" for d in service.status()["decisions"])))
         self.assertEqual(self.plugins["arm"].commands, [])
         self.assertTrue(any(d["reason_code"] == "environment_generation_changed"
                             for d in service.status()["decisions"]))

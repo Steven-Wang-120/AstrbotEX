@@ -10,7 +10,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from test_environments import FakeAdapter, Message, PORTS, finish
+from tests.test_environments import FakeAdapter, Message, PORTS, finish
 from astrbot_ex.core.environments.manager import EnvironmentManager
 from astrbot_ex.core.environments.models import EnvironmentBusyError
 from astrbot_ex.core.environments.plugin_api import PluginRosFacade

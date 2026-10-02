@@ -120,9 +120,15 @@ class NoHardwareImportTests(unittest.TestCase):
         import threading
 
         before = threading.active_count()
-        import importlib
+        # Reload in a fresh interpreter: reloading the live module replaces
+        # ContractError/classes already imported by runtime clients.
+        import subprocess
+        import sys
 
-        importlib.reload(contracts)
+        probe = "import threading; from astrbot_ex.core import contracts; import importlib; before = threading.active_count(); importlib.reload(contracts); assert threading.active_count() == before"
+        result = subprocess.run([sys.executable, "-B", "-c", probe],
+                                cwd=Path(__file__).resolve().parents[1], capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr.decode("utf-8", errors="replace"))
         self.assertEqual(threading.active_count(), before)
 
 

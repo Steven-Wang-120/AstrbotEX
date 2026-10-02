@@ -7,3 +7,4 @@ build/
 .DS_Store
 Thumbs.db
 profiles/default/plugins_state.json
+execution/

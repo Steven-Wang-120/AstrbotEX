@@ -198,6 +198,14 @@ class ActionDispatcher:
         if active:
             self._block("gate_revoked")
 
+    def revoke_decision_gate(self) -> None:
+        """Trusted controlled stop: revoke now, retain every existing fault latch."""
+        with self._lock:
+            self._gate = False
+            self._epoch += 1
+            self._context = None
+            self._wake.set()
+
     def update_versions(self, *, catalog_revision: int, config_revision: int,
                         environment_revision: int, runtime_state: str) -> None:
         """Framework notification: revoke every older goal snapshot immediately."""
@@ -535,9 +543,21 @@ class ActionDispatcher:
             return self.ledger.get(command_id).result()
         if terminal:
             return self.ledger.reconcile_stop(command_id, live.binding, evidence).result()
+        if status == ActionStatus.FAILED:
+            with self._lock:
+                self._gate = False
+                self._epoch += 1
+                self._context = None  # revoke queued starts before persistence waits
+                self._wake.set()
         try:
             snapshot = self.ledger.report(command_id, live.binding, status, reason_code=reason,
                                           details=details, stop_evidence=evidence).result()
+            stopped_failure = False
+            if snapshot.status == ActionStatus.FAILED and not snapshot.held_resources:
+                proof = self.ledger.stop_proof(command_id, live.binding).result()
+                stopped_failure = (proof is not None and proof.stopped is True
+                    and snapshot.details.get("stop_evidence") == {
+                        "stopped": True, "source": proof.source, "reference": proof.reference})
         except Exception:
             self._block("ledger_report_failed")
             raise
@@ -546,8 +566,8 @@ class ActionDispatcher:
             if snapshot.status in TERMINAL_STATUSES:
                 self._timeout_pending.pop(command_id, None)
                 self._timeout_enqueued.discard(command_id)
-            uncertain = snapshot.status in (ActionStatus.UNKNOWN, ActionStatus.TIMED_OUT,
-                                             ActionStatus.FAILED)
+            uncertain = (snapshot.status in (ActionStatus.UNKNOWN, ActionStatus.TIMED_OUT,
+                                              ActionStatus.FAILED) and not stopped_failure)
             deferred = list(live.deferred_reports) if snapshot.status in TERMINAL_STATUSES else []
             if deferred:
                 live.deferred_reports.clear()

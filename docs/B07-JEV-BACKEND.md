@@ -146,6 +146,59 @@ Host: Windows x86-64, Python 3.12.10. Uses Python 3.10-compatible syntax/stdlib;
 runtime was available/tested.** Only focused suites were run; no full-batch or
 hardware/production result is implied.
 
+## 2026-10-01 acceptance follow-up (c9624a4 baseline)
+
+The required official pages were freshly fetched with Tavily on 2026-10-01:
+[Models](https://docs.typesafe.ai/models), [Choice](https://docs.typesafe.ai/primitives/choice),
+[State](https://docs.typesafe.ai/concepts/state), [Jev 1.13 jaggedness](https://docs.typesafe.ai/model-jaggedness/jev-1.13),
+and [HTTP API](https://docs.typesafe.ai/api). They still document `jev-1.13.0`,
+`POST /v1/systemone`, text/JSON state, <=255 options and independent questions.
+The published 64k total/32k state+longest-question limits are token limits, not our
+byte budget; local byte limits do not guarantee the provider tokenizer fits.
+Supplier 429/529 backoff advice does not override this adapter's opt-in bounded
+429-only retry policy. No SDK was installed or imported; core remains Python 3.10
+stdlib compatible. Later *explicit* pinned versions can be tested by trusted
+reconfiguration (never a latest alias), but delivery defaults remain 1.13.0.
+
+Two necessary adapter fixes, no service/registry rewrite:
+
+- Reject premature Content-Length EOF (`incomplete_response`) even if the partial
+  body happens to be valid complete JSON. A loopback failing test precedes the fix;
+  chunked/connection-close responses still use stdlib framing. Invalid framing
+  remains fail-closed, never a first-option fallback or automatic retry.
+- When cancellation wins a worker-join/retry-wait race, attribute rejection to
+  current close/config epoch before generic canceled. This does not authorize
+  results or change cancellation semantics; it stabilizes diagnostics.
+
+Additional tests cover inclusive byte boundaries, secret/transport invalid shapes,
+pre-secret input rejection, exact retry exhaustion, request-build/response-parse
+budget, guide changes after parsing, retry-wait configuration changes, and real
+ActionService/SQLite/Actor shadow keep/wait/replan/malformed output effects.
+Existing start/cancel/late-goal/config-change composition tests are rerun unchanged;
+B04 race tests and B00 files are not edited. Real model injection resistance is
+still **unmeasured**; these tests prove data separation and fail-closed local gates.
+
+Historical final acceptance was 69 tests, including original 50; that count and
+the archived evidence below are unchanged. After the repository split,
+`tests.test_jev_offline_evaluation` is
+`validation_tests.evaluation.test_jev_offline_evaluation` in
+[AstrBotVLA-tests](https://github.com/Steven-Wang-120/AstrBotVLA-tests). Reproduce
+the strict combined offline suite from that repository (including retained EX
+units, migrated evaluation and wiring):
+
+```powershell
+python -B run_validation.py ex-offline --ex-checkout ../ex --aeb-checkout ../aeb
+```
+
+Use its README's pinned-lock/development instructions. The offline driver is
+`python -B -m validation_drivers.evaluate_jev_offline --ex-checkout ../ex --aeb-checkout ../aeb`.
+
+This is worker verification, not coordinator acceptance. Platform results, source
+SHA before/after, failures, skips and exact commands are recorded in
+`task-evidence/2026-10-01-complete/HANDOFF.md` and raw logs. Windows available
+runtime is 3.12.10, not 3.10; ARM is checked separately with actual 3.10.12.
+No grammar-only check is presented as Windows 3.10 execution.
+
 ## Deferred intentionally
 
 No frozen 100-scene/holdout replay benchmark or rule/stub-LLM comparison was built

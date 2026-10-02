@@ -33,6 +33,9 @@ class ActionService:
     def revoke(self) -> None:
         self.dispatcher.set_gate(False)
 
+    def revoke_decision(self) -> None:
+        self.dispatcher.revoke_decision_gate()
+
     def update_versions(self, *, environment_revision: int | None = None,
                         runtime_state: str | None = None,
                         config_revision: int | None = None) -> None:
@@ -59,7 +62,7 @@ class ActionService:
     def _await_read(self, future, deadline: float):
         try:
             return future.result(timeout=max(0.0, deadline - time.monotonic()))
-        except FutureTimeout as exc:
+        except (FutureTimeout, TimeoutError) as exc:
             # An unfinished Future exhausted the total wait budget. A Future
             # that completed with TimeoutError is an actual I/O error instead.
             if not future.done() and time.monotonic() >= deadline:
@@ -92,9 +95,13 @@ class ActionService:
         text = str(reason or "framework stop")
         return text[:256]
 
-    def request_stops(self, reason: str, *, binding: OwnerBinding | None = None) -> tuple[str, ...]:
+    def request_stops(self, reason: str, *, binding: OwnerBinding | None = None,
+                      decision_controlled: bool = False) -> tuple[str, ...]:
         """Revoke admission and initiate cancellation without awaiting proof."""
-        self.revoke()
+        if decision_controlled:
+            self.revoke_decision()
+        else:
+            self.revoke()
         bounded = self._bounded_reason(reason)
         requested: list[str] = []
         deadline = time.monotonic() + self.stop_timeout
@@ -156,13 +163,16 @@ class ActionService:
             return False
 
     def stop_actions(self, reason: str, *, binding: OwnerBinding | None = None,
-                     after_epoch: int | None = None) -> bool:
+                     after_epoch: int | None = None, decision_controlled: bool = False) -> bool:
         """Stop now, or acknowledge an already-proven trusted gate-revocation epoch."""
         if binding is None and after_epoch is not None and after_epoch >= 0:
             with self.dispatcher._lock:
                 if self._stop_proof_epoch >= after_epoch:
                     return True
-        self.request_stops(reason, binding=binding)
+        if decision_controlled:
+            self.request_stops(reason, binding=binding, decision_controlled=True)
+        else:
+            self.request_stops(reason, binding=binding)
         return self.await_stop_proof(reason, binding=binding)
 
     def prove_owner_stop(self, slot: Any, reason: str) -> bool:

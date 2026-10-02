@@ -134,6 +134,7 @@ def _http_transport(body, headers, deadline, cancel, max_bytes):
         length = response.getheader("Content-Length")
         if length is not None and (not length.isdecimal() or int(length) > max_bytes):
             raise JevBackendError("response_too_large")
+        expected_length = response.length  # None for chunked or connection-close framing
         chunks = []
         size = 0
         while True:
@@ -149,6 +150,8 @@ def _http_transport(body, headers, deadline, cancel, max_bytes):
             size += len(chunk)
             if size > max_bytes:
                 raise JevBackendError("response_too_large")
+        if expected_length is not None and size != expected_length:
+            raise JevBackendError("incomplete_response")
         return HTTPReply(response.status, b"".join(chunks), response.getheader("Retry-After"))
     finally:
         connection.close()
@@ -421,7 +424,7 @@ class JevBackend:
                 except JevBackendError as exc:
                     # Only locally-known fixed codes may cross the worker boundary.
                     result.put(JevBackendError(exc.code if exc.code in {
-                        "canceled", "deadline_exceeded", "response_too_large",
+                        "canceled", "deadline_exceeded", "response_too_large", "incomplete_response",
                         "missing_or_invalid_secret", "invalid_transport_reply",
                     } else "transport_failure"))
                 except TimeoutError:
@@ -480,7 +483,10 @@ class JevBackend:
                     None, attempts, usage["input_tokens"], usage["output_tokens"], overrides)
                 return decision
         except JevBackendError as exc:
-            code = exc.code
+            with self._lock:
+                code = "closed" if self._closed else "config_changed" if self._epoch != epoch else exc.code
+            if code != exc.code:
+                raise JevBackendError(code) from None
             raise
         except Exception:
             code = "invalid_backend_data"

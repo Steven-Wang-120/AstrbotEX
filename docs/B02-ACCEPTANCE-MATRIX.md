@@ -78,22 +78,23 @@ Dispatcher helper 真正调用 Actor 业务回调并写 marker；Ledger helper �
 
 本轮不执行 ROS、网络或 SSH。以下入口仅供**已授权的隔离 ROS 环境**后续复现：已 source ROS2/Humble 和自定义接口，domain 73、随机 namespace、测试临时数据，无生产节点/服务/设备。nativeDDS5 是下列现有五个测试的统计名称，**不是本树脚本名/API**。
 
-`tests/test_ros2_integration.py#NativeRosIntegrationTest` 包含：
+`validation_tests/ros/test_ros2_integration.py#NativeRosIntegrationTest` 包含：
 
-1. `tests/test_ros2_integration.py#NativeRosIntegrationTest.test_external_process_late_publisher_dual_owners_and_bidirectional`
-2. `tests/test_ros2_integration.py#NativeRosIntegrationTest.test_qos_diagnostics_and_reconfiguration_recover`
-3. `tests/test_ros2_integration.py#NativeRosIntegrationTest.test_twenty_switches_release_threads_and_discard_queued_messages`
-4. `tests/test_ros2_integration.py#NativeRosIntegrationTest.test_high_rate_slow_consumer_stays_bounded`
-5. `tests/test_ros2_integration.py#NativeRosIntegrationTest.test_custom_nested_type_roundtrip_and_missing_package_isolated`
+1. `validation_tests/ros/test_ros2_integration.py#NativeRosIntegrationTest.test_external_process_late_publisher_dual_owners_and_bidirectional`
+2. `validation_tests/ros/test_ros2_integration.py#NativeRosIntegrationTest.test_qos_diagnostics_and_reconfiguration_recover`
+3. `validation_tests/ros/test_ros2_integration.py#NativeRosIntegrationTest.test_twenty_switches_release_threads_and_discard_queued_messages`
+4. `validation_tests/ros/test_ros2_integration.py#NativeRosIntegrationTest.test_high_rate_slow_consumer_stays_bounded`
+5. `validation_tests/ros/test_ros2_integration.py#NativeRosIntegrationTest.test_custom_nested_type_roundtrip_and_missing_package_isolated`
 
-在已 source 的隔离 Linux ROS 环境、仓库根（**本轮不运行**）：
+在已 source 的隔离 Linux ROS 环境，从独立 [AstrBotVLA-tests](https://github.com/Steven-Wang-120/AstrBotVLA-tests) 根运行迁移后的 DDS5（**本轮不运行**；自定义接口须在 before-hash 前预构建）：
 
 ```sh
-ROS_DOMAIN_ID=73 ASTRBOTEX_TEST_ROS_DOMAIN_ID=73 python -m unittest discover -s tests -p test_ros2_integration.py -v
-ROS_DOMAIN_ID=73 PYTHONPATH=. python tests/native_action_lifecycle_check.py
+ROS_DOMAIN_ID=73 ASTRBOTEX_TEST_ROS_DOMAIN_ID=73 python -B run_validation.py ros --ex-checkout ../ex --aeb-checkout ../aeb
+# 原生 action lifecycle helper 仍留在 EX；下条从 EX 根运行：
+ROS_DOMAIN_ID=73 PYTHONPATH=. python -B tests/native_action_lifecycle_check.py
 ```
 
-DDS5 验收必须实跑五项且无 skip；本树无 rclpy 时整类 skip，缺 `astrbotex_demo_interfaces` 时 custom 项 skip，不能计为 5/5。source 的构建产物/隔离环境准备由后续验收另行授权，本轮不给硬件或部署命令。
+DDS5 验收必须实跑五项且无 skip；缺 rclpy 时原测试整类 skip，缺 `astrbotex_demo_interfaces` 时 custom 项 skip，严格 runner 会失败，不能计为 5/5。提交锁及开发态 `--allow-dirty` 见验证仓库 README。source 的构建产物/隔离环境准备由后续验收另行授权，本轮不给硬件或部署命令。
 
 `tests/native_action_lifecycle_check.py#main` 非 test_ 自动发现；严格 import rclpy、domain=73，无 fallback/skip。真实 Dispatcher/Actor/Ledger + SimulatedController 发布 DDS stop 消息，并核对收到消息、Mock moving→stopped、canceled、资源释放。控制器是在发布后本地修改模拟状态并提交 proof；**不是设备反馈到来后物理停车**。DDS5 只证明隔离 DDS/端口生命周期；两类结果均不能替代真实物理安全验证，亦不授权本项目实施工程插件。
 

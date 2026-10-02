@@ -77,6 +77,7 @@ class InteractionCore:
         self._worker_stop = threading.Event()
         self._worker_thread: threading.Thread | None = None
         self._generation = 0
+        self.task_authority_invalidator = None
         self._active_turn_id: str | None = None
         self._last_request_generation: int | None = None
         self._capture_block_until = 0.0
@@ -692,6 +693,8 @@ class InteractionCore:
 
 
     def on_runtime_stop(self, reason: str) -> None:
+        if self.task_authority_invalidator is not None:
+            self.task_authority_invalidator()
         self._runtime_active = False
         with self._lock:
             callbacks = self._unsub_callbacks
@@ -744,6 +747,8 @@ class InteractionCore:
         turn_id: str | None = None,
         generation: int | None = None,
     ) -> dict[str, Any]:
+        if self.task_authority_invalidator is not None:
+            self.task_authority_invalidator()
         payload = {
             "text": text,
             "session_id": self.session_id,

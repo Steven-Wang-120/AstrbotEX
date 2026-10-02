@@ -402,7 +402,8 @@ class ActionLedger:
             raise ValueError("stop_evidence is reserved for trusted proof")
         if not isinstance(reason_code, str) or len(reason_code) > MAX_ID_LEN:
             raise ValueError("invalid reason_code")
-        if status == ActionStatus.CANCELED:
+        proven_failure = status == ActionStatus.FAILED and stop_evidence is not None
+        if status == ActionStatus.CANCELED or proven_failure:
             self._validate_stop(command_id, stop_evidence)
             payload = json.loads(encoded)
             payload["stop_evidence"] = {"stopped": True, "source": stop_evidence.source,
@@ -421,14 +422,14 @@ class ActionLedger:
                 if current.status == status:
                     conn.commit()
                     return current
-                if status == ActionStatus.CANCELED:
+                if status == ActionStatus.CANCELED or proven_failure:
                     conn.execute("INSERT INTO stop_evidence(command_id,source,reference) VALUES (?,?,?)",
                                  (command_id, stop_evidence.source, stop_evidence.reference))
                 seq = self._event(conn, command_id, status, reason_code, encoded)
                 conn.execute("UPDATE commands SET status=?,reason_code=?,details_json=?,event_seq=? WHERE command_id=?",
                              (status, reason_code, encoded, seq, command_id))
-                # Failure/timeout/unknown may be physically uncertain: retain locks.
-                if status in (ActionStatus.REJECTED, ActionStatus.SUCCEEDED, ActionStatus.CANCELED):
+                # Unproved failure/timeout/unknown still retain reservations.
+                if status in (ActionStatus.REJECTED, ActionStatus.SUCCEEDED, ActionStatus.CANCELED) or proven_failure:
                     conn.execute("DELETE FROM resources WHERE command_id=?", (command_id,))
                 snapshot = self._snapshot(conn, command_id)
                 conn.commit()
