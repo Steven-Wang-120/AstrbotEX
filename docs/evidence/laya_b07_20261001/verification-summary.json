@@ -1,0 +1,45 @@
+{
+  "model_posts_including_warmup": 31,
+  "hot_actual_posts": 30,
+  "all_hot_total_latency": {
+    "n": 30,
+    "p50_ms": 35.321023,
+    "p95_ms": 39.177267,
+    "max_ms": 39.711023
+  },
+  "all_hot_http_latency": {
+    "n": 30,
+    "p50_ms": 33.175037999171764,
+    "p95_ms": 36.503400006040465,
+    "max_ms": 37.6186499997857
+  },
+  "all_hot_server_inference_latency": {
+    "n": 30,
+    "p50_ms": 32.34,
+    "p95_ms": 35.58,
+    "max_ms": 36.75
+  },
+  "goal_to_actor_latency": {
+    "n": 5,
+    "p50_ms": 199.11766999999998,
+    "p95_ms": 203.265455,
+    "max_ms": 203.265455
+  },
+  "per_scene": {
+    "move": {
+      "n": 8,
+      "correct": 8
+    },
+    "wait": {
+      "n": 8,
+      "correct": 8
+    },
+    "replan": {
+      "n": 8,
+      "correct": 0
+    }
+  },
+  "source_not_retried": true,
+  "real_run_count": 1,
+  "durable_ledger_note": "real run saved final succeeded projection and event_seq=4 per command; deterministic integration verifies accepted/running/succeeded; raw intermediate events were not exported in real run"
+}

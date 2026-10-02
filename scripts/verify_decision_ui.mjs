@@ -80,7 +80,7 @@ function listen(event) {
     const row = requests.get(event.params.requestId);
     if (row) row.status = event.params.response.status;
   }
-  
+
 }
 const rows = () => [...requests.values()];
 const writes = () => rows().filter(row => row.is_api && !['GET', 'OPTIONS', 'HEAD'].includes(row.method));

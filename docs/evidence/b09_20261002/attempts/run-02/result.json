@@ -1,0 +1,78 @@
+{
+  "scope": "real B08 HTTP, existing fake Laya owned process/health; isolated Mock test Actor; explicitly injected display/race fixtures",
+  "checks": [],
+  "requests": [
+    {
+      "request_id": "9EBE12B3B8384E91BEE56BDF2F3A880A",
+      "path": "/",
+      "method": "GET",
+      "at": 1790948683972,
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "20404.2",
+      "path": "/styles.css",
+      "method": "GET",
+      "at": 1790948683985,
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "20404.3",
+      "path": "/environments.js",
+      "method": "GET",
+      "at": 1790948683985,
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "20404.4",
+      "path": "/decision.js",
+      "method": "GET",
+      "at": 1790948683985,
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 404
+    },
+    {
+      "request_id": "20404.5",
+      "path": "/app.js",
+      "method": "GET",
+      "at": 1790948683985,
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "20404.10",
+      "path": "/favicon.ico",
+      "method": "GET",
+      "at": 1790948684048,
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 404
+    }
+  ],
+  "errors": [
+    "Error: page not loaded\n    at until (file:///home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/scripts/verify_decision_ui.mjs:41:9)\n    at async file:///home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/scripts/verify_decision_ui.mjs:155:3"
+  ],
+  "screenshots": [],
+  "base_origin": "http://127.0.0.1:42001",
+  "pass": false
+}

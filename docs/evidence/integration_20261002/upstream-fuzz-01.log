@@ -1,0 +1,159 @@
+test_1000_real_dispatcher_state_sequences_with_resources_and_rearm (tests.test_action_dispatcher.DispatcherTests.test_1000_real_dispatcher_state_sequences_with_resources_and_rearm) ... Timeout (0:00:08)!
+Thread 0x00007597277fe6c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/plugin_actor.py", line 347 in _next_invocation
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/plugin_actor.py", line 305 in _run
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000759727fff6c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/usr/lib/python3.12/threading.py", line 655 in wait
+  File "/tmp/astrex_integration_20261002/upstream-baseline/tests/test_action_dispatcher.py", line 44 in _physical_watch
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000759744b626c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/plugin_actor.py", line 347 in _next_invocation
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/plugin_actor.py", line 305 in _run
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007597453636c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/usr/lib/python3.12/threading.py", line 655 in wait
+  File "/tmp/astrex_integration_20261002/upstream-baseline/tests/test_action_dispatcher.py", line 44 in _physical_watch
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000759745b646c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/usr/lib/python3.12/threading.py", line 655 in wait
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/actions/dispatcher.py", line 827 in _watch
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007597463656c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 355 in wait
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 451 in result
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/actions/dispatcher.py", line 802 in review
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/actions/dispatcher.py", line 884 in _work
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000759746b666c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/usr/lib/python3.12/queue.py", line 180 in get
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/actions/dispatcher.py", line 173 in _notify_stop
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007597473676c0 (most recent call first):
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/actions/ledger.py", line 283 in _snapshot
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/actions/ledger.py", line 506 in <genexpr>
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/actions/ledger.py", line 506 in work
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/actions/ledger.py", line 157 in _run
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000759748e6e080 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 451 in result
+  File "/tmp/astrex_integration_20261002/upstream-baseline/tests/test_action_dispatcher.py", line 604 in test_1000_real_dispatcher_state_sequences_with_resources_and_rearm
+  File "/usr/lib/python3.12/unittest/case.py", line 589 in _callTestMethod
+  File "/usr/lib/python3.12/unittest/case.py", line 634 in run
+  File "/usr/lib/python3.12/unittest/case.py", line 690 in __call__
+  File "/usr/lib/python3.12/unittest/suite.py", line 122 in run
+  File "/usr/lib/python3.12/unittest/suite.py", line 84 in __call__
+  File "/usr/lib/python3.12/unittest/runner.py", line 240 in run
+  File "<stdin>", line 5 in <module>
+Timeout (0:00:08)!
+Thread 0x00007597277fe6c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/plugin_actor.py", line 347 in _next_invocation
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/plugin_actor.py", line 305 in _run
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000759727fff6c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/usr/lib/python3.12/threading.py", line 655 in wait
+  File "/tmp/astrex_integration_20261002/upstream-baseline/tests/test_action_dispatcher.py", line 44 in _physical_watch
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000759744b626c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/plugin_actor.py", line 347 in _next_invocation
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/plugin_actor.py", line 305 in _run
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007597453636c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/usr/lib/python3.12/threading.py", line 655 in wait
+  File "/tmp/astrex_integration_20261002/upstream-baseline/tests/test_action_dispatcher.py", line 44 in _physical_watch
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000759745b646c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/usr/lib/python3.12/threading.py", line 655 in wait
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/actions/dispatcher.py", line 827 in _watch
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007597463656c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/usr/lib/python3.12/threading.py", line 390 in wait_for
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/actions/dispatcher.py", line 871 in _work
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000759746b666c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/usr/lib/python3.12/queue.py", line 180 in get
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/actions/dispatcher.py", line 173 in _notify_stop
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007597473676c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 355 in wait
+  File "/usr/lib/python3.12/queue.py", line 171 in get
+  File "/tmp/astrex_integration_20261002/upstream-baseline/astrbot_ex/core/actions/ledger.py", line 150 in _run
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000759748e6e080 (most recent call first):
+  File "/tmp/astrex_integration_20261002/upstream-baseline/tests/test_action_dispatcher.py", line 152 in wait_status
+  File "/tmp/astrex_integration_20261002/upstream-baseline/tests/test_action_dispatcher.py", line 540 in test_1000_real_dispatcher_state_sequences_with_resources_and_rearm
+  File "/usr/lib/python3.12/unittest/case.py", line 589 in _callTestMethod
+  File "/usr/lib/python3.12/unittest/case.py", line 634 in run
+  File "/usr/lib/python3.12/unittest/case.py", line 690 in __call__
+  File "/usr/lib/python3.12/unittest/suite.py", line 122 in run
+  File "/usr/lib/python3.12/unittest/suite.py", line 84 in __call__
+  File "/usr/lib/python3.12/unittest/runner.py", line 240 in run
+  File "<stdin>", line 5 in <module>
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 22.919s
+
+OK

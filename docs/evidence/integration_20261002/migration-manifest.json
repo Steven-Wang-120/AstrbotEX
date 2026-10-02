@@ -1,0 +1,252 @@
+[
+  {
+    "path": "README.md",
+    "status": "format_only_skipped",
+    "source_sha256": "926f784ab0bf25e7350b92cc6fa35b7654115e6d86c03e7c9d1241f69cb64254",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "README_AstrBotEX插件系统规范.md",
+    "status": "format_only_skipped",
+    "source_sha256": "0b66a8e4a7eac804c517b986c99629056eea9c1f144bf80fc6940ddb6bd88ef0",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "TECHNICAL.md",
+    "status": "format_only_skipped",
+    "source_sha256": "ec5197730fa40cdc548bb0a9cc1c423945a587d8f0308a9babc129784af35027",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "astrbot_ex/core/api_server.py",
+    "status": "conflict",
+    "source_sha256": "619f0c19e802a50955289f2fa3792630aae3fffc4c237f2dd0a64a6357a2ec37",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "astrbot_ex/core/decision/backends/__init__.py",
+    "status": "local_modified",
+    "source_sha256": "dfdc14ff29e3c5bd6ef401e0bb97ac040087d9635c245e6602e203af334098ce",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "astrbot_ex/core/decision/backends/laya.py",
+    "status": "local_added",
+    "source_sha256": "44d6dca197548419c70f2a59546aa01f63837c6a620e2a15dd49a3e9bcde639c",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "astrbot_ex/core/decision/backends/registry.py",
+    "status": "local_modified",
+    "source_sha256": "365018b604af4f67fabefefa0d063fa07a90b301b1bec90b6b21ec71f4b440bb",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "astrbot_ex/core/decision/config.py",
+    "status": "local_added",
+    "source_sha256": "bdd858071edcb8d711e4b76a970cb0f8ae7e881d883007fc1da12836bacc891e",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "astrbot_ex/core/decision/history.py",
+    "status": "local_added",
+    "source_sha256": "56aae9405afaa69e0d3ac788dd535b133a1f1f74618fc778c31a252f89549a85",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "astrbot_ex/core/decision/management.py",
+    "status": "local_added",
+    "source_sha256": "c568559ebae6defb18b1ea86962db5d3eb0671669097290339168b339c97c197",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "astrbot_ex/core/decision/owned_laya.py",
+    "status": "local_added",
+    "source_sha256": "660a1ecf0713bd761f4ae4b7567a5e998a2700e11b422e66f4e26a25f638ed52",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "astrbot_ex/core/decision/service.py",
+    "status": "conflict",
+    "source_sha256": "29299a2355f057cb985c8d61e1ec64e912641ad457cd9d56e234e6a88d8e516f",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "astrbot_ex/core/event_bus.py",
+    "status": "local_modified",
+    "source_sha256": "b4a5081761f2c9836e23a111ce431ea9fef692f95f7a1a8aa4b7a4d80a4fa4ec",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "dashboard/app.js",
+    "status": "local_modified",
+    "source_sha256": "cb3b51af2cc3d4c49244893e51a4487145892846790787fb8bb2f77afd7b25de",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "dashboard/decision.js",
+    "status": "local_added",
+    "source_sha256": "ec117cfbcc644234733d7d3c781622f86bd2ec2dda614cb91fd61e20302ef300",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "dashboard/index.html",
+    "status": "local_modified",
+    "source_sha256": "8bebc14668afef17657815ccf847d760b0132a9f452443b9eeb6d8c1deccffd3",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "dashboard/styles.css",
+    "status": "local_modified",
+    "source_sha256": "b2a574bc2791080cad54b98f15caf844a5ee3e80b572e2012a25f1ee4b3c8a44",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "docs/B07-LAYA-BACKEND.md",
+    "status": "local_added",
+    "source_sha256": "a0d29147fe35dc51de1154670fcf2e6781eccf841719339e1ff0b08f0559ac48",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "docs/B08-DECISION-MANAGEMENT.md",
+    "status": "local_added",
+    "source_sha256": "a602a756ca3201fa9bdcb90c1036ce1d982ebb4549ea0f6387e7109a03be14bd",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "requirements-laya.lock",
+    "status": "local_added",
+    "source_sha256": "4514d6dbe8f4c278fdbd903abfabcb30cc9cc6a70812ceef0359166bdc5df1c7",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "scripts/open_dashboard.ps1",
+    "status": "format_only_skipped"
+  },
+  {
+    "path": "scripts/run_api_server.ps1",
+    "status": "format_only_skipped"
+  },
+  {
+    "path": "scripts/run_core_demo.ps1",
+    "status": "format_only_skipped"
+  },
+  {
+    "path": "scripts/run_mock_vision_service.ps1",
+    "status": "format_only_skipped"
+  },
+  {
+    "path": "scripts/verify_dashboard_management.mjs",
+    "status": "local_added",
+    "source_sha256": "725de31bd9b1caefbe8d5d26c1e7a4e316a4539117f3a1c3155606ba9c7e53d2",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "scripts/verify_decision_management.py",
+    "status": "local_added",
+    "source_sha256": "fda66907742b283aec232b29dff1b369fddc2dfed9f78ca0a2cb71cba131879f",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "scripts/verify_laya_backend.py",
+    "status": "local_added",
+    "source_sha256": "8bd2392df14ee2f48f8239a5f7acbc70fe13a9b066937f7c324dc5da9464ed85",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_backup.py",
+    "status": "local_modified",
+    "source_sha256": "3a6417de3b1471f1b4cccb391ddf584766dc364cc975dd08cf27d320260821f9",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_decision_backend_contract.py",
+    "status": "local_modified",
+    "source_sha256": "f681621eb2755618316823e4a9c2699400571ce80ea5876ad5714dc57619f9de",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_decision_management_boundaries.py",
+    "status": "local_added",
+    "source_sha256": "67fb3693b5020a6088a55302ccbe7a27f5fbba7032b0ef2ba0c2c702791040a4",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_decision_management_history.py",
+    "status": "local_added",
+    "source_sha256": "fbce8fd9af502d5858fc8695c54a5576a0cf013dc4c4b6c08b3ab5d2d8852a63",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_decision_management_http.py",
+    "status": "local_added",
+    "source_sha256": "e45dccc1ac08abb0a41e9047fd64e470791a4160780c33b2c6bed78b0647928f",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_decision_management_interleaving.py",
+    "status": "local_added",
+    "source_sha256": "6216f5241ca784c15a742a280613bb3a6d01de08950ad4bcc5cf3298aebed91c",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_decision_management_operations.py",
+    "status": "local_added",
+    "source_sha256": "895ec94340f9a25c619fbab71b583874e1cacd80e540b5279a3cb743e0bd9dd8",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_decision_runtime_integration.py",
+    "status": "local_modified",
+    "source_sha256": "58ede6de72cf3e5762e96e771dd704910618c990c8fa4b8dac6a938485f52fb7",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_decision_secret_redaction.py",
+    "status": "local_added",
+    "source_sha256": "0094643033b65e25eb701b12a0ff6c1b97a0f10b9b4c90abb439f5677319a182",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_decision_service.py",
+    "status": "conflict",
+    "source_sha256": "ea8c11e354c89c629d59208cf580cdca9917680538176e03007813aa8e10862d",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_environment_http.py",
+    "status": "auto_merge",
+    "source_sha256": "13dc8c90d8f724202be3977273d0d19ad1ba94287e9cf30ab59b9cc3b3f5d8b6",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_laya_backend.py",
+    "status": "local_added",
+    "source_sha256": "12ba7d130ae05ed551dc51758073cd42ef026820072b16e2a66dfb03235af266",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_laya_service_integration.py",
+    "status": "local_added",
+    "source_sha256": "3c2acf6b2507b90aaa28e1a823df12d2531cc28949502e94c417d720018e4b10",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "tests/test_owned_laya.py",
+    "status": "local_added",
+    "source_sha256": "b30b8fee0b3cafe607081b624be7ce2b7a3794d62f91e0960fb82099f34cba4a",
+    "source": "4cf7e11"
+  },
+  {
+    "path": "scripts/verify_decision_ui.mjs",
+    "status": "local_added",
+    "source_sha256": "6d1ca1a564ec39eef46bdc6057797b89d38b39c0fd45cfa196d8ab0fcd25c9be",
+    "source": "untracked"
+  },
+  {
+    "path": "tests/decision_ui_fixture.py",
+    "status": "local_added",
+    "source_sha256": "bedbae6db565aef2c2b6b44f04ef8c6c9e8ad8b0e53250fe2022a9decc259733",
+    "source": "untracked"
+  }
+]
