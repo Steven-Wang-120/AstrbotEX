@@ -15,3 +15,11 @@ data
 dist
 build
 *.zip
+
+runtime
+execution
+secrets
+.vscode
+ros_interfaces/build
+ros_interfaces/install
+ros_interfaces/log
