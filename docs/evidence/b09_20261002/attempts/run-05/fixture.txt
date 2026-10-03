@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/tests/decision_ui_fixture.py", line 186, in <module>
+    main()
+  File "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/tests/decision_ui_fixture.py", line 182, in main
+    fixture.tearDown()
+  File "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/tests/decision_ui_fixture.py", line 68, in tearDown
+    super().tearDown()
+  File "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/tests/test_decision_management_http.py", line 39, in tearDown
+    self.server.server_close()
+  File "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/astrbot_ex/core/api_server.py", line 1166, in server_close
+    self.environment_manager.close("api server shutdown")
+  File "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/astrbot_ex/core/environments/manager.py", line 403, in close
+    raise EnvironmentBusyError('; '.join(errors))
+astrbot_ex.core.environments.models.EnvironmentBusyError: stop proof pending: 9c64602ed39449bcbb252725a852c0d2

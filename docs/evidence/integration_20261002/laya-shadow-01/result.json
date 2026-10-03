@@ -1,0 +1,816 @@
+{
+  "scope": "new independent Python; pinned shared weights; health + warmup + one shadow; no robot",
+  "environment": {
+    "python": "/home/sssxy/Projects/AstrbotEX/runtime/laya/.venv/bin/python",
+    "laya": "0.3.22",
+    "torch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "cuda_available": true,
+    "device": "NVIDIA RTX PRO 1000 Blackwell Generation Laptop GPU"
+  },
+  "http": [
+    {
+      "path": "/api/v1/ex/decision/config",
+      "method": "GET",
+      "status": 200,
+      "started_ns": 11590726263718,
+      "returned_ns": 11590727612774,
+      "response": {
+        "ok": true,
+        "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+        "revision": 0,
+        "effective_revision": null,
+        "framework_config_revision": 0,
+        "saved": {
+          "backend": "laya",
+          "mock": {
+            "kind": "wait"
+          },
+          "laya": {
+            "enabled": true,
+            "allow_live_http": true,
+            "port": 57177,
+            "model": "typed-decisions",
+            "revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+            "deadline_ms": 1500,
+            "max_request_bytes": 16384,
+            "max_response_bytes": 65536,
+            "max_owners": 4,
+            "max_candidates_per_owner": 8,
+            "max_len": 1024,
+            "head_max_len": 256,
+            "min_interval_ms": 0
+          },
+          "jev": {
+            "model": "jev-1.13.0",
+            "mode": "shadow",
+            "allow_live_http": false,
+            "deadline_ms": 1500,
+            "min_interval_ms": 500
+          },
+          "secret_ref": null
+        },
+        "effective": null,
+        "secrets": {
+          "jev": {
+            "configured": false
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ex/decision/config",
+      "method": "GET",
+      "status": 200,
+      "started_ns": 11590727625047,
+      "returned_ns": 11590728372551,
+      "response": {
+        "ok": true,
+        "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+        "revision": 0,
+        "effective_revision": null,
+        "framework_config_revision": 0,
+        "saved": {
+          "backend": "mock",
+          "mock": {
+            "kind": "wait"
+          },
+          "laya": {
+            "enabled": false,
+            "allow_live_http": false,
+            "port": 57177,
+            "model": "typed-decisions",
+            "revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+            "deadline_ms": 1500,
+            "max_request_bytes": 16384,
+            "max_response_bytes": 65536,
+            "max_owners": 4,
+            "max_candidates_per_owner": 8,
+            "max_len": 1024,
+            "head_max_len": 256,
+            "min_interval_ms": 0
+          },
+          "jev": {
+            "model": "jev-1.13.0",
+            "mode": "shadow",
+            "allow_live_http": false,
+            "deadline_ms": 1500,
+            "min_interval_ms": 500
+          },
+          "secret_ref": null
+        },
+        "effective": null,
+        "secrets": {
+          "jev": {
+            "configured": false
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ex/decision/config",
+      "method": "POST",
+      "status": 200,
+      "started_ns": 11590728394586,
+      "returned_ns": 11590733768380,
+      "response": {
+        "ok": true,
+        "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+        "revision": 1,
+        "effective_revision": null,
+        "framework_config_revision": 0,
+        "saved": {
+          "backend": "laya",
+          "mock": {
+            "kind": "wait"
+          },
+          "laya": {
+            "enabled": true,
+            "allow_live_http": true,
+            "port": 57177,
+            "model": "typed-decisions",
+            "revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+            "deadline_ms": 1500,
+            "max_request_bytes": 16384,
+            "max_response_bytes": 65536,
+            "max_owners": 4,
+            "max_candidates_per_owner": 8,
+            "max_len": 1024,
+            "head_max_len": 256,
+            "min_interval_ms": 0
+          },
+          "jev": {
+            "model": "jev-1.13.0",
+            "mode": "shadow",
+            "allow_live_http": false,
+            "deadline_ms": 1500,
+            "min_interval_ms": 500
+          },
+          "secret_ref": null
+        },
+        "effective": null,
+        "secrets": {
+          "jev": {
+            "configured": false
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ex/decision/config",
+      "method": "GET",
+      "status": 200,
+      "started_ns": 11590733781487,
+      "returned_ns": 11590734957102,
+      "response": {
+        "ok": true,
+        "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+        "revision": 1,
+        "effective_revision": null,
+        "framework_config_revision": 0,
+        "saved": {
+          "backend": "laya",
+          "mock": {
+            "kind": "wait"
+          },
+          "laya": {
+            "enabled": true,
+            "allow_live_http": true,
+            "port": 57177,
+            "model": "typed-decisions",
+            "revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+            "deadline_ms": 1500,
+            "max_request_bytes": 16384,
+            "max_response_bytes": 65536,
+            "max_owners": 4,
+            "max_candidates_per_owner": 8,
+            "max_len": 1024,
+            "head_max_len": 256,
+            "min_interval_ms": 0
+          },
+          "jev": {
+            "model": "jev-1.13.0",
+            "mode": "shadow",
+            "allow_live_http": false,
+            "deadline_ms": 1500,
+            "min_interval_ms": 500
+          },
+          "secret_ref": null
+        },
+        "effective": null,
+        "secrets": {
+          "jev": {
+            "configured": false
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ex/decision/service/start",
+      "method": "POST",
+      "status": 202,
+      "started_ns": 11590734973765,
+      "returned_ns": 11590735806877,
+      "response": {
+        "ok": true,
+        "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+        "revision": 1,
+        "effective_revision": null,
+        "framework_config_revision": 0,
+        "operation_id": "5440897a8fd9405f9435e1209d47f79c"
+      }
+    },
+    {
+      "path": "/api/v1/ex/decision/operations/5440897a8fd9405f9435e1209d47f79c",
+      "method": "GET",
+      "status": 200,
+      "started_ns": 11595535810144,
+      "returned_ns": 11595537159233,
+      "response": {
+        "ok": true,
+        "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+        "revision": 1,
+        "effective_revision": null,
+        "framework_config_revision": 0,
+        "operation": {
+          "operation_id": "5440897a8fd9405f9435e1209d47f79c",
+          "kind": "service_start",
+          "state": "succeeded",
+          "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+          "revision": 1,
+          "effective_revision": null,
+          "framework_config_revision": 0,
+          "backend": "laya",
+          "service_generation": null,
+          "created_monotonic_ns": 11590735420531,
+          "completed_monotonic_ns": 11595472370111,
+          "result": {
+            "service": {
+              "state": "ready",
+              "generation": "c6bc38fe07d6486e80d15ebcd349a84f:1",
+              "owned": true,
+              "ownership_unknown": false,
+              "restart_required": false,
+              "error_code": null,
+              "draining": false,
+              "health": {
+                "status": "ok",
+                "device": "cuda",
+                "device_is_preference": false,
+                "loaded": [
+                  "typed-decisions"
+                ],
+                "revisions": {
+                  "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+                },
+                "checkpoint_devices": {
+                  "typed-decisions": "cuda"
+                },
+                "cpu_fallbacks": {
+                  "typed-decisions": {
+                    "count": 0,
+                    "last_reason": null
+                  }
+                }
+              },
+              "history": [
+                {
+                  "generation": "c6bc38fe07d6486e80d15ebcd349a84f:1",
+                  "started_monotonic_ns": 11590736322869,
+                  "weight_revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+                  "requested_device": "cuda",
+                  "pid": 45386,
+                  "last_probe": {
+                    "ok": true,
+                    "error_code": null,
+                    "restart_required": false,
+                    "health": {
+                      "status": "ok",
+                      "device": "cuda",
+                      "device_is_preference": false,
+                      "loaded": [
+                        "typed-decisions"
+                      ],
+                      "revisions": {
+                        "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+                      },
+                      "checkpoint_devices": {
+                        "typed-decisions": "cuda"
+                      },
+                      "cpu_fallbacks": {
+                        "typed-decisions": {
+                          "count": 0,
+                          "last_reason": null
+                        }
+                      }
+                    }
+                  },
+                  "health": {
+                    "status": "ok",
+                    "device": "cuda",
+                    "device_is_preference": false,
+                    "loaded": [
+                      "typed-decisions"
+                    ],
+                    "revisions": {
+                      "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+                    },
+                    "checkpoint_devices": {
+                      "typed-decisions": "cuda"
+                    },
+                    "cpu_fallbacks": {
+                      "typed-decisions": {
+                        "count": 0,
+                        "last_reason": null
+                      }
+                    }
+                  },
+                  "ready_monotonic_ns": 11595097334663,
+                  "load_ready_ms": 4361.011794,
+                  "warmup": {
+                    "deadline_ms": 30000,
+                    "elapsed_ms": 367.007702,
+                    "result": {
+                      "decision": {
+                        "schema_version": 1,
+                        "snapshot_id": "real-move-warmup",
+                        "versions": {
+                          "ex_session": "laya-real-validation",
+                          "goal_revision": 1,
+                          "config_revision": 1,
+                          "catalog_revision": 1,
+                          "environment_generation": 1,
+                          "gate_epoch": 1,
+                          "plugin_generations": {
+                            "arm": 1
+                          }
+                        },
+                        "backend": "laya",
+                        "model": "typed-decisions",
+                        "elapsed_ms": 365.938234,
+                        "choices": [
+                          {
+                            "owner": "arm",
+                            "option_id": "real-move-warmup:start",
+                            "confidence": 0.6216,
+                            "probabilities": {
+                              "real-move-warmup:wait": 0.1399,
+                              "real-move-warmup:replan": 0.2385,
+                              "real-move-warmup:start": 0.6216
+                            }
+                          }
+                        ]
+                      },
+                      "snapshot_id": "real-move-warmup",
+                      "input_sha256": "6a854a4b35c9e6601b75df32df03ac83c30d95c490c6fe92c71b65b59c565083"
+                    }
+                  }
+                }
+              ],
+              "port": 57177,
+              "model": "typed-decisions",
+              "revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+            },
+            "decision_mode": "disabled",
+            "inference_port": 57177
+          },
+          "error_code": null
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ex/decision/config",
+      "method": "GET",
+      "status": 200,
+      "started_ns": 11595537173867,
+      "returned_ns": 11595538107143,
+      "response": {
+        "ok": true,
+        "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+        "revision": 1,
+        "effective_revision": null,
+        "framework_config_revision": 0,
+        "saved": {
+          "backend": "laya",
+          "mock": {
+            "kind": "wait"
+          },
+          "laya": {
+            "enabled": true,
+            "allow_live_http": true,
+            "port": 57177,
+            "model": "typed-decisions",
+            "revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+            "deadline_ms": 1500,
+            "max_request_bytes": 16384,
+            "max_response_bytes": 65536,
+            "max_owners": 4,
+            "max_candidates_per_owner": 8,
+            "max_len": 1024,
+            "head_max_len": 256,
+            "min_interval_ms": 0
+          },
+          "jev": {
+            "model": "jev-1.13.0",
+            "mode": "shadow",
+            "allow_live_http": false,
+            "deadline_ms": 1500,
+            "min_interval_ms": 500
+          },
+          "secret_ref": null
+        },
+        "effective": null,
+        "secrets": {
+          "jev": {
+            "configured": false
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ex/decision/test",
+      "method": "POST",
+      "status": 202,
+      "started_ns": 11595538118787,
+      "returned_ns": 11595539014275,
+      "response": {
+        "ok": true,
+        "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+        "revision": 1,
+        "effective_revision": null,
+        "framework_config_revision": 0,
+        "operation_id": "aad1df79b5ef430ab6f5f39b43f32a8a"
+      }
+    },
+    {
+      "path": "/api/v1/ex/decision/operations/aad1df79b5ef430ab6f5f39b43f32a8a",
+      "method": "GET",
+      "status": 200,
+      "started_ns": 11595644942312,
+      "returned_ns": 11595646280444,
+      "response": {
+        "ok": true,
+        "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+        "revision": 1,
+        "effective_revision": null,
+        "framework_config_revision": 0,
+        "operation": {
+          "operation_id": "aad1df79b5ef430ab6f5f39b43f32a8a",
+          "kind": "test",
+          "state": "succeeded",
+          "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+          "revision": 1,
+          "effective_revision": null,
+          "framework_config_revision": 0,
+          "backend": "laya",
+          "service_generation": "c6bc38fe07d6486e80d15ebcd349a84f:1",
+          "created_monotonic_ns": 11595538616949,
+          "completed_monotonic_ns": 11595541120635,
+          "result": {
+            "ok": true,
+            "health": {
+              "status": "ok",
+              "loaded": [
+                "typed-decisions"
+              ],
+              "revisions": {
+                "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+              },
+              "device": "cuda",
+              "device_is_preference": false,
+              "checkpoint_devices": {
+                "typed-decisions": "cuda"
+              },
+              "cpu_fallbacks": {
+                "typed-decisions": {
+                  "count": 0,
+                  "last_reason": null
+                }
+              }
+            },
+            "restart_required": false,
+            "scope": "GET /health only",
+            "inference_called": false,
+            "service_restart_required": false
+          },
+          "error_code": null
+        }
+      }
+    }
+  ],
+  "pass": false,
+  "start": {
+    "operation_id": "5440897a8fd9405f9435e1209d47f79c",
+    "kind": "service_start",
+    "state": "succeeded",
+    "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+    "revision": 1,
+    "effective_revision": null,
+    "framework_config_revision": 0,
+    "backend": "laya",
+    "service_generation": null,
+    "created_monotonic_ns": 11590735420531,
+    "completed_monotonic_ns": 11595472370111,
+    "result": {
+      "service": {
+        "state": "ready",
+        "generation": "c6bc38fe07d6486e80d15ebcd349a84f:1",
+        "owned": true,
+        "ownership_unknown": false,
+        "restart_required": false,
+        "error_code": null,
+        "draining": false,
+        "health": {
+          "status": "ok",
+          "device": "cuda",
+          "device_is_preference": false,
+          "loaded": [
+            "typed-decisions"
+          ],
+          "revisions": {
+            "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+          },
+          "checkpoint_devices": {
+            "typed-decisions": "cuda"
+          },
+          "cpu_fallbacks": {
+            "typed-decisions": {
+              "count": 0,
+              "last_reason": null
+            }
+          }
+        },
+        "history": [
+          {
+            "generation": "c6bc38fe07d6486e80d15ebcd349a84f:1",
+            "started_monotonic_ns": 11590736322869,
+            "weight_revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+            "requested_device": "cuda",
+            "pid": 45386,
+            "last_probe": {
+              "ok": true,
+              "error_code": null,
+              "restart_required": false,
+              "health": {
+                "status": "ok",
+                "device": "cuda",
+                "device_is_preference": false,
+                "loaded": [
+                  "typed-decisions"
+                ],
+                "revisions": {
+                  "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+                },
+                "checkpoint_devices": {
+                  "typed-decisions": "cuda"
+                },
+                "cpu_fallbacks": {
+                  "typed-decisions": {
+                    "count": 0,
+                    "last_reason": null
+                  }
+                }
+              }
+            },
+            "health": {
+              "status": "ok",
+              "device": "cuda",
+              "device_is_preference": false,
+              "loaded": [
+                "typed-decisions"
+              ],
+              "revisions": {
+                "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+              },
+              "checkpoint_devices": {
+                "typed-decisions": "cuda"
+              },
+              "cpu_fallbacks": {
+                "typed-decisions": {
+                  "count": 0,
+                  "last_reason": null
+                }
+              }
+            },
+            "ready_monotonic_ns": 11595097334663,
+            "load_ready_ms": 4361.011794,
+            "warmup": {
+              "deadline_ms": 30000,
+              "elapsed_ms": 367.007702,
+              "result": {
+                "decision": {
+                  "schema_version": 1,
+                  "snapshot_id": "real-move-warmup",
+                  "versions": {
+                    "ex_session": "laya-real-validation",
+                    "goal_revision": 1,
+                    "config_revision": 1,
+                    "catalog_revision": 1,
+                    "environment_generation": 1,
+                    "gate_epoch": 1,
+                    "plugin_generations": {
+                      "arm": 1
+                    }
+                  },
+                  "backend": "laya",
+                  "model": "typed-decisions",
+                  "elapsed_ms": 365.938234,
+                  "choices": [
+                    {
+                      "owner": "arm",
+                      "option_id": "real-move-warmup:start",
+                      "confidence": 0.6216,
+                      "probabilities": {
+                        "real-move-warmup:wait": 0.1399,
+                        "real-move-warmup:replan": 0.2385,
+                        "real-move-warmup:start": 0.6216
+                      }
+                    }
+                  ]
+                },
+                "snapshot_id": "real-move-warmup",
+                "input_sha256": "6a854a4b35c9e6601b75df32df03ac83c30d95c490c6fe92c71b65b59c565083"
+              }
+            }
+          }
+        ],
+        "port": 57177,
+        "model": "typed-decisions",
+        "revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+      },
+      "decision_mode": "disabled",
+      "inference_port": 57177
+    },
+    "error_code": null
+  },
+  "probe": {
+    "operation_id": "aad1df79b5ef430ab6f5f39b43f32a8a",
+    "kind": "test",
+    "state": "succeeded",
+    "ex_session": "861c3955e8f141e5aeb1807bb3a98498",
+    "revision": 1,
+    "effective_revision": null,
+    "framework_config_revision": 0,
+    "backend": "laya",
+    "service_generation": "c6bc38fe07d6486e80d15ebcd349a84f:1",
+    "created_monotonic_ns": 11595538616949,
+    "completed_monotonic_ns": 11595541120635,
+    "result": {
+      "ok": true,
+      "health": {
+        "status": "ok",
+        "loaded": [
+          "typed-decisions"
+        ],
+        "revisions": {
+          "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+        },
+        "device": "cuda",
+        "device_is_preference": false,
+        "checkpoint_devices": {
+          "typed-decisions": "cuda"
+        },
+        "cpu_fallbacks": {
+          "typed-decisions": {
+            "count": 0,
+            "last_reason": null
+          }
+        }
+      },
+      "restart_required": false,
+      "scope": "GET /health only",
+      "inference_called": false,
+      "service_restart_required": false
+    },
+    "error_code": null
+  },
+  "cleanup": {
+    "state": "stopped",
+    "generation": "c6bc38fe07d6486e80d15ebcd349a84f:1",
+    "owned": true,
+    "ownership_unknown": false,
+    "restart_required": false,
+    "error_code": null,
+    "draining": false,
+    "health": {
+      "status": "ok",
+      "device": "cuda",
+      "device_is_preference": false,
+      "loaded": [
+        "typed-decisions"
+      ],
+      "revisions": {
+        "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+      },
+      "checkpoint_devices": {
+        "typed-decisions": "cuda"
+      },
+      "cpu_fallbacks": {
+        "typed-decisions": {
+          "count": 0,
+          "last_reason": null
+        }
+      }
+    },
+    "history": [
+      {
+        "generation": "c6bc38fe07d6486e80d15ebcd349a84f:1",
+        "started_monotonic_ns": 11590736322869,
+        "weight_revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+        "requested_device": "cuda",
+        "pid": 45386,
+        "last_probe": {
+          "ok": true,
+          "error_code": null,
+          "restart_required": false,
+          "health": {
+            "status": "ok",
+            "device": "cuda",
+            "device_is_preference": false,
+            "loaded": [
+              "typed-decisions"
+            ],
+            "revisions": {
+              "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+            },
+            "checkpoint_devices": {
+              "typed-decisions": "cuda"
+            },
+            "cpu_fallbacks": {
+              "typed-decisions": {
+                "count": 0,
+                "last_reason": null
+              }
+            }
+          }
+        },
+        "health": {
+          "status": "ok",
+          "device": "cuda",
+          "device_is_preference": false,
+          "loaded": [
+            "typed-decisions"
+          ],
+          "revisions": {
+            "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+          },
+          "checkpoint_devices": {
+            "typed-decisions": "cuda"
+          },
+          "cpu_fallbacks": {
+            "typed-decisions": {
+              "count": 0,
+              "last_reason": null
+            }
+          }
+        },
+        "ready_monotonic_ns": 11595097334663,
+        "load_ready_ms": 4361.011794,
+        "warmup": {
+          "deadline_ms": 30000,
+          "elapsed_ms": 367.007702,
+          "result": {
+            "decision": {
+              "schema_version": 1,
+              "snapshot_id": "real-move-warmup",
+              "versions": {
+                "ex_session": "laya-real-validation",
+                "goal_revision": 1,
+                "config_revision": 1,
+                "catalog_revision": 1,
+                "environment_generation": 1,
+                "gate_epoch": 1,
+                "plugin_generations": {
+                  "arm": 1
+                }
+              },
+              "backend": "laya",
+              "model": "typed-decisions",
+              "elapsed_ms": 365.938234,
+              "choices": [
+                {
+                  "owner": "arm",
+                  "option_id": "real-move-warmup:start",
+                  "confidence": 0.6216,
+                  "probabilities": {
+                    "real-move-warmup:wait": 0.1399,
+                    "real-move-warmup:replan": 0.2385,
+                    "real-move-warmup:start": 0.6216
+                  }
+                }
+              ]
+            },
+            "snapshot_id": "real-move-warmup",
+            "input_sha256": "6a854a4b35c9e6601b75df32df03ac83c30d95c490c6fe92c71b65b59c565083"
+          }
+        },
+        "exit_code": -15,
+        "exit_confirmed_monotonic_ns": 11595970502373
+      }
+    ],
+    "port": 57177,
+    "model": "typed-decisions",
+    "revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+    "process_exited": true
+  }
+}

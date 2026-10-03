@@ -1,0 +1,187 @@
+{
+  "checked": 21,
+  "failures": [],
+  "links": [
+    {
+      "document": "docs/B07_LAYA_EX_BACKEND_RESULT.md",
+      "target": "docs/evidence/laya_b07_20261001/protection-audit.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/B07_LAYA_EX_BACKEND_RESULT.md",
+      "target": "docs/evidence/laya_b07_20261001/environment.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/B07_LAYA_EX_BACKEND_RESULT.md",
+      "target": "docs/evidence/laya_b07_20261001/weights-manifest.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/B07_LAYA_EX_BACKEND_RESULT.md",
+      "target": "docs/evidence/laya_b07_20261001/input-budget-check.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/B07_LAYA_EX_BACKEND_RESULT.md",
+      "target": "docs/evidence/laya_b07_20261001/verification-summary.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/B07_LAYA_EX_BACKEND_RESULT.md",
+      "target": "docs/evidence/laya_b07_20261001",
+      "survives_cleanup": true,
+      "retained_files": [
+        "source.before.json",
+        "weights-manifest.json",
+        "environment.json",
+        "verification-summary.json",
+        "README.md",
+        "input-budget-check.json",
+        "real-source-frozen.json",
+        "laya-environment.freeze.txt",
+        "fixed_scenarios.json",
+        "PROTOCOL_REPORT.md",
+        "source-install-manifest.json",
+        "manifest.json",
+        "protection-audit.json"
+      ]
+    },
+    {
+      "document": "docs/B07_LAYA_EX_BACKEND_RESULT.md",
+      "target": "docs/evidence/PRE_B09_ARCHIVE_MANIFEST.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/B08_DECISION_MANAGEMENT_RESULT.md",
+      "target": "docs/evidence/b08_20261001/affected-tests-01.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/B08_DECISION_MANAGEMENT_RESULT.md",
+      "target": "docs/evidence/b08_20261001/real-run-01-command.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/B08_DECISION_MANAGEMENT_RESULT.md",
+      "target": "docs/evidence/b08_20261001/real-run-01-summary.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/B08_DECISION_MANAGEMENT_RESULT.md",
+      "target": "docs/evidence/b08_20261001/owned-process-cleanup.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/B08_DECISION_MANAGEMENT_RESULT.md",
+      "target": "docs/evidence/b08_20261001",
+      "survives_cleanup": true,
+      "retained_files": [
+        "source.before.json",
+        "real-run-01-command.json",
+        "static-checks.json",
+        "affected-tests-01.json",
+        "SHA256SUMS.json",
+        "real-run-01-summary.json",
+        "README.md",
+        "browser-cleanup.json",
+        "API-CONTRACT.md",
+        "boundaries-tests-01.json",
+        "real-source-frozen.json",
+        "secret-redaction-tests-01.json",
+        "browser-command.json",
+        "legacy-http-01.json",
+        "protection-audit.json",
+        "owned-process-cleanup.json"
+      ]
+    },
+    {
+      "document": "docs/B08_DECISION_MANAGEMENT_RESULT.md",
+      "target": "docs/evidence/b08_20261001/protection-audit.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/B08_DECISION_MANAGEMENT_RESULT.md",
+      "target": "docs/evidence/b08_20261001/SHA256SUMS.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/B08_DECISION_MANAGEMENT_RESULT.md",
+      "target": "docs/evidence/PRE_B09_ARCHIVE_MANIFEST.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/ASTRBOTEX_SYNC_20261001_RESULT.md",
+      "target": "docs/evidence/astrbotex_sync_20261001",
+      "survives_cleanup": true,
+      "retained_files": [
+        "comparison.json",
+        "sync_manifest.json",
+        "merges.json",
+        "vendor_verification.json",
+        "README.md",
+        "test_environment.json",
+        "concurrent_changes.json",
+        "before.json",
+        "protection_check.json"
+      ]
+    },
+    {
+      "document": "docs/ASTRBOTEX_SYNC_20261001_RESULT.md",
+      "target": "docs/evidence/PRE_B09_ARCHIVE_MANIFEST.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/evidence/astrbotex_sync_20261001/README.md",
+      "target": "docs/evidence/PRE_B09_ARCHIVE_MANIFEST.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/evidence/b08_20261001/README.md",
+      "target": "docs/evidence/PRE_B09_ARCHIVE_MANIFEST.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "docs/evidence/laya_b07_20261001/README.md",
+      "target": "docs/evidence/PRE_B09_ARCHIVE_MANIFEST.json",
+      "survives_cleanup": true,
+      "retained_files": null
+    },
+    {
+      "document": "apps/AstrBotEX/docs/B07-LAYA-BACKEND.md",
+      "target": "docs/evidence/laya_b07_20261001",
+      "survives_cleanup": true,
+      "retained_files": [
+        "source.before.json",
+        "weights-manifest.json",
+        "environment.json",
+        "verification-summary.json",
+        "README.md",
+        "input-budget-check.json",
+        "real-source-frozen.json",
+        "laya-environment.freeze.txt",
+        "fixed_scenarios.json",
+        "PROTOCOL_REPORT.md",
+        "source-install-manifest.json",
+        "manifest.json",
+        "protection-audit.json"
+      ]
+    }
+  ]
+}

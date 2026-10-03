@@ -1,0 +1,1001 @@
+{
+  "archive_root": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002",
+  "original_archive_manifest_sha256": "1b03e95fc5a3da25378a06491eddc1299d077c5c786e93d1d25046021fef183f",
+  "entries": [
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/before.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/before.json",
+      "kind": "file",
+      "size": 38230,
+      "sha256": "b5ab260e5e87b6e382159ba59012b11f7681f1e69dbae0a5ce0c3be1933f4f23"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/comparison.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/comparison.json",
+      "kind": "file",
+      "size": 11865,
+      "sha256": "0c0e6971a13e5175d3f8584ffe5bb1d933f006881598f2bd6ecb2611716a3ec1"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/concurrent_changes.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/concurrent_changes.json",
+      "kind": "file",
+      "size": 2515,
+      "sha256": "6b9fc2a563a3c133f210bcdc8053bd3b412ba4025e33a87889beb1ebe1d65186"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/framework_tests.exit",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/framework_tests.exit",
+      "kind": "file",
+      "size": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/framework_tests.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/framework_tests.txt",
+      "kind": "file",
+      "size": 81022,
+      "sha256": "b590fe260b2e08ebbad237603d4d8d0e80fb0f582f55320c287ae1dc3c4c6b35"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/merges.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/merges.json",
+      "kind": "file",
+      "size": 514,
+      "sha256": "0ca43d769850c7dda7f5da8a7356db339b399bff27d2978bf44b125eb27b745d"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/protection_check.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/protection_check.json",
+      "kind": "file",
+      "size": 2147,
+      "sha256": "d33bde497d28c326a58a57c99af9b4871768ef166894599102aa6da2c59b768e"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/ros_build.exit",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/ros_build.exit",
+      "kind": "file",
+      "size": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/ros_build.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/ros_build.txt",
+      "kind": "file",
+      "size": 207,
+      "sha256": "46efdb78f471f316a066291b74b1c8002371443f0ba026bc53accfa68fc2aa25"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/ros_tests_retry.exit",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/ros_tests_retry.exit",
+      "kind": "file",
+      "size": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/ros_tests_retry.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/ros_tests_retry.txt",
+      "kind": "file",
+      "size": 1695,
+      "sha256": "8d6c851bd24e3ac75da7e1afa7f5424a5096c81ff099b91f0fcca9a1ce1b749e"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/status_after.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/status_after.txt",
+      "kind": "file",
+      "size": 6627,
+      "sha256": "e1bdef3d1a8c023101e94f88ef63985d3b80be1a4e410964c0ee6f192e1edcac"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/status_before.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/status_before.txt",
+      "kind": "file",
+      "size": 3178,
+      "sha256": "b77ae364f2103019ea31ef00b979ed4200f3f6fa4d5952689aca57ea876735c2"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/sync_manifest.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/sync_manifest.json",
+      "kind": "file",
+      "size": 41647,
+      "sha256": "f005fa5ffc4534e0b7c74f1746b692dd07a7d298ca5b6005d302dec5c4f49d71"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/test_environment.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/test_environment.json",
+      "kind": "file",
+      "size": 462,
+      "sha256": "bb54ee40f9ce7104f630e12608a900056ff4599dadbff1018af6eb35fafe0a55"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001/vendor_verification.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/astrbotex_sync_20261001/vendor_verification.json",
+      "kind": "file",
+      "size": 168,
+      "sha256": "e94280000d0b61859c5e041c7cc0e5b6f91683e4a084ce97974e48fbfc372177"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/API-CONTRACT.md",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/API-CONTRACT.md",
+      "kind": "file",
+      "size": 2922,
+      "sha256": "3c5dfe9b0d7d7e451a337f4dab0096ff3b4cf88d05bb237b4ba8155c0fa31346"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/SHA256SUMS.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/SHA256SUMS.json",
+      "kind": "file",
+      "size": 3872,
+      "sha256": "59640b4b660745b240ba95af4ec06296b6b511197d889a55f34fe9ce89abcbb3"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/affected-tests-01.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/affected-tests-01.json",
+      "kind": "file",
+      "size": 2662,
+      "sha256": "034bebc3c5202700ed49c2651304977b889d67e44477c985fe9080ba503bcc1b"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/affected-tests-01.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/affected-tests-01.txt",
+      "kind": "file",
+      "size": 37010,
+      "sha256": "e70f03d5f1649ca8a5bf0beae4cfd778e33d7b8acb9855c25e1053b374166d61"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/boundaries-tests-01.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/boundaries-tests-01.json",
+      "kind": "file",
+      "size": 211,
+      "sha256": "6c49cdd1941f693039c84e0fb4c1fbcb8d4da5144a283eca78c650510af1fcdc"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/boundaries-tests-01.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/boundaries-tests-01.txt",
+      "kind": "file",
+      "size": 1485,
+      "sha256": "13f4dac72ec7fdc64d8f014758a2c334d9fbf102316154cb44d1537224817df1"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/browser-cleanup.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/browser-cleanup.json",
+      "kind": "file",
+      "size": 1309,
+      "sha256": "8247e0a3e17dd9e4958171f7a2848d96d239b70a7f38f2a2a95d3eff66ab02e0"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/browser-command.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/browser-command.json",
+      "kind": "file",
+      "size": 2484,
+      "sha256": "900a720d0b2cf7af06bfe61cb9b092a6b68b50b943805c55794a2c0edb5ab99b"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/browser-run-01/chrome.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/browser-run-01/chrome.txt",
+      "kind": "file",
+      "size": 247,
+      "sha256": "8da862a4818b8ed610318a7e5eb06f3d22f5e254ddda2b8b73466da66f6deba9"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/browser-run-01/result.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/browser-run-01/result.json",
+      "kind": "file",
+      "size": 15784,
+      "sha256": "8872bcc6a186ea852b40d44ebbdd3bec09d6555ab465a903bf8e2832bb14cecf"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/existing-http-tests-01.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/existing-http-tests-01.txt",
+      "kind": "file",
+      "size": 2585,
+      "sha256": "5b7bbc8df4e5bbefaec7857ec92e79abe3acb1a3ac99d0d48b0cb561138fac0f"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/history-tests-01.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/history-tests-01.txt",
+      "kind": "file",
+      "size": 2046,
+      "sha256": "4a1b5ffa4686a356503202346d3918d554d16ff5b508af2059b1241d8b5c4f64"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/http-host-tests-02.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/http-host-tests-02.txt",
+      "kind": "file",
+      "size": 308,
+      "sha256": "5d0d15e0cefd0df6a86f99f6fbd67f9d0b0dda66b9546cb4b8f6f9e158001ebe"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/http-tests-01.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/http-tests-01.txt",
+      "kind": "file",
+      "size": 7655,
+      "sha256": "2da309fa4c79280dc6356096c1b53711a492a97ca1435df77f0317a6563cd50d"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/interleaving-replace-tests-03.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/interleaving-replace-tests-03.txt",
+      "kind": "file",
+      "size": 326,
+      "sha256": "1df486a159cb232cad0f70396a8b6662a3e492a822dc924f39bead4bf1071f29"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/interleaving-tests-01.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/interleaving-tests-01.txt",
+      "kind": "file",
+      "size": 2826,
+      "sha256": "327d6177ca1de56c965bcdc3ad25a2734636e551f17c3f9b4192275c39f19434"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/interleaving-timeout-tests-02.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/interleaving-timeout-tests-02.txt",
+      "kind": "file",
+      "size": 346,
+      "sha256": "3f39a54fadcbe9c9a51a6d4af43d311ecbc8b98601523ec8220d1fbfea32a6f6"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/legacy-http-01.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/legacy-http-01.json",
+      "kind": "file",
+      "size": 642,
+      "sha256": "669ae5dff0c2dd9536e30cc24f3acfddc13e9d63ba093e7a520d8e4f6e5ad3f2"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/legacy-http-01.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/legacy-http-01.txt",
+      "kind": "file",
+      "size": 8950,
+      "sha256": "bf19cec134c9d4cbbdc90f6168b0f033de11c9381217d2a07c2e7946d28d1e21"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/legacy-restore-focused-02.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/legacy-restore-focused-02.txt",
+      "kind": "file",
+      "size": 324,
+      "sha256": "e75f13d86777b39b2a29dd4d15189ad254fd48b8d9f6f881e41d81b058f458dc"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/management_operations_commit_test.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/management_operations_commit_test.txt",
+      "kind": "file",
+      "size": 324,
+      "sha256": "49d278308353b43a2ae7a856ce6871789af97457fb058b1aaa3048e8e82240ef"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/management_operations_tests.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/management_operations_tests.txt",
+      "kind": "file",
+      "size": 2384,
+      "sha256": "ea0983ac0717d3583dc39ae9d340e41b58cd74a85bf5b3cb6d1b78818aac9b1d"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/owned-process-cleanup.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/owned-process-cleanup.json",
+      "kind": "file",
+      "size": 559,
+      "sha256": "64f8421f3c24247bb161f965e61d924fa15dc316debab415688ec83d5f997859"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/owned_laya_tests.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/owned_laya_tests.txt",
+      "kind": "file",
+      "size": 2537,
+      "sha256": "457d62822c3b56d80b1394f54e33469ff2c8b4a7153fa36d0e3c0a73c25cf11c"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/protection-audit.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/protection-audit.json",
+      "kind": "file",
+      "size": 6658,
+      "sha256": "ba83d7288e56a00bf063a058ee97802b5ea0b152f2ddd75e7a0cc59c591b7888"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/real-run-01/owned-laya/laya-serve-96b1db2d6b2c4da4837fc2a574fa2457-1.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/real-run-01/owned-laya/laya-serve-96b1db2d6b2c4da4837fc2a574fa2457-1.txt",
+      "kind": "file",
+      "size": 1081,
+      "sha256": "b219fd0bf44887d9be9be57be4caf02eda7f58f6109388de6f23d9d4a8d9fe63"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/real-run-01/owned-laya/laya-serve-96b1db2d6b2c4da4837fc2a574fa2457-2.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/real-run-01/owned-laya/laya-serve-96b1db2d6b2c4da4837fc2a574fa2457-2.txt",
+      "kind": "file",
+      "size": 994,
+      "sha256": "819f217f6145abb9780805f7563eb7249279e29a08542a36588448b1c6c2e344"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/real-run-01/result.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/real-run-01/result.json",
+      "kind": "file",
+      "size": 2403456,
+      "sha256": "164e8281a3391741691af2cf19c22ce3643a2bc1aa22b20b106ad804f00f4a8e"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/real-run-01-command.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/real-run-01-command.json",
+      "kind": "file",
+      "size": 674,
+      "sha256": "704f9c9e93af3cc94d9597b8a0647bb0f97c0e4bdc08c1dc4e4af4cb81f421b7"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/real-run-01-console.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/real-run-01-console.txt",
+      "kind": "file",
+      "size": 104,
+      "sha256": "1fb945c8ccf506c17c49de59d4bf37d9e0fe4876d31dbf8fafb91e0b74789a13"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/real-run-01-summary.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/real-run-01-summary.json",
+      "kind": "file",
+      "size": 17500,
+      "sha256": "e49f7de1e56773717e100f3c601b315d11adc47e54c2ebe6b5735c46ccbfc9c9"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/real-source-frozen.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/real-source-frozen.json",
+      "kind": "file",
+      "size": 3341,
+      "sha256": "604289ae0ab90cf3451040d1d6500377889304ed769a9bad3b978058b5e6b505"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/secret-redaction-tests-01.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/secret-redaction-tests-01.json",
+      "kind": "file",
+      "size": 1845,
+      "sha256": "65776f835ffd28987d680bfb860382d5126ce635412ebf8e47b32bd0d6808951"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/secret-redaction-tests-01.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/secret-redaction-tests-01.txt",
+      "kind": "file",
+      "size": 342,
+      "sha256": "d47463353454183c1a47e5f0e9312f8ce296cca25400254b4158983f3a2a0c28"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/source.before.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/source.before.json",
+      "kind": "file",
+      "size": 35108,
+      "sha256": "a3c13afcbd1f515f12836812a610deda1d8af3d8b44e1cb9aab25c33db79e407"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/static-checks.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/static-checks.json",
+      "kind": "file",
+      "size": 1140,
+      "sha256": "71f07927638c05bdbf3f387bf1a98e13b6d3d38bbfc69f6d9e59b9edd59c0804"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/verification/serve_dashboard_acceptance.py",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/verification/serve_dashboard_acceptance.py",
+      "kind": "file",
+      "size": 1204,
+      "sha256": "918883c12aad801936e905ca9fe9422cdbf224c4b1c658de5d3d95902c4a134e"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/b08_20261001/verification/verify_dashboard_management.mjs",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/b08_20261001/verification/verify_dashboard_management.mjs",
+      "kind": "file",
+      "size": 11885,
+      "sha256": "725de31bd9b1caefbe8d5d26c1e7a4e316a4539117f3a1c3155606ba9c7e53d2"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/PROTOCOL_REPORT.md",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/PROTOCOL_REPORT.md",
+      "kind": "file",
+      "size": 12011,
+      "sha256": "ae1541552186f3b8aaf9edfa02096d5129e0aef6c673b78bd0f9e50ea70f7fa5"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/affected-tests-01.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/affected-tests-01.txt",
+      "kind": "file",
+      "size": 69,
+      "sha256": "f7e41961be0b7eef06a23deb2b43a83ea2fdc8f9747ad67aaf111d65b9c45111"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/affected-tests-02.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/affected-tests-02.txt",
+      "kind": "file",
+      "size": 25708,
+      "sha256": "2337031024d9376ea8f9c6ab7894726a02674070302acd4bc1044f5449db9a14"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/check_input_budget.py",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/check_input_budget.py",
+      "kind": "file",
+      "size": 10033,
+      "sha256": "488c05ce0c7c7176faf9d9d47d17bb1dff447c6fd0e56614ce0162f7b69b54a6"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/environment.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/environment.json",
+      "kind": "file",
+      "size": 566,
+      "sha256": "1a0083f8f094b19b21e83d3bc4fc19c7ddcc1b1ef0638f0b2a83a2217915a9b2"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/fixed_scenarios.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/fixed_scenarios.json",
+      "kind": "file",
+      "size": 318,
+      "sha256": "aa65407e3af05d87d9ac0b0a5bdfb0047b77aa433e316c91a3a8f4fc539bcc3f"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/input-budget-check.exit",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/input-budget-check.exit",
+      "kind": "file",
+      "size": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/input-budget-check.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/input-budget-check.json",
+      "kind": "file",
+      "size": 13490,
+      "sha256": "dda070d9067a17f38f9187a0d4b7fe03e5adb5afb36bb370784c108e4ea8d7d6"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/input-budget-check.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/input-budget-check.txt",
+      "kind": "file",
+      "size": 138,
+      "sha256": "a807451ae25e926ea1e177e49eaacf655bdb2c87cf8e54273a0730478ce8d8be"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/install-constraints.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/install-constraints.txt",
+      "kind": "file",
+      "size": 40,
+      "sha256": "039a1d67c1c19dce4e59a90e782ad44e41ccfdf87e54d84c5dc90c8fabb21bb0"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/install-laya.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/install-laya.txt",
+      "kind": "file",
+      "size": 16679,
+      "sha256": "27ce00ecc8af2a33c35521222f8b08e7fdbff206f1f2c9d7ee0a97fcb350b733"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/install-torch-retry.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/install-torch-retry.txt",
+      "kind": "file",
+      "size": 10222,
+      "sha256": "852b1d528338c18b9770632aff22be5402c9d3c30d62f4f00c4a8572025c4466"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/install-torch.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/install-torch.txt",
+      "kind": "file",
+      "size": 13977,
+      "sha256": "75e69f9de25eeb00928e50bd231a3e245b96a61bfa5b9b03e0c72f8ca7541693"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/laya-environment.freeze.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/laya-environment.freeze.txt",
+      "kind": "file",
+      "size": 1211,
+      "sha256": "cc045bd2677f1a80febc3c98873b1b5024110833cbf76d4044b52c2ee224e904"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/manifest.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/manifest.json",
+      "kind": "file",
+      "size": 4235,
+      "sha256": "ad2e8d6bb5380d85055866601329adcdc69a529786e1ad0569177bc0968ba54e"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/protection-audit.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/protection-audit.json",
+      "kind": "file",
+      "size": 808,
+      "sha256": "ba53a3651f5375918802d50e89f7b243ab68c4ebda587211146749cc6910ae15"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/real-run-01/actor-integration-partial.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/real-run-01/actor-integration-partial.json",
+      "kind": "file",
+      "size": 104464,
+      "sha256": "5a9993c76531d3f07c0a37be8cd22fe9bb9ef160db6d04aa0ba6ee1b51e16051"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/real-run-01/calls.jsonl",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/real-run-01/calls.jsonl",
+      "kind": "file",
+      "size": 122615,
+      "sha256": "218eb623eb7aab64083dbec9e73fa009c290024bdeb2cfa28b5a0eaf798a030c"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/real-run-01/laya-serve-1.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/real-run-01/laya-serve-1.txt",
+      "kind": "file",
+      "size": 4619,
+      "sha256": "6c304d7cbb5a4c0bdef05782f1ae3124f8663b1aa923e1619fb083583c0e20c5"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/real-run-01/result.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/real-run-01/result.json",
+      "kind": "file",
+      "size": 301319,
+      "sha256": "1d916e722b92928a38229be2e4df14c31ba0855d930688ed802d56483708b1e4"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/real-run-01/scenarios.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/real-run-01/scenarios.json",
+      "kind": "file",
+      "size": 384,
+      "sha256": "17984dad072c677c257fd3c7184690a87a9510268815966a73ff3a8df3cf258e"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/real-run-01-console.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/real-run-01-console.txt",
+      "kind": "file",
+      "size": 189,
+      "sha256": "cf616d1bdc04215f244d324a666680d0091e02f40087f095286810c13cf88bc7"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/real-source-frozen.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/real-source-frozen.json",
+      "kind": "file",
+      "size": 672,
+      "sha256": "20b430b30136c9063a6a127cdba4bba63c535676d82f88cdcf1dbf997bc886f9"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/source-install-manifest.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/source-install-manifest.json",
+      "kind": "file",
+      "size": 246,
+      "sha256": "9665fd21137d27fb777e958062f1e2cb9d6554fb2a94f28a27871011429e8411"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/source.before.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/source.before.json",
+      "kind": "file",
+      "size": 25722,
+      "sha256": "7c8ae597c8a4423ae703f496b86047604e493948ff6fc3732bfe73c4c23eecba"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/staged-tests-05.exit",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/staged-tests-05.exit",
+      "kind": "file",
+      "size": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/staged-tests-05.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/staged-tests-05.txt",
+      "kind": "file",
+      "size": 4788,
+      "sha256": "7470d90f2bfb35a5c61da67b3593d43a8d71c9450af2dc6b2b8f2571547b3697"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/upstream-handoff/affected-03.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/upstream-handoff/affected-03.txt",
+      "kind": "file",
+      "size": 24008,
+      "sha256": "409c0db63fc05ffb4f092249617dc85ded3638f052a68fccf4b97ee6f06150ad"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/upstream-handoff/regression-03.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/upstream-handoff/regression-03.json",
+      "kind": "file",
+      "size": 638,
+      "sha256": "d8c6c52a0fa571f0eed5e018255822e340705653c7d7efeaf812bfff9cb06fa6"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/upstream-handoff/regression-03.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/upstream-handoff/regression-03.txt",
+      "kind": "file",
+      "size": 80587,
+      "sha256": "b84b920ce397f5bc3b934304f898e14833ed86f4c6e5ccc589dee60593771cb1"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/verification-summary.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/verification-summary.json",
+      "kind": "file",
+      "size": 1038,
+      "sha256": "9ac0f0bba820440e034033cd459b8d7167baa4a26de4bdbde480b45da8a04393"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/laya_b07_20261001/weights-manifest.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/evidence/laya_b07_20261001/weights-manifest.json",
+      "kind": "file",
+      "size": 1207,
+      "sha256": "fcc7e8f108933d6fb890e2792540053fda158dd5d156c52f13d612299e37403a"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/RESULT.md",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/RESULT.md",
+      "kind": "file",
+      "size": 9037,
+      "sha256": "4de19e0ea825a563d3ac4d75af7bf81a7840df3e11945980a4ffcf4ef77c1ee5"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/affected-02.exit",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/affected-02.exit",
+      "kind": "file",
+      "size": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/affected-02.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/affected-02.txt",
+      "kind": "file",
+      "size": 21283,
+      "sha256": "61920a65ce970a037c0ce600dcecf7d2ac935762b5ef39ee97c89dde0e5efac3"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/affected-03.exit",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/affected-03.exit",
+      "kind": "file",
+      "size": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/affected-03.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/affected-03.txt",
+      "kind": "file",
+      "size": 24008,
+      "sha256": "409c0db63fc05ffb4f092249617dc85ded3638f052a68fccf4b97ee6f06150ad"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/audit.after.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/audit.after.json",
+      "kind": "file",
+      "size": 2503,
+      "sha256": "025e0f08f0ebfe59dca1173eaa4f2e820e6307658741e448bc43d53150a1768e"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/backend_tests_snippet.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/backend_tests_snippet.txt",
+      "kind": "file",
+      "size": 14443,
+      "sha256": "325d64677c6994b7f6191d5a1295e9a504425e53921de840432cd5e6da9c9b7c"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/before/apps/AstrBotEX/astrbot_ex/core/decision/service.py",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/before/apps/AstrBotEX/astrbot_ex/core/decision/service.py",
+      "kind": "file",
+      "size": 40376,
+      "sha256": "af879bafb17999d873cb026a17d050711856fb2ac7a8124980f7dc78208ff99c"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/before/apps/AstrBotEX/docs/B04-DECISION-CORE.md",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/before/apps/AstrBotEX/docs/B04-DECISION-CORE.md",
+      "kind": "file",
+      "size": 15137,
+      "sha256": "2c4e5753575d37d37a2ff8859829ba5b7bcf16bd916f4073ffd2ab1ea438edc8"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/before/apps/AstrBotEX/tests/test_decision_service.py",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/before/apps/AstrBotEX/tests/test_decision_service.py",
+      "kind": "file",
+      "size": 59182,
+      "sha256": "4b3b4b2618b231a52d0b612a2ec3ca64ee1b94b39dfca16a9a73bdd352ac7d98"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/changes.patch",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/changes.patch",
+      "kind": "file",
+      "size": 59716,
+      "sha256": "dad198505710ba4fe304815aead16240fe2ad76384d3929d1c1b78c143db97ab"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/dispatcher_1000_isolated.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/dispatcher_1000_isolated.json",
+      "kind": "file",
+      "size": 516,
+      "sha256": "adc09c591a52e9b07290129b6d677c38edaeeb2f1f287b565853db4af7828012"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/dispatcher_1000_isolated.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/dispatcher_1000_isolated.txt",
+      "kind": "file",
+      "size": 286,
+      "sha256": "ad5e52ff4c14accc4435bde09b4989a28c76282c0befa8b8d2de12665351b7ba"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/dispatcher_1000_source_identity.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/dispatcher_1000_source_identity.json",
+      "kind": "file",
+      "size": 1046,
+      "sha256": "7f1311d18a43daf722b72da44e242cf6c5c383b85aa7757c2580dfb59297f4bd"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/focused-01.exit",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/focused-01.exit",
+      "kind": "file",
+      "size": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/focused-01.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/focused-01.txt",
+      "kind": "file",
+      "size": 10507,
+      "sha256": "62c0a45a05446b100be0a97dfb00fe97f3c262c520e8f882a2190c7f08dda225"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/focused-04.exit",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/focused-04.exit",
+      "kind": "file",
+      "size": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/focused-04.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/focused-04.txt",
+      "kind": "file",
+      "size": 10909,
+      "sha256": "eec7c3fdcead4f4284c8119b1f70d6acfc8082e5a6ae0ac6665224de21b75faa"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/manifest.before.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/manifest.before.json",
+      "kind": "file",
+      "size": 359,
+      "sha256": "b44222e58f6e89bdbb5d5cffcccf7f303377b45f29d418dc22b050016e2eac61"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/regression-01.exit",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/regression-01.exit",
+      "kind": "file",
+      "size": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/regression-01.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/regression-01.txt",
+      "kind": "file",
+      "size": 83529,
+      "sha256": "32dc4327535d71c116218583810239430b739435d1808c7442477aa6fd361e65"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/regression-02.exit",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/regression-02.exit",
+      "kind": "file",
+      "size": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/regression-02.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/regression-02.json",
+      "kind": "file",
+      "size": 637,
+      "sha256": "a2922312e9eec9a8aa94d74f4d8ddde504ba8d9bf5187a6db8586d0499bc97b2"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/regression-02.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/regression-02.txt",
+      "kind": "file",
+      "size": 79634,
+      "sha256": "c31aa398e3593ac0c0e182b204295155eedb275f35f0fb65fa66159d58758841"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/regression-03.exit",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/regression-03.exit",
+      "kind": "file",
+      "size": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/regression-03.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/regression-03.json",
+      "kind": "file",
+      "size": 638,
+      "sha256": "d8c6c52a0fa571f0eed5e018255822e340705653c7d7efeaf812bfff9cb06fa6"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/regression-03.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/regression-03.txt",
+      "kind": "file",
+      "size": 80587,
+      "sha256": "b84b920ce397f5bc3b934304f898e14833ed86f4c6e5ccc589dee60593771cb1"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/regression_environment.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/regression_environment.json",
+      "kind": "file",
+      "size": 595,
+      "sha256": "66c4ccabdf2290b61d266eb7e01913880194e16cf1ff502148e391c7fb2e1d30"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_178471_1790861319188.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_178471_1790861319188.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_178471_1790861319486.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_178471_1790861319486.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_178471_1790861320342.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_178471_1790861320342.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_178471_1790861321583.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_178471_1790861321583.log",
+      "kind": "file",
+      "size": 441,
+      "sha256": "8e13f92f114da7257949c2e57e7487a04fab9417377ba4abde479d7836ae5bf8"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_178471_1790861321898.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_178471_1790861321898.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_180001_1790861319651.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_180001_1790861319651.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_182317_1790861924708.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_182317_1790861924708.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_182317_1790861924986.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_182317_1790861924986.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_182317_1790861925850.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_182317_1790861925850.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_182317_1790861927084.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_182317_1790861927084.log",
+      "kind": "file",
+      "size": 441,
+      "sha256": "698c2b93109c76b1bcc9a740bda02e9a1adb4c9f8d3cdeeacec828df1d0b4480"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_182317_1790861927398.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_182317_1790861927398.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_183844_1790861925142.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_183844_1790861925142.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_185721_1790862355441.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_185721_1790862355441.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_185721_1790862355717.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_185721_1790862355717.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_185721_1790862356574.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_185721_1790862356574.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_185721_1790862357766.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_185721_1790862357766.log",
+      "kind": "file",
+      "size": 441,
+      "sha256": "e6bea26359439d471dac7a010d28245e383eae486ea4feefa890c5f182d89643"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_185721_1790862358084.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_185721_1790862358084.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/ros_logs/python_187354_1790862355857.log",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/ros_logs/python_187354_1790862355857.log",
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/run_regression_02.py",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/run_regression_02.py",
+      "kind": "file",
+      "size": 1052,
+      "sha256": "baf96471af6301ce20fae15543765f3f6144e27e91debd5ec74560e6664160da"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/run_regression_03.py",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/run_regression_03.py",
+      "kind": "file",
+      "size": 1052,
+      "sha256": "1017123c38f55c083a06f931e287dff9e7574ccce4f8a9dfe437a60e7f99f481"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/service.py",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/service.py",
+      "kind": "file",
+      "size": 50673,
+      "sha256": "1f1599bed2b04fef9590d02baa33c8ae89943589176afff2077bb5bc3ad948bf"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/stale_stop_epoch_test.txt",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/stale_stop_epoch_test.txt",
+      "kind": "file",
+      "size": 4057,
+      "sha256": "1fbd2509c88ca370672e25396d02fb513c86197c788b618d66ed3dc8f5c8fbaf"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/status.after",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/status.after",
+      "kind": "file",
+      "size": 14049,
+      "sha256": "8278933900c2036c9a6f65d4f15c61e5048cf135442daac9cdc70d62972911b3"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/status.before",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/status.before",
+      "kind": "file",
+      "size": 14049,
+      "sha256": "8278933900c2036c9a6f65d4f15c61e5048cf135442daac9cdc70d62972911b3"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/test_decision_service.py",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/test_decision_service.py",
+      "kind": "file",
+      "size": 86854,
+      "sha256": "ea8c11e354c89c629d59208cf580cdca9917680538176e03007813aa8e10862d"
+    },
+    {
+      "source": "/tmp/astrex_b04_boundary_20261001/worker_io_race_probe.json",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/workspaces/astrex_b04_boundary_20261001/worker_io_race_probe.json",
+      "kind": "file",
+      "size": 698,
+      "sha256": "9024778cd24ec974f36dd2ac05ce8426331768bc850d70f7028f47a732629e5f"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/AstrEX_workingTree/implementation/2026-09-28-closeout/uncommitted-source-final-delta.zip",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/historical-source-backups/uncommitted-source-final-delta.zip",
+      "kind": "file",
+      "size": 8986,
+      "sha256": "8e8b68886c6a5200770835e160cb63b340ed6abfd1a213df9565367882dda893"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/AstrEX_workingTree/implementation/2026-09-28-closeout/uncommitted-source-checkpoint.zip",
+      "destination": "/data/shared/AstrEX_project_data/logs/app/ex_pre_b09_20261002/historical-source-backups/uncommitted-source-checkpoint.zip",
+      "kind": "file",
+      "size": 548407,
+      "sha256": "58094442005d3cbde8bf4ae6347cf89cbc24ceeacdb45350db58e4fc5cfe3cca"
+    }
+  ],
+  "note": "Original SHA256 manifests describe the original complete evidence packages. Missing local files now reside at destination paths below."
+}

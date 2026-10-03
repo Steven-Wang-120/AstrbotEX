@@ -1,0 +1,410 @@
+{
+  "browser": "installed Chrome with native CDP",
+  "process_id": 44607,
+  "base_origin": "http://127.0.0.1:46467",
+  "checks": [
+    "page load and missing credential caused no execution write",
+    "wrong credential shows 401 without execution",
+    "credential remains in page memory and authenticated reads succeed",
+    "SSE reconnect uses Authorization and no token URL",
+    "authenticated refresh preserves existing environment draft",
+    "existing ZIP download and upload use the shared authentication",
+    "reload clears credential and causes zero execution"
+  ],
+  "requests": [
+    {
+      "request_id": "56E2FFA143B5D2AA3CA4C8433317141A",
+      "path": "/",
+      "method": "GET",
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.2",
+      "path": "/styles.css",
+      "method": "GET",
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.3",
+      "path": "/environments.js",
+      "method": "GET",
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.4",
+      "path": "/dashboard/decision.js",
+      "method": "GET",
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.5",
+      "path": "/app.js",
+      "method": "GET",
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.10",
+      "path": "/favicon.ico",
+      "method": "GET",
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 404
+    },
+    {
+      "request_id": "44710.11",
+      "path": "/api/status",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 401
+    },
+    {
+      "request_id": "44710.12",
+      "path": "/api/status",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.13",
+      "path": "/api/v1/ex/plugins",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.14",
+      "path": "/api/v1/ex/environments",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.15",
+      "path": "/api/v1/ex/pubsub/publishers",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.16",
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.17",
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.18",
+      "path": "/api/v1/ex/decision/status",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.19",
+      "path": "/api/events",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.20",
+      "path": "/api/events",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.21",
+      "path": "/api/v1/ex/environments",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.22",
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.23",
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.24",
+      "path": "/api/v1/ex/environments",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.25",
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.26",
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.27",
+      "path": "/api/v1/ex/environments",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.28",
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.29",
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.30",
+      "path": "/api/v1/ex/backups",
+      "method": "POST",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.31",
+      "path": "/api/v1/ex/backups/astrbotex_snapshot_20261002_152002_a110cbd1.zip",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.32",
+      "path": "/api/v1/ex/backups/upload",
+      "method": "POST",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.33",
+      "path": "/api/status",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.34",
+      "path": "/api/v1/ex/plugins",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.35",
+      "path": "/api/v1/ex/connections/types",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.36",
+      "path": "/api/v1/ex/pubsub/publishers",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.37",
+      "path": "/api/v1/ex/connections",
+      "method": "GET",
+      "is_api": true,
+      "has_authorization": true,
+      "uses_expected_authorization": true,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "38B366D3B8659C8B72CD5FF001B3693B",
+      "path": "/",
+      "method": "GET",
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.39",
+      "path": "/styles.css",
+      "method": "GET",
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.40",
+      "path": "/environments.js",
+      "method": "GET",
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.41",
+      "path": "/dashboard/decision.js",
+      "method": "GET",
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.42",
+      "path": "/app.js",
+      "method": "GET",
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": 200
+    },
+    {
+      "request_id": "44710.47",
+      "path": "/favicon.ico",
+      "method": "GET",
+      "is_api": false,
+      "has_authorization": false,
+      "uses_expected_authorization": false,
+      "credential_in_url": false,
+      "status": null
+    }
+  ],
+  "errors": [],
+  "pass": true,
+  "browser_exit_code": 0,
+  "browser_exit_signal": null
+}

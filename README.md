@@ -1,5 +1,7 @@
 # AstrBotEX
 
+本地集成分支的 B04/B07 Laya/B08/B09、独立环境和 ROS 2 验证，见 [本轮集成报告](docs/LOCAL_DEVELOPMENT_INTEGRATION_RESULT.md)。管理 HTTP 默认只监听 `127.0.0.1`，需要管理员凭据；远程访问使用 SSH 隧道。
+
 2026-09 ROS 2 环境框架：在同一个 8765 Dashboard 的“06 环境”中切换普通/ROS 2，
 通过插件声明的端口收发 ROS 消息。见 [SDK 与 API](docs/ROS2-SDK.md)、
 [部署说明](docs/ROS2-DEPLOYMENT.md) 和 [验收记录](docs/ROS2-ACCEPTANCE.md)。

@@ -268,12 +268,17 @@ class RuntimeDecisionIntegrationTests(unittest.TestCase):
             runtime.state = RuntimeState.RUNNING
             server = AstrBotEXHTTPServer(("127.0.0.1", 0), AstrBotEXRequestHandler)
             server.controller = RuntimeController(runtime)
+            from astrbot_ex.core.decision.management import DecisionManagement
+            server.decision_management = DecisionManagement(service, fixture.tmp.name)
             serving = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.01})
             serving.start()
             service.submit_goal(goal_payload(service.goals))
             self.assertTrue(backend.entered.wait(1))
+            authorization = "Bearer " + server.decision_management.credential_path.read_text().strip()
             begin = time.perf_counter_ns()
-            with urllib.request.urlopen(f"http://127.0.0.1:{server.server_port}/api/v1/ex/status", timeout=1) as response:
+            request = urllib.request.Request(f"http://127.0.0.1:{server.server_port}/api/v1/ex/status",
+                headers={"Authorization": authorization})
+            with urllib.request.urlopen(request, timeout=1) as response:
                 state = json.load(response)
             self.assertLess((time.perf_counter_ns() - begin) / 1e9, 0.1)
             self.assertTrue(state["actions"]["backend_live"])

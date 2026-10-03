@@ -1,0 +1,22 @@
+{
+  "baseline_tracked_regular_files": 405,
+  "tracked_changed": [
+    "apps/AstrBotEX/dashboard/app.js",
+    "apps/AstrBotEX/dashboard/index.html",
+    "apps/AstrBotEX/dashboard/styles.css",
+    "docs/AstrEX_workingTree/00_施工总索引与派工规则.md",
+    "docs/AstrEX_workingTree/B09_低风险_决策前端页面与展示.md"
+  ],
+  "unrelated_tracked_changes": [],
+  "backend_business_files_checked": 71,
+  "backend_business_unchanged": true,
+  "preserved": {
+    "head": true,
+    "remote": true,
+    "submodules": true,
+    "cached": true,
+    "index": true
+  },
+  "initial_status_clean": true,
+  "commit_or_push_performed": false
+}
