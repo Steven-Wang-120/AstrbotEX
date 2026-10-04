@@ -1,0 +1,70 @@
+{
+  "vendor_revision": "3dc2b5e8294758d96b54b15fa5920d581b7cbb3d",
+  "vendor_repository": "https://github.com/xArm-Developer/xarm_ros2.git",
+  "isaac_asset": "/data/shared/AstrEX_project_data/assets/isaac_5_1/Isaac/Robots/Ufactory/xarm6/xarm6.usd",
+  "arm_mount_world": [
+    0.0,
+    0.0,
+    0.45
+  ],
+  "gripper_effort_nm": 2.0,
+  "velocity_scale": 0.15,
+  "acceleration_scale": 0.15,
+  "arm_stiffness": [
+    4000,
+    4000,
+    3000,
+    1500,
+    1000,
+    700
+  ],
+  "arm_damping": [
+    180,
+    180,
+    140,
+    90,
+    65,
+    45
+  ],
+  "gripper_stiffness": 150,
+  "gripper_damping": 12,
+  "base": {
+    "wheel_radius": 0.12,
+    "wheel_separation": 0.64,
+    "wheel_x": 0.2,
+    "height": 0.23,
+    "mass": 30.0,
+    "max_linear_velocity": 0.15,
+    "max_angular_velocity": 0.4,
+    "wheel_effort": 8.0,
+    "initial_pose": [
+      -1.5,
+      -1.5,
+      0.0
+    ]
+  },
+  "initial_joint_positions": [
+    0,
+    -1,
+    -1,
+    0,
+    1.7,
+    0,
+    0
+  ],
+  "allowed_support_contacts": [
+    [
+      "red_cube",
+      "table"
+    ],
+    [
+      "red_cube",
+      "place_region"
+    ]
+  ],
+  "articulation_sleep_threshold": 0.0,
+  "solver_position_iterations": 32,
+  "solver_velocity_iterations": 1,
+  "gripper_velocity": 0.3,
+  "enable_external_forces_every_iteration": true
+}

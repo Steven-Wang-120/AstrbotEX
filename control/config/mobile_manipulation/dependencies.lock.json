@@ -1,0 +1,424 @@
+{
+  "kind": "official_deb_private_overlay",
+  "prefix": "/home/sssxy/Projects/AstrEX_project_main/runtime/mobile_manipulation_deps/root",
+  "packages": [
+    {
+      "name": "libpgm-dev",
+      "version": "5.3.128~dfsg-2.1build1"
+    },
+    {
+      "name": "libsodium-dev",
+      "version": "1.0.18-1ubuntu0.24.04.1"
+    },
+    {
+      "name": "libnorm-dev",
+      "version": "1.5.9+dfsg-3.1build1"
+    },
+    {
+      "name": "comerr-dev",
+      "version": "2.1-1.47.0-2.4~exp1ubuntu4.1"
+    },
+    {
+      "name": "libgssrpc4t64",
+      "version": "1.20.1-6ubuntu2.10"
+    },
+    {
+      "name": "libkadm5clnt-mit12",
+      "version": "1.20.1-6ubuntu2.10"
+    },
+    {
+      "name": "libkdb5-10t64",
+      "version": "1.20.1-6ubuntu2.10"
+    },
+    {
+      "name": "libkadm5srv-mit12",
+      "version": "1.20.1-6ubuntu2.10"
+    },
+    {
+      "name": "krb5-multidev",
+      "version": "1.20.1-6ubuntu2.10"
+    },
+    {
+      "name": "libkrb5-dev",
+      "version": "1.20.1-6ubuntu2.10"
+    },
+    {
+      "name": "libmd-dev",
+      "version": "1.1.0-2build1.1"
+    },
+    {
+      "name": "libbsd-dev",
+      "version": "0.12.1-1build1.1"
+    },
+    {
+      "name": "libzmq3-dev",
+      "version": "4.3.5-1build2"
+    },
+    {
+      "name": "cppzmq-dev",
+      "version": "4.10.0-1build1"
+    },
+    {
+      "name": "libgraphicsmagick-q16-3t64",
+      "version": "1.4+really1.3.42-1.1build3"
+    },
+    {
+      "name": "libgraphics-magick-perl",
+      "version": "1.4+really1.3.42-1.1build3"
+    },
+    {
+      "name": "libgraphicsmagick++-q16-12t64",
+      "version": "1.4+really1.3.42-1.1build3"
+    },
+    {
+      "name": "liblcms2-dev",
+      "version": "2.14-2ubuntu0.1"
+    },
+    {
+      "name": "libwmf-dev",
+      "version": "0.2.13-1.1build3"
+    },
+    {
+      "name": "libhwy-dev",
+      "version": "1.0.7-8.1build1"
+    },
+    {
+      "name": "libjxl-dev",
+      "version": "0.7.0-10.2ubuntu6.1"
+    },
+    {
+      "name": "libgraphicsmagick1-dev",
+      "version": "1.4+really1.3.42-1.1build3"
+    },
+    {
+      "name": "libgraphicsmagick++1-dev",
+      "version": "1.4+really1.3.42-1.1build3"
+    },
+    {
+      "name": "libnanoflann-dev",
+      "version": "1.5.4+ds-1"
+    },
+    {
+      "name": "nlohmann-json3-dev",
+      "version": "3.11.3-1"
+    },
+    {
+      "name": "ros-jazzy-behaviortree-cpp",
+      "version": "4.10.0-1noble.20260902.082337"
+    },
+    {
+      "name": "ros-jazzy-bond",
+      "version": "4.2.0-1noble.20260902.034242"
+    },
+    {
+      "name": "ros-jazzy-smclib",
+      "version": "4.2.0-1noble.20260317.155007"
+    },
+    {
+      "name": "ros-jazzy-bondcpp",
+      "version": "4.2.0-1noble.20260903.012116"
+    },
+    {
+      "name": "ros-jazzy-geographic-msgs",
+      "version": "1.0.6-2noble.20260902.041337"
+    },
+    {
+      "name": "ros-jazzy-joint-state-topic-hardware-interface",
+      "version": "1.1.0-1noble.20260905.072635"
+    },
+    {
+      "name": "ros-jazzy-nav-2d-msgs",
+      "version": "1.3.13-1noble.20260902.033922"
+    },
+    {
+      "name": "ros-jazzy-nav2-msgs",
+      "version": "1.3.13-1noble.20260902.082014"
+    },
+    {
+      "name": "ros-jazzy-nav2-common",
+      "version": "1.3.13-1noble.20260902.081418"
+    },
+    {
+      "name": "ros-jazzy-nav2-util",
+      "version": "1.3.13-1noble.20260903.023450"
+    },
+    {
+      "name": "ros-jazzy-nav-2d-utils",
+      "version": "1.3.13-1noble.20260903.025051"
+    },
+    {
+      "name": "ros-jazzy-nav2-behavior-tree",
+      "version": "1.3.13-1noble.20260903.024922"
+    },
+    {
+      "name": "ros-jazzy-nav2-voxel-grid",
+      "version": "1.3.13-1noble.20260902.082710"
+    },
+    {
+      "name": "ros-jazzy-nav2-costmap-2d",
+      "version": "1.3.13-1noble.20260903.024922"
+    },
+    {
+      "name": "ros-jazzy-nav2-core",
+      "version": "1.3.13-1noble.20260903.031226"
+    },
+    {
+      "name": "ros-jazzy-nav2-behaviors",
+      "version": "1.3.13-1noble.20260903.032321"
+    },
+    {
+      "name": "ros-jazzy-nav2-bt-navigator",
+      "version": "1.3.13-1noble.20260903.032108"
+    },
+    {
+      "name": "ros-jazzy-nav2-collision-monitor",
+      "version": "1.3.13-1noble.20260903.031125"
+    },
+    {
+      "name": "ros-jazzy-nav2-controller",
+      "version": "1.3.13-1noble.20260903.032018"
+    },
+    {
+      "name": "ros-jazzy-nav2-lifecycle-manager",
+      "version": "1.3.13-1noble.20260903.024931"
+    },
+    {
+      "name": "graphicsmagick-libmagick-dev-compat",
+      "version": "1.4+really1.3.42-1.1build3"
+    },
+    {
+      "name": "ros-jazzy-nav2-map-server",
+      "version": "1.3.13-1noble.20260903.025026"
+    },
+    {
+      "name": "ros-jazzy-nav2-planner",
+      "version": "1.3.13-1noble.20260903.031918"
+    },
+    {
+      "name": "ros-jazzy-nav2-regulated-pure-pursuit-controller",
+      "version": "1.3.13-1noble.20260903.031928"
+    },
+    {
+      "name": "ros-jazzy-nav2-route",
+      "version": "1.3.13-1noble.20260903.032339"
+    },
+    {
+      "name": "ros-jazzy-nav2-rviz-plugins",
+      "version": "1.3.13-1noble.20260905.070215"
+    },
+    {
+      "name": "ros-jazzy-nav2-smac-planner",
+      "version": "1.3.13-1noble.20260903.032637"
+    }
+  ],
+  "files": [
+    {
+      "name": "comerr-dev_2.1-1.47.0-2.4~exp1ubuntu4.1_amd64.deb",
+      "sha256": "e457b55be696c176d88e82baff0369b1c5d57f69e5b54f8898fae44892d16adc"
+    },
+    {
+      "name": "cppzmq-dev_4.10.0-1build1_amd64.deb",
+      "sha256": "81375971369a7856a6007a8f4a4b84ecf59a1c03aadb391b204a9100a3909173"
+    },
+    {
+      "name": "graphicsmagick-libmagick-dev-compat_1.4+really1.3.42-1.1build3_all.deb",
+      "sha256": "4e0bfd133368222d7322f2890a7fa32610d9582a9dd4d30397f86285204046ec"
+    },
+    {
+      "name": "krb5-multidev_1.20.1-6ubuntu2.10_amd64.deb",
+      "sha256": "11bbe96d6cabca1655da9a86cc39fd8338e7b0baf7384541d2640bbea89abb56"
+    },
+    {
+      "name": "libbsd-dev_0.12.1-1build1.1_amd64.deb",
+      "sha256": "d5de7e2205fc68167ecd07bc4fc0f65b53610ce48d514bf097cc076ceefa4b5b"
+    },
+    {
+      "name": "libgraphics-magick-perl_1.4+really1.3.42-1.1build3_amd64.deb",
+      "sha256": "14e07b7937dc27ff345f5d75aeb771cf5a250e091c04f2667f84dc1f488b4487"
+    },
+    {
+      "name": "libgraphicsmagick++-q16-12t64_1.4+really1.3.42-1.1build3_amd64.deb",
+      "sha256": "32192bb60b0698df13c3b8b1dee083be233ca14c47cacffc30ceb1e897ad947e"
+    },
+    {
+      "name": "libgraphicsmagick++1-dev_1.4+really1.3.42-1.1build3_amd64.deb",
+      "sha256": "38fdcb5463fc0e3fc0d9b7fe8b63fcecac79757e243dcb1446178a3e02cadd87"
+    },
+    {
+      "name": "libgraphicsmagick-q16-3t64_1.4+really1.3.42-1.1build3_amd64.deb",
+      "sha256": "e60230a95496b649c3fecd22a74b3e7df095a4386d1f12e3cb7c5194d8c424c2"
+    },
+    {
+      "name": "libgraphicsmagick1-dev_1.4+really1.3.42-1.1build3_amd64.deb",
+      "sha256": "6272a81255634abfdf9828c44fd36e58c93f969c47aaf312b09982c4b7977dbc"
+    },
+    {
+      "name": "libgssrpc4t64_1.20.1-6ubuntu2.10_amd64.deb",
+      "sha256": "eb9003ae3127b654412e1da892854f173dab9a6aefff0edfc46e6c73a8e7e229"
+    },
+    {
+      "name": "libhwy-dev_1.0.7-8.1build1_amd64.deb",
+      "sha256": "ed1991764630cc1bec5926c4c0e00f111c6701d6a21a04d6ebf3740550a041ac"
+    },
+    {
+      "name": "libjxl-dev_0.7.0-10.2ubuntu6.1_amd64.deb",
+      "sha256": "867bc979c11c69aa18593ec81c9c4cfa500dbf7ff4ae1c8fc2cf419facc30b2a"
+    },
+    {
+      "name": "libkadm5clnt-mit12_1.20.1-6ubuntu2.10_amd64.deb",
+      "sha256": "0fde87c378528ff4382a2a6d7ed7c2308fc3b1edb717e168d0b9228a0a2001e9"
+    },
+    {
+      "name": "libkadm5srv-mit12_1.20.1-6ubuntu2.10_amd64.deb",
+      "sha256": "97baa912d3f56359077318be8391e9947926f1dbc8ea726a76d947b3a115ddd9"
+    },
+    {
+      "name": "libkdb5-10t64_1.20.1-6ubuntu2.10_amd64.deb",
+      "sha256": "f8837fa6ba3c82c3bc30321f64b17f2aa2ff80dcefe753e83df02ca35f9e9a71"
+    },
+    {
+      "name": "libkrb5-dev_1.20.1-6ubuntu2.10_amd64.deb",
+      "sha256": "0cf0ef396dcd10b47de6863820353575177b646483b32a3f23c4f4abde776705"
+    },
+    {
+      "name": "liblcms2-dev_2.14-2ubuntu0.1_amd64.deb",
+      "sha256": "309398dd1ccd2947b7ff623ae0826dcd6dcc5f251b86f358b45fed4acb06bd19"
+    },
+    {
+      "name": "libmd-dev_1.1.0-2build1.1_amd64.deb",
+      "sha256": "c0d71b72b480df106481a0fcb584f8d2ab0f1f165d91ff2d38781e9a28e29285"
+    },
+    {
+      "name": "libnanoflann-dev_1.5.4+ds-1_all.deb",
+      "sha256": "881b4da167d260b319b237a75cb712ff6967472e352774c0155087cab2b4e668"
+    },
+    {
+      "name": "libnorm-dev_1.5.9+dfsg-3.1build1_amd64.deb",
+      "sha256": "03a3df9ac9d57b3da8e3c53181c024f984201418a4fb869061e500cad9086efc"
+    },
+    {
+      "name": "libpgm-dev_5.3.128~dfsg-2.1build1_amd64.deb",
+      "sha256": "d9ec771c74e9fe555bc449eaf75d333c372d805948c5112a9216609a96d34bae"
+    },
+    {
+      "name": "libsodium-dev_1.0.18-1ubuntu0.24.04.1_amd64.deb",
+      "sha256": "bd3e8cd6ab8cf731d8a8a15333831b9081a94ebefe22236fc8713975fe7a6d3a"
+    },
+    {
+      "name": "libwmf-dev_0.2.13-1.1build3_amd64.deb",
+      "sha256": "502409e84b7dc185b9a5aaa994beb24246223c772b732288ce5137a23aab104e"
+    },
+    {
+      "name": "libzmq3-dev_4.3.5-1build2_amd64.deb",
+      "sha256": "51d4da55be33741d4e74ca4724accfcf8c1f035167e338420b12fcf3cb45f62b"
+    },
+    {
+      "name": "nlohmann-json3-dev_3.11.3-1_all.deb",
+      "sha256": "85e4e95dc4bdc6034d593e1933ee88e085319fee36cae83c178e8ddc1a66e8fd"
+    },
+    {
+      "name": "ros-jazzy-behaviortree-cpp_4.10.0-1noble.20260902.082337_amd64.deb",
+      "sha256": "e4e9cf67a0d5d9faeda065ace37056d212a7454591cb8a727e831ad4235b6898"
+    },
+    {
+      "name": "ros-jazzy-bond_4.2.0-1noble.20260902.034242_amd64.deb",
+      "sha256": "410e9cb24853dc8428b5373c9a6eae80bc8ad74b377766372a52df09f458a942"
+    },
+    {
+      "name": "ros-jazzy-bondcpp_4.2.0-1noble.20260903.012116_amd64.deb",
+      "sha256": "880d19281b53e256c3b9daed06969a5d97131ac544b32a030512ff4522f44cc2"
+    },
+    {
+      "name": "ros-jazzy-geographic-msgs_1.0.6-2noble.20260902.041337_amd64.deb",
+      "sha256": "27ab11d98460b9a7c3796930f12f73690ad6c4ff250bffea56946e656aea786a"
+    },
+    {
+      "name": "ros-jazzy-joint-state-topic-hardware-interface_1.1.0-1noble.20260905.072635_amd64.deb",
+      "sha256": "69a23ee82233bddb68c42721addb913657852265a3ebcd33d5c2496d792a8ba6"
+    },
+    {
+      "name": "ros-jazzy-nav-2d-msgs_1.3.13-1noble.20260902.033922_amd64.deb",
+      "sha256": "50c2c2f5db2616b80eb58bd90b97b1ab05b77d3b65952c4b7f6576bbc62c74d9"
+    },
+    {
+      "name": "ros-jazzy-nav-2d-utils_1.3.13-1noble.20260903.025051_amd64.deb",
+      "sha256": "c3dee4bd027a3be08a9ece432d2da62d2537ea97d3355cd5f769cd073261dac1"
+    },
+    {
+      "name": "ros-jazzy-nav2-behavior-tree_1.3.13-1noble.20260903.024922_amd64.deb",
+      "sha256": "93e38b87e78e26dea4d7f3e5cbd8aee8dc3a38a7df0d8cc547dde994cc06228c"
+    },
+    {
+      "name": "ros-jazzy-nav2-behaviors_1.3.13-1noble.20260903.032321_amd64.deb",
+      "sha256": "ecaefa25b18dc4804e7e9a7054202a9aadc562c9499771e61692000682af6a99"
+    },
+    {
+      "name": "ros-jazzy-nav2-bt-navigator_1.3.13-1noble.20260903.032108_amd64.deb",
+      "sha256": "9f02cad5c4ded06fd207ec5f43f892fa8b913b0d6973458ef271fae5b2aa4db3"
+    },
+    {
+      "name": "ros-jazzy-nav2-collision-monitor_1.3.13-1noble.20260903.031125_amd64.deb",
+      "sha256": "be09e47957787e957facf318f0419b9823bfb2dd70c34e29c855a230e215f6dd"
+    },
+    {
+      "name": "ros-jazzy-nav2-common_1.3.13-1noble.20260902.081418_amd64.deb",
+      "sha256": "3b3a5ea132599fe0d0b327fecf7adbffe9d6c4db09c05f738872c5b1efeb7c25"
+    },
+    {
+      "name": "ros-jazzy-nav2-controller_1.3.13-1noble.20260903.032018_amd64.deb",
+      "sha256": "d81f76f07e5542d53570ca131e3958b90765287e01c72ee9e413df715f1dc86f"
+    },
+    {
+      "name": "ros-jazzy-nav2-core_1.3.13-1noble.20260903.031226_amd64.deb",
+      "sha256": "e1f14385a8c375bc115ee9891d7caa5e3e37e57a28fc4c41a40a24db3ad640ac"
+    },
+    {
+      "name": "ros-jazzy-nav2-costmap-2d_1.3.13-1noble.20260903.024922_amd64.deb",
+      "sha256": "e134e756ad36b5383fa33803ba7567edcb8184c7d4c36fb6e267798f6a2d54de"
+    },
+    {
+      "name": "ros-jazzy-nav2-lifecycle-manager_1.3.13-1noble.20260903.024931_amd64.deb",
+      "sha256": "72b7553f5bdd0964f4be41acb5f5c98853bb1588077f09b64162c3061cff0ae6"
+    },
+    {
+      "name": "ros-jazzy-nav2-map-server_1.3.13-1noble.20260903.025026_amd64.deb",
+      "sha256": "1377353ed81b5ccf19e9728e89567bcf167e34c01bfcce8b8842b31e664f2c71"
+    },
+    {
+      "name": "ros-jazzy-nav2-msgs_1.3.13-1noble.20260902.082014_amd64.deb",
+      "sha256": "baf0a2c1e09159b1c1a61feb7e7b170f7f8af0987b15c2f630653fcbb39be79c"
+    },
+    {
+      "name": "ros-jazzy-nav2-planner_1.3.13-1noble.20260903.031918_amd64.deb",
+      "sha256": "e2910b62df070b7b43bd66ae863f273c6c20ed5f1b9ebe11b3dd3ff2e73867e3"
+    },
+    {
+      "name": "ros-jazzy-nav2-regulated-pure-pursuit-controller_1.3.13-1noble.20260903.031928_amd64.deb",
+      "sha256": "0cba67e68a603fbf07ae6774e23b151d0e0f14a4d231aa4f023819a06776eadc"
+    },
+    {
+      "name": "ros-jazzy-nav2-route_1.3.13-1noble.20260903.032339_amd64.deb",
+      "sha256": "c4646b08584c874bbccca089b90c96c7c42e34e3e3a7bf030ba1165b50185c38"
+    },
+    {
+      "name": "ros-jazzy-nav2-rviz-plugins_1.3.13-1noble.20260905.070215_amd64.deb",
+      "sha256": "9ae03b2351215e834af6b9d6d63b1df5e38c7545954797f3ae7ce713de18a3a0"
+    },
+    {
+      "name": "ros-jazzy-nav2-smac-planner_1.3.13-1noble.20260903.032637_amd64.deb",
+      "sha256": "917c5556fd9e0a6321dec4da1dc3fdf314996e7d71294ccf75a152ca0c150cb6"
+    },
+    {
+      "name": "ros-jazzy-nav2-util_1.3.13-1noble.20260903.023450_amd64.deb",
+      "sha256": "78b001709b99f9d662d147aca228a8919296b9740808c1cd2c589e392c27dc46"
+    },
+    {
+      "name": "ros-jazzy-nav2-voxel-grid_1.3.13-1noble.20260902.082710_amd64.deb",
+      "sha256": "8a7b29284ec24c25477bd84a75699e0267504955dd754504513f27a88a0fa065"
+    },
+    {
+      "name": "ros-jazzy-smclib_4.2.0-1noble.20260317.155007_amd64.deb",
+      "sha256": "59730a80312133af0befbedb2684528941aaf5d81a0d8a21e15688efb31f8afc"
+    }
+  ]
+}

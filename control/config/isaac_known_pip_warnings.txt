@@ -1,0 +1,5 @@
+# Historical diagnostics, not installation constraints. Do not use to install packages.
+wheel 0.47.0 has requirement packaging>=24.0, but you have packaging 23.0.
+fastapi 0.115.7 has requirement starlette<0.46.0,>=0.40.0, but you have starlette 0.49.1.
+isaacsim-kernel 5.1.0.0 has requirement psutil==5.9.8, but you have psutil 7.2.2.
+isaacsim-kernel 5.1.0.0 has requirement typing_extensions==4.12.2, but you have typing-extensions 4.16.0.
