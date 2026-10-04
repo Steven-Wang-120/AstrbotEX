@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Sourced only by the dedicated Isaac launchers, never by dev_env.sh.
+set -euo pipefail
+ASTREX_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+export ASTREX_ROOT
+export ASTREX_CALLER_CONDA="${CONDA_DEFAULT_ENV:-}"
+set -a
+source "$ASTREX_ROOT/config/isaac_baseline.env"
+set +a
+# Remove system ROS/other Python environments from the Sim process boundary.
+unset PYTHONPATH PYTHONHOME LD_LIBRARY_PATH VIRTUAL_ENV AMENT_PREFIX_PATH
+unset COLCON_PREFIX_PATH CMAKE_PREFIX_PATH ROS_DISTRO ROS_VERSION ROS_PYTHON_VERSION
+unset ROS_DOMAIN_ID RMW_IMPLEMENTATION ROS_LOCALHOST_ONLY ROS_DISCOVERY_SERVER
+unset FASTRTPS_DEFAULT_PROFILES_FILE FASTDDS_DEFAULT_PROFILES_FILE CYCLONEDDS_URI
+unset ROS_AUTOMATIC_DISCOVERY_RANGE ROS_STATIC_PEERS
+set +u
+source "$ASTREX_CONDA_ROOT/etc/profile.d/conda.sh"
+conda activate "$ASTREX_ISAAC_CONDA_ENV"
+set -u
+export PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+export CUDA_VISIBLE_DEVICES=0
+export OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2
+export OMNI_KIT_ACCEPT_EULA=YES
+ulimit -c 0

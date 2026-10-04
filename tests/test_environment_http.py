@@ -17,6 +17,7 @@ class EnvironmentHttpTest(unittest.TestCase):
         with patch.dict(os.environ, {'ASTRBOTEX_DATA_DIR':self.temp.name,
                                      'ASTRBOTEX_STT_ENABLED':'','ASTRBOTEX_TTS_ENABLED':''}):
             self.server = build_server('127.0.0.1', 0, 20)
+        self.authorization = 'Bearer ' + self.server.decision_management.credential_path.read_text().strip()
         self.manager = self.server.environment_manager
         self.manager._adapter_factory = lambda mode, config: FakeAdapter()
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
@@ -35,7 +36,7 @@ class EnvironmentHttpTest(unittest.TestCase):
     def request(self, suffix='', data=None):
         request = Request(self.url + '/api/v1/ex/environments' + suffix,
                           data=json.dumps(data).encode() if data is not None else None,
-                          headers={'Content-Type':'application/json'})
+                          headers={'Content-Type':'application/json', 'Authorization':self.authorization})
         try:
             response = urlopen(request, timeout=5)
         except HTTPError as exc:

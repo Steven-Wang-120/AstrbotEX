@@ -1,0 +1,18 @@
+{
+  "scope": "offline_analysis_existing_samples_no_new_experiment",
+  "input": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_effects_and_sampling_ros/m1_static_ros/mobile_static_samples.json",
+  "samples": 61,
+  "first_source_stamp": 20.133334383,
+  "last_source_stamp": 26.133334696,
+  "source_span_seconds": 6.0000003129999975,
+  "source_frequency_hz": 9.999999478333365,
+  "median_source_interval_seconds": 0.10000000500000183,
+  "max_source_interval_seconds": 0.10000000600000192,
+  "source_intervals_above_200ms_tolerance_1us": 0,
+  "receive_frequency_wall_hz": 4.112925377143087,
+  "max_receive_wall_interval_seconds": 0.38119273300071654,
+  "source_interval_distribution_rounded_microseconds": {
+    "0.1": 60
+  },
+  "new_experiment": false
+}

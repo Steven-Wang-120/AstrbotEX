@@ -1,0 +1,70 @@
+{
+  "robot": {
+    "arm_mount_world": [
+      0.0,
+      0.0,
+      0.45
+    ],
+    "mobile": false
+  },
+  "execution": {
+    "profile_path": "runtime/mobile_manipulation_deps/model/robot_profile.json",
+    "evaluation": {
+      "place_dimensions": [
+        0.14,
+        0.14,
+        0.005
+      ],
+      "channel": {
+        "wall_prims": [
+          "/World/ChannelWall0",
+          "/World/ChannelWall1"
+        ],
+        "entry_y": -0.025,
+        "exit_y": 0.205,
+        "inner_x_min": 0.42,
+        "inner_x_max": 0.58
+      }
+    }
+  },
+  "scene": {
+    "place_position": [
+      0.5,
+      0.27,
+      0.753
+    ],
+    "channel": {
+      "walls": [
+        {
+          "position": [
+            0.395,
+            0.09,
+            0.85
+          ],
+          "dimensions": [
+            0.05,
+            0.18,
+            0.2
+          ]
+        },
+        {
+          "position": [
+            0.605,
+            0.09,
+            0.85
+          ],
+          "dimensions": [
+            0.05,
+            0.18,
+            0.2
+          ]
+        }
+      ]
+    },
+    "viewport_resolution": [
+      960,
+      600
+    ]
+  },
+  "sensor_rendering": false
+}

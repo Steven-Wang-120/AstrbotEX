@@ -1,0 +1,103 @@
+{
+  "robot": {
+    "mobile": true,
+    "arm_mount_world": [
+      0,
+      0,
+      0.45
+    ],
+    "sensor_parent_prim": "/World/Robot/base_link"
+  },
+  "sensors": {
+    "frame_id": "base_link",
+    "calibration_id": "mobile_rig_v1",
+    "camera_position": [
+      0.25,
+      0,
+      1.2
+    ],
+    "camera_target": [
+      0.8,
+      0,
+      0.6
+    ],
+    "lidar_position": [
+      0.18,
+      0,
+      0.2
+    ],
+    "lidar_min_range": 0.1,
+    "lidar_max_range": 20
+  },
+  "execution": {
+    "profile_path": "runtime/mobile_manipulation_deps/model/mobile_robot_profile.json",
+    "evaluation": {}
+  },
+  "scene": {
+    "navigation_obstacles": {
+      "seed": 7301,
+      "xy_jitter_m": 0.08,
+      "additional": [
+        {
+          "position": [
+            -0.65,
+            -1.25,
+            0.25
+          ],
+          "dimensions": [
+            0.2,
+            0.2,
+            0.5
+          ]
+        }
+      ]
+    },
+    "viewport_resolution": [
+      960,
+      600
+    ],
+    "viewport_eye": [
+      -3.5,
+      -4.0,
+      2.8
+    ],
+    "viewport_target": [
+      -0.4,
+      -0.65,
+      0.5
+    ],
+    "rendering_preset": "isaaclab_performance_effects"
+  },
+  "navigation": {
+    "scope": "M1_DEVELOPMENT_ONE_SEEDED_LAYOUT_NOT_FULL_ACCEPTANCE",
+    "layout_seed": 7301,
+    "regions": {
+      "home": [
+        -1.5,
+        -0.7,
+        1.5707963267948966
+      ],
+      "table_dock": [
+        0,
+        -1.1,
+        0
+      ]
+    },
+    "position_tolerance_m": 0.1,
+    "yaw_tolerance_rad": 0.17453292519943295,
+    "stop_hold_sim_seconds": 1,
+    "wall_deadline_seconds": 110,
+    "cases": [
+      {
+        "trial_id": "m1_seed_7301",
+        "target_region_id": "table_dock"
+      }
+    ],
+    "superseded_unexecuted_scope": "M1_DEVELOPMENT_SHARED_LAYOUT_NOT_FROZEN_FINAL_SCENARIOS",
+    "development_layout_seeds": [
+      7301,
+      7302,
+      7303
+    ]
+  }
+}

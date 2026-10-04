@@ -1,0 +1,215 @@
+{
+  "status": "PREVIEW_PASS",
+  "formal_acceptance": false,
+  "requested_simulation_seconds": 3.0,
+  "wall_seconds": 15.349890053999843,
+  "sensor_profile_id": "RGB_LIDAR_2D",
+  "manifest": {
+    "mode": "control",
+    "scene_seed": 7301,
+    "sensor_profile_id": "RGB_LIDAR_2D",
+    "sensors": {
+      "width": 640,
+      "height": 480,
+      "render_hz": 60,
+      "camera_hz": 15,
+      "lidar_hz": 10,
+      "lidar_min_range": 0.1,
+      "lidar_max_range": 20,
+      "camera_position": [
+        0.25,
+        0,
+        1.2
+      ],
+      "camera_target": [
+        0.8,
+        0,
+        0.6
+      ],
+      "lidar_position": [
+        0.18,
+        0,
+        0.2
+      ],
+      "table_position": [
+        0.6,
+        0.0,
+        0.375
+      ],
+      "table_dimensions": [
+        1.0,
+        0.8,
+        0.75
+      ],
+      "frame_id": "base_link",
+      "camera_frame": "mm_camera_optical",
+      "lidar_frame": "mm_lidar",
+      "calibration_id": "mobile_rig_v1"
+    },
+    "lidar": {
+      "asset": "Example_Rotary_2D",
+      "type": "laser_scan",
+      "topic": "/astrex/mm/scan",
+      "scan_rate_hz": 10,
+      "tick_rate_hz": 60,
+      "publication": "complete_scan"
+    },
+    "input_source": "RAW_SENSOR",
+    "perception_backend": null,
+    "config_hash": "8858588920c685810818b0f08ec4f72bb6a37842d1d4c8f1733432b78c5d9569",
+    "robot_usd": "/data/shared/AstrEX_project_data/assets/isaac_5_1/Isaac/Robots/Ufactory/xarm6/xarm6.usd",
+    "robot_prim": "/World/Robot",
+    "scene": {
+      "navigation_obstacles": {
+        "seed": 7301,
+        "xy_jitter_m": 0.08,
+        "additional": [
+          {
+            "position": [
+              -0.65,
+              -1.25,
+              0.25
+            ],
+            "dimensions": [
+              0.2,
+              0.2,
+              0.5
+            ]
+          }
+        ]
+      },
+      "viewport_resolution": [
+        960,
+        600
+      ],
+      "viewport_eye": [
+        -3.5,
+        -4.0,
+        2.8
+      ],
+      "viewport_target": [
+        -0.4,
+        -0.65,
+        0.5
+      ],
+      "rendering_preset": "isaaclab_performance_effects"
+    },
+    "robot": {
+      "mobile": true,
+      "arm_mount_world": [
+        0,
+        0,
+        0.45
+      ],
+      "sensor_parent_prim": "/World/Robot/base_link"
+    },
+    "execution": {
+      "profile_path": "/home/sssxy/Projects/AstrEX_project_main/runtime/mobile_manipulation_deps/model/mobile_robot_profile.json",
+      "evaluation": {}
+    },
+    "sensor_rendering": true,
+    "rendering": {
+      "preset": "isaaclab_performance_effects",
+      "source_path": "/home/sssxy/Projects/IsaacLab-2.3.2-test/apps/rendering_modes/performance.kit",
+      "source_sha256": "07488d242117cbb18e1dd8cd99594e10a2f4b4a469f4ac8d84cd0c8ed15b4eca",
+      "settings": {
+        "/rtx/translucency/enabled": false,
+        "/rtx/reflections/enabled": false,
+        "/rtx/indirectDiffuse/enabled": false,
+        "/rtx/ambientOcclusion/enabled": false
+      }
+    },
+    "pid": 56117,
+    "started_wall_ns": 1791113956527194465,
+    "simulation_stamp_ns": 3033333492,
+    "published_monotonic_ns": 15757177658342
+  },
+  "streams": {
+    "image": {
+      "count": 46,
+      "simulation_span_s": 3.000000157,
+      "simulation_hz": 14.99999921500004,
+      "wall_hz": 5.902362167272346,
+      "non_increasing_stamps": 0,
+      "frames": [
+        "mm_camera_optical"
+      ]
+    },
+    "camera_info": {
+      "count": 46,
+      "simulation_span_s": 3.000000157,
+      "simulation_hz": 14.99999921500004,
+      "wall_hz": 5.8927416228131,
+      "non_increasing_stamps": 0,
+      "frames": [
+        "mm_camera_optical"
+      ]
+    },
+    "lidar": {
+      "count": 29,
+      "simulation_span_s": 3.000000157,
+      "simulation_hz": 9.333332844888915,
+      "wall_hz": 3.743494854455756,
+      "non_increasing_stamps": 0,
+      "frames": [
+        "mm_lidar"
+      ]
+    },
+    "clock": {
+      "count": 191,
+      "simulation_span_s": 3.166666832,
+      "simulation_hz": 59.99999686736858,
+      "wall_hz": 23.573514763056735,
+      "non_increasing_stamps": 0,
+      "frames": [
+        ""
+      ]
+    }
+  },
+  "errors": [],
+  "acceptance_basis": "P1: >=30 simulation seconds of real ROS streams with valid clock, frame, calibration and configuration association; measured rates reported separately",
+  "rate_diagnostics": [],
+  "clock_publishers": [
+    {
+      "name": "astrex_mm_sim",
+      "namespace": "/"
+    }
+  ],
+  "tf_reference_frame": "base_link",
+  "tf_reference_manifest_hash": "8858588920c685810818b0f08ec4f72bb6a37842d1d4c8f1733432b78c5d9569",
+  "tf": {
+    "mm_camera_optical": {
+      "translation": [
+        0.25,
+        0.0,
+        1.2000000476837158
+      ],
+      "rotation_xyzw": [
+        0.6590057167507122,
+        -0.6590057167507121,
+        0.2563424765618842,
+        -0.2563424765618842
+      ]
+    },
+    "mm_lidar": {
+      "translation": [
+        0.18,
+        0.0,
+        0.2
+      ],
+      "rotation_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "pairing": {
+    "threshold_ms": 50,
+    "paired": 29,
+    "total": 29,
+    "maximum_delta_ms": 33.333335
+  },
+  "raw_sampling_rule": "First received sensor message and then first at least 1 simulation second after last saved"
+}

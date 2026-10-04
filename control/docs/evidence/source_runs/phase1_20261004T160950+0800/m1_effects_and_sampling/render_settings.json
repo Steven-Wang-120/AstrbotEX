@@ -1,0 +1,21 @@
+{
+  "before": {
+    "/rtx/translucency/enabled": true,
+    "/rtx/reflections/enabled": true,
+    "/rtx/indirectDiffuse/enabled": true,
+    "/rtx/ambientOcclusion/enabled": true
+  },
+  "requested": {
+    "/rtx/translucency/enabled": false,
+    "/rtx/reflections/enabled": false,
+    "/rtx/indirectDiffuse/enabled": false,
+    "/rtx/ambientOcclusion/enabled": false
+  },
+  "actual": {
+    "/rtx/translucency/enabled": false,
+    "/rtx/reflections/enabled": false,
+    "/rtx/indirectDiffuse/enabled": false,
+    "/rtx/ambientOcclusion/enabled": false
+  },
+  "source_sha256": "07488d242117cbb18e1dd8cd99594e10a2f4b4a469f4ac8d84cd0c8ed15b4eca"
+}

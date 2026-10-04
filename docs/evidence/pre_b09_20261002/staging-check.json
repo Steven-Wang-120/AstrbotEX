@@ -1,0 +1,17 @@
+{
+  "staged_files": 278,
+  "staged_scope_valid": true,
+  "ros_index_matches_HEAD": true,
+  "frozen_source_index_matches": 31,
+  "whitespace_check_exit": 2,
+  "whitespace_warning_paths": [
+    "apps/AstrBotEX/tests/fixtures/decision/simulated-arm-status.md",
+    "apps/AstrBotEX/tests/fixtures/decision/simulated-base-status.md",
+    "apps/AstrBotEX/tests/fixtures/decision/yolo-front-detections.md",
+    "docs/AstrEX_workingTree/implementation/2026-09-28-closeout/COORDINATOR-HANDOFF-before-stop.md",
+    "docs/AstrEX_workingTree/implementation/COORDINATOR-HANDOFF.md",
+    "docs/AstrEX_workingTree/implementation/pending-review/B00-actions-parsers-RAW-UNREVIEWED.txt",
+    "docs/AstrEX_workingTree/进度报告_2026-09-28.md"
+  ],
+  "whitespace_policy": "Preserve upstream Markdown hard breaks and historical original text; not a functional test failure."
+}

@@ -1,0 +1,33 @@
+usage: run_mobile_manipulation_trials.py [-h] --mode
+                                         {observe,arm_checks,fetch,e0,navigation}
+                                         [--profile PROFILE]
+                                         [--scene-config SCENE_CONFIG]
+                                         --output-dir OUTPUT_DIR
+                                         [--sections {A1,A2,R,R_FAULTS} [{A1,A2,R,R_FAULTS} ...]]
+                                         [--fault-config FAULT_CONFIG]
+                                         [--seed SEED]
+                                         [--task-kind {G,PLACE,C}]
+                                         [--frozen-spec FROZEN_SPEC]
+                                         [--simulation-config SIMULATION_CONFIG]
+
+Single first-stage runner: diagnostics, formal fetch Goals and E0 records.
+Start the protected Isaac scene and ROS stack separately. This runner never
+publishes actuator commands, and never turns a controller receipt into
+success.
+
+options:
+  -h, --help            show this help message and exit
+  --mode {observe,arm_checks,fetch,e0,navigation}
+  --profile PROFILE
+  --scene-config SCENE_CONFIG
+  --output-dir OUTPUT_DIR
+  --sections {A1,A2,R,R_FAULTS} [{A1,A2,R,R_FAULTS} ...]
+  --fault-config FAULT_CONFIG
+                        Explicit owner-only local R07/R08 test configuration;
+                        default disabled
+  --seed SEED
+  --task-kind {G,PLACE,C}
+  --frozen-spec FROZEN_SPEC
+  --simulation-config SIMULATION_CONFIG
+                        Actual Isaac simulation_config.json; required for
+                        navigation

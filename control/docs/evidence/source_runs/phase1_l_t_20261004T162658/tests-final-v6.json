@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "tests.test_mobile_tasks",
+    "tests.test_owned_laya",
+    "tests.test_mobile_control_plugin",
+    "-v"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 3.0639789729993936,
+  "scope": "L1/T1 v2 actual input isolation, explicit object ID, owned service and EX plugin fixtures; no model or physics execution"
+}

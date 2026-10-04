@@ -1,0 +1,28 @@
+{
+  "source": "pre_reset_schema_readback",
+  "threshold": 0.0,
+  "body_paths": [
+    "/World/RedCube",
+    "/World/BlueCylinder",
+    "/World/Robot/gripper/xarm_gripper_base_link",
+    "/World/Robot/gripper/left_outer_knuckle",
+    "/World/Robot/gripper/left_finger",
+    "/World/Robot/gripper/left_inner_knuckle",
+    "/World/Robot/gripper/right_inner_knuckle",
+    "/World/Robot/gripper/right_outer_knuckle",
+    "/World/Robot/gripper/right_finger",
+    "/World/Robot/world",
+    "/World/Robot/link1",
+    "/World/Robot/link2",
+    "/World/Robot/link3",
+    "/World/Robot/link4",
+    "/World/Robot/link5",
+    "/World/Robot/link6",
+    "/World/Robot/base_link",
+    "/World/Robot/left_front_wheel",
+    "/World/Robot/left_rear_wheel",
+    "/World/Robot/right_front_wheel",
+    "/World/Robot/right_rear_wheel"
+  ],
+  "body_count": 21
+}

@@ -41,6 +41,9 @@
           <button class="nav-item" data-page="archives">
             <span class="nav-num">07</span><span class="nav-label">存档</span>
           </button>
+          <button class="nav-item" data-page="decision">
+            <span class="nav-num">08</span><span class="nav-label">决策</span>
+          </button>
         </nav>
 
         <div class="sidebar-foot">
@@ -56,6 +59,12 @@
       </aside>
 
       <div class="main-col">
+        <div class="management-auth">
+          <label for="managementCredential">管理凭据</label>
+          <input class="config-input" id="managementCredential" type="password" autocomplete="off" spellcheck="false" placeholder="只保存在本页内存" />
+          <button class="btn btn-ghost btn-sm" id="managementCredentialApply">应用凭据</button>
+          <span id="managementCredentialStatus" role="status">从服务端凭据文件读取；刷新后重新输入。</span>
+        </div>
         <div class="status-strip" role="status" aria-live="polite">
           <div class="strip-cell strip-conn" id="connectionPill">
             <span class="sq" aria-hidden="true"></span><span data-label>连接中</span>
@@ -753,6 +762,89 @@
               </section>
             </div>
           </section>
+          <section class="page" id="page-decision">
+            <header class="page-head"><div class="page-head-num">08</div><div class="page-head-text">
+              <h1>决策</h1><p>EX 后端、当前任务与执行事实</p></div>
+              <button class="btn btn-ghost btn-sm" id="decisionRefresh">读取当前状态</button>
+            </header>
+            <div class="decision-readline"><strong id="decisionFreshness">等待凭据</strong><span id="decisionTransport"></span></div>
+            <p class="decision-message" id="decisionMessage" role="status" aria-live="polite">页面只读取状态。配置和控制操作需要显式点击。</p>
+            <div class="decision-layout">
+              <section class="panel decision-wide">
+                <div class="panel-head"><span class="panel-num">08.A</span><h2>状态与控制</h2>
+                  <button class="btn btn-danger-solid" id="decisionStop" data-decision-write="stop">请求停止</button></div>
+                <div class="decision-metrics">
+                  <div><span>当前后端</span><strong id="decisionBackend">未提供</strong></div>
+                  <div><span>决策模式</span><strong id="decisionModeState">未知</strong></div>
+                  <div><span>Laya 服务</span><strong id="decisionServiceState">未知</strong></div>
+                  <div><span>blocked</span><strong id="decisionBlocked">未知</strong></div>
+                </div>
+                <div id="decisionStatusFacts"></div><div id="decisionStatusDetails"></div>
+                <p class="decision-warning" id="decisionQuality"></p>
+                <p class="decision-muted">停止请求已受理不等于停止已证明。blocked 与停止证明分别显示。</p>
+                <details class="decision-json" open><summary>本页管理操作</summary><div id="decisionOperations"></div></details>
+              </section>
+              <section class="panel">
+                <div class="panel-head"><span class="panel-num">08.B</span><h2>配置与 Laya 服务</h2></div>
+                <p id="decisionConfigVersions" class="decision-muted"></p><p id="decisionConfigNote" class="decision-draft"></p>
+                <label class="connection-field"><span>EX 决策后端</span><select class="config-input" id="decisionBackendSelect" aria-label="EX 决策后端"></select></label>
+                <pre id="decisionLayaIdentity" class="decision-identity" data-decision-backend="laya"></pre>
+                <pre id="decisionJevIdentity" class="decision-identity" data-decision-backend="jev"></pre>
+                <div id="decisionFields"></div>
+                <div class="decision-buttons">
+                  <button class="btn btn-primary" id="decisionSave" data-decision-write="config">保存配置</button>
+                  <button class="btn btn-ghost btn-sm" id="decisionReloadConfig">放弃草稿并读取</button>
+                  <button class="btn btn-ghost btn-sm" id="decisionReviewConfig">核对新版本，保留草稿</button>
+                </div>
+                <div id="decisionConfigProjection"></div>
+                <details class="decision-json"><summary>Jev 密钥</summary>
+                  <p id="decisionSecretState"></p>
+                  <label class="connection-field"><span>密钥操作</span><select class="config-input" id="decisionSecretAction">
+                    <option value="keep">保留现有密钥</option><option value="set">设置新密钥</option><option value="clear">明确清除密钥</option></select></label>
+                  <label class="connection-field"><span>新密钥（只写）</span><input class="config-input" id="decisionSecret" type="password" autocomplete="off" spellcheck="false" disabled /></label>
+                  <button class="btn btn-ghost btn-sm" id="decisionSecretSave" data-decision-write="secret">提交密钥操作</button>
+                </details>
+                <p class="decision-muted" id="decisionProbeScope"></p>
+                <div class="decision-buttons"><button class="btn btn-ghost" id="decisionTest" data-decision-write="test">测试连接</button>
+                  <label for="decisionApplyMode">应用模式</label><select id="decisionApplyMode" class="config-input decision-mode-select">
+                    <option value="disabled">disabled</option><option value="shadow" selected>shadow</option><option value="execute" disabled>execute</option></select>
+                  <button class="btn btn-ghost" id="decisionApply" data-decision-write="mode">应用模式</button></div>
+                <p class="decision-muted" id="decisionApplyHint"></p>
+                <div class="decision-buttons">
+                  <button class="btn btn-ghost" id="decisionServiceStart" data-decision-write="service_start">启动 Laya</button>
+                  <button class="btn btn-ghost" id="decisionServiceStop" data-decision-write="service_stop">停止 Laya 服务</button>
+                  <button class="btn btn-ghost" id="decisionServiceRecover" data-decision-write="service_recover">显式恢复 Laya</button>
+                </div>
+                <p class="decision-muted">保存不启动服务。服务启动后保持 disabled。恢复后需要新模式授权和新 Goal，旧请求不会重放。</p>
+              </section>
+              <section class="panel">
+                <div class="panel-head"><span class="panel-num">08.C</span><h2>当前任务与 Goal</h2></div>
+                <div id="decisionGoals"></div>
+                <div class="decision-placeholder"><h3>A.E.B. 任务与步骤</h3><p>EX 任务协调已接线；A.E.B. 任务与步骤的页面投影尚未接入。</p>
+                  <p class="decision-muted">当前步骤、步骤列表、等待输入 / 复核、反馈序号及完成证据：未接入。</p>
+                  <p class="decision-muted">反馈 ACK 只表示收到反馈，不表示任务成功。不会从历史 Goal 推测任务队列或完成百分比。</p></div>
+                <div class="decision-placeholder"><h3>公开回复投递</h3><dl class="decision-kv"><dt>通道</dt><dd>未接入</dd><dt>投递状态</dt><dd>未接入</dd><dt>关联 ID</dt><dd>未接入</dd></dl>
+                  <p class="decision-muted">此处只预留展示。内部 Goal、请求和工具输出不会由本页发送到聊天或 TTS。</p></div>
+              </section>
+              <section class="panel decision-wide">
+                <div class="panel-head"><span class="panel-num">08.D</span><h2>实际决策</h2></div>
+                <div id="decisionBuilt"></div><div id="decisionLatest" class="decision-latest"></div><div id="decisionCatalog"></div>
+                <p class="decision-muted">准备、POST 尝试、本地 socket 写入、收到响应分别记录。未知不等于否；socket 写入不证明服务端收到或动作完成。</p>
+                <details class="decision-json"><summary>请求历史与分页</summary>
+                  <div class="decision-buttons"><button class="btn btn-ghost btn-sm" id="decisionHistoryPrev">上一页请求</button><button class="btn btn-ghost btn-sm" id="decisionHistoryNext">下一页请求</button></div>
+                  <p class="decision-muted" id="decisionHistoryMeta"></p><div id="decisionHistory"></div>
+                </details>
+                <div id="decisionRequestDetail"><p class="decision-muted">选择一条请求查看实际正文、响应和关联版本。</p></div>
+              </section>
+              <section class="panel decision-wide" id="decision-actions-panel">
+                <div class="panel-head"><span class="panel-num">08.E</span><h2>动作与反馈</h2></div>
+                <div class="decision-buttons"><button class="btn btn-ghost btn-sm" id="decisionActionsPrev">上一页动作</button><button class="btn btn-ghost btn-sm" id="decisionActionsNext">下一页动作</button><button class="btn btn-ghost btn-sm" id="decisionActionClear" hidden>取消命令筛选</button></div>
+                <p class="decision-muted" id="decisionActionsMeta"></p><div id="decisionActions"></div>
+                <div class="decision-placeholder"><h3>控制端详情</h3><p>Grounder 候选、选中轨迹、ROS ACK、执行反馈及物理判定：未接入。</p>
+                  <p class="decision-muted">当前通用 details 仅按账本原文展示。测试 Actor 成功不能作为机械臂物理成功。</p></div>
+              </section>
+            </div>
+          </section>
         </main>
 
         <div class="foot-ruler" aria-hidden="true">
@@ -775,6 +867,7 @@
     <input id="pluginZipInput" type="file" accept=".zip,application/zip" hidden />
     <input id="archiveZipInput" type="file" accept=".zip,application/zip" hidden />
     <script src="./environments.js?v=20260923"></script>
-    <script src="./app.js?v=20260923-environments"></script>
+    <script src="/dashboard/decision.js?v=20261002-b09"></script>
+    <script src="./app.js?v=20261002-b09"></script>
   </body>
 </html>

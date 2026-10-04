@@ -1,0 +1,30 @@
+{
+  "removed_roots": [
+    "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_interfaces",
+    "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_ros_bridge",
+    "/home/sssxy/Projects/AstrEX_project_main/scripts/start_cartpole_service.sh",
+    "/home/sssxy/Projects/AstrEX_project_main/scripts/start_isaac_ros.sh",
+    "/home/sssxy/Projects/AstrEX_project_main/scripts/start_isaac_rl.sh",
+    "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/cartpole_service_launcher.py",
+    "/home/sssxy/Projects/AstrEX_project_main/sim/scripts/run_ros_cartpole.py",
+    "/home/sssxy/Projects/AstrEX_project_main/sim/scripts/rl_official.py",
+    "/home/sssxy/Projects/AstrEX_project_main/tests/test_cartpole_service_launcher.py",
+    "/home/sssxy/Projects/AstrEX_project_main/tests/isaac/test_launcher_contracts.py",
+    "/home/sssxy/Projects/AstrEX_project_main/tests/isaac/ros_system_regression.py",
+    "/home/sssxy/Projects/AstrEX_project_main/tests/isaac/validate_ros_cartpole_boundary_reset.py",
+    "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/log",
+    "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/build",
+    "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/install",
+    "/data/shared/AstrEX_project_data/logs/isaac/ros/20260918T104148Z_9e79fe1304",
+    "/data/shared/AstrEX_project_data/logs/isaac/ros/20260923T074305Z_ea872dc4cb",
+    "/data/shared/AstrEX_project_data/logs/isaac/ros/20260923T112838Z_6f95f950ef",
+    "/data/shared/AstrEX_project_data/logs/isaac/ros/20260924T032236Z_b7eadfaf26",
+    "/data/shared/AstrEX_project_data/logs/isaac/ros/20260928T080704Z_0d1af1f4cc",
+    "/data/shared/AstrEX_project_data/logs/isaac/ros/20260928T170855Z_1c87f88615",
+    "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/__pycache__/isaac_entry.cpython-312.pyc",
+    "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/__pycache__/isaac_entry.cpython-314.pyc",
+    "/home/sssxy/Projects/AstrEX_project_main/sim/scripts/__pycache__/run_ros_cartpole.cpython-312.pyc"
+  ],
+  "generated_allocated_bytes": 8425472,
+  "archived_live_allocated_bytes": 189607936
+}

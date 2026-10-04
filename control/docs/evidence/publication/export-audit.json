@@ -1,0 +1,14 @@
+{
+  "files": 172,
+  "bytes": 4249289,
+  "credential_pattern_findings": [],
+  "broken_links": [],
+  "source_protection": {
+    "source_head_unchanged": true,
+    "source_index_unchanged": true,
+    "source_remote_unchanged": true,
+    "source_status_unchanged": true,
+    "source_file_changes": []
+  },
+  "scope": "New branch files only; inherited base not re-audited"
+}

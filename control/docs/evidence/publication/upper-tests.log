@@ -1,0 +1,291 @@
+test_trusted_cold_budget_does_not_change_hot_limit (tests.test_mobile_tasks.ColdWarmupBoundsTests.test_trusted_cold_budget_does_not_change_hot_limit) ... ok
+test_bad_choice_nan_and_truncation_quarantine (tests.test_mobile_tasks.MobileTaskTests.test_bad_choice_nan_and_truncation_quarantine) ... ok
+test_budget_rejected_before_http (tests.test_mobile_tasks.MobileTaskTests.test_budget_rejected_before_http) ... ok
+test_cli_clarification_keeps_one_session_and_zero_goals (tests.test_mobile_tasks.MobileTaskTests.test_cli_clarification_keeps_one_session_and_zero_goals) ... ok
+test_corpus_count_grouping_and_source (tests.test_mobile_tasks.MobileTaskTests.test_corpus_count_grouping_and_source) ... ok
+test_done_needs_evidence (tests.test_mobile_tasks.MobileTaskTests.test_done_needs_evidence) ... ok
+test_equivalent_orders_for_all_supported_colors_shapes_and_trays (tests.test_mobile_tasks.MobileTaskTests.test_equivalent_orders_for_all_supported_colors_shapes_and_trays) ... ok
+test_invalid_context_does_not_hold_busy_permit (tests.test_mobile_tasks.MobileTaskTests.test_invalid_context_does_not_hold_busy_permit) ... ok
+test_late_cancel_revision_generation_and_observation (tests.test_mobile_tasks.MobileTaskTests.test_late_cancel_revision_generation_and_observation) ... ok
+test_manifest_and_fixed_discrete_bounds (tests.test_mobile_tasks.MobileTaskTests.test_manifest_and_fixed_discrete_bounds) ... ok
+test_missing_destination_followup (tests.test_mobile_tasks.MobileTaskTests.test_missing_destination_followup) ... ok
+test_projection_keeps_unavailable_owner_and_rejects_schema_drift (tests.test_mobile_tasks.MobileTaskTests.test_projection_keeps_unavailable_owner_and_rejects_schema_drift) ... ok
+test_real_model_shape_maps_to_task_without_goal (tests.test_mobile_tasks.MobileTaskTests.test_real_model_shape_maps_to_task_without_goal) ... ok
+test_real_unavailable_catalog_blocks_pre_goal_proposal (tests.test_mobile_tasks.MobileTaskTests.test_real_unavailable_catalog_blocks_pre_goal_proposal) ... ok
+test_same_color_explicit_id_is_visible_to_model (tests.test_mobile_tasks.MobileTaskTests.test_same_color_explicit_id_is_visible_to_model) ... ok
+test_same_color_requires_object_binding (tests.test_mobile_tasks.MobileTaskTests.test_same_color_requires_object_binding) ... ok
+test_text_does_not_serialize_objects (tests.test_mobile_tasks.MobileTaskTests.test_text_does_not_serialize_objects) ... ok
+test_two_orders_bind_same_contract_and_keep_ambiguity (tests.test_mobile_tasks.MobileTaskTests.test_two_orders_bind_same_contract_and_keep_ambiguity) ... ok
+test_unknown_cup_stale_and_unsupported (tests.test_mobile_tasks.MobileTaskTests.test_unknown_cup_stale_and_unsupported) ... ok
+test_v2_detects_actual_semantic_duplicates_despite_new_scene_ids (tests.test_mobile_tasks.MobileTaskTests.test_v2_detects_actual_semantic_duplicates_despite_new_scene_ids) ... ok
+test_v2_excludes_original_development_semantics (tests.test_mobile_tasks.MobileTaskTests.test_v2_excludes_original_development_semantics) ... ok
+test_wrong_object_rejected_no_repair (tests.test_mobile_tasks.MobileTaskTests.test_wrong_object_rejected_no_repair) ... ok
+test_cold_load_budget_is_separate_from_hot_and_stop (tests.test_mobile_tasks.TaskOwnedIntegrationTests.test_cold_load_budget_is_separate_from_hot_and_stop) ... ERROR
+test_recovery_requires_execution_stopped (tests.test_mobile_tasks.TaskOwnedIntegrationTests.test_recovery_requires_execution_stopped) ... ERROR
+test_task_uses_same_permit_and_does_not_need_ex_backend_switch (tests.test_mobile_tasks.TaskOwnedIntegrationTests.test_task_uses_same_permit_and_does_not_need_ex_backend_switch) ... ERROR
+test_callback_queues_move_and_worker_sends_real_protocol (tests.test_mobile_control_plugin.MobilePluginTests.test_callback_queues_move_and_worker_sends_real_protocol) ... ok
+test_cancel_before_publish_fences_all_child_commands (tests.test_mobile_control_plugin.MobilePluginTests.test_cancel_before_publish_fences_all_child_commands) ... ok
+test_cancel_does_not_wait_for_grounder (tests.test_mobile_control_plugin.MobilePluginTests.test_cancel_does_not_wait_for_grounder) ... ok
+test_controller_success_waits_for_physical_stability (tests.test_mobile_control_plugin.MobilePluginTests.test_controller_success_waits_for_physical_stability) ... ok
+test_external_cancel_uses_normal_port_and_preserves_child_stop (tests.test_mobile_control_plugin.MobilePluginTests.test_external_cancel_uses_normal_port_and_preserves_child_stop) ... ok
+test_fetch_without_recipe_is_explicitly_unavailable (tests.test_mobile_control_plugin.MobilePluginTests.test_fetch_without_recipe_is_explicitly_unavailable) ... ok
+test_internal_deadline_reports_failed_not_fake_external_cancel (tests.test_mobile_control_plugin.MobilePluginTests.test_internal_deadline_reports_failed_not_fake_external_cancel) ... ok
+test_late_stop_survives_immutable_ex_timeout (tests.test_mobile_control_plugin.MobilePluginTests.test_late_stop_survives_immutable_ex_timeout) ... ok
+test_manifest_matches_single_schema_source (tests.test_mobile_control_plugin.MobilePluginTests.test_manifest_matches_single_schema_source) ... ok
+test_simulation_settle_uses_source_time_and_allows_cancel (tests.test_mobile_control_plugin.MobilePluginTests.test_simulation_settle_uses_source_time_and_allows_cancel) ... ok
+test_wrong_stage_identity_is_ignored (tests.test_mobile_control_plugin.MobilePluginTests.test_wrong_stage_identity_is_ignored) ... ok
+test_confirmed_exit_and_quarantine_survive_new_manager (tests.test_owned_laya.OwnedLayaTests.test_confirmed_exit_and_quarantine_survive_new_manager) ... ERROR
+test_failed_warmup_worker_must_drain_before_restart (tests.test_owned_laya.OwnedLayaTests.test_failed_warmup_worker_must_drain_before_restart) ... ERROR
+test_generation_quarantine_blocks_other_client_and_requires_recovery (tests.test_owned_laya.OwnedLayaTests.test_generation_quarantine_blocks_other_client_and_requires_recovery) ... ERROR
+test_history_is_copied_and_state_mode_restricted (tests.test_owned_laya.OwnedLayaTests.test_history_is_copied_and_state_mode_restricted) ... ERROR
+test_interrupt_warmup_invalidates_start_and_confirms_child_exit (tests.test_owned_laya.OwnedLayaTests.test_interrupt_warmup_invalidates_start_and_confirms_child_exit) ... ERROR
+test_old_closed_worker_retains_permit_until_it_exits (tests.test_owned_laya.OwnedLayaTests.test_old_closed_worker_retains_permit_until_it_exits) ... ERROR
+test_old_generation_fault_and_stop_cannot_change_new_service (tests.test_owned_laya.OwnedLayaTests.test_old_generation_fault_and_stop_cannot_change_new_service) ... ERROR
+test_owned_handle_access_has_no_pid_adoption_and_checks_generation (tests.test_owned_laya.OwnedLayaTests.test_owned_handle_access_has_no_pid_adoption_and_checks_generation) ... ERROR
+test_port_occupied_is_not_terminated (tests.test_owned_laya.OwnedLayaTests.test_port_occupied_is_not_terminated) ... ERROR
+test_ready_warmup_stop_and_fixed_environment (tests.test_owned_laya.OwnedLayaTests.test_ready_warmup_stop_and_fixed_environment) ... ERROR
+test_short_owned_child_has_confirmed_exit (tests.test_owned_laya.OwnedLayaTests.test_short_owned_child_has_confirmed_exit) ... ERROR
+test_stop_before_warmup_skips_the_inference_callback (tests.test_owned_laya.OwnedLayaTests.test_stop_before_warmup_skips_the_inference_callback) ... ERROR
+test_superseded_before_spawn_has_no_side_effect (tests.test_owned_laya.OwnedLayaTests.test_superseded_before_spawn_has_no_side_effect) ... ERROR
+test_term_then_kill_only_the_owned_handle (tests.test_owned_laya.OwnedLayaTests.test_term_then_kill_only_the_owned_handle) ... ERROR
+test_unknown_persisted_ownership_cannot_be_claimed_or_killed (tests.test_owned_laya.OwnedLayaTests.test_unknown_persisted_ownership_cannot_be_claimed_or_killed) ... ERROR
+test_warmup_failure_cleans_own_child_and_keeps_fault (tests.test_owned_laya.OwnedLayaTests.test_warmup_failure_cleans_own_child_and_keeps_fault) ... ERROR
+test_caller_mutation_and_last_record_are_defensive (tests.test_laya_backend.LayaBackendTests.test_caller_mutation_and_last_record_are_defensive) ... ok
+test_default_import_constructor_has_no_network_model_or_execution (tests.test_laya_backend.LayaBackendTests.test_default_import_constructor_has_no_network_model_or_execution) ... ok
+test_distribution_rounded_normalization_preserves_raw_and_frozen_contract (tests.test_laya_backend.LayaBackendTests.test_distribution_rounded_normalization_preserves_raw_and_frozen_contract) ... ok
+test_duplicate_json_keys_invalid_utf8_and_nonfinite_exponent (tests.test_laya_backend.LayaBackendTests.test_duplicate_json_keys_invalid_utf8_and_nonfinite_exponent) ... ok
+test_explicit_admission_rejection_does_not_retry_or_fake_success (tests.test_laya_backend.LayaBackendTests.test_explicit_admission_rejection_does_not_retry_or_fake_success) ... ok
+test_health_requires_pinned_resident_checkpoint_device_and_no_post (tests.test_laya_backend.LayaBackendTests.test_health_requires_pinned_resident_checkpoint_device_and_no_post) ... ok
+test_input_request_response_and_model_token_budgets_never_silently_truncate (tests.test_laya_backend.LayaBackendTests.test_input_request_response_and_model_token_budgets_never_silently_truncate) ... ok
+test_live_http_requires_explicit_opt_in_and_fixed_model_alias (tests.test_laya_backend.LayaBackendTests.test_live_http_requires_explicit_opt_in_and_fixed_model_alias) ... ok
+test_missing_extra_owner_unknown_crossowner_and_ineligible_choices (tests.test_laya_backend.LayaBackendTests.test_missing_extra_owner_unknown_crossowner_and_ineligible_choices) ... ok
+test_normal_copy_deterministic_mapping_and_identity (tests.test_laya_backend.LayaBackendTests.test_normal_copy_deterministic_mapping_and_identity) ... ok
+test_post_transport_uncertainty_requires_restart_without_retry (tests.test_laya_backend.LayaBackendTests.test_post_transport_uncertainty_requires_restart_without_retry) ... ok
+test_presend_cancel_never_sends_and_does_not_require_restart (tests.test_laya_backend.LayaBackendTests.test_presend_cancel_never_sends_and_does_not_require_restart) ... ok
+test_presend_timeout_never_sends_and_can_recover_after_worker_finishes (tests.test_laya_backend.LayaBackendTests.test_presend_timeout_never_sends_and_can_recover_after_worker_finishes) ... ok
+test_probabilities_confidences_and_action_diagnostic_reject_invalid_numbers (tests.test_laya_backend.LayaBackendTests.test_probabilities_confidences_and_action_diagnostic_reject_invalid_numbers) ... ok
+test_protocol_identity_routing_and_shape_fail_closed (tests.test_laya_backend.LayaBackendTests.test_protocol_identity_routing_and_shape_fail_closed) ... ok
+test_sent_cancel_and_close_reject_late_results_without_claiming_remote_stop (tests.test_laya_backend.LayaBackendTests.test_sent_cancel_and_close_reject_late_results_without_claiming_remote_stop) ... ok
+test_sent_timeout_is_latched_restart_required_and_probe_cannot_restore (tests.test_laya_backend.LayaBackendTests.test_sent_timeout_is_latched_restart_required_and_probe_cannot_restore) ... ok
+test_single_live_rejects_second_call_without_queue (tests.test_laya_backend.LayaBackendTests.test_single_live_rejects_second_call_without_queue) ... ok
+test_default_laya_execute_is_rejected_and_jev_capability_unchanged (tests.test_laya_service_integration.LayaServiceIntegrationTests.test_default_laya_execute_is_rejected_and_jev_capability_unchanged) ... ok
+test_formal_call_choice_reaches_actor_and_committed_success_ledger (tests.test_laya_service_integration.LayaServiceIntegrationTests.test_formal_call_choice_reaches_actor_and_committed_success_ledger) ... ok
+test_goal_and_configuration_change_drop_real_adapter_late_choice (tests.test_laya_service_integration.LayaServiceIntegrationTests.test_goal_and_configuration_change_drop_real_adapter_late_choice) ... ok
+test_sent_adapter_timeout_is_unavailable_and_dispatches_zero_actions (tests.test_laya_service_integration.LayaServiceIntegrationTests.test_sent_adapter_timeout_is_unavailable_and_dispatches_zero_actions) ... ok
+test_service_unavailable_health_cannot_dispatch_or_submit_inference (tests.test_laya_service_integration.LayaServiceIntegrationTests.test_service_unavailable_health_cannot_dispatch_or_submit_inference) ... ok
+test_shadow_records_model_choice_without_actor_or_ledger_side_effect (tests.test_laya_service_integration.LayaServiceIntegrationTests.test_shadow_records_model_choice_without_actor_or_ledger_side_effect) ... ok
+test_stop_receipt_matches_proven_operation_and_real_cancellation_proof (tests.test_laya_service_integration.LayaServiceIntegrationTests.test_stop_receipt_matches_proven_operation_and_real_cancellation_proof) ... ok
+
+======================================================================
+ERROR: test_cold_load_budget_is_separate_from_hot_and_stop (tests.test_mobile_tasks.TaskOwnedIntegrationTests.test_cold_load_budget_is_separate_from_hot_and_stop)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_recovery_requires_execution_stopped (tests.test_mobile_tasks.TaskOwnedIntegrationTests.test_recovery_requires_execution_stopped)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_task_uses_same_permit_and_does_not_need_ex_backend_switch (tests.test_mobile_tasks.TaskOwnedIntegrationTests.test_task_uses_same_permit_and_does_not_need_ex_backend_switch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_confirmed_exit_and_quarantine_survive_new_manager (tests.test_owned_laya.OwnedLayaTests.test_confirmed_exit_and_quarantine_survive_new_manager)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_failed_warmup_worker_must_drain_before_restart (tests.test_owned_laya.OwnedLayaTests.test_failed_warmup_worker_must_drain_before_restart)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_generation_quarantine_blocks_other_client_and_requires_recovery (tests.test_owned_laya.OwnedLayaTests.test_generation_quarantine_blocks_other_client_and_requires_recovery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_history_is_copied_and_state_mode_restricted (tests.test_owned_laya.OwnedLayaTests.test_history_is_copied_and_state_mode_restricted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_interrupt_warmup_invalidates_start_and_confirms_child_exit (tests.test_owned_laya.OwnedLayaTests.test_interrupt_warmup_invalidates_start_and_confirms_child_exit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_old_closed_worker_retains_permit_until_it_exits (tests.test_owned_laya.OwnedLayaTests.test_old_closed_worker_retains_permit_until_it_exits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_old_generation_fault_and_stop_cannot_change_new_service (tests.test_owned_laya.OwnedLayaTests.test_old_generation_fault_and_stop_cannot_change_new_service)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_owned_handle_access_has_no_pid_adoption_and_checks_generation (tests.test_owned_laya.OwnedLayaTests.test_owned_handle_access_has_no_pid_adoption_and_checks_generation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_port_occupied_is_not_terminated (tests.test_owned_laya.OwnedLayaTests.test_port_occupied_is_not_terminated)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_ready_warmup_stop_and_fixed_environment (tests.test_owned_laya.OwnedLayaTests.test_ready_warmup_stop_and_fixed_environment)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_short_owned_child_has_confirmed_exit (tests.test_owned_laya.OwnedLayaTests.test_short_owned_child_has_confirmed_exit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_stop_before_warmup_skips_the_inference_callback (tests.test_owned_laya.OwnedLayaTests.test_stop_before_warmup_skips_the_inference_callback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_superseded_before_spawn_has_no_side_effect (tests.test_owned_laya.OwnedLayaTests.test_superseded_before_spawn_has_no_side_effect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_term_then_kill_only_the_owned_handle (tests.test_owned_laya.OwnedLayaTests.test_term_then_kill_only_the_owned_handle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_unknown_persisted_ownership_cannot_be_claimed_or_killed (tests.test_owned_laya.OwnedLayaTests.test_unknown_persisted_ownership_cannot_be_claimed_or_killed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_warmup_failure_cleans_own_child_and_keeps_fault (tests.test_owned_laya.OwnedLayaTests.test_warmup_failure_cleans_own_child_and_keeps_fault)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/astrex-mvp-publish-h0yyvyb7/repo/tests/test_owned_laya.py", line 69, in setUp
+    with socket.socket() as probe:
+         ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+----------------------------------------------------------------------
+Ran 77 tests in 5.483s
+
+FAILED (errors=19)

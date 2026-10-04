@@ -1,0 +1,397 @@
+{
+  "scope": "M1_STATIC_READ_ONLY_NO_GOALS_NO_MOTION",
+  "profile_hash": "bfe24436bf940e84841b9be52eea808acb6666c59a43b4ca09b2d48a26467d86",
+  "started_monotonic": 11744.742880691,
+  "ended_monotonic": 11759.748454949,
+  "timing": {
+    "raw": {
+      "count": 368,
+      "max_wall_gap": 0.24293371500061767,
+      "p95_wall_gap": 0.10966771200037329,
+      "gaps_over_200ms": 2
+    },
+    "final": {
+      "count": 368,
+      "max_wall_gap": 0.2425332469993009,
+      "p95_wall_gap": 0.1095676810000441,
+      "gaps_over_200ms": 2
+    },
+    "odom": {
+      "count": 368,
+      "max_wall_gap": 0.24287879999974393,
+      "p95_wall_gap": 0.10956594600065728,
+      "gaps_over_200ms": 2
+    },
+    "scan": {
+      "count": 61,
+      "max_wall_gap": 0.38119273300071654,
+      "p95_wall_gap": 0.30219016499904683,
+      "gaps_over_200ms": 55
+    },
+    "clock": {
+      "count": 367,
+      "max_wall_gap": 0.21770807999928365,
+      "p95_wall_gap": 0.10485077200064552,
+      "gaps_over_200ms": 1
+    },
+    "truth": {
+      "count": 192,
+      "max_wall_gap": 0.2822779170001013,
+      "p95_wall_gap": 0.15377947599881736,
+      "gaps_over_200ms": 2
+    },
+    "tf": {
+      "count": 368,
+      "max_wall_gap": 0.2428734559998702,
+      "p95_wall_gap": 0.10956914700000198,
+      "gaps_over_200ms": 2
+    },
+    "tf_static": {
+      "count": 1,
+      "max_wall_gap": null,
+      "p95_wall_gap": null,
+      "gaps_over_200ms": 0
+    }
+  },
+  "stop_measurement": {
+    "present": true,
+    "all_wheels_present": true,
+    "actual_root_source": true,
+    "stopped_for_500ms": true,
+    "initial_hold": true,
+    "matching_profile": true,
+    "maximum_root_linear_m_s": 0.001921228136369244,
+    "maximum_root_angular_rad_s": 0.0054770332174885515,
+    "maximum_wheel_surface_m_s": 0.002060825005173683
+  },
+  "last_final": {
+    "active": false,
+    "base_odom_source": "wheel_feedback",
+    "base_stationary_seconds": 62.03903659200114,
+    "base_stop_measurement": {
+      "max_wheel_surface_speed_m_s": 0.0005365979857742786,
+      "root_angular_speed_rad_s": 0.0016814657358568293,
+      "root_angular_velocity_rad_s": [
+        -0.0001899398339446634,
+        0.0015597277088090777,
+        0.0005987481563352048
+      ],
+      "root_linear_speed_m_s": 0.0007898738150718547,
+      "root_linear_velocity_m_s": [
+        -0.00033163101761601865,
+        0.0007041192729957402,
+        -0.0001346757635474205
+      ],
+      "stationary": true,
+      "velocity_source": "physx_articulation_root",
+      "wheel_surface_speeds_m_s": {
+        "left_front_wheel_joint": 0.00028753434307873246,
+        "left_rear_wheel_joint": 3.714008722454309e-05,
+        "right_front_wheel_joint": 0.0005365979857742786,
+        "right_rear_wheel_joint": 0.0003024062979966402
+      }
+    },
+    "base_velocity": [
+      -0.0002909196785185486,
+      -0.0004018201980215963
+    ],
+    "command_id": null,
+    "drive_effort_limits": {
+      "drive_joint": 2.0,
+      "joint1": 50.0,
+      "joint2": 50.0,
+      "joint3": 32.0,
+      "joint4": 32.0,
+      "joint5": 32.0,
+      "joint6": 20.0
+    },
+    "drive_velocity_limits": {
+      "drive_joint": 0.3,
+      "joint1": 2.14,
+      "joint2": 2.14,
+      "joint3": 2.14,
+      "joint4": 2.14,
+      "joint5": 2.14,
+      "joint6": 2.14
+    },
+    "effort_measurement_semantics": "drive_output_unmeasured_configuration_limits_read_back",
+    "error": null,
+    "ex_session": null,
+    "execution_epoch": null,
+    "execution_session": null,
+    "goal_revision": null,
+    "isaac_session": "bc70ae2486174ce7af79fb4ee152fe4b",
+    "reason": "INITIAL_HOLD",
+    "robot_config_hash": "bfe24436bf940e84841b9be52eea808acb6666c59a43b4ca09b2d48a26467d86",
+    "schema": "astrex.mm.v1",
+    "source_stamp": 26.225001367740333,
+    "stop_count": 0
+  },
+  "latest_transforms": {
+    "odom->base_link": {
+      "parent": "odom",
+      "child": "base_link",
+      "source_stamp": 26.225001368,
+      "translation": [
+        -1.5117551617455147,
+        -1.4999365598451229,
+        0.23
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        -0.005373885047406455,
+        0.9999855605755001
+      ]
+    },
+    "base_link->mm_camera_optical": {
+      "parent": "base_link",
+      "child": "mm_camera_optical",
+      "source_stamp": 0.0,
+      "translation": [
+        0.25,
+        0.0,
+        1.2000000476837158
+      ],
+      "rotation": [
+        0.6590057167507122,
+        -0.6590057167507121,
+        0.2563424765618842,
+        -0.2563424765618842
+      ]
+    },
+    "base_link->mm_lidar": {
+      "parent": "base_link",
+      "child": "mm_lidar",
+      "source_stamp": 0.0,
+      "translation": [
+        0.18,
+        0.0,
+        0.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "latest_odom": {
+    "received_monotonic": 11759.73613082,
+    "source_stamp": 26.225001368,
+    "frame": "odom",
+    "child": "base_link",
+    "position": [
+      -1.5117551617455147,
+      -1.4999365598451229,
+      0.23
+    ],
+    "orientation": [
+      0.0,
+      0.0,
+      -0.005373885047406455,
+      0.9999855605755001
+    ],
+    "linear": [
+      -0.0002909196785185486,
+      0.0,
+      0.0
+    ],
+    "angular": [
+      0.0,
+      0.0,
+      -0.0004018201980215963
+    ]
+  },
+  "latest_scan": {
+    "received_monotonic": 11759.486035043,
+    "source_stamp": 26.133334696,
+    "frame": "mm_lidar",
+    "count": 3200,
+    "finite_hits": 582,
+    "min_range": 0.5422500967979431,
+    "max_range": 3.176161766052246
+  },
+  "latest_truth": {
+    "schema": "astrex.mm.truth.v1",
+    "input_source": "ORACLE_EVALUATION_ONLY",
+    "sim_session": "2976f569abd74139b6d675bdf5b464bc",
+    "seq": 815,
+    "source_stamp": 26.208334700204432,
+    "published_monotonic": 11759.707710153,
+    "frame_id": "world",
+    "effective_config_hash": "8858588920c685810818b0f08ec4f72bb6a37842d1d4c8f1733432b78c5d9569",
+    "simulator_pid": 50478,
+    "tcp_pose": {
+      "position": [
+        -1.2839443811891753,
+        -1.4951748681480956,
+        0.8911875023310821
+      ],
+      "orientation": [
+        -0.9893864989280701,
+        -0.0013308278284966946,
+        -0.14495401084423065,
+        0.010059517808258533
+      ],
+      "frame_id": "world"
+    },
+    "base_pose": {
+      "position": [
+        -1.5036087036132812,
+        -1.5004565715789795,
+        0.23000244796276093
+      ],
+      "orientation": [
+        7.19683214356337e-07,
+        -3.4920500979751523e-07,
+        -0.00027260807109996676,
+        1.0
+      ],
+      "frame_id": "world"
+    },
+    "pose_source": "PhysX_articulation_link_transforms",
+    "articulation_sleep_threshold": 0.0,
+    "solver_iterations": {
+      "position": 32,
+      "velocity": 1
+    },
+    "external_forces_every_iteration": true,
+    "whole_robot_xy_envelope_radius_m": 0.47658658079907124,
+    "objects": {
+      "red_cube": {
+        "position": [
+          0.523822009563446,
+          -0.07135074585676193,
+          0.7749999165534973
+        ],
+        "orientation": [
+          -1.3372484772844473e-06,
+          3.5669231692736503e-06,
+          5.6387001734492515e-08,
+          1.0
+        ],
+        "linear_velocity": [
+          -1.3284015039971564e-05,
+          -4.0070211980491877e-05,
+          -9.714538464322686e-05
+        ],
+        "angular_velocity": [
+          0.006880928296595812,
+          -0.0042250570841133595,
+          -4.474613888305612e-06
+        ]
+      },
+      "blue_cylinder": {
+        "position": [
+          0.6499998569488525,
+          0.10000018030405045,
+          0.7749999761581421
+        ],
+        "orientation": [
+          -3.596791430027224e-06,
+          3.978471330157163e-09,
+          -1.6405955705067754e-08,
+          1.0
+        ],
+        "linear_velocity": [
+          2.1659836420440115e-05,
+          -5.1072489441139624e-05,
+          -2.7284097086521797e-05
+        ],
+        "angular_velocity": [
+          0.006617712322622538,
+          0.003466264810413122,
+          0.00011385238758521155
+        ]
+      }
+    },
+    "q": {
+      "joint1": -0.0021976951975375414,
+      "joint2": -1.0007812976837158,
+      "joint3": -0.9936895370483398,
+      "joint4": 0.02126527763903141,
+      "joint5": 1.703545093536377,
+      "joint6": 0.00047023280058056116,
+      "drive_joint": 0.02798822708427906
+    },
+    "dq": {
+      "joint1": 0.020933622494339943,
+      "joint2": -0.004736288916319609,
+      "joint3": 0.029938507825136185,
+      "joint4": -0.18765628337860107,
+      "joint5": 0.04021325334906578,
+      "joint6": -0.01252975407987833,
+      "drive_joint": -0.3340253531932831
+    },
+    "wheel_joint_velocities": {
+      "left_front_wheel_joint": -0.004160914570093155,
+      "left_rear_wheel_joint": -0.0016527334228157997,
+      "right_front_wheel_joint": -0.007697661407291889,
+      "right_rear_wheel_joint": -0.002989360364153981
+    },
+    "place_pose": {
+      "position": [
+        0.8700000047683716,
+        -0.019999999552965164,
+        0.753000020980835
+      ],
+      "orientation": [
+        0.0,
+        0.0,
+        0.0,
+        0.5667892026759892
+      ],
+      "frame_id": "world"
+    },
+    "recent_contacts": [
+      [
+        "/World/Robot/right_front_wheel",
+        "/World/defaultGroundPlane/GroundPlane/CollisionPlane"
+      ],
+      [
+        "/World/Robot/left_front_wheel",
+        "/World/defaultGroundPlane/GroundPlane/CollisionPlane"
+      ],
+      [
+        "/World/Robot/right_rear_wheel",
+        "/World/defaultGroundPlane/GroundPlane/CollisionPlane"
+      ],
+      [
+        "/World/Robot/left_rear_wheel",
+        "/World/defaultGroundPlane/GroundPlane/CollisionPlane"
+      ],
+      [
+        "/World/Robot/gripper/left_finger",
+        "/World/Robot/gripper/left_inner_knuckle"
+      ],
+      [
+        "/World/Robot/gripper/left_inner_knuckle",
+        "/World/Robot/gripper/left_outer_knuckle"
+      ],
+      [
+        "/World/Robot/gripper/right_finger",
+        "/World/Robot/gripper/right_inner_knuckle"
+      ],
+      [
+        "/World/Robot/gripper/right_inner_knuckle",
+        "/World/Robot/gripper/right_outer_knuckle"
+      ],
+      [
+        "/World/BlueCylinder",
+        "/World/Table"
+      ],
+      [
+        "/World/RedCube",
+        "/World/Table"
+      ]
+    ],
+    "guard_active": false,
+    "guard_reason": "INITIAL_HOLD",
+    "profile_hash": "bfe24436bf940e84841b9be52eea808acb6666c59a43b4ca09b2d48a26467d86",
+    "trial": null
+  },
+  "max_whole_robot_xy_envelope_radius_m": 0.47658658079907124,
+  "motion_submitted": false
+}

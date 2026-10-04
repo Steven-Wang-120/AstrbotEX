@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/tmp/astrex_integration_20261002/laya_shadow.py", line 31, in <module>
+    require(server.decision_service.backend.execution_allowed is False,'production_execution_permission_changed')
+  File "/home/sssxy/Projects/AstrbotEX/scripts/verify_decision_management.py", line 35, in require
+    raise RuntimeError(reason)
+RuntimeError: production_execution_permission_changed

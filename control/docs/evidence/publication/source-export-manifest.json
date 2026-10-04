@@ -1,0 +1,1295 @@
+{
+  "base_commit": "531b7c9a4feef93599a51f5565fe65e7a98bcc38",
+  "original_project_head": "4cf7e11a201d82c0332a5ecc4f6bd1864d30444d",
+  "note": "Source files retain original hashes. Export-only README, path resolver/test, publication metadata and control ignore rules are additions. This is not physical verification.",
+  "files": [
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261001T161758+0800_2b96da8862/README.md",
+      "destination": "control/docs/evidence/retirement/20261001T161758+0800_2b96da8862/README.md",
+      "source_sha256": "094749f1aa219a80bf0ef1de2914f14793d5ca09d9aec73ab86cab7c4b874dad",
+      "export_sha256": "094749f1aa219a80bf0ef1de2914f14793d5ca09d9aec73ab86cab7c4b874dad",
+      "bytes": 2849,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/MANIFEST.json",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/MANIFEST.json",
+      "source_sha256": "bdfad9ee0289545de23bb0575f45dcee76bd027cf664b9ee6f429c6e2af9c809",
+      "export_sha256": "bdfad9ee0289545de23bb0575f45dcee76bd027cf664b9ee6f429c6e2af9c809",
+      "bytes": 485248,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/README.md",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/README.md",
+      "source_sha256": "009c340c26f874120f01e0d276179b3ec0cf8c11598f1ad7d8602cf16188a1e4",
+      "export_sha256": "009c340c26f874120f01e0d276179b3ec0cf8c11598f1ad7d8602cf16188a1e4",
+      "bytes": 3046,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/before/docs/CARTPOLE_CONTROL_SERVICE.md",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/before/docs/CARTPOLE_CONTROL_SERVICE.md",
+      "source_sha256": "c616d6a94c40e8493ee76602fa11dad74cf01fa6130f957649d6b83ece8cb900",
+      "export_sha256": "c616d6a94c40e8493ee76602fa11dad74cf01fa6130f957649d6b83ece8cb900",
+      "bytes": 14549,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/before/docs/CARTPOLE_EXPERIMENT_HISTORY.md",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/before/docs/CARTPOLE_EXPERIMENT_HISTORY.md",
+      "source_sha256": "da67f0a21cb0dafbbde7a8cbd6455accc0a6969058256de3135497e559b4f3cb",
+      "export_sha256": "f5ed1af0c554bc706c3f26e40bcff6528707e28145a92a58f8cfa9d6858a9534",
+      "bytes": 4542,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/before/docs/ISAAC_51_DEV_BASELINE.md",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/before/docs/ISAAC_51_DEV_BASELINE.md",
+      "source_sha256": "8c3b28cb663649b27c1964d7c80d3a6dfe5c28a6837b51b6939facdaa5e79572",
+      "export_sha256": "f0328da2886f8a919bcc8ca8d74cba0703e9d0e87157842e8a2a1ab2b118e84d",
+      "bytes": 13487,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/checks/activation_probe.txt",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/checks/activation_probe.txt",
+      "source_sha256": "94e28cfc5c104b17397ed3393040eeb572fb7eeb0c15e3091967344bccffb825",
+      "export_sha256": "94e28cfc5c104b17397ed3393040eeb572fb7eeb0c15e3091967344bccffb825",
+      "bytes": 52,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/checks/archive_integrity.json",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/checks/archive_integrity.json",
+      "source_sha256": "811ac43274d4e5bfabffc45c508fb3e96d555e7dca8bd6bdfc2b3ec84360ffc1",
+      "export_sha256": "811ac43274d4e5bfabffc45c508fb3e96d555e7dca8bd6bdfc2b3ec84360ffc1",
+      "bytes": 129,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/checks/clean_ros_environment.txt",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/checks/clean_ros_environment.txt",
+      "source_sha256": "e1d6e20d290a61c5f7594ca1ffab2a86c542cc33f3ffe3ab6a374bd74ad2a00e",
+      "export_sha256": "e1d6e20d290a61c5f7594ca1ffab2a86c542cc33f3ffe3ab6a374bd74ad2a00e",
+      "bytes": 134,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/checks/entry_retirement.json",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/checks/entry_retirement.json",
+      "source_sha256": "34243068535732fa7a4dd60e7843185c1c945588bfc865a7e419959696d27bd1",
+      "export_sha256": "34243068535732fa7a4dd60e7843185c1c945588bfc865a7e419959696d27bd1",
+      "bytes": 105,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/checks/final_static.json",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/checks/final_static.json",
+      "source_sha256": "23ef3359bca8e47baf917206c740503889492556a3253ec1691bf4c7b27d7d94",
+      "export_sha256": "23ef3359bca8e47baf917206c740503889492556a3253ec1691bf4c7b27d7d94",
+      "bytes": 345,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/checks/isaac_health_diagnostic.json",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/checks/isaac_health_diagnostic.json",
+      "source_sha256": "c2440c0b7be96b29735137f4bfaf52073918c85960f12fc3ad3d144bc35f8158",
+      "export_sha256": "c2440c0b7be96b29735137f4bfaf52073918c85960f12fc3ad3d144bc35f8158",
+      "bytes": 393,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/checks/isaac_health_diagnostic.txt",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/checks/isaac_health_diagnostic.txt",
+      "source_sha256": "656e28acf003c67c8df615744ca449df1c0a7e11ba802e115bf97f6d4d7000ea",
+      "export_sha256": "656e28acf003c67c8df615744ca449df1c0a7e11ba802e115bf97f6d4d7000ea",
+      "bytes": 2618,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/checks/isaac_health_initial.json",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/checks/isaac_health_initial.json",
+      "source_sha256": "0aa42c45a5a32f8b4280e1f1cf799726de9c20dc305773db4fd5d6ee182853d3",
+      "export_sha256": "0aa42c45a5a32f8b4280e1f1cf799726de9c20dc305773db4fd5d6ee182853d3",
+      "bytes": 264,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/checks/protection.json",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/checks/protection.json",
+      "source_sha256": "93e3474696cd80571a2ff362851711a0582db4b3447a3f20cf7dbb8eb4d11eac",
+      "export_sha256": "93e3474696cd80571a2ff362851711a0582db4b3447a3f20cf7dbb8eb4d11eac",
+      "bytes": 166,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/checks/removal.json",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/checks/removal.json",
+      "source_sha256": "92486a580cdd76f4f124105744ff159bf2c4deb04b46cddee2c1eb06b85435a0",
+      "export_sha256": "92486a580cdd76f4f124105744ff159bf2c4deb04b46cddee2c1eb06b85435a0",
+      "bytes": 2093,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/checks/ros_domain_unit.txt",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/checks/ros_domain_unit.txt",
+      "source_sha256": "4b7f6f16760081ccb321f59e5e5350e6839c71ebc0ff72b68c5a294b63ce6893",
+      "export_sha256": "4b7f6f16760081ccb321f59e5e5350e6839c71ebc0ff72b68c5a294b63ce6893",
+      "bytes": 1129,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/protection/before.json",
+      "destination": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/protection/before.json",
+      "source_sha256": "82098d13ba4c05e65d9c1d9f1bd1c914bd424a3ef5a6256ff0bdbda37e9c5dec",
+      "export_sha256": "82098d13ba4c05e65d9c1d9f1bd1c914bd424a3ef5a6256ff0bdbda37e9c5dec",
+      "bytes": 89588,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/arm_dev/oracle_gui_ros/a2_plan_only/arm_checks_result.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/arm_dev/oracle_gui_ros/a2_plan_only/arm_checks_result.json",
+      "source_sha256": "dbdf863c4347918f7e2981a99011e59d9cfec00a9ebfe50891876bdda632fb90",
+      "export_sha256": "dbdf863c4347918f7e2981a99011e59d9cfec00a9ebfe50891876bdda632fb90",
+      "bytes": 8373,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/arm_dev/tgs_force_iterations/feedback_diagnostic_summary.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/arm_dev/tgs_force_iterations/feedback_diagnostic_summary.json",
+      "source_sha256": "185475b584e662766af3eeec22bf0ccb4cf04a192b1f1eec65251d636c71fa67",
+      "export_sha256": "185475b584e662766af3eeec22bf0ccb4cf04a192b1f1eec65251d636c71fa67",
+      "bytes": 1698,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/arm_dev/tgs_ros/a2_plan_only/arm_checks_result.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/arm_dev/tgs_ros/a2_plan_only/arm_checks_result.json",
+      "source_sha256": "b071180b5aae657ad032d8ad5e67832ffdf33fd5c2a716e202a077123e5f82e5",
+      "export_sha256": "b071180b5aae657ad032d8ad5e67832ffdf33fd5c2a716e202a077123e5f82e5",
+      "bytes": 5604,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/arm_dev/tgs_ros/readiness_and_initial_fk.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/arm_dev/tgs_ros/readiness_and_initial_fk.json",
+      "source_sha256": "3d95756ab658419594050adc54b6233a3c630833374ad580b1ac4b9cd82e3554",
+      "export_sha256": "3d95756ab658419594050adc54b6233a3c630833374ad580b1ac4b9cd82e3554",
+      "bytes": 3474,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_camera_cadence_finite_status/withdrawal_result.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/m1_camera_cadence_finite_status/withdrawal_result.json",
+      "source_sha256": "bc245ec9614bcff6ff39880cdaf99aa5c6fd3db8dd815c73bc06b6663cf1b12e",
+      "export_sha256": "bc245ec9614bcff6ff39880cdaf99aa5c6fd3db8dd815c73bc06b6663cf1b12e",
+      "bytes": 960,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_effects_and_sampling/render_settings.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/m1_effects_and_sampling/render_settings.json",
+      "source_sha256": "9974544c4c4c73cfd2f14bfa3306e112728de941ce92f4635dbd80ce912b865c",
+      "export_sha256": "9974544c4c4c73cfd2f14bfa3306e112728de941ce92f4635dbd80ce912b865c",
+      "bytes": 641,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_effects_and_sampling_ros/m1_static_ros/mobile_static_summary.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/m1_effects_and_sampling_ros/m1_static_ros/mobile_static_summary.json",
+      "source_sha256": "84be0ecd4717bf7da995a5f17a2939ebb894a4126df7c86de81368374409a8f3",
+      "export_sha256": "84be0ecd4717bf7da995a5f17a2939ebb894a4126df7c86de81368374409a8f3",
+      "bytes": 10489,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_effects_and_sampling_ros/nav_readonly/navigation_readonly_result.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/m1_effects_and_sampling_ros/nav_readonly/navigation_readonly_result.json",
+      "source_sha256": "44d5a7ec34f541d4d6fca886c4f54ae7a64212540086cb2db4957a6228a9d45c",
+      "export_sha256": "44d5a7ec34f541d4d6fca886c4f54ae7a64212540086cb2db4957a6228a9d45c",
+      "bytes": 107835,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_effects_and_sampling_ros/sampling_regression.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/m1_effects_and_sampling_ros/sampling_regression.json",
+      "source_sha256": "8800327fd82c43b15ce1e5d33bbade6d35b011cd4eb9e15ac96ba0d0fd2ddb48",
+      "export_sha256": "8800327fd82c43b15ce1e5d33bbade6d35b011cd4eb9e15ac96ba0d0fd2ddb48",
+      "bytes": 1381,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_effects_and_sampling_ros/scan_existing_samples_analysis.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/m1_effects_and_sampling_ros/scan_existing_samples_analysis.json",
+      "source_sha256": "08d5bedb8fddcfd33e042bdd3e64a90e5dcb3834f3130f2df2dfe585cc38261b",
+      "export_sha256": "08d5bedb8fddcfd33e042bdd3e64a90e5dcb3834f3130f2df2dfe585cc38261b",
+      "bytes": 800,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview/startup_failure.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/m1_preview/startup_failure.json",
+      "source_sha256": "870c648d3281cfa3d5a184cc2de3f295dd6f8913b24395cd068c0c52949b68c1",
+      "export_sha256": "870c648d3281cfa3d5a184cc2de3f295dd6f8913b24395cd068c0c52949b68c1",
+      "bytes": 635,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_prepared_physics/contact_reporting.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/m1_preview_prepared_physics/contact_reporting.json",
+      "source_sha256": "5f7b8c53c660e02b4f53ac163e6571905e91e88e9c9e4357177083c5941e5d1a",
+      "export_sha256": "5f7b8c53c660e02b4f53ac163e6571905e91e88e9c9e4357177083c5941e5d1a",
+      "bytes": 837,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_prepared_physics_ros/m1_static_ros/mobile_static_summary.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/m1_preview_prepared_physics_ros/m1_static_ros/mobile_static_summary.json",
+      "source_sha256": "f3d384fc03cdb0458f8a2894f1770a099b98b1e8f04c6a997872035f7f5fbefd",
+      "export_sha256": "f3d384fc03cdb0458f8a2894f1770a099b98b1e8f04c6a997872035f7f5fbefd",
+      "bytes": 10478,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_render_restore_import_ros/sensors/capture_result.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/m1_render_restore_import_ros/sensors/capture_result.json",
+      "source_sha256": "f1b216e18002afa062c566003e9c3682656d17b400932e8ffefdd598711b8c30",
+      "export_sha256": "f1b216e18002afa062c566003e9c3682656d17b400932e8ffefdd598711b8c30",
+      "bytes": 5266,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_final_3d/calibration.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_final_3d/calibration.json",
+      "source_sha256": "c9489b26132f0ebbd16313c84da5b06b7055a4be6b4ae35c699af87cbfae51d9",
+      "export_sha256": "c9489b26132f0ebbd16313c84da5b06b7055a4be6b4ae35c699af87cbfae51d9",
+      "bytes": 9638,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_final_3d/formal/camera_preview.png",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_final_3d/formal/camera_preview.png",
+      "source_sha256": "08871481770e2ebcd0b6d3f7f82663f7cd78f8a518bcf5087b118b4ddc73d484",
+      "export_sha256": "08871481770e2ebcd0b6d3f7f82663f7cd78f8a518bcf5087b118b4ddc73d484",
+      "bytes": 131953,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_final_3d/formal/capture_result.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_final_3d/formal/capture_result.json",
+      "source_sha256": "4e5a95a949ab6a21275cddbe259b7306baa26ea86961e3dd5840262e25118a73",
+      "export_sha256": "4e5a95a949ab6a21275cddbe259b7306baa26ea86961e3dd5840262e25118a73",
+      "bytes": 3815,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_final_3d/formal/messages.jsonl",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_final_3d/formal/messages.jsonl",
+      "source_sha256": "a53a4011e1c3eed772452fc8ed179c25d1c2c6960f84de221bf71a7d2a359b58",
+      "export_sha256": "a53a4011e1c3eed772452fc8ed179c25d1c2c6960f84de221bf71a7d2a359b58",
+      "bytes": 388243,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_final_3d/simulation_config.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_final_3d/simulation_config.json",
+      "source_sha256": "c4aedd82d261839bd2d0eb96fc2c83e122602d20f263a15b523e03e5b7602ec6",
+      "export_sha256": "c4aedd82d261839bd2d0eb96fc2c83e122602d20f263a15b523e03e5b7602ec6",
+      "bytes": 1206,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_final_3d/simulation_result.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_final_3d/simulation_result.json",
+      "source_sha256": "add125fbaba88e620e7562fc16886c9b3be2348049a884ce12353780a0faf070",
+      "export_sha256": "add125fbaba88e620e7562fc16886c9b3be2348049a884ce12353780a0faf070",
+      "bytes": 177,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_formal_2d/capture_result.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_formal_2d/capture_result.json",
+      "source_sha256": "3b0b85e2750aa145b15cc3ba550bb81e0feebd8aaa5df31e9a46420004f419d4",
+      "export_sha256": "3b0b85e2750aa145b15cc3ba550bb81e0feebd8aaa5df31e9a46420004f419d4",
+      "bytes": 3276,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_lidar_qos_probe.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_lidar_qos_probe.json",
+      "source_sha256": "7baeac756d8c669d9c0219054016a22bf307d61c780fda091c3acdb0f331ccd7",
+      "export_sha256": "7baeac756d8c669d9c0219054016a22bf307d61c780fda091c3acdb0f331ccd7",
+      "bytes": 368,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_preview_2d/gui_preview.png",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_preview_2d/gui_preview.png",
+      "source_sha256": "2c27dc297509993d9e624882bffb1cdcc3d72ddc4d1814283768b81517d74718",
+      "export_sha256": "2c27dc297509993d9e624882bffb1cdcc3d72ddc4d1814283768b81517d74718",
+      "bytes": 658663,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_preview_2d/ros_preview/camera_preview.png",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_preview_2d/ros_preview/camera_preview.png",
+      "source_sha256": "e1b357a655e12afd0d59353aabc2d7c9311eb2bcb61fdc1d8950e072a66626dd",
+      "export_sha256": "e1b357a655e12afd0d59353aabc2d7c9311eb2bcb61fdc1d8950e072a66626dd",
+      "bytes": 159854,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_preview_2d/ros_preview/capture_result.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_preview_2d/ros_preview/capture_result.json",
+      "source_sha256": "adf09c9b349ade21b51b696288707cab76ac0c5d74f1ea00e5aa083e41995ee2",
+      "export_sha256": "adf09c9b349ade21b51b696288707cab76ac0c5d74f1ea00e5aa083e41995ee2",
+      "bytes": 3268,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_preview_2d/ros_preview_after_recorder_fix/capture_result.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_preview_2d/ros_preview_after_recorder_fix/capture_result.json",
+      "source_sha256": "f77b1d622711dae8260dd4955e12eb93310dc853e0c87f47561d0cf275d09f05",
+      "export_sha256": "f77b1d622711dae8260dd4955e12eb93310dc853e0c87f47561d0cf275d09f05",
+      "bytes": 3206,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_tick60_2d/calibration.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_tick60_2d/calibration.json",
+      "source_sha256": "ca8e57451c491ba0fdf222da72704fbde8e1ce8226b45def6a73230fe361a2d2",
+      "export_sha256": "ca8e57451c491ba0fdf222da72704fbde8e1ce8226b45def6a73230fe361a2d2",
+      "bytes": 4736,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_tick60_2d/formal/camera_preview.png",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_tick60_2d/formal/camera_preview.png",
+      "source_sha256": "946d0dff01e1ab56465291e7640cb72b0843b4765370e7f51aa1de7c2495ee41",
+      "export_sha256": "946d0dff01e1ab56465291e7640cb72b0843b4765370e7f51aa1de7c2495ee41",
+      "bytes": 123907,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_tick60_2d/formal/capture_result.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_tick60_2d/formal/capture_result.json",
+      "source_sha256": "beccb57253bcb0060bd93e01731753b00bf22b265c365d9322e1838400fe8c51",
+      "export_sha256": "beccb57253bcb0060bd93e01731753b00bf22b265c365d9322e1838400fe8c51",
+      "bytes": 3598,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_tick60_2d/formal/messages.jsonl",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_tick60_2d/formal/messages.jsonl",
+      "source_sha256": "d8edbea80070d4cab91f9f6de1f369bd81e0c86cb29d7d6e7aabc78401d76541",
+      "export_sha256": "d8edbea80070d4cab91f9f6de1f369bd81e0c86cb29d7d6e7aabc78401d76541",
+      "bytes": 402373,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_tick60_2d/simulation_config.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_tick60_2d/simulation_config.json",
+      "source_sha256": "c5cee13846f3c697c1b3cbfe79e1418fd5b75e670f18d4e08d9f130557f11394",
+      "export_sha256": "c5cee13846f3c697c1b3cbfe79e1418fd5b75e670f18d4e08d9f130557f11394",
+      "bytes": 1206,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_tick60_2d/simulation_result.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/p1_tick60_2d/simulation_result.json",
+      "source_sha256": "4d147b752d3dbad0db48612dc2b4dbcb69f2a8ab5bc8963fc940fd6a9a9cd285",
+      "export_sha256": "4d147b752d3dbad0db48612dc2b4dbcb69f2a8ab5bc8963fc940fd6a9a9cd285",
+      "bytes": 162,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/worktree_protection_latest.json",
+      "destination": "control/docs/evidence/source_runs/phase1_20261004T160950+0800/worktree_protection_latest.json",
+      "source_sha256": "61597b03993e399c7b32fd634dc0646bfce52e0edac0fcd86bb3f46b13a836e5",
+      "export_sha256": "61597b03993e399c7b32fd634dc0646bfce52e0edac0fcd86bb3f46b13a836e5",
+      "bytes": 743,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/ex-native-check.json",
+      "destination": "control/docs/evidence/source_runs/phase1_l_t_20261004T162658/ex-native-check.json",
+      "source_sha256": "11a1be665264cc1812ad2a1994228d62e201b2370b0d78cdcd87a6cb989ebb4a",
+      "export_sha256": "11a1be665264cc1812ad2a1994228d62e201b2370b0d78cdcd87a6cb989ebb4a",
+      "bytes": 263,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/l1_real_probe/calls.jsonl",
+      "destination": "control/docs/evidence/language/l1_real_probe/calls.jsonl",
+      "source_sha256": "d25b138cb53a58b0ee34175ced95493d5dc82ac1cc1d0abb9c1fad34055004aa",
+      "export_sha256": "d25b138cb53a58b0ee34175ced95493d5dc82ac1cc1d0abb9c1fad34055004aa",
+      "bytes": 106622,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/l1_real_probe/frozen-probes.json",
+      "destination": "control/docs/evidence/language/l1_real_probe/frozen-probes.json",
+      "source_sha256": "4e16bfb805116971829627d5692134b72fdd3836b5228dd45b10a451b0f62d4d",
+      "export_sha256": "4e16bfb805116971829627d5692134b72fdd3836b5228dd45b10a451b0f62d4d",
+      "bytes": 45252,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/l1_real_probe/result.json",
+      "destination": "control/docs/evidence/language/l1_real_probe/result.json",
+      "source_sha256": "61d3a9d37b2843ed3204668b615dcdaf8a976f159735918143a3a6f2c1c2123b",
+      "export_sha256": "61d3a9d37b2843ed3204668b615dcdaf8a976f159735918143a3a6f2c1c2123b",
+      "bytes": 4457,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/laya_checkpoint_audit/local-tokenizer.json",
+      "destination": "control/docs/evidence/language/laya_checkpoint_audit/local-tokenizer.json",
+      "source_sha256": "e9ef6f84e08115ab2ed5f4adf5931b4543e0047d12cdec08680d53b9bb782c0c",
+      "export_sha256": "e9ef6f84e08115ab2ed5f4adf5931b4543e0047d12cdec08680d53b9bb782c0c",
+      "bytes": 1199,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/laya_checkpoint_audit/protocol-audit.json",
+      "destination": "control/docs/evidence/language/laya_checkpoint_audit/protocol-audit.json",
+      "source_sha256": "a3a5b0599fedaad06fd61665f8b46c978129cf241e3e7ecc96adced4edf28a23",
+      "export_sha256": "a3a5b0599fedaad06fd61665f8b46c978129cf241e3e7ecc96adced4edf28a23",
+      "bytes": 567,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/laya_checkpoint_audit/sources.json",
+      "destination": "control/docs/evidence/language/laya_checkpoint_audit/sources.json",
+      "source_sha256": "f70fb7e97286223706eede33636ad1341063cea88ec11277c47b885be956fc53",
+      "export_sha256": "f70fb7e97286223706eede33636ad1341063cea88ec11277c47b885be956fc53",
+      "bytes": 1455,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/official-dataset-parse-v2.json",
+      "destination": "control/docs/evidence/language/official-dataset-parse-v2.json",
+      "source_sha256": "9a48fa109dcd3f950e09fc9e7f6aacee3b9aee04db5ea8c86feacef47fb6ff4a",
+      "export_sha256": "9a48fa109dcd3f950e09fc9e7f6aacee3b9aee04db5ea8c86feacef47fb6ff4a",
+      "bytes": 137,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/t1_corpus_v2/groups.jsonl",
+      "destination": "control/data/t1_corpus_v2/groups.jsonl",
+      "source_sha256": "baed6d33784e3382e2ef48cefe51e1f932c2487709d5aacbe9476d5ae9ca7654",
+      "export_sha256": "baed6d33784e3382e2ef48cefe51e1f932c2487709d5aacbe9476d5ae9ca7654",
+      "bytes": 149243,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/t1_corpus_v2/laya-choice.jsonl",
+      "destination": "control/data/t1_corpus_v2/laya-choice.jsonl",
+      "source_sha256": "0aedeb7ba5b0b064582d2bf28ddcc123bda876cb0d56d75381e44b3477f25147",
+      "export_sha256": "0aedeb7ba5b0b064582d2bf28ddcc123bda876cb0d56d75381e44b3477f25147",
+      "bytes": 285894,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/t1_corpus_v2/manifest.json",
+      "destination": "control/data/t1_corpus_v2/manifest.json",
+      "source_sha256": "ea4c7641c77edd6a77e4715cb77b4eaebdc9f3d99b155b88df7034237247b946",
+      "export_sha256": "ea4c7641c77edd6a77e4715cb77b4eaebdc9f3d99b155b88df7034237247b946",
+      "bytes": 1044,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/t1_v1_invalidated_audit.json",
+      "destination": "control/docs/evidence/language/t1_v1_invalidated_audit.json",
+      "source_sha256": "d255adca8a8e74b38c6dd61f660c089089f009cfbefe02b564a3f48a3eb3c969",
+      "export_sha256": "d255adca8a8e74b38c6dd61f660c089089f009cfbefe02b564a3f48a3eb3c969",
+      "bytes": 744,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/t1_v2_isolation_audit.json",
+      "destination": "control/docs/evidence/language/t1_v2_isolation_audit.json",
+      "source_sha256": "8d8377b14bd61f78e853353805af4dcb23b2e200fb8bf0d84e4923cf7f1d6eeb",
+      "export_sha256": "8d8377b14bd61f78e853353805af4dcb23b2e200fb8bf0d84e4923cf7f1d6eeb",
+      "bytes": 828,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/tests-final-v6.json",
+      "destination": "control/docs/evidence/source_runs/phase1_l_t_20261004T162658/tests-final-v6.json",
+      "source_sha256": "5a33f5f88a8dc9ba5faaf9472cd78b0b53a253fc6e82cf7c560f8fb24b41693d",
+      "export_sha256": "5a33f5f88a8dc9ba5faaf9472cd78b0b53a253fc6e82cf7c560f8fb24b41693d",
+      "bytes": 370,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/tests-final-v6.stderr.txt",
+      "destination": "control/docs/evidence/source_runs/phase1_l_t_20261004T162658/tests-final-v6.stderr.txt",
+      "source_sha256": "20a36bb12fc35ded8bebd4a3b3053b2fe03cda9bc4017d9e827a504c151c4d21",
+      "export_sha256": "20a36bb12fc35ded8bebd4a3b3053b2fe03cda9bc4017d9e827a504c151c4d21",
+      "bytes": 7944,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/astrbot_ex/core/decision/owned_laya.py",
+      "destination": "astrbot_ex/core/decision/owned_laya.py",
+      "source_sha256": "100c1ae4375de672f46e44a2eae87ba681d1656e1bf1eaf2b2f3f7e590199cd1",
+      "export_sha256": "100c1ae4375de672f46e44a2eae87ba681d1656e1bf1eaf2b2f3f7e590199cd1",
+      "bytes": 26361,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/astrbot_ex/core/tasks/README.md",
+      "destination": "astrbot_ex/core/tasks/README.md",
+      "source_sha256": "e192ebda227e21bc3a517c95d202859105f1773bfcd260c372251657fd9b26c9",
+      "export_sha256": "b01b4535015732061a9860d72fb81be84044785d6e3b377577403658b8dd7884",
+      "bytes": 3402,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/astrbot_ex/core/tasks/__init__.py",
+      "destination": "astrbot_ex/core/tasks/__init__.py",
+      "source_sha256": "9717dd366d2b44393da8c387b681856a253c57ada2e3a11f21a44c96ebcd6007",
+      "export_sha256": "9717dd366d2b44393da8c387b681856a253c57ada2e3a11f21a44c96ebcd6007",
+      "bytes": 71,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/astrbot_ex/core/tasks/contracts.py",
+      "destination": "astrbot_ex/core/tasks/contracts.py",
+      "source_sha256": "f1cb7e7aca3cc96dc9ec15a4e01529e9cee1a4acc21ff1da26dd352617ceb11f",
+      "export_sha256": "f1cb7e7aca3cc96dc9ec15a4e01529e9cee1a4acc21ff1da26dd352617ceb11f",
+      "bytes": 4485,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/astrbot_ex/core/tasks/corpus.py",
+      "destination": "astrbot_ex/core/tasks/corpus.py",
+      "source_sha256": "857e85ce9c4101b6322fd22c7ecc6814f4eed3062f9ddf7c14a0d5d6ae387aba",
+      "export_sha256": "857e85ce9c4101b6322fd22c7ecc6814f4eed3062f9ddf7c14a0d5d6ae387aba",
+      "bytes": 18225,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/astrbot_ex/core/tasks/laya_client.py",
+      "destination": "astrbot_ex/core/tasks/laya_client.py",
+      "source_sha256": "2cefe9857246313bbe564aa1ac6a0833efa3a5f4443b957868b1b6f99b3bf736",
+      "export_sha256": "2cefe9857246313bbe564aa1ac6a0833efa3a5f4443b957868b1b6f99b3bf736",
+      "bytes": 10393,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/astrbot_ex/core/tasks/session.py",
+      "destination": "astrbot_ex/core/tasks/session.py",
+      "source_sha256": "99f2516e221b3152ef833274640372475c19651fd6d34c9b0c3ef1eb4687585e",
+      "export_sha256": "99f2516e221b3152ef833274640372475c19651fd6d34c9b0c3ef1eb4687585e",
+      "bytes": 11557,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/plugins/control/mobile_manipulation/config.json",
+      "destination": "plugins/control/mobile_manipulation/config.json",
+      "source_sha256": "d634680e955aa4ebc1a50f6143c1d9a6848253debf6f62925bfeee44bbb5a1ef",
+      "export_sha256": "d634680e955aa4ebc1a50f6143c1d9a6848253debf6f62925bfeee44bbb5a1ef",
+      "bytes": 115,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/plugins/control/mobile_manipulation/generate_manifest.py",
+      "destination": "plugins/control/mobile_manipulation/generate_manifest.py",
+      "source_sha256": "5636c64d2acfecbe8755bb31915b6415eaa6435e9651b54a8cf079b3e4d53592",
+      "export_sha256": "5636c64d2acfecbe8755bb31915b6415eaa6435e9651b54a8cf079b3e4d53592",
+      "bytes": 1295,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/plugins/control/mobile_manipulation/guide.md",
+      "destination": "plugins/control/mobile_manipulation/guide.md",
+      "source_sha256": "dba3a801a98e5344ede3de9f2f83cb8117e3857c7b092e535bccf7aa3c6474bf",
+      "export_sha256": "dba3a801a98e5344ede3de9f2f83cb8117e3857c7b092e535bccf7aa3c6474bf",
+      "bytes": 2882,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/plugins/control/mobile_manipulation/main.py",
+      "destination": "plugins/control/mobile_manipulation/main.py",
+      "source_sha256": "2ce014341f107354858fcd9612e7b5b9b8532465b134e5fec1d3dc6851deac74",
+      "export_sha256": "2ce014341f107354858fcd9612e7b5b9b8532465b134e5fec1d3dc6851deac74",
+      "bytes": 20824,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/plugins/control/mobile_manipulation/plugin.json",
+      "destination": "plugins/control/mobile_manipulation/plugin.json",
+      "source_sha256": "e629afac30725cd89d5baea07d5d22cc89be183c88454e31d6a063f37af1e693",
+      "export_sha256": "e629afac30725cd89d5baea07d5d22cc89be183c88454e31d6a063f37af1e693",
+      "bytes": 6991,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/scripts/build_mobile_language_corpus.py",
+      "destination": "scripts/build_mobile_language_corpus.py",
+      "source_sha256": "f54083d202bf496ab623dda96415286fa846f1a7712d6d869a94313cc232f3ad",
+      "export_sha256": "f54083d202bf496ab623dda96415286fa846f1a7712d6d869a94313cc232f3ad",
+      "bytes": 2962,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/scripts/probe_mobile_tasks.py",
+      "destination": "scripts/probe_mobile_tasks.py",
+      "source_sha256": "00dcaafa8a78b3a01cfef9b3be60083bb852873953eff6fec3ce2ec3ea1e8055",
+      "export_sha256": "00dcaafa8a78b3a01cfef9b3be60083bb852873953eff6fec3ce2ec3ea1e8055",
+      "bytes": 4670,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/tests/test_mobile_control_plugin.py",
+      "destination": "tests/test_mobile_control_plugin.py",
+      "source_sha256": "6908bbc73ade223672b60edb3896c4b5de3b32ca5977a039290a2057a2731185",
+      "export_sha256": "6908bbc73ade223672b60edb3896c4b5de3b32ca5977a039290a2057a2731185",
+      "bytes": 10345,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/tests/test_mobile_tasks.py",
+      "destination": "tests/test_mobile_tasks.py",
+      "source_sha256": "5162aa8cbc43f0be1f67631caef1a06d6e45f052160a7b5259aeb54c03ddb7b6",
+      "export_sha256": "5162aa8cbc43f0be1f67631caef1a06d6e45f052160a7b5259aeb54c03ddb7b6",
+      "bytes": 14219,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/config/isaac_baseline.env",
+      "destination": "control/config/isaac_baseline.env",
+      "source_sha256": "49ed0e909835b16a666a6ff90c69e57cba81c2b25df9d6ac043215ef044234eb",
+      "export_sha256": "49ed0e909835b16a666a6ff90c69e57cba81c2b25df9d6ac043215ef044234eb",
+      "bytes": 791,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/config/isaac_known_pip_warnings.txt",
+      "destination": "control/config/isaac_known_pip_warnings.txt",
+      "source_sha256": "e647e11b93c3f4e499af210e3efe10dbbc4ed46120a8472cdea666b933a66beb",
+      "export_sha256": "e647e11b93c3f4e499af210e3efe10dbbc4ed46120a8472cdea666b933a66beb",
+      "bytes": 441,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/config/mobile_manipulation/arm_development_scene.json",
+      "destination": "control/config/mobile_manipulation/arm_development_scene.json",
+      "source_sha256": "adda0bd0fc12a419b2707baac2f9d5695d8fb7503ff4f6b872b0c25457279fc7",
+      "export_sha256": "ae9e55336075285375501ac4233533ee184255dfcc52129f397162a2626a3f37",
+      "bytes": 1171,
+      "adaptation": "publication_layout"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/config/mobile_manipulation/dependencies.lock.json",
+      "destination": "control/config/mobile_manipulation/dependencies.lock.json",
+      "source_sha256": "27702cc88b4fd63a81868a8be4fec595724085997465ae1a0f8bbe9744ae9a06",
+      "export_sha256": "27702cc88b4fd63a81868a8be4fec595724085997465ae1a0f8bbe9744ae9a06",
+      "bytes": 13928,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/config/mobile_manipulation/mobile_development_scene.json",
+      "destination": "control/config/mobile_manipulation/mobile_development_scene.json",
+      "source_sha256": "c28da1196a536687dbb4d6f2161a860a9a4c350006bd6807f5095bfa9352165c",
+      "export_sha256": "eb146dedec76beaf973b51328d2ac62340bb039db8db1c61b6c51246d784ac48",
+      "bytes": 1900,
+      "adaptation": "publication_layout"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/config/mobile_manipulation/robot_source.json",
+      "destination": "control/config/mobile_manipulation/robot_source.json",
+      "source_sha256": "aab698c2421739c4e8f9628527698e638fe73e318b1bee394d935e6f22027462",
+      "export_sha256": "aab698c2421739c4e8f9628527698e638fe73e318b1bee394d935e6f22027462",
+      "bytes": 1292,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/ASTRBOTEX_SYNC_20261001_RESULT_HISTORY.md",
+      "destination": "control/docs/ASTRBOTEX_SYNC_20261001_RESULT_HISTORY.md",
+      "source_sha256": "050901873c792f1d647695a762ccc42765f02b876d2ab46fb0b73cfa7f01705b",
+      "export_sha256": "f5c7f13d981f44849c6de802b1b2a3033bf70c2ae7dfeb5db4a46fc81f095077",
+      "bytes": 10040,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/AstrEX_workingTree/B11_高风险_ROS2执行插件与安全停止.md",
+      "destination": "control/docs/AstrEX_workingTree/B11_高风险_ROS2执行插件与安全停止.md",
+      "source_sha256": "4cded2e7ab987ab7ac977c3fc180db3b0fb090871cc37f94d374645fa9d32361",
+      "export_sha256": "4cded2e7ab987ab7ac977c3fc180db3b0fb090871cc37f94d374645fa9d32361",
+      "bytes": 4946,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/CARTPOLE_CONTROL_SERVICE.md",
+      "destination": "control/docs/CARTPOLE_CONTROL_SERVICE.md",
+      "source_sha256": "445623e7cf7a8193ea7cab821371558d861a893e3fe11e28f16427c248f86de2",
+      "export_sha256": "078caa101b5fb840161b757131fda642b210059ae0ee84f6675e82eee7a23ec0",
+      "bytes": 833,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/CARTPOLE_EXPERIMENT_HISTORY.md",
+      "destination": "control/docs/CARTPOLE_EXPERIMENT_HISTORY.md",
+      "source_sha256": "6b106cb4e225250d1051e289debc99788ab4791193a4dcdae7343f2f528c9f2c",
+      "export_sha256": "f9e84ae81a61b14dde50fcf65968862fdd26697ea5e77c8298b220c42057710b",
+      "bytes": 3082,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/ISAAC_51_DEV_BASELINE.md",
+      "destination": "control/docs/ISAAC_51_DEV_BASELINE.md",
+      "source_sha256": "a6c72b17e15bafd7a92862f7147ab1667731b217d00837c91db445a8e12c44b5",
+      "export_sha256": "438698d576b7263e2541e1f90ca16bec3b2f23a6de77d883c175585f00433ac7",
+      "bytes": 3240,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/ISAAC_HISTORICAL.md",
+      "destination": "control/docs/ISAAC_HISTORICAL.md",
+      "source_sha256": "f1470c012d137d9e0458e83c735a2de8224cffef5563d7e2bb8197de0ef10d3c",
+      "export_sha256": "d77a71d7dd081d7c6f92c407106f3fb84c68f4f437ed24e5427637f9e0db4942",
+      "bytes": 4574,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/ISAAC_ROS_CARTPOLE_RETIREMENT_20261003_RESULT.md",
+      "destination": "control/docs/ISAAC_ROS_CARTPOLE_RETIREMENT_20261003_RESULT.md",
+      "source_sha256": "0fa28eced938da236fc549a2d28cd0a7261ded547a3e2b3e516596370ed5b959",
+      "export_sha256": "fecef3652302d6c54ef463597ba669fb4dfe92e949fcfa3e3d47c15698023c1e",
+      "bytes": 8593,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/MOBILE_MANIPULATION_PYROKI_MVP_PLAN.md",
+      "destination": "control/docs/MOBILE_MANIPULATION_PYROKI_MVP_PLAN.md",
+      "source_sha256": "10bef89c59bb7dcb1b23f9e6934d3a9c94d6d323c004cfb41bbefc4f58a99cd5",
+      "export_sha256": "4492560fad36f740876aef02678d32933037267440f92613348da131f557a158",
+      "bytes": 118490,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/MVP_ENVIRONMENT_AUDIT_RESULT.md",
+      "destination": "control/docs/MVP_ENVIRONMENT_AUDIT_RESULT.md",
+      "source_sha256": "3a8d3bc72e6c4555f5cc004e5a8454a04517a5519e4eda004c1660f696b4e699",
+      "export_sha256": "3e45b683e0541f32a1bf9518af8521ff3485f535dce635b7abe90f080b1ad751",
+      "bytes": 16753,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/MVP_FIRST_STAGE_RESULT.md",
+      "destination": "control/docs/MVP_FIRST_STAGE_RESULT.md",
+      "source_sha256": "9fde3847d2a788754013f80147fc2e648c3ba911a63fe985bb87f1f244dcb7c3",
+      "export_sha256": "cae5750217e7b68362d71ff5c0469de63eea0ffc1637e2b258a5f2ad7d9340e4",
+      "bytes": 19429,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/MVP_LANGUAGE_FIRST_STAGE_RESULT.md",
+      "destination": "control/docs/MVP_LANGUAGE_FIRST_STAGE_RESULT.md",
+      "source_sha256": "5f132d4404eeb24709de7c7236fff651df525a5d8380e4021ed390584224469f",
+      "export_sha256": "4175610caa5382f8419fd22e2a5a1aaac07888ebd0d09fc70527e048e9a2baa5",
+      "bytes": 14183,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/MVP_LANGUAGE_LABEL_REVIEW.md",
+      "destination": "control/docs/MVP_LANGUAGE_LABEL_REVIEW.md",
+      "source_sha256": "9126f4770955ec9b919add04e31a7f0284743f2d10e7688e1811b1763ca870f0",
+      "export_sha256": "9126f4770955ec9b919add04e31a7f0284743f2d10e7688e1811b1763ca870f0",
+      "bytes": 4974,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/MVP_SENSOR_FIRST_STAGE_RESULT.md",
+      "destination": "control/docs/MVP_SENSOR_FIRST_STAGE_RESULT.md",
+      "source_sha256": "6c6b740ba63ff20b019d127da08cf2fa3986d7a0aab5245388d4bb571abb5b53",
+      "export_sha256": "39dfa6dabe77bdc3ffb2c5befa6dcb0e812306fbc6b4d09b5294b7bb1c04477e",
+      "bytes": 23031,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/env/legacy/README.md",
+      "destination": "control/docs/env/legacy/README.md",
+      "source_sha256": "4078871b0cffbbe1aa9a7866652c042a54fd5d19c644bbca8c79eb16751e8f76",
+      "export_sha256": "cf4c9d8e91dbdc3598e493ff379ed1eb93f0df9363630b3a189b334b62c897c0",
+      "bytes": 3263,
+      "adaptation": "documentation_links"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/env/legacy/isaaclab60_6010test_final_conda_export.yml",
+      "destination": "control/docs/env/legacy/isaaclab60_6010test_final_conda_export.yml",
+      "source_sha256": "458b455b3cc75112c412ae4bac20ed86f4e848f5aa961bf9974c76324e80f095",
+      "export_sha256": "458b455b3cc75112c412ae4bac20ed86f4e848f5aa961bf9974c76324e80f095",
+      "bytes": 7969,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/env/legacy/isaaclab60_6010test_final_freeze.txt",
+      "destination": "control/docs/env/legacy/isaaclab60_6010test_final_freeze.txt",
+      "source_sha256": "40d3906727a33c3b815fc6db8946135ce60cd93977d80488b6ab80226cc61f1c",
+      "export_sha256": "40d3906727a33c3b815fc6db8946135ce60cd93977d80488b6ab80226cc61f1c",
+      "bytes": 6494,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/env/legacy/isaaclab60_final_conda_export.yml",
+      "destination": "control/docs/env/legacy/isaaclab60_final_conda_export.yml",
+      "source_sha256": "1caca7aef613b8315e94d66e7547f9385b467b74436622f176b81755b94d206f",
+      "export_sha256": "1caca7aef613b8315e94d66e7547f9385b467b74436622f176b81755b94d206f",
+      "bytes": 8759,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/docs/env/legacy/isaaclab60_final_freeze.txt",
+      "destination": "control/docs/env/legacy/isaaclab60_final_freeze.txt",
+      "source_sha256": "a5e65288c7072de18278811eb495639ba2dad06f281267656ba2e4d8e51f5bd7",
+      "export_sha256": "a5e65288c7072de18278811eb495639ba2dad06f281267656ba2e4d8e51f5bd7",
+      "bytes": 7301,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/.gitkeep",
+      "destination": "control/ros2_ws/src/.gitkeep",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "export_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/.pytest_cache/.gitignore",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/.pytest_cache/.gitignore",
+      "source_sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd",
+      "export_sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd",
+      "bytes": 37,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/.pytest_cache/CACHEDIR.TAG",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/.pytest_cache/CACHEDIR.TAG",
+      "source_sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4",
+      "export_sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4",
+      "bytes": 191,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/.pytest_cache/README.md",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/.pytest_cache/README.md",
+      "source_sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad",
+      "export_sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad",
+      "bytes": 302,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/.pytest_cache/v/cache/nodeids",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/.pytest_cache/v/cache/nodeids",
+      "source_sha256": "811463707a45348e42b8457f8aad00c41f9d2ddc27e99c101b4bf8a49b6e2ebb",
+      "export_sha256": "811463707a45348e42b8457f8aad00c41f9d2ddc27e99c101b4bf8a49b6e2ebb",
+      "bytes": 1561,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/.pytest_cache/v/cache/stepwise",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/.pytest_cache/v/cache/stepwise",
+      "source_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "export_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/INTERFACE.md",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/INTERFACE.md",
+      "source_sha256": "e9554734d7551d0a37ad3a95f531a924e3c806bdaa2bb81bb813b5edb0f33fa6",
+      "export_sha256": "e9554734d7551d0a37ad3a95f531a924e3c806bdaa2bb81bb813b5edb0f33fa6",
+      "bytes": 9976,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/__init__.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/__init__.py",
+      "source_sha256": "64b3947e402d1f0278d370bbc8a49236d20189a272e2caab772bf2bc05d9c0fe",
+      "export_sha256": "64b3947e402d1f0278d370bbc8a49236d20189a272e2caab772bf2bc05d9c0fe",
+      "bytes": 82,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/client.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/client.py",
+      "source_sha256": "f49876c130e9b25d116c3b8e56c6efadfa36ecd8e04897fbd088be6d17eb5be3",
+      "export_sha256": "f49876c130e9b25d116c3b8e56c6efadfa36ecd8e04897fbd088be6d17eb5be3",
+      "bytes": 4075,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/core.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/core.py",
+      "source_sha256": "864bbf7957c3ca862413667267251103e904d5a8bb527ab7633a12a819d2d22f",
+      "export_sha256": "864bbf7957c3ca862413667267251103e904d5a8bb527ab7633a12a819d2d22f",
+      "bytes": 23549,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/gateway.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/gateway.py",
+      "source_sha256": "386f23bac39d62586a5dd79a5735da0885886c52c8fdb55ad580e9514bf4835d",
+      "export_sha256": "386f23bac39d62586a5dd79a5735da0885886c52c8fdb55ad580e9514bf4835d",
+      "bytes": 24376,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/isaac_gate.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/isaac_gate.py",
+      "source_sha256": "9c100e00211a29641dbff66ec2fd8355c9c6c60722ed2d2b5008f05c56257cc7",
+      "export_sha256": "9c100e00211a29641dbff66ec2fd8355c9c6c60722ed2d2b5008f05c56257cc7",
+      "bytes": 16419,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/moveit_adapter.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/moveit_adapter.py",
+      "source_sha256": "6964479988e7f165ecbb6062eac3c229e9818899f2093129becb884b2cfd5fe8",
+      "export_sha256": "6964479988e7f165ecbb6062eac3c229e9818899f2093129becb884b2cfd5fe8",
+      "bytes": 13655,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/test_faults.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/test_faults.py",
+      "source_sha256": "86e5d987b290140f887992e451b547e32987d66f6b73d02c74f1c4f196c7c1c9",
+      "export_sha256": "86e5d987b290140f887992e451b547e32987d66f6b73d02c74f1c4f196c7c1c9",
+      "bytes": 9401,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/config/boundary_map.pgm",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/config/boundary_map.pgm",
+      "source_sha256": "2a00ab51213259efca5cf0781a59ed9bb26ece3e2e9382de8643fc1da9ddfc83",
+      "export_sha256": "2a00ab51213259efca5cf0781a59ed9bb26ece3e2e9382de8643fc1da9ddfc83",
+      "bytes": 19270,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/config/boundary_map.yaml",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/config/boundary_map.yaml",
+      "source_sha256": "ec6c59a93f459cc655a52b0350831a1d58cb064d7dd103cb151a6c979fc3fe52",
+      "export_sha256": "ec6c59a93f459cc655a52b0350831a1d58cb064d7dd103cb151a6c979fc3fe52",
+      "bytes": 216,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/config/nav2.yaml",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/config/nav2.yaml",
+      "source_sha256": "56094c9fa87dcbd2d54b00b4d803ec94a4f99715c74d344160c817dba807799b",
+      "export_sha256": "56094c9fa87dcbd2d54b00b4d803ec94a4f99715c74d344160c817dba807799b",
+      "bytes": 5612,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/config/navigation_bt.xml",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/config/navigation_bt.xml",
+      "source_sha256": "9768778de7605dfd0f35f993eba480bee6ffb3cc22db91bb2d8cdce5eea4aa19",
+      "export_sha256": "9768778de7605dfd0f35f993eba480bee6ffb3cc22db91bb2d8cdce5eea4aa19",
+      "bytes": 501,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/launch/gateway.launch.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/launch/gateway.launch.py",
+      "source_sha256": "8fe4a5c139e7ba7e2fd290fd9c4b7b06045f494bc5e1bc76211d70b90e7f9483",
+      "export_sha256": "8fe4a5c139e7ba7e2fd290fd9c4b7b06045f494bc5e1bc76211d70b90e7f9483",
+      "bytes": 592,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/launch/navigation.launch.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/launch/navigation.launch.py",
+      "source_sha256": "55777285f950d562754ce5a42b9d0f7afe4295bfbdd27a66ced2cc146680cc99",
+      "export_sha256": "55777285f950d562754ce5a42b9d0f7afe4295bfbdd27a66ced2cc146680cc99",
+      "bytes": 1882,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/package.xml",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/package.xml",
+      "source_sha256": "1b4f07aae45561f52ac94207a94ceef496e55468085132a1c901cb81d8aa39b9",
+      "export_sha256": "1b4f07aae45561f52ac94207a94ceef496e55468085132a1c901cb81d8aa39b9",
+      "bytes": 1429,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/resource/astrex_mobile_manipulation",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/resource/astrex_mobile_manipulation",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "export_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/setup.cfg",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/setup.cfg",
+      "source_sha256": "98227ceffaf28c2c1a3e3a46085bc740885c976fba6318631e444cae6f0781eb",
+      "export_sha256": "98227ceffaf28c2c1a3e3a46085bc740885c976fba6318631e444cae6f0781eb",
+      "bytes": 121,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/setup.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/setup.py",
+      "source_sha256": "f68e50860b6df1d80a2a976a11ffd00e15438e3e0b989820ba915ed46f87f40f",
+      "export_sha256": "f68e50860b6df1d80a2a976a11ffd00e15438e3e0b989820ba915ed46f87f40f",
+      "bytes": 743,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/test/test_gate.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/test/test_gate.py",
+      "source_sha256": "bd99b38839212a52f9b6302a2f30e2db474a0ba9a97cb87eeccc00473e72bddc",
+      "export_sha256": "bd99b38839212a52f9b6302a2f30e2db474a0ba9a97cb87eeccc00473e72bddc",
+      "bytes": 11937,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation/test/test_local_faults.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation/test/test_local_faults.py",
+      "source_sha256": "c51e5a0477d0e05f0be18aa82b076b7372de90a8501bcf859fcbc2053010cbe8",
+      "export_sha256": "c51e5a0477d0e05f0be18aa82b076b7372de90a8501bcf859fcbc2053010cbe8",
+      "bytes": 4193,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation_moveit_config/CMakeLists.txt",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation_moveit_config/CMakeLists.txt",
+      "source_sha256": "abd9fc85d59d071a787a603d5c00e85556390dc7517442197d3b482151e42a1e",
+      "export_sha256": "abd9fc85d59d071a787a603d5c00e85556390dc7517442197d3b482151e42a1e",
+      "bytes": 197,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation_moveit_config/launch/arm.launch.py",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation_moveit_config/launch/arm.launch.py",
+      "source_sha256": "403cc7203304c3514fc7b60e5e5cbaca93bd78a7967ef183b62d581c3c4251a0",
+      "export_sha256": "403cc7203304c3514fc7b60e5e5cbaca93bd78a7967ef183b62d581c3c4251a0",
+      "bytes": 1793,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/ros2_ws/src/astrex_mobile_manipulation_moveit_config/package.xml",
+      "destination": "control/ros2_ws/src/astrex_mobile_manipulation_moveit_config/package.xml",
+      "source_sha256": "7325dcbe8580e175dc7203c938805df4ac72d4784e5e0154d793e80f1997535e",
+      "export_sha256": "7325dcbe8580e175dc7203c938805df4ac72d4784e5e0154d793e80f1997535e",
+      "bytes": 610,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/build_mobile_manipulation.sh",
+      "destination": "control/scripts/build_mobile_manipulation.sh",
+      "source_sha256": "d771b3476f17e0e634623473672f6cb104938490ad3bf3d1503af868398f4ce2",
+      "export_sha256": "d771b3476f17e0e634623473672f6cb104938490ad3bf3d1503af868398f4ce2",
+      "bytes": 348,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/capture_mobile_sensors.py",
+      "destination": "control/scripts/capture_mobile_sensors.py",
+      "source_sha256": "b1224b14daa646e43b3febb3e7e23ee149ab34b52b9225c1237212d51c76eedb",
+      "export_sha256": "b1224b14daa646e43b3febb3e7e23ee149ab34b52b9225c1237212d51c76eedb",
+      "bytes": 11492,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/check_isaac_env.sh",
+      "destination": "control/scripts/check_isaac_env.sh",
+      "source_sha256": "3a6682660994656fdefcff6990aa0dad1a18b79328c21e3901a28ff225030755",
+      "export_sha256": "3a6682660994656fdefcff6990aa0dad1a18b79328c21e3901a28ff225030755",
+      "bytes": 169,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/dev_env.sh",
+      "destination": "control/scripts/dev_env.sh",
+      "source_sha256": "96ef1e4f2f63f387cb2b79c505504ffa677d48f4f97590379b103c173ac02299",
+      "export_sha256": "87bb99290be63bfb483c709cd55cbb69ba6cb82b14035788de6888e17c6b14a9",
+      "bytes": 306,
+      "adaptation": "publication_layout"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/isaac_common.sh",
+      "destination": "control/scripts/lib/isaac_common.sh",
+      "source_sha256": "a71cab375006c0475eb085a59989b26b27b0e777a6ef0ccf3328242eafcd288c",
+      "export_sha256": "a71cab375006c0475eb085a59989b26b27b0e777a6ef0ccf3328242eafcd288c",
+      "bytes": 1064,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/isaac_entry.py",
+      "destination": "control/scripts/lib/isaac_entry.py",
+      "source_sha256": "78429311ac239be729cbf03d86bae93d985ea1195fbc4da9e7118ad14891d548",
+      "export_sha256": "78429311ac239be729cbf03d86bae93d985ea1195fbc4da9e7118ad14891d548",
+      "bytes": 6082,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/mobile_arm_checks.py",
+      "destination": "control/scripts/lib/mobile_arm_checks.py",
+      "source_sha256": "3d740a2323c1e7119b19a5d2b35d54273cb2b7913db2c1ec918e1184b19b2b4d",
+      "export_sha256": "3d740a2323c1e7119b19a5d2b35d54273cb2b7913db2c1ec918e1184b19b2b4d",
+      "bytes": 32480,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/mobile_ex_runtime.py",
+      "destination": "control/scripts/lib/mobile_ex_runtime.py",
+      "source_sha256": "9be1f434ad1909c7c1d9a150666932a204b5b70b1aeb8f2fe62ef80a6a0eac8f",
+      "export_sha256": "7d37eb7761758af3297e484e612b4efe0e83c03b91850b0cfb7cd2f2a0f58ed6",
+      "bytes": 12158,
+      "adaptation": "publication_layout"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/mobile_navigation_checks.py",
+      "destination": "control/scripts/lib/mobile_navigation_checks.py",
+      "source_sha256": "386309ec9257b384b11dd0bad7ff15b2f53ada24e7ef6abc64f068af9178dff5",
+      "export_sha256": "386309ec9257b384b11dd0bad7ff15b2f53ada24e7ef6abc64f068af9178dff5",
+      "bytes": 21006,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/mobile_recipes.py",
+      "destination": "control/scripts/lib/mobile_recipes.py",
+      "source_sha256": "6d75114fc8ef967abb0859947d2aa9a179aa52698897891aa0958371c1d954f8",
+      "export_sha256": "6d75114fc8ef967abb0859947d2aa9a179aa52698897891aa0958371c1d954f8",
+      "bytes": 6510,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/mobile_trial_evidence.py",
+      "destination": "control/scripts/lib/mobile_trial_evidence.py",
+      "source_sha256": "27b38b6fe6779b1d9e1c306ab8923dd6a0a04bfe877b0778308f54e256f71acc",
+      "export_sha256": "27b38b6fe6779b1d9e1c306ab8923dd6a0a04bfe877b0778308f54e256f71acc",
+      "bytes": 7999,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/mobile_manipulation_env.sh",
+      "destination": "control/scripts/mobile_manipulation_env.sh",
+      "source_sha256": "4d9055cb6fbed026d02271db5191633871792b591b5c3ac300d8c1653360872f",
+      "export_sha256": "4d9055cb6fbed026d02271db5191633871792b591b5c3ac300d8c1653360872f",
+      "bytes": 1228,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/prepare_mobile_robot.py",
+      "destination": "control/scripts/prepare_mobile_robot.py",
+      "source_sha256": "aa090f9aaff54a97c12ab5d776e250b1c00e8cd87e21f232be98f5d295399b50",
+      "export_sha256": "aa090f9aaff54a97c12ab5d776e250b1c00e8cd87e21f232be98f5d295399b50",
+      "bytes": 8809,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/run_mobile_manipulation_trials.py",
+      "destination": "control/scripts/run_mobile_manipulation_trials.py",
+      "source_sha256": "c63e3f31b326f838de7936ba03f36d73e657fab37c2e9350781f73fb7802090e",
+      "export_sha256": "1d2f0f99b1976dd92710705f075567e88f6f4b75458011694e780a6efbe23221",
+      "bytes": 13622,
+      "adaptation": "publication_layout"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/scripts/start_mobile_manipulation_sim.sh",
+      "destination": "control/scripts/start_mobile_manipulation_sim.sh",
+      "source_sha256": "d45309b15badd5018d9a9d14f7d8c72a94bd757b64ca1b0d0d14039f974b352b",
+      "export_sha256": "d45309b15badd5018d9a9d14f7d8c72a94bd757b64ca1b0d0d14039f974b352b",
+      "bytes": 600,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/sim/mobile_manipulation/__init__.py",
+      "destination": "control/sim/mobile_manipulation/__init__.py",
+      "source_sha256": "7b903a40f6332261bc72651af4384d42d720276ef987a199dab181f85cfaad91",
+      "export_sha256": "7b903a40f6332261bc72651af4384d42d720276ef987a199dab181f85cfaad91",
+      "bytes": 66,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/sim/mobile_manipulation/evaluate.py",
+      "destination": "control/sim/mobile_manipulation/evaluate.py",
+      "source_sha256": "fee0b8ea30e5816bc951dec24eb6fa68d1a23dd33f5c8477d0bb4b302f67c1a0",
+      "export_sha256": "fee0b8ea30e5816bc951dec24eb6fa68d1a23dd33f5c8477d0bb4b302f67c1a0",
+      "bytes": 25358,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/sim/mobile_manipulation/robot.py",
+      "destination": "control/sim/mobile_manipulation/robot.py",
+      "source_sha256": "5aabd0c478a86d659ae9dedbbe11b5d0d225b090f0929582d217ef43cfe75b77",
+      "export_sha256": "5aabd0c478a86d659ae9dedbbe11b5d0d225b090f0929582d217ef43cfe75b77",
+      "bytes": 7743,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/sim/mobile_manipulation/scene.py",
+      "destination": "control/sim/mobile_manipulation/scene.py",
+      "source_sha256": "fc93a5c1f6d9d0a403800b991d504c4fbdae767bdf42777b97ac9c0f08e8c960",
+      "export_sha256": "fc93a5c1f6d9d0a403800b991d504c4fbdae767bdf42777b97ac9c0f08e8c960",
+      "bytes": 11719,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/sim/mobile_manipulation/spec.py",
+      "destination": "control/sim/mobile_manipulation/spec.py",
+      "source_sha256": "6a76cd7d1ec991555644001e2c63a80c3c5a1374c3ae8f8d9c8d0c009a3e2db5",
+      "export_sha256": "6a76cd7d1ec991555644001e2c63a80c3c5a1374c3ae8f8d9c8d0c009a3e2db5",
+      "bytes": 3533,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/sim/scripts/ros_domain_check.py",
+      "destination": "control/sim/scripts/ros_domain_check.py",
+      "source_sha256": "43384f197e6fabb7373c74eee85adfc21fb7cb01ca24b19785316f5f6e1aa91e",
+      "export_sha256": "43384f197e6fabb7373c74eee85adfc21fb7cb01ca24b19785316f5f6e1aa91e",
+      "bytes": 7084,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/sim/scripts/run_mobile_manipulation.py",
+      "destination": "control/sim/scripts/run_mobile_manipulation.py",
+      "source_sha256": "ab97659078e72eaf3e2fca8a31b173e9dc2f55772f50cec4f285cf0bd410c4f4",
+      "export_sha256": "ab97659078e72eaf3e2fca8a31b173e9dc2f55772f50cec4f285cf0bd410c4f4",
+      "bytes": 13205,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/tests/isaac/test_mobile_navigation_evidence.py",
+      "destination": "control/tests/isaac/test_mobile_navigation_evidence.py",
+      "source_sha256": "8bb5f84501db5db9f84179d97a4171f4a884d18dd3d0094844f0cf589d74aa0c",
+      "export_sha256": "8bb5f84501db5db9f84179d97a4171f4a884d18dd3d0094844f0cf589d74aa0c",
+      "bytes": 11716,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/tests/isaac/test_mobile_sensor_contracts.py",
+      "destination": "control/tests/isaac/test_mobile_sensor_contracts.py",
+      "source_sha256": "14edeb6af1bc19f53e2e9d421ca52efcb83a227746a71caf0ae8983b89702535",
+      "export_sha256": "14edeb6af1bc19f53e2e9d421ca52efcb83a227746a71caf0ae8983b89702535",
+      "bytes": 2412,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/tests/isaac/test_mobile_trial_evidence.py",
+      "destination": "control/tests/isaac/test_mobile_trial_evidence.py",
+      "source_sha256": "9dad8ad4111852b7a317ed3f2cf66cfb0086c44d0eb0a94d778e32802e65c7f7",
+      "export_sha256": "9dad8ad4111852b7a317ed3f2cf66cfb0086c44d0eb0a94d778e32802e65c7f7",
+      "bytes": 10354,
+      "adaptation": "unchanged"
+    },
+    {
+      "source": "/home/sssxy/Projects/AstrEX_project_main/tests/isaac/test_ros_domain_preflight.py",
+      "destination": "control/tests/isaac/test_ros_domain_preflight.py",
+      "source_sha256": "4a7c616ff7087128832d18c31df708fec77ac51e083297b9edfef99616d2747f",
+      "export_sha256": "4a7c616ff7087128832d18c31df708fec77ac51e083297b9edfef99616d2747f",
+      "bytes": 7421,
+      "adaptation": "unchanged"
+    }
+  ]
+}

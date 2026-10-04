@@ -1,0 +1,5 @@
+[
+  {"id":"move","goal":"Move safely.","expected_kinds":["start"],"meters":1},
+  {"id":"wait","goal":"Wait without moving until a new instruction arrives.","expected_kinds":["wait"],"meters":1},
+  {"id":"replan","goal":"Ask AEB for new goal parameters before moving.","expected_kinds":["request_replan"],"meters":1}
+]

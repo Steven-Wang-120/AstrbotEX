@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/bin/bash",
+    "--noprofile",
+    "--norc",
+    "-c",
+    "source scripts/lib/isaac_common.sh\nexec python -B /tmp/astrex_health_diagnostic.py check"
+  ],
+  "status": "timeout",
+  "returncode": -15,
+  "elapsed_seconds": 95.01594371600004,
+  "note": "original health logic with temporary progress prints and a 30s traceback diagnostic; repository code not instrumented"
+}

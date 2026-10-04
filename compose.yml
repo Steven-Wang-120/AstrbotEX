@@ -33,7 +33,7 @@ services:
     network_mode: host
     environment:
       - TZ=${TZ:-Asia/Shanghai}
-      - ASTRBOTEX_HOST=0.0.0.0
+      - ASTRBOTEX_HOST=127.0.0.1
       - ASTRBOTEX_PORT=8765
       - ASTRBOTEX_TICK_HZ=${ASTRBOTEX_TICK_HZ:-20}
       - ASTRBOTEX_DATA_DIR=/app/data

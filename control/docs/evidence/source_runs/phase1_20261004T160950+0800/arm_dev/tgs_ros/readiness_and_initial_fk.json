@@ -1,0 +1,129 @@
+{
+  "scope": "READ_ONLY_NO_MOTION",
+  "gateway": {
+    "action_uuid": null,
+    "execution_session": "bc411302f8a040298acfb8d02d96db0d",
+    "moveit_inflight": false,
+    "phase": "idle",
+    "raw_state_age": 0.17683588399995642,
+    "ready_for_command": true,
+    "robot_config_hash": "4bf0a4938cbb6cbb3c69ca2895097c51e2a9eed57d6881fdb9284f83edffe999",
+    "schema": "astrex.mm.v1",
+    "state_sequence": 961
+  },
+  "controllers": {
+    "gripper_controller": "active",
+    "arm_controller": "active",
+    "joint_state_broadcaster": "active"
+  },
+  "moveit": {
+    "allow_trajectory_execution": false,
+    "use_sim_time": true
+  },
+  "initial_fk_tcp": {
+    "source_stamp": 36.87500192318112,
+    "state_stamp": 36.875001923,
+    "stamp_delta": 1.8111734334524954e-10,
+    "sim_session": "e435c3dbae8d42998d279258f8213de8",
+    "truth_seq": 738,
+    "q": {
+      "joint1": 1.2834916560677812e-05,
+      "joint2": -1.0004440546035767,
+      "joint3": -0.9949943423271179,
+      "joint4": 0.00021256934269331396,
+      "joint5": 1.7021368741989136,
+      "joint6": -2.6113743842870463e-06,
+      "drive_joint": 0.0003917548747267574,
+      "left_inner_knuckle_joint": 0.00042967265471816063,
+      "right_inner_knuckle_joint": 0.00043498550076037645,
+      "right_outer_knuckle_joint": 0.0004430463013704866,
+      "left_finger_joint": 0.0004189547908026725,
+      "right_finger_joint": 0.00046669255243614316
+    },
+    "moveit_fk": {
+      "position": [
+        0.22009729414476345,
+        6.163972477142083e-05,
+        0.8918267754351037
+      ],
+      "orientation": [
+        0.989266029721471,
+        3.6807376875927644e-05,
+        0.14612566927265486,
+        -9.931743906754816e-05
+      ]
+    },
+    "isaac_tcp": {
+      "position": [
+        0.22009738363080544,
+        6.33457883851353e-05,
+        0.8918270494658296
+      ],
+      "orientation": [
+        -0.989266037940979,
+        -3.719585947692394e-05,
+        -0.1461256891489029,
+        0.00010311894584447145
+      ],
+      "frame_id": "world"
+    },
+    "position_error_m": 1.7302467004687868e-06,
+    "orientation_error_rad": 0.0,
+    "pass": true
+  },
+  "final_gate": {
+    "active": false,
+    "base_odom_source": null,
+    "base_stationary_seconds": 0.0,
+    "base_velocity": [
+      0.0,
+      0.0
+    ],
+    "command_id": null,
+    "drive_effort_limits": {
+      "drive_joint": 2.0,
+      "joint1": 50.0,
+      "joint2": 50.0,
+      "joint3": 32.0,
+      "joint4": 32.0,
+      "joint5": 32.0,
+      "joint6": 20.0
+    },
+    "drive_velocity_limits": {
+      "drive_joint": 0.3,
+      "joint1": 2.14,
+      "joint2": 2.14,
+      "joint3": 2.14,
+      "joint4": 2.14,
+      "joint5": 2.14,
+      "joint6": 2.14
+    },
+    "effort_measurement_semantics": "drive_output_unmeasured_configuration_limits_read_back",
+    "error": null,
+    "ex_session": null,
+    "execution_epoch": null,
+    "execution_session": null,
+    "goal_revision": null,
+    "isaac_session": "93d63da863b047478672029f619687e2",
+    "reason": "INITIAL_HOLD",
+    "robot_config_hash": "4bf0a4938cbb6cbb3c69ca2895097c51e2a9eed57d6881fdb9284f83edffe999",
+    "schema": "astrex.mm.v1",
+    "source_stamp": 36.89166859071702,
+    "stop_count": 0
+  },
+  "raw_command": {
+    "source_stamp": 36.883335257,
+    "names": [
+      "joint1",
+      "joint2",
+      "joint3",
+      "joint4",
+      "joint5",
+      "joint6",
+      "drive_joint"
+    ]
+  },
+  "raw_state_stamp": 36.891668591,
+  "motion_submitted": false,
+  "passed": true
+}

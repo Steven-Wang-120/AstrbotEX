@@ -1,0 +1,34 @@
+health line 20: errors = []
+health line 21: lab = Path(setting('ISAAC_LAB_ROOT'))
+health line 22: expected_prefix = Path(setting('CONDA_ROOT')) / 'envs' / setting('ISAAC_CONDA_ENV')
+health line 23: result = {'python': platform.python_version(), 'executable': sys.executable,
+health line 25: if Path(sys.prefix) != expected_prefix:
+health line 27: if '.'.join(platform.python_version_tuple()[:2]) != setting('PYTHON_VERSION'):
+health line 29: for package, key in [('isaacsim', 'ISAAC_SIM_VERSION'), ('torch', 'TORCH_VERSION'),
+health line 39: for field, args in [('lab_commit', ['rev-parse', 'HEAD']),
+CHECK_COMMAND ['git', '--no-optional-locks', '-C', '/home/sssxy/Projects/IsaacLab-2.3.2-test', 'rev-parse', 'HEAD']
+CHECK_COMMAND ['git', '--no-optional-locks', '-C', '/home/sssxy/Projects/IsaacLab-2.3.2-test', 'rev-parse', 'v2.3.2^{commit}']
+CHECK_COMMAND ['git', '--no-optional-locks', '-C', '/home/sssxy/Projects/IsaacLab-2.3.2-test', 'status', '--porcelain']
+health line 46: if result['lab_commit'] != setting('ISAAC_LAB_COMMIT') or result['lab_tag_commit'] != setting('ISAAC_LAB_COMMIT'):
+health line 48: if any(not row.startswith('??') for row in result['lab_status'].splitlines()):
+health line 50: if result['lab_status']:
+health line 53: try:
+health line 62: try:
+Timeout (0:00:30)!
+Thread 0x00007f04d9874740 (most recent call first):
+  File "<frozen importlib._bootstrap>", line 241 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1233 in create_module
+  File "<frozen importlib._bootstrap>", line 573 in module_from_spec
+  File "<frozen importlib._bootstrap>", line 676 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1147 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1176 in _find_and_load
+  File "/home/sssxy/miniconda3/envs/isaaclab232_test/lib/python3.11/site-packages/torch/__init__.py", line 409 in <module>
+  File "<frozen importlib._bootstrap>", line 241 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 940 in exec_module
+  File "<frozen importlib._bootstrap>", line 690 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1147 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1176 in _find_and_load
+  File "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/isaac_entry.py", line 63 in health
+  File "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/isaac_entry.py", line 108 in main
+  File "/home/sssxy/Projects/AstrEX_project_main/scripts/lib/isaac_entry.py", line 119 in <module>
+  File "/tmp/astrex_health_diagnostic.py", line 20 in <module>

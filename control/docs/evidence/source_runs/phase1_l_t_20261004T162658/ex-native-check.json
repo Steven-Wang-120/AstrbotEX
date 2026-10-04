@@ -1,0 +1,8 @@
+{
+  "command": "source scripts/mobile_manipulation_env.sh; /usr/bin/python3 MobileEXRuntime.start(wait_gateway=False); close()",
+  "runtime": "running",
+  "environment": "ros2/idle/health ok",
+  "goal_submissions": 0,
+  "motion_commands": 0,
+  "result": "PASS"
+}

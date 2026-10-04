@@ -17,7 +17,7 @@ FIXTURE = json.loads((Path(__file__).parent / "fixtures/decision/jev/normal.json
 class BackendContractTests(unittest.TestCase):
     def test_static_registry_no_dynamic_import_or_plugin_lookup(self):
         from astrbot_ex.core.decision.backends.mock import MockBackend
-        self.assertEqual(backend_names(), ("mock", "jev"))
+        self.assertEqual(backend_names(), ("mock", "jev", "laya"))
         self.assertIs(BACKEND_FACTORIES["mock"], MockBackend)
         mock = create_backend("mock")
         self.assertTrue(mock.execution_allowed)

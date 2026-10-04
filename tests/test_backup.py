@@ -137,19 +137,22 @@ class SnapshotHttpApiTest(unittest.TestCase):
             thread = threading.Thread(target=server.serve_forever, daemon=True)
             thread.start()
             base_url = f"http://127.0.0.1:{server.server_address[1]}"
+            authorization = "Bearer " + server.decision_management.credential_path.read_text().strip()
             perception_path = Path(temp_dir) / "profiles" / "default" / "perception.json"
             try:
                 create_request = urllib.request.Request(
                     f"{base_url}/api/v1/ex/backups",
                     data=b"{}",
-                    headers={"Content-Type": "application/json"},
+                    headers={"Content-Type": "application/json", "Authorization": authorization},
                     method="POST",
                 )
                 with urllib.request.urlopen(create_request, timeout=5) as response:
                     created = json.loads(response.read())
                 self.assertTrue(created["ok"])
 
-                with urllib.request.urlopen(f"{base_url}{created['backup']['download_url']}", timeout=5) as response:
+                download_request = urllib.request.Request(f"{base_url}{created['backup']['download_url']}",
+                                                          headers={"Authorization": authorization})
+                with urllib.request.urlopen(download_request, timeout=5) as response:
                     archive_bytes = response.read()
                     self.assertEqual(response.headers.get_content_type(), "application/zip")
                 with zipfile.ZipFile(io.BytesIO(archive_bytes), "r") as archive:
@@ -168,7 +171,7 @@ class SnapshotHttpApiTest(unittest.TestCase):
                 upload_request = urllib.request.Request(
                     f"{base_url}/api/v1/ex/backups/upload",
                     data=body,
-                    headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+                    headers={"Content-Type": f"multipart/form-data; boundary={boundary}", "Authorization": authorization},
                     method="POST",
                 )
                 with urllib.request.urlopen(upload_request, timeout=10) as response:
