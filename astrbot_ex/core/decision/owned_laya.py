@@ -54,11 +54,27 @@ class Deployment:
             raise OwnedLayaError("invalid_deployment")
         if self.device not in {"cuda", "cpu"}:
             raise OwnedLayaError("invalid_deployment")
-        for value in (self.startup_timeout_s, self.terminate_timeout_s, self.kill_timeout_s):
+        # Cold checkpoint loading can wait on storage. This trusted deployment
+        # budget is separate from the bounded inference and process-stop budgets.
+        if type(self.startup_timeout_s) not in (int, float) or not 0 < self.startup_timeout_s <= 3600:
+            raise OwnedLayaError("invalid_deployment")
+        for value in (self.terminate_timeout_s, self.kill_timeout_s):
             if type(value) not in (int, float) or not 0 < value <= 300:
                 raise OwnedLayaError("invalid_deployment")
-        if type(self.warmup_deadline_ms) is not int or not 1 <= self.warmup_deadline_ms <= 60000:
+        if type(self.warmup_deadline_ms) is not int or not 1 <= self.warmup_deadline_ms <= 3600000:
             raise OwnedLayaError("invalid_deployment")
+
+
+class _ColdWarmupBackend(LayaBackend):
+    """Trusted startup-only wait; public/hot LayaConfig limits stay unchanged."""
+    def __init__(self, config, budget_ms):
+        super().__init__(config)
+        self._cold_budget_ms=budget_ms
+
+    def _begin(self, started, *, probe=False):
+        call=super()._begin(started,probe=probe)
+        call.deadline=started+self._cold_budget_ms/1000.
+        return call
 
 
 def fixed_warmup_snapshot():
@@ -353,7 +369,10 @@ class OwnedLayaService:
                 probe_backend.close()
                 probe_backend = None
                 if warmup:
-                    cold = self._probe_factory(replace(config, deadline_ms=self.deployment.warmup_deadline_ms))
+                    warm_config=replace(config, deadline_ms=min(60000,self.deployment.warmup_deadline_ms))
+                    cold = (_ColdWarmupBackend(warm_config,self.deployment.warmup_deadline_ms)
+                            if self._probe_factory is LayaBackend and self.deployment.warmup_deadline_ms>60000
+                            else self._probe_factory(warm_config))
                     probe_backend = cold
                     self._set_startup_backend(cold, intent)
                     self._check_intent(intent, cancel, is_current)
