@@ -1,0 +1,274 @@
+[
+  {
+    "document": "control/docs/MVP_FIRST_STAGE_RESULT.md",
+    "label": "时序采样",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/arm_dev/tgs_ros/raw_timing_15s.json",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/arm_dev/tgs_ros/raw_timing_15s.json",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_FIRST_STAGE_RESULT.md",
+    "label": "ORACLE 时序",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/arm_dev/oracle_gui_ros/raw_timing_15s.json",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/arm_dev/oracle_gui_ros/raw_timing_15s.json",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_FIRST_STAGE_RESULT.md",
+    "label": "物理视图失败日志",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_typed_sensor_stdout.log",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_typed_sensor_stdout.log",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_FIRST_STAGE_RESULT.md",
+    "label": "随车图像与原始帧",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_prepared_physics_ros/sensor_mount",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_prepared_physics_ros/sensor_mount",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_FIRST_STAGE_RESULT.md",
+    "label": "首次启动日志",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_effects_and_sampling_ros/navigation_first_launch.log",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_effects_and_sampling_ros/navigation_first_launch.log",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_FIRST_STAGE_RESULT.md",
+    "label": "实际测试日志",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/r_fault_support_unit.log",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/r_fault_support_unit.log",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_FIRST_STAGE_RESULT.md",
+    "label": "传感器／机器人与工作区快照",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_FIRST_STAGE_RESULT.md",
+    "label": "语言／模型／数据",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_FIRST_STAGE_RESULT.md",
+    "label": "构建证据目录",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/initial_colcon_log",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/initial_colcon_log",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_SENSOR_FIRST_STAGE_RESULT.md",
+    "label": "2D raw",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_tick60_2d/formal/raw",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_tick60_2d/formal/raw",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_SENSOR_FIRST_STAGE_RESULT.md",
+    "label": "3D raw",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_final_3d/formal/raw",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_final_3d/formal/raw",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_SENSOR_FIRST_STAGE_RESULT.md",
+    "label": "首次启动与退出错误日志",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_preview_2d/simulation.log:350",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_preview_2d/simulation.log",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_SENSOR_FIRST_STAGE_RESULT.md",
+    "label": "最终 2D 正常关闭日志",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_tick60_2d/simulation.log:780",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_tick60_2d/simulation.log",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_SENSOR_FIRST_STAGE_RESULT.md",
+    "label": "最终 3D 正常关闭日志",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_final_3d/simulation.log:372",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/p1_final_3d/simulation.log",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_SENSOR_FIRST_STAGE_RESULT.md",
+    "label": "包含原生类型异常的完整日志",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_stdout.log",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_stdout.log",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_SENSOR_FIRST_STAGE_RESULT.md",
+    "label": "新预览目录",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_typed_sensor",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_typed_sensor",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_SENSOR_FIRST_STAGE_RESULT.md",
+    "label": "启动日志",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_typed_sensor_stdout.log",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_typed_sensor_stdout.log",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_SENSOR_FIRST_STAGE_RESULT.md",
+    "label": "相机与雷达原始帧",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_prepared_physics_ros/sensor_mount",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/m1_preview_prepared_physics_ros/sensor_mount",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_LANGUAGE_FIRST_STAGE_RESULT.md",
+    "label": "L/T 本轮目录",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_LANGUAGE_FIRST_STAGE_RESULT.md",
+    "label": "laya_checkpoint_audit",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/laya_checkpoint_audit",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_l_t_20261004T162658/laya_checkpoint_audit",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_ENVIRONMENT_AUDIT_RESULT.md",
+    "label": "宿主存储记录",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/20261003T201849+0800_5dd68ecb/probes/05_host_storage/stdout.txt",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/20261003T201849+0800_5dd68ecb/probes/05_host_storage/stdout.txt",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_ENVIRONMENT_AUDIT_RESULT.md",
+    "label": "进程状态与映射",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/20261003T201849+0800_5dd68ecb/native_process.json",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/20261003T201849+0800_5dd68ecb/native_process.json",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_ENVIRONMENT_AUDIT_RESULT.md",
+    "label": "Python 堆栈",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/20261003T201849+0800_5dd68ecb/native_probe_stderr.txt",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/20261003T201849+0800_5dd68ecb/native_probe_stderr.txt",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_ENVIRONMENT_AUDIT_RESULT.md",
+    "label": "后续内核日志",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/20261003T201849+0800_5dd68ecb/kernel_followup.txt",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/20261003T201849+0800_5dd68ecb/kernel_followup.txt",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_ENVIRONMENT_AUDIT_RESULT.md",
+    "label": "实际属性输出",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/20261003T201849+0800_5dd68ecb/probes/15_udisks_smart_attributes/stdout.txt",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/20261003T201849+0800_5dd68ecb/probes/15_udisks_smart_attributes/stdout.txt",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_ENVIRONMENT_AUDIT_RESULT.md",
+    "label": "protection/after.json",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/20261003T201849+0800_5dd68ecb/protection/after.json",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/20261003T201849+0800_5dd68ecb/protection/after.json",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_ENVIRONMENT_AUDIT_RESULT.md",
+    "label": "退出与计时",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/torch_import_20261004T152418+0800/result.json",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/torch_import_20261004T152418+0800/result.json",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_ENVIRONMENT_AUDIT_RESULT.md",
+    "label": "导入版本与来源",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/torch_import_20261004T152418+0800/stdout.txt",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/torch_import_20261004T152418+0800/stdout.txt",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/MVP_ENVIRONMENT_AUDIT_RESULT.md",
+    "label": "进程观察",
+    "original_reference": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/torch_import_20261004T152418+0800/progress.jsonl",
+    "resolved_source": "/data/shared/AstrEX_project_data/logs/isaac/environment_audit/torch_import_20261004T152418+0800/progress.jsonl",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/ASTRBOTEX_SYNC_20261001_RESULT_HISTORY.md",
+    "label": "evidence/astrbotex_sync_20261001",
+    "original_reference": "evidence/astrbotex_sync_20261001/",
+    "resolved_source": "/home/sssxy/Projects/AstrEX_project_main/docs/evidence/astrbotex_sync_20261001",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/before/docs/ISAAC_51_DEV_BASELINE.md",
+    "label": "`config/isaac_baseline.env`",
+    "original_reference": "../config/isaac_baseline.env",
+    "resolved_source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/before/config/isaac_baseline.env",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/ISAAC_HISTORICAL.md",
+    "label": "`docs/env/current/`",
+    "original_reference": "env/current/",
+    "resolved_source": "/home/sssxy/Projects/AstrEX_project_main/docs/env/current",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/evidence/retirement/20261003T173647+0800_8a0bd55ec6/before/docs/CARTPOLE_EXPERIMENT_HISTORY.md",
+    "label": "GUI 最终报告",
+    "original_reference": "CARTPOLE_STEP4_GUI_RESULT.md",
+    "resolved_source": "/data/shared/AstrEX_project_data/exports/cartpole_archive/20261003T173647+0800_8a0bd55ec6/before/docs/CARTPOLE_STEP4_GUI_RESULT.md",
+    "available_locally": false,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  },
+  {
+    "document": "control/docs/env/legacy/README.md",
+    "label": "`docs/env/current/`",
+    "original_reference": "../current/",
+    "resolved_source": "/home/sssxy/Projects/AstrEX_project_main/docs/env/current",
+    "available_locally": true,
+    "reason": "outside_published_sources_or_large_local_evidence"
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "command": "./scripts/check_isaac_env.sh",
+  "status": "TIMEOUT",
+  "timeout_seconds": 120,
+  "wrapper_exit": 1,
+  "output_saved": false,
+  "note": "subprocess.run raised TimeoutExpired before the wrapper wrote its log; no initial health result is available"
+}

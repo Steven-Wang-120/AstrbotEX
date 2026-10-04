@@ -1,0 +1,14 @@
+test_case1_empty_domain_passes (__main__.PreflightCases.test_case1_empty_domain_passes) ... ok
+test_case2_confirmed_diagnostic_daemon_passes_with_label (__main__.PreflightCases.test_case2_confirmed_diagnostic_daemon_passes_with_label) ... ok
+test_case3_unconfirmed_daemon_identity_blocks (__main__.PreflightCases.test_case3_unconfirmed_daemon_identity_blocks) ... ok
+test_case4_control_or_unknown_endpoints_block (__main__.PreflightCases.test_case4_control_or_unknown_endpoints_block) ... ok
+test_case5_unknown_node_blocks (__main__.PreflightCases.test_case5_unknown_node_blocks) ... ok
+test_case6_unstable_discovery_blocks (__main__.PreflightCases.test_case6_unstable_discovery_blocks) ... ok
+test_direct_graph_failure_is_fatal (__main__.PreflightCases.test_direct_graph_failure_is_fatal) ... ok
+test_duplicate_identity_is_fatal (__main__.PreflightCases.test_duplicate_identity_is_fatal) ... ok
+test_inspect_builds_snapshot_and_reports_conflicts (__main__.PreflightCases.test_inspect_builds_snapshot_and_reports_conflicts) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.001s
+
+OK

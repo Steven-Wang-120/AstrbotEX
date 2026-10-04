@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "groups": 100,
+  "exported_rows": 230,
+  "split_counts": {
+    "train": 70,
+    "validation": 15,
+    "test": 15
+  },
+  "validation": {
+    "dataset_version": 2,
+    "groups": 100,
+    "split_counts": {
+      "train": 70,
+      "validation": 15,
+      "test": 15
+    },
+    "decision_points": 120,
+    "unique_semantic_tasks": 120,
+    "unique_actual_model_inputs": 230,
+    "cross_group_semantic_duplicates": 0,
+    "cross_group_actual_duplicates": 0,
+    "development_overlap": 0,
+    "fetch_target_roles": {
+      "obj-a": 22,
+      "obj-b": 18
+    },
+    "split_hash": "7a76305fb0e09249593ee237e3c8e32ae4573919c6517846c213128898988506",
+    "corpus_hash": "f1a3ba897196f590148cef3850b0cd3bfb1f184019c2a0e1b8d6f2e58ea97dc4",
+    "source": "SYNTHETIC",
+    "physical_runs": 0
+  },
+  "file_sha256": {
+    "groups.jsonl": "baed6d33784e3382e2ef48cefe51e1f932c2487709d5aacbe9476d5ae9ca7654",
+    "laya-choice.jsonl": "0aedeb7ba5b0b064582d2bf28ddcc123bda876cb0d56d75381e44b3477f25147",
+    "manifest.json": "ea4c7641c77edd6a77e4715cb77b4eaebdc9f3d99b155b88df7034237247b946"
+  },
+  "review_sha256": "9126f4770955ec9b919add04e31a7f0284743f2d10e7688e1811b1763ca870f0",
+  "plugin_manifest_matches": true,
+  "training_performed": false
+}

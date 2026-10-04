@@ -1,0 +1,44 @@
+{
+  "scope": "stationary_raw_physics_feedback_no_motion_commands",
+  "solver_iterations": [
+    32,
+    1
+  ],
+  "enable_external_forces_every_iteration": true,
+  "sleep_threshold": 0,
+  "stop_threshold_unchanged_rad_s": 0.02,
+  "sample_count": 120,
+  "raw_max_abs_dq_rad_s": {
+    "pre": {
+      "joint1": 1.781092038299903e-07,
+      "joint2": 0.00019861299369949847,
+      "joint3": 7.019913027761504e-05,
+      "joint4": 1.539568472708197e-09,
+      "joint5": 0.00019185763085260987,
+      "joint6": 3.96604491470498e-08,
+      "drive_joint": 3.028567903129442e-07,
+      "left_inner_knuckle_joint": 1.1777727593198506e-07,
+      "right_inner_knuckle_joint": 2.7201247121411143e-07,
+      "right_outer_knuckle_joint": 1.0898921800617245e-06,
+      "left_finger_joint": 3.819916685188218e-07,
+      "right_finger_joint": 2.9763268116766994e-07
+    },
+    "post": {
+      "joint1": 1.781092038299903e-07,
+      "joint2": 0.00019861299369949847,
+      "joint3": 7.019913027761504e-05,
+      "joint4": 1.539568472708197e-09,
+      "joint5": 0.00019185763085260987,
+      "joint6": 3.96604491470498e-08,
+      "drive_joint": 3.028567903129442e-07,
+      "left_inner_knuckle_joint": 1.1777727593198506e-07,
+      "right_inner_knuckle_joint": 2.7201247121411143e-07,
+      "right_outer_knuckle_joint": 1.0898921800617245e-06,
+      "left_finger_joint": 3.819916685188218e-07,
+      "right_finger_joint": 2.9763268116766994e-07
+    }
+  },
+  "pre_post_max_delta_rad_s": 1.7246200911813503e-07,
+  "reference": "https://nvidia-omniverse.github.io/PhysX/physx/5.8.0/docs/Simulation.html#tgs-steady-state-velocity-and-position-discrepancy",
+  "not_claimed": "motion_tracking_or_actual_stop_under_command"
+}

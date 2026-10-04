@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "dataset": "t1_corpus_v2",
+  "rows_per_split": {
+    "train": 161,
+    "validation": 35,
+    "test": 34
+  },
+  "unique_actual_model_inputs": {
+    "train": 161,
+    "validation": 35,
+    "test": 34
+  },
+  "pairwise_actual_input_overlaps": {
+    "train__validation": 0,
+    "train__test": 0,
+    "validation__test": 0
+  },
+  "semantic_overlap_with_old_development": 0,
+  "semantic_check_excludes_observation_ids_scene_geometry_nonce_candidate_order_and_word_order": true,
+  "semantic_validation_source": "core.tasks.corpus.validate_corpus; see t1_corpus_v2/manifest.json",
+  "old_model_probe_preserved": "l1_real_probe; 2/20 refers to original request wording; no new model run",
+  "label_scope": "Existing colors/shapes/regions, missing/ambiguous/stale rules and standard/precise contracts unchanged."
+}

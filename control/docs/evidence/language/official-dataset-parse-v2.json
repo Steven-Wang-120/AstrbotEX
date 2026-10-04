@@ -1,0 +1,7 @@
+{
+  "dataset": "t1_corpus_v2/laya-choice.jsonl",
+  "rows": 230,
+  "torch_imported": false,
+  "model_loaded": false,
+  "result": "PASS"
+}

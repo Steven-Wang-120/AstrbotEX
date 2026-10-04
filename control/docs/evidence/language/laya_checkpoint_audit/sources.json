@@ -1,0 +1,32 @@
+[
+  {
+    "name": "multi_tree",
+    "url": "https://huggingface.co/api/models/convaiinnovations/laya/tree/55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851/multilingual?recursive=true&expand=false",
+    "sha256": "12b4e58198c33059f532af412fcc8aad060bfc9993d840483d0945de37e5be89",
+    "bytes": 1224
+  },
+  {
+    "name": "multi_config",
+    "url": "https://huggingface.co/convaiinnovations/laya/resolve/55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851/multilingual/rl_agent_config.json",
+    "sha256": "25061739243b617ad88d1219ba6f8a9c86c5881ca28df024fa2d9b3b2fcc30c6",
+    "bytes": 472
+  },
+  {
+    "name": "multi_encoder",
+    "url": "https://huggingface.co/convaiinnovations/laya/resolve/55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851/multilingual/encoder/config.json",
+    "sha256": "83f6916d13ef0f556ac461f28308dc2bffa7ebeadee8ec9e2db5812020ea5bb4",
+    "bytes": 1938
+  },
+  {
+    "name": "multi_tokenizer_config",
+    "url": "https://huggingface.co/convaiinnovations/laya/resolve/55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851/multilingual/tokenizer/tokenizer_config.json",
+    "sha256": "6c6b2d8e3c84ce0e671c129cd6b374b235d6f9863042a5836358d00a89bbb5a1",
+    "bytes": 524
+  },
+  {
+    "name": "notebook",
+    "url": "https://raw.githubusercontent.com/NandhaKishorM/laya/6d942c92081fbc139e736bbd9ac0023223c29b7f/notebooks/laya_finetune_typed_decisions_2xT4_kaggle.ipynb",
+    "sha256": "1d1cd6c7b252c558e000ca5d4ffde18f9443652d07c1cdb8108e69b51ac73dec",
+    "bytes": 41260
+  }
+]

@@ -1,0 +1,60 @@
+{
+  "mode": "sensor_only",
+  "scene_seed": 101,
+  "sensor_profile_id": "RGB_LIDAR_3D",
+  "sensors": {
+    "width": 640,
+    "height": 480,
+    "render_hz": 60,
+    "camera_hz": 15,
+    "lidar_hz": 10,
+    "lidar_min_range": null,
+    "lidar_max_range": null,
+    "camera_position": [
+      1.25,
+      -1.25,
+      1.6
+    ],
+    "camera_target": [
+      0.55,
+      0.0,
+      0.76
+    ],
+    "lidar_position": [
+      0.0,
+      -0.8,
+      0.3
+    ],
+    "table_position": [
+      0.6,
+      0.0,
+      0.375
+    ],
+    "table_dimensions": [
+      1.0,
+      0.8,
+      0.75
+    ],
+    "frame_id": "world",
+    "camera_frame": "mm_camera_optical",
+    "lidar_frame": "mm_lidar",
+    "calibration_id": "fixed_rig_v1"
+  },
+  "lidar": {
+    "asset": "Example_Rotary",
+    "type": "point_cloud",
+    "topic": "/astrex/mm/points",
+    "scan_rate_hz": 10,
+    "tick_rate_hz": 60,
+    "publication": "complete_scan"
+  },
+  "input_source": "RAW_SENSOR",
+  "perception_backend": null,
+  "config_hash": "136960d1f3e3c4ef6d3699bd39d055d1d5372bc795456c0ecf90f08114649f25",
+  "robot_usd": null,
+  "robot_prim": "/World/Robot",
+  "scene": {},
+  "robot": {},
+  "pid": 25721,
+  "started_wall_ns": 1791103922215220908
+}

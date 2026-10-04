@@ -1,0 +1,327 @@
+{
+  "schema": "astrex.mm.arm-checks.v1",
+  "run_id": "arm_checks_aa527e1e03084db692ca0eb0f300a453",
+  "robot_config_hash": "4bf0a4938cbb6cbb3c69ca2895097c51e2a9eed57d6881fdb9284f83edffe999",
+  "checks": [
+    {
+      "check_id": "A2_reachable",
+      "status": "PASS",
+      "expected_plan_success": true,
+      "max_motion_rad": 2.9103830456733704e-11,
+      "guarded_count": 0,
+      "input_source": "ORACLE",
+      "result": {
+        "command_id": "arm_checks_aa527e1e03084db692ca0eb0f300a453/A2_reachable",
+        "ex_session": "trial_d24d73b135a34835b194b9bcb27da934",
+        "execution_epoch": 1,
+        "execution_session": "c3c8c89705b4458a99fe3a13d68850fe",
+        "goal_revision": 1,
+        "physical_complete": false,
+        "plan": {
+          "planning_time": 0.020879627,
+          "scene_hash": "7b68e36a76ff2ad40efd8df9af3f0d831095ab75239c1fc906565c3fc62d9211",
+          "scene_revision": 1,
+          "source_state_stamp": 147.775007707,
+          "total_wall_time": 0.030160014999637497,
+          "trajectory_hash": "10953a29fba76968dab69d6a4e3ff8b4c8e25878376ca333fc746c66a6f1b45f"
+        },
+        "reason": "PLAN_VALID_NO_EXECUTION",
+        "ros_goal_uuid": null,
+        "schema": "astrex.mm.v1",
+        "scope": "plan_only",
+        "status": "succeeded",
+        "stop_evidence": {
+          "command_id": "arm_checks_aa527e1e03084db692ca0eb0f300a453/A2_reachable",
+          "reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/arm_dev/oracle_gui_ros/stop_9b1ed56ecb4a449689b0fbc109c43bd8.json",
+          "source": "isaac_raw_joint_feedback",
+          "stopped": true
+        },
+        "trajectory_hash": "10953a29fba76968dab69d6a4e3ff8b4c8e25878376ca333fc746c66a6f1b45f"
+      },
+      "evidence_file": "A2_reachable.json"
+    },
+    {
+      "check_id": "A2_unreachable",
+      "status": "PASS",
+      "expected_plan_success": false,
+      "max_motion_rad": 2.9103830456733704e-11,
+      "guarded_count": 0,
+      "input_source": "ORACLE",
+      "result": {
+        "command_id": "arm_checks_aa527e1e03084db692ca0eb0f300a453/A2_unreachable",
+        "ex_session": "trial_d24d73b135a34835b194b9bcb27da934",
+        "execution_epoch": 2,
+        "execution_session": "c3c8c89705b4458a99fe3a13d68850fe",
+        "goal_revision": 1,
+        "physical_complete": false,
+        "plan": null,
+        "reason": "MOVEIT_ERROR:99999",
+        "ros_goal_uuid": null,
+        "schema": "astrex.mm.v1",
+        "scope": "plan_only",
+        "status": "failed",
+        "stop_evidence": {
+          "command_id": "arm_checks_aa527e1e03084db692ca0eb0f300a453/A2_unreachable",
+          "reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/arm_dev/oracle_gui_ros/stop_0a710dd8280944a284c26d2dd0d1027a.json",
+          "source": "isaac_raw_joint_feedback",
+          "stopped": true
+        },
+        "trajectory_hash": null
+      },
+      "evidence_file": "A2_unreachable.json"
+    },
+    {
+      "check_id": "A2_collision",
+      "status": "PASS",
+      "expected_plan_success": false,
+      "max_motion_rad": 5.820766091346741e-11,
+      "guarded_count": 0,
+      "input_source": "SYNTHETIC_PLANNING_COLLISION_PROBE",
+      "result": {
+        "command_id": "arm_checks_aa527e1e03084db692ca0eb0f300a453/A2_collision",
+        "ex_session": "trial_d24d73b135a34835b194b9bcb27da934",
+        "execution_epoch": 3,
+        "execution_session": "c3c8c89705b4458a99fe3a13d68850fe",
+        "goal_revision": 1,
+        "physical_complete": false,
+        "plan": null,
+        "reason": "MOVEIT_ERROR:99999",
+        "ros_goal_uuid": null,
+        "schema": "astrex.mm.v1",
+        "scope": "plan_only",
+        "status": "failed",
+        "stop_evidence": {
+          "command_id": "arm_checks_aa527e1e03084db692ca0eb0f300a453/A2_collision",
+          "reference": "/data/shared/AstrEX_project_data/logs/isaac/mobile_manipulation/phase1_20261004T160950+0800/arm_dev/oracle_gui_ros/stop_72763ed343e7473993d916b236ff0d1b.json",
+          "source": "isaac_raw_joint_feedback",
+          "stopped": true
+        },
+        "trajectory_hash": null
+      },
+      "evidence_file": "A2_collision.json"
+    },
+    {
+      "check_id": "A2_probe_cleanup",
+      "status": "PASS",
+      "object_id": "planning_collision_probe",
+      "scene_ack": true,
+      "removed_verified": true,
+      "scene_revision": 1,
+      "scene_hash": "5055b37530c623ee241dc695e0a01103570ad0c7063da498235be400306495a3",
+      "remaining_object_ids": [
+        "blue_cylinder",
+        "channel_wall_0",
+        "channel_wall_1",
+        "obstacle_0",
+        "obstacle_1",
+        "obstacle_2",
+        "place_region",
+        "red_cube",
+        "table"
+      ],
+      "elapsed_wall_seconds": 0.4156741320002766
+    }
+  ],
+  "all_passed": true,
+  "scope": "A1 model/state, A2 planning, R execution protection; not physical grasp/placement",
+  "input_source": "ORACLE",
+  "scene": {
+    "objects": [
+      {
+        "id": "table",
+        "shape": "box",
+        "position": [
+          0.6,
+          0.0,
+          -0.07500000000000001
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "dimensions": [
+          1.0,
+          0.8,
+          0.75
+        ]
+      },
+      {
+        "id": "red_cube",
+        "shape": "box",
+        "position": [
+          0.5221767425537109,
+          -0.0870288759469986,
+          0.3249999165534973
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "dimensions": [
+          0.05,
+          0.05,
+          0.05
+        ]
+      },
+      {
+        "id": "blue_cylinder",
+        "shape": "cylinder",
+        "position": [
+          0.6550006866455078,
+          0.10000090301036835,
+          0.3249999165534973
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "dimensions": [
+          0.05,
+          0.025
+        ]
+      },
+      {
+        "id": "place_region",
+        "shape": "box",
+        "position": [
+          0.5,
+          0.27000001072883606,
+          0.30300002098083495
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "dimensions": [
+          0.14,
+          0.14,
+          0.005
+        ]
+      },
+      {
+        "id": "obstacle_0",
+        "shape": "box",
+        "position": [
+          -0.8,
+          -0.3,
+          -0.2
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "dimensions": [
+          0.35,
+          0.35,
+          0.5
+        ]
+      },
+      {
+        "id": "obstacle_1",
+        "shape": "box",
+        "position": [
+          1.3,
+          -0.65,
+          -0.15000000000000002
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "dimensions": [
+          0.3,
+          0.3,
+          0.6
+        ]
+      },
+      {
+        "id": "obstacle_2",
+        "shape": "box",
+        "position": [
+          0.7,
+          1.0,
+          -0.2
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "dimensions": [
+          0.4,
+          0.3,
+          0.5
+        ]
+      },
+      {
+        "id": "channel_wall_0",
+        "shape": "box",
+        "position": [
+          0.395,
+          0.09,
+          0.39999999999999997
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "dimensions": [
+          0.05,
+          0.18,
+          0.2
+        ]
+      },
+      {
+        "id": "channel_wall_1",
+        "shape": "box",
+        "position": [
+          0.605,
+          0.09,
+          0.39999999999999997
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "dimensions": [
+          0.05,
+          0.18,
+          0.2
+        ]
+      }
+    ],
+    "attached": [
+      {
+        "id": "red_cube",
+        "remove": true
+      }
+    ],
+    "allow_contacts": [
+      {
+        "object_id": "red_cube",
+        "links": [
+          "left_finger",
+          "right_finger"
+        ],
+        "allowed": false
+      }
+    ]
+  }
+}

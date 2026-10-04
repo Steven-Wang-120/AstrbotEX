@@ -1,0 +1,70 @@
+{
+  "model_type": "BPE",
+  "pre_tokenizer": {
+    "type": "ByteLevel",
+    "add_prefix_space": false,
+    "trim_offsets": true,
+    "use_regex": true
+  },
+  "examples": [
+    {
+      "text": "把红色方块放到左托盘",
+      "token_count": 16,
+      "tokens": [
+        "æĬ",
+        "Ĭ",
+        "çº",
+        "¢",
+        "èī²",
+        "æĸ¹",
+        "åĿ",
+        "Ĺ",
+        "æĶ¾",
+        "åĪ°",
+        "å·",
+        "¦",
+        "æī",
+        "ĺ",
+        "çĽ",
+        "ĺ"
+      ],
+      "unknown_count": 0
+    },
+    {
+      "text": "在左托盘上放红色方块",
+      "token_count": 15,
+      "tokens": [
+        "åľ¨",
+        "å·",
+        "¦",
+        "æī",
+        "ĺ",
+        "çĽ",
+        "ĺ",
+        "ä¸Ĭ",
+        "æĶ¾",
+        "çº",
+        "¢",
+        "èī²",
+        "æĸ¹",
+        "åĿ",
+        "Ĺ"
+      ],
+      "unknown_count": 0
+    },
+    {
+      "text": "Move to the home region.",
+      "token_count": 6,
+      "tokens": [
+        "Move",
+        "Ġto",
+        "Ġthe",
+        "Ġhome",
+        "Ġregion",
+        "."
+      ],
+      "unknown_count": 0
+    }
+  ],
+  "torch_imported": false
+}

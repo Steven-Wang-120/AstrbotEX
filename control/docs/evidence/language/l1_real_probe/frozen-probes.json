@@ -1,0 +1,1751 @@
+[
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            0.25419,
+            0.28715
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "blue",
+          "shape": "cube",
+          "xy_m": [
+            -0.28699,
+            0.44595
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-move-development-00",
+    "category": "move",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-move-development-00-paraphrases",
+    "layout_family": "DEV-move-development-00",
+    "synthetic_layout_id": "3ab269eba951e3c5db7d81d938f4d37a7f0d136edd5df80c2373428c2cbde262",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "开到起点区",
+        "paraphrases": [
+          "开到起点区",
+          "到起点区去"
+        ],
+        "observation": {
+          "observation_id": "DEV-move-development-00-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "red",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "blue",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "move:home"
+          ],
+          "skill": "move",
+          "object_id": null,
+          "region_id": "home",
+          "success_template": "move.arrive_and_stop.v1"
+        },
+        "label_reason": "明确底盘移动到命名起点区，不调用机械臂。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "blue",
+          "shape": "cylinder",
+          "xy_m": [
+            -0.10412,
+            0.4685
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "green",
+          "shape": "cylinder",
+          "xy_m": [
+            0.16919,
+            0.38805
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-move-development-01",
+    "category": "move",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-move-development-01-paraphrases",
+    "layout_family": "DEV-move-development-01",
+    "synthetic_layout_id": "406c2ebdb76c4d1bf0e27c21cd3e29820ef6385d8eaf62455d8a76244ff6eaad",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "开到起点区",
+        "paraphrases": [
+          "开到起点区",
+          "到起点区去"
+        ],
+        "observation": {
+          "observation_id": "DEV-move-development-01-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "blue",
+              "shape": "cylinder"
+            },
+            {
+              "id": "obj-b",
+              "color": "green",
+              "shape": "cylinder"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "move:home"
+          ],
+          "skill": "move",
+          "object_id": null,
+          "region_id": "home",
+          "success_template": "move.arrive_and_stop.v1"
+        },
+        "label_reason": "明确底盘移动到命名起点区，不调用机械臂。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "green",
+          "shape": "cube",
+          "xy_m": [
+            0.24195,
+            0.15172
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            -0.24459,
+            0.11273
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-move-development-02",
+    "category": "move",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-move-development-02-paraphrases",
+    "layout_family": "DEV-move-development-02",
+    "synthetic_layout_id": "032a5a9420044a0e863f81a8aefd612f7a70201d7ddeaf840be5bd264116d0ee",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "开到起点区",
+        "paraphrases": [
+          "开到起点区",
+          "到起点区去"
+        ],
+        "observation": {
+          "observation_id": "DEV-move-development-02-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "green",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "red",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "move:home"
+          ],
+          "skill": "move",
+          "object_id": null,
+          "region_id": "home",
+          "success_template": "move.arrive_and_stop.v1"
+        },
+        "label_reason": "明确底盘移动到命名起点区，不调用机械臂。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            -0.12913,
+            0.48976
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "blue",
+          "shape": "cube",
+          "xy_m": [
+            0.21232,
+            0.1958
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-fetch-development-00",
+    "category": "fetch",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-fetch-development-00-paraphrases",
+    "layout_family": "DEV-fetch-development-00",
+    "synthetic_layout_id": "27ba060f95ea5dce8a7fa58cc6670d525162143d3644ca12bc25be49e9e82cc7",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "把红色方块放到左托盘",
+        "paraphrases": [
+          "把红色方块放到左托盘",
+          "在左托盘上放红色方块"
+        ],
+        "observation": {
+          "observation_id": "DEV-fetch-development-00-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "red",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "blue",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "fetch:obj-a"
+          ],
+          "skill": "fetch",
+          "object_id": "obj-a",
+          "region_id": "tray_left",
+          "success_template": "fetch.pick_place_stable.v1"
+        },
+        "label_reason": "目标唯一、放置区明确、观测有效且底盘停稳。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "blue",
+          "shape": "cylinder",
+          "xy_m": [
+            0.25662,
+            0.29729
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "green",
+          "shape": "cylinder",
+          "xy_m": [
+            0.2344,
+            0.41395
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-fetch-development-01",
+    "category": "fetch",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-fetch-development-01-paraphrases",
+    "layout_family": "DEV-fetch-development-01",
+    "synthetic_layout_id": "058420265c38673ffa06f1a8df3f83e44baeb4edae7ef46a4e3f91e214e1b66c",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "在右托盘上放蓝色圆柱",
+        "paraphrases": [
+          "把蓝色圆柱放到右托盘",
+          "在右托盘上放蓝色圆柱"
+        ],
+        "observation": {
+          "observation_id": "DEV-fetch-development-01-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "blue",
+              "shape": "cylinder"
+            },
+            {
+              "id": "obj-b",
+              "color": "green",
+              "shape": "cylinder"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "fetch:obj-a"
+          ],
+          "skill": "fetch",
+          "object_id": "obj-a",
+          "region_id": "tray_right",
+          "success_template": "fetch.pick_place_stable.v1"
+        },
+        "label_reason": "目标唯一、放置区明确、观测有效且底盘停稳。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "green",
+          "shape": "cube",
+          "xy_m": [
+            -0.10866,
+            0.52093
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            -0.20707,
+            0.4426
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-fetch-development-02",
+    "category": "fetch",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-fetch-development-02-paraphrases",
+    "layout_family": "DEV-fetch-development-02",
+    "synthetic_layout_id": "9b3814462b67541d797396361325ff5878bcecd59e5f30ccd0cf84264e5fc906",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "把绿色方块放到左托盘",
+        "paraphrases": [
+          "把绿色方块放到左托盘",
+          "在左托盘上放绿色方块"
+        ],
+        "observation": {
+          "observation_id": "DEV-fetch-development-02-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "green",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "red",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "fetch:obj-a"
+          ],
+          "skill": "fetch",
+          "object_id": "obj-a",
+          "region_id": "tray_left",
+          "success_template": "fetch.pick_place_stable.v1"
+        },
+        "label_reason": "目标唯一、放置区明确、观测有效且底盘停稳。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            0.26953,
+            0.40039
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "blue",
+          "shape": "cube",
+          "xy_m": [
+            -0.00561,
+            0.15425
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "home"
+    },
+    "group_id": "DEV-move_fetch-development-00",
+    "category": "move_fetch",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-move_fetch-development-00-paraphrases",
+    "layout_family": "DEV-move_fetch-development-00",
+    "synthetic_layout_id": "8ad2f6dec17458524efdd7957348e5556319a3ff392d1d52d078f052e1c23a87",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "把红色方块放到左托盘",
+        "paraphrases": [
+          "把红色方块放到左托盘",
+          "在左托盘上放红色方块"
+        ],
+        "observation": {
+          "observation_id": "DEV-move_fetch-development-00-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": false,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "red",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "blue",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "move:table_dock"
+          ],
+          "skill": "move",
+          "object_id": null,
+          "region_id": "table_dock",
+          "success_template": "move.arrive_and_stop.v1"
+        },
+        "label_reason": "物体和放置区已说明；先移动到显式已知操作台区域，到位后再重新观察。"
+      },
+      {
+        "text": "把红色方块放到左托盘",
+        "paraphrases": [
+          "把红色方块放到左托盘",
+          "在左托盘上放红色方块"
+        ],
+        "observation": {
+          "observation_id": "DEV-move_fetch-development-00-after-move",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "red",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "blue",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "fetch:obj-a"
+          ],
+          "skill": "fetch",
+          "object_id": "obj-a",
+          "region_id": "tray_left",
+          "success_template": "fetch.pick_place_stable.v1"
+        },
+        "label_reason": "同一任务后续决策点：移动已结束，资源释放、停车和新观测成立。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "blue",
+          "shape": "cylinder",
+          "xy_m": [
+            -0.17108,
+            0.4975
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "green",
+          "shape": "cylinder",
+          "xy_m": [
+            -0.04195,
+            0.22965
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "home"
+    },
+    "group_id": "DEV-move_fetch-development-01",
+    "category": "move_fetch",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-move_fetch-development-01-paraphrases",
+    "layout_family": "DEV-move_fetch-development-01",
+    "synthetic_layout_id": "7295b9385c128826defc3a18849d3d420c676f364edae314f955290366b99901",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "在右托盘上放蓝色圆柱",
+        "paraphrases": [
+          "把蓝色圆柱放到右托盘",
+          "在右托盘上放蓝色圆柱"
+        ],
+        "observation": {
+          "observation_id": "DEV-move_fetch-development-01-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": false,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "blue",
+              "shape": "cylinder"
+            },
+            {
+              "id": "obj-b",
+              "color": "green",
+              "shape": "cylinder"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "move:table_dock"
+          ],
+          "skill": "move",
+          "object_id": null,
+          "region_id": "table_dock",
+          "success_template": "move.arrive_and_stop.v1"
+        },
+        "label_reason": "物体和放置区已说明；先移动到显式已知操作台区域，到位后再重新观察。"
+      },
+      {
+        "text": "在右托盘上放蓝色圆柱",
+        "paraphrases": [
+          "把蓝色圆柱放到右托盘",
+          "在右托盘上放蓝色圆柱"
+        ],
+        "observation": {
+          "observation_id": "DEV-move_fetch-development-01-after-move",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "blue",
+              "shape": "cylinder"
+            },
+            {
+              "id": "obj-b",
+              "color": "green",
+              "shape": "cylinder"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "fetch:obj-a"
+          ],
+          "skill": "fetch",
+          "object_id": "obj-a",
+          "region_id": "tray_right",
+          "success_template": "fetch.pick_place_stable.v1"
+        },
+        "label_reason": "同一任务后续决策点：移动已结束，资源释放、停车和新观测成立。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "green",
+          "shape": "cube",
+          "xy_m": [
+            0.23569,
+            0.14856
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            0.1572,
+            0.44858
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "home"
+    },
+    "group_id": "DEV-move_fetch-development-02",
+    "category": "move_fetch",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-move_fetch-development-02-paraphrases",
+    "layout_family": "DEV-move_fetch-development-02",
+    "synthetic_layout_id": "aaf6a44bfb9847d53b83460b28e0a6522707015758c33537bc28e964301ac126",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "把绿色方块放到左托盘",
+        "paraphrases": [
+          "把绿色方块放到左托盘",
+          "在左托盘上放绿色方块"
+        ],
+        "observation": {
+          "observation_id": "DEV-move_fetch-development-02-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": false,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "green",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "red",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "move:table_dock"
+          ],
+          "skill": "move",
+          "object_id": null,
+          "region_id": "table_dock",
+          "success_template": "move.arrive_and_stop.v1"
+        },
+        "label_reason": "物体和放置区已说明；先移动到显式已知操作台区域，到位后再重新观察。"
+      },
+      {
+        "text": "把绿色方块放到左托盘",
+        "paraphrases": [
+          "把绿色方块放到左托盘",
+          "在左托盘上放绿色方块"
+        ],
+        "observation": {
+          "observation_id": "DEV-move_fetch-development-02-after-move",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "green",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "red",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "fetch:obj-a"
+          ],
+          "skill": "fetch",
+          "object_id": "obj-a",
+          "region_id": "tray_left",
+          "success_template": "fetch.pick_place_stable.v1"
+        },
+        "label_reason": "同一任务后续决策点：移动已结束，资源释放、停车和新观测成立。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            0.2008,
+            0.40452
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "blue",
+          "shape": "cube",
+          "xy_m": [
+            0.2715,
+            0.34465
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-missing_place-development-00",
+    "category": "missing_place",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-missing_place-development-00-paraphrases",
+    "layout_family": "DEV-missing_place-development-00",
+    "synthetic_layout_id": "27067ce08dfff09369b4d439d958558ba8e6cecf8e2729d4f1e9e5388416f547",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "抓起红色方块",
+        "paraphrases": [
+          "抓起红色方块",
+          "把红色方块抓起来"
+        ],
+        "observation": {
+          "observation_id": "DEV-missing_place-development-00-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "red",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "blue",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "clarification"
+          ],
+          "skill": null,
+          "object_id": null,
+          "region_id": null,
+          "success_template": null
+        },
+        "label_reason": "缺少放置位置，必须追问；不能先移动。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "blue",
+          "shape": "cylinder",
+          "xy_m": [
+            0.09821,
+            0.22452
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "green",
+          "shape": "cylinder",
+          "xy_m": [
+            -0.03756,
+            0.39056
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-missing_place-development-01",
+    "category": "missing_place",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-missing_place-development-01-paraphrases",
+    "layout_family": "DEV-missing_place-development-01",
+    "synthetic_layout_id": "33092db697caf3afcf01d2edcb73f9a95bd83a846428264d009508cffc5049a7",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "抓起蓝色圆柱",
+        "paraphrases": [
+          "抓起蓝色圆柱",
+          "把蓝色圆柱抓起来"
+        ],
+        "observation": {
+          "observation_id": "DEV-missing_place-development-01-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "blue",
+              "shape": "cylinder"
+            },
+            {
+              "id": "obj-b",
+              "color": "green",
+              "shape": "cylinder"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "clarification"
+          ],
+          "skill": null,
+          "object_id": null,
+          "region_id": null,
+          "success_template": null
+        },
+        "label_reason": "缺少放置位置，必须追问；不能先移动。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "green",
+          "shape": "cube",
+          "xy_m": [
+            -0.09848,
+            0.17604
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            -0.13106,
+            0.52779
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-missing_place-development-02",
+    "category": "missing_place",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-missing_place-development-02-paraphrases",
+    "layout_family": "DEV-missing_place-development-02",
+    "synthetic_layout_id": "24e708f42005e93c771b86614b1a7fb48cdd95cc51214ec2b57a614548b20385",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "抓起绿色方块",
+        "paraphrases": [
+          "抓起绿色方块",
+          "把绿色方块抓起来"
+        ],
+        "observation": {
+          "observation_id": "DEV-missing_place-development-02-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "green",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "red",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "clarification"
+          ],
+          "skill": null,
+          "object_id": null,
+          "region_id": null,
+          "success_template": null
+        },
+        "label_reason": "缺少放置位置，必须追问；不能先移动。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            0.19177,
+            0.41486
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            0.19762,
+            0.34774
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-ambiguous-development-00",
+    "category": "ambiguous",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-ambiguous-development-00-paraphrases",
+    "layout_family": "DEV-ambiguous-development-00",
+    "synthetic_layout_id": "8024eed1d0009c57b92e7b28ce1d2df613f36cbe20bfb2fa2eecda98bf290ace",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "把红色方块放到左托盘",
+        "paraphrases": [
+          "把红色方块放到左托盘",
+          "在左托盘上放红色方块"
+        ],
+        "observation": {
+          "observation_id": "DEV-ambiguous-development-00-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "red",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "red",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "clarification"
+          ],
+          "skill": null,
+          "object_id": null,
+          "region_id": "tray_left",
+          "success_template": null
+        },
+        "label_reason": "两个对象颜色与类别相同，未给对象编号，不可任意选择。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "blue",
+          "shape": "cylinder",
+          "xy_m": [
+            0.29675,
+            0.46432
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "blue",
+          "shape": "cylinder",
+          "xy_m": [
+            -0.06325,
+            0.53236
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-ambiguous-development-01",
+    "category": "ambiguous",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-ambiguous-development-01-paraphrases",
+    "layout_family": "DEV-ambiguous-development-01",
+    "synthetic_layout_id": "d84d6140e316f7b147ef4e9b4f9807ce7fa63871c9c73ab2648c8077e8bfd7e0",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "在右托盘上放蓝色圆柱",
+        "paraphrases": [
+          "把蓝色圆柱放到右托盘",
+          "在右托盘上放蓝色圆柱"
+        ],
+        "observation": {
+          "observation_id": "DEV-ambiguous-development-01-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "blue",
+              "shape": "cylinder"
+            },
+            {
+              "id": "obj-b",
+              "color": "blue",
+              "shape": "cylinder"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "clarification"
+          ],
+          "skill": null,
+          "object_id": null,
+          "region_id": "tray_right",
+          "success_template": null
+        },
+        "label_reason": "两个对象颜色与类别相同，未给对象编号，不可任意选择。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "green",
+          "shape": "cube",
+          "xy_m": [
+            0.24592,
+            0.18105
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "green",
+          "shape": "cube",
+          "xy_m": [
+            -0.27046,
+            0.25229
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-ambiguous-development-02",
+    "category": "ambiguous",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-ambiguous-development-02-paraphrases",
+    "layout_family": "DEV-ambiguous-development-02",
+    "synthetic_layout_id": "b525adb37c8e48c4b977c000e77cd871cd5ce3e2d3151499f6dadb2c78ed6be2",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "把绿色方块放到左托盘",
+        "paraphrases": [
+          "把绿色方块放到左托盘",
+          "在左托盘上放绿色方块"
+        ],
+        "observation": {
+          "observation_id": "DEV-ambiguous-development-02-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "green",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "green",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "clarification"
+          ],
+          "skill": null,
+          "object_id": null,
+          "region_id": "tray_left",
+          "success_template": null
+        },
+        "label_reason": "两个对象颜色与类别相同，未给对象编号，不可任意选择。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            -0.05724,
+            0.16307
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "blue",
+          "shape": "cube",
+          "xy_m": [
+            0.24717,
+            0.39719
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-unsupported-development-00",
+    "category": "unsupported",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-unsupported-development-00-paraphrases",
+    "layout_family": "DEV-unsupported-development-00",
+    "synthetic_layout_id": "2d0080f7a0c12683b604c14c3da56b838532c3478d28f4e668fb295f02e7bc98",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "帮我做饭",
+        "paraphrases": [
+          "帮我做饭"
+        ],
+        "observation": {
+          "observation_id": "DEV-unsupported-development-00-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "red",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "blue",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "unsupported"
+          ],
+          "skill": null,
+          "object_id": null,
+          "region_id": null,
+          "success_template": null
+        },
+        "label_reason": "求不属于已声明的move/fetch技能。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "blue",
+          "shape": "cylinder",
+          "xy_m": [
+            0.18112,
+            0.12343
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "green",
+          "shape": "cylinder",
+          "xy_m": [
+            -0.11616,
+            0.23673
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-unsupported-development-01",
+    "category": "unsupported",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-unsupported-development-01-paraphrases",
+    "layout_family": "DEV-unsupported-development-01",
+    "synthetic_layout_id": "a8e9d374cd30215f9ea9f636118df91478c7666086061122472f994a8cab89de",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "帮我做饭",
+        "paraphrases": [
+          "帮我做饭"
+        ],
+        "observation": {
+          "observation_id": "DEV-unsupported-development-01-obs",
+          "valid": true,
+          "age_ms": 10,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "blue",
+              "shape": "cylinder"
+            },
+            {
+              "id": "obj-b",
+              "color": "green",
+              "shape": "cylinder"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "unsupported"
+          ],
+          "skill": null,
+          "object_id": null,
+          "region_id": null,
+          "success_template": null
+        },
+        "label_reason": "求不属于已声明的move/fetch技能。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            0.25137,
+            0.54625
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "blue",
+          "shape": "cube",
+          "xy_m": [
+            -0.11164,
+            0.28213
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-missing_observation-development-00",
+    "category": "missing_observation",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-missing_observation-development-00-paraphrases",
+    "layout_family": "DEV-missing_observation-development-00",
+    "synthetic_layout_id": "614837358a5ef02fac7ffed16870ff8760be80dea67bfb60745bf146bcd933ea",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "把红色方块放到左托盘",
+        "paraphrases": [
+          "把红色方块放到左托盘",
+          "在左托盘上放红色方块"
+        ],
+        "observation": {
+          "observation_id": "DEV-missing_observation-development-00-obs",
+          "valid": false,
+          "age_ms": 2000,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "red",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "blue",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "wait"
+          ],
+          "skill": null,
+          "object_id": null,
+          "region_id": "tray_left",
+          "success_template": null
+        },
+        "label_reason": "任务完整，但观测已过期；等待新观测，不提交运动。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "blue",
+          "shape": "cylinder",
+          "xy_m": [
+            -0.2576,
+            0.18727
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "green",
+          "shape": "cylinder",
+          "xy_m": [
+            0.13652,
+            0.18688
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-missing_observation-development-01",
+    "category": "missing_observation",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-missing_observation-development-01-paraphrases",
+    "layout_family": "DEV-missing_observation-development-01",
+    "synthetic_layout_id": "653d7fedec8d9fd73f6b9ece633e795d17f876b4e4bbf40faace5b70b1782787",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "在右托盘上放蓝色圆柱",
+        "paraphrases": [
+          "把蓝色圆柱放到右托盘",
+          "在右托盘上放蓝色圆柱"
+        ],
+        "observation": {
+          "observation_id": "DEV-missing_observation-development-01-obs",
+          "valid": false,
+          "age_ms": 2000,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "blue",
+              "shape": "cylinder"
+            },
+            {
+              "id": "obj-b",
+              "color": "green",
+              "shape": "cylinder"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "wait"
+          ],
+          "skill": null,
+          "object_id": null,
+          "region_id": "tray_right",
+          "success_template": null
+        },
+        "label_reason": "任务完整，但观测已过期；等待新观测，不提交运动。"
+      }
+    ]
+  },
+  {
+    "scene_definition": {
+      "objects": [
+        {
+          "id": "obj-a",
+          "color": "green",
+          "shape": "cube",
+          "xy_m": [
+            0.00143,
+            0.26502
+          ]
+        },
+        {
+          "id": "obj-b",
+          "color": "red",
+          "shape": "cube",
+          "xy_m": [
+            -0.25317,
+            0.31378
+          ]
+        }
+      ],
+      "tray_centers_m": {
+        "tray_left": [
+          -0.22,
+          0.4
+        ],
+        "tray_right": [
+          0.22,
+          0.4
+        ]
+      },
+      "robot_zone": "table_dock"
+    },
+    "group_id": "DEV-missing_observation-development-02",
+    "category": "missing_observation",
+    "split": "development",
+    "source": "SYNTHETIC",
+    "language_family": "DEV-missing_observation-development-02-paraphrases",
+    "layout_family": "DEV-missing_observation-development-02",
+    "synthetic_layout_id": "341521bab47a062fc20d617efec0f61b743385da0367f097150e615c225044dc",
+    "catalog_revision": "16ca99bdeb4a2de7b9d0cbdad26be2afbf3313897bcd5c2c84ed14678f218429",
+    "decision_points": [
+      {
+        "text": "把绿色方块放到左托盘",
+        "paraphrases": [
+          "把绿色方块放到左托盘",
+          "在左托盘上放绿色方块"
+        ],
+        "observation": {
+          "observation_id": "DEV-missing_observation-development-02-obs",
+          "valid": false,
+          "age_ms": 2000,
+          "max_age_ms": 500,
+          "at_table": true,
+          "stationary": true,
+          "objects": [
+            {
+              "id": "obj-a",
+              "color": "green",
+              "shape": "cube"
+            },
+            {
+              "id": "obj-b",
+              "color": "red",
+              "shape": "cube"
+            }
+          ]
+        },
+        "gold": {
+          "accepted_options": [
+            "wait"
+          ],
+          "skill": null,
+          "object_id": null,
+          "region_id": "tray_left",
+          "success_template": null
+        },
+        "label_reason": "任务完整，但观测已过期；等待新观测，不提交运动。"
+      }
+    ]
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "checkpoint": "awaiting_required_robot_workspace_review",
+  "recorded_at": "2026-10-04T19:41:42.367984+08:00",
+  "index_unchanged": true,
+  "head_unchanged": true,
+  "remotes_unchanged": true,
+  "submodules_unchanged": true,
+  "original_changed_files_with_new_changes": [
+    {
+      "path": "README.md",
+      "sha256": "8b0b936f6b3622698885f0281ca1a8c2eb2ef3899bfda91d82ae88a991abf1dd",
+      "owned_this_phase": true
+    },
+    {
+      "path": "docs/MOBILE_MANIPULATION_PYROKI_MVP_PLAN.md",
+      "sha256": "10bef89c59bb7dcb1b23f9e6934d3a9c94d6d323c004cfb41bbefc4f58a99cd5",
+      "owned_this_phase": true
+    }
+  ],
+  "unrelated_original_changes_preserved": true,
+  "staged_diff_unchanged": true,
+  "commit_or_push_performed": false
+}

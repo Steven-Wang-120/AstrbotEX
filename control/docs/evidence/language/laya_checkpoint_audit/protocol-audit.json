@@ -1,0 +1,16 @@
+{
+  "selected_counts": {
+    "move:table_dock": 13,
+    "fetch:obj-b": 4,
+    "fetch:obj-a": 3
+  },
+  "http_200": 20,
+  "no_truncation": true,
+  "raw_unicode_preserved": true,
+  "input_token_range": [
+    167,
+    180
+  ],
+  "interpretation": "2/20 reflects fixed checkpoint plus current input representation. No protocol/head-shape failure observed; language is not isolated as a causal variable.",
+  "next_decision": "Optional independently cached pinned multilingual development comparison requires user confirmation. No weights downloaded or training started."
+}

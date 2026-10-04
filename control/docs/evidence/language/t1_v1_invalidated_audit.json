@@ -1,0 +1,26 @@
+{
+  "status": "INVALIDATED_FOR_INDEPENDENT_TRAIN_VALIDATION_TEST",
+  "old_directory": "t1_corpus_final",
+  "files_preserved": true,
+  "training_performed": false,
+  "reason": "Scene geometry differed but was not model-visible; semantic model inputs repeated between splits; all fetch targets used obj-a.",
+  "original_dataset_has_no_gold_field_in_model_state": true,
+  "splits": {
+    "validation": {
+      "rows": 35,
+      "rows_seen_in_training": 29,
+      "groups_with_overlap": 14
+    },
+    "test": {
+      "rows": 34,
+      "rows_seen_in_training": 28,
+      "groups_with_overlap": 13
+    }
+  },
+  "development_inputs_seen_in_old_test": 9,
+  "fetch_target_roles": {
+    "obj-a": 40,
+    "obj-b": 0
+  },
+  "replacement": "t1_corpus_v2"
+}

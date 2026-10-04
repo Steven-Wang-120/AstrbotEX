@@ -1,0 +1,154 @@
+{
+  "phase": "L1",
+  "planned_groups": 20,
+  "completed_groups": 20,
+  "model_correct": 2,
+  "model_errors": 0,
+  "startup_ms": 284746.9634499994,
+  "cold_load_ready_ms": 271019.329112,
+  "cold_warmup_ms": 13719.123988,
+  "latency_ms": {
+    "p50": 21.167576,
+    "p95": 25.521242,
+    "max": 26.008685
+  },
+  "input_hash": "45ce0133af54c5c349ca3daabf73e449f3ed6e1fd104ea27f9d7e8164a7c8bfb",
+  "goal_submissions": 0,
+  "motion_commands": 0,
+  "ex_backend": "mock",
+  "model_choice_quality_is_not_robot_success": true,
+  "error": null,
+  "owner": {
+    "state": "stopped",
+    "generation": "76e7dfe93ee746d4ac80dae2b9edda56:1",
+    "owned": true,
+    "ownership_unknown": false,
+    "restart_required": false,
+    "error_code": null,
+    "draining": false,
+    "health": {
+      "status": "ok",
+      "device": "cuda",
+      "device_is_preference": false,
+      "loaded": [
+        "typed-decisions"
+      ],
+      "revisions": {
+        "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+      },
+      "checkpoint_devices": {
+        "typed-decisions": "cuda"
+      },
+      "cpu_fallbacks": {
+        "typed-decisions": {
+          "count": 0,
+          "last_reason": null
+        }
+      }
+    },
+    "history": [
+      {
+        "generation": "76e7dfe93ee746d4ac80dae2b9edda56:1",
+        "started_monotonic_ns": 5884432470316,
+        "weight_revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+        "requested_device": "cuda",
+        "pid": 27021,
+        "last_probe": {
+          "ok": true,
+          "error_code": null,
+          "restart_required": false,
+          "health": {
+            "status": "ok",
+            "device": "cuda",
+            "device_is_preference": false,
+            "loaded": [
+              "typed-decisions"
+            ],
+            "revisions": {
+              "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+            },
+            "checkpoint_devices": {
+              "typed-decisions": "cuda"
+            },
+            "cpu_fallbacks": {
+              "typed-decisions": {
+                "count": 0,
+                "last_reason": null
+              }
+            }
+          }
+        },
+        "health": {
+          "status": "ok",
+          "device": "cuda",
+          "device_is_preference": false,
+          "loaded": [
+            "typed-decisions"
+          ],
+          "revisions": {
+            "typed-decisions": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+          },
+          "checkpoint_devices": {
+            "typed-decisions": "cuda"
+          },
+          "cpu_fallbacks": {
+            "typed-decisions": {
+              "count": 0,
+              "last_reason": null
+            }
+          }
+        },
+        "ready_monotonic_ns": 6155451799428,
+        "load_ready_ms": 271019.329112,
+        "warmup": {
+          "deadline_ms": 1800000,
+          "elapsed_ms": 13719.123988,
+          "result": {
+            "decision": {
+              "schema_version": 1,
+              "snapshot_id": "real-move-warmup",
+              "versions": {
+                "ex_session": "laya-real-validation",
+                "goal_revision": 1,
+                "config_revision": 1,
+                "catalog_revision": 1,
+                "environment_generation": 1,
+                "gate_epoch": 1,
+                "plugin_generations": {
+                  "arm": 1
+                }
+              },
+              "backend": "laya",
+              "model": "typed-decisions",
+              "elapsed_ms": 13717.56078,
+              "choices": [
+                {
+                  "owner": "arm",
+                  "option_id": "real-move-warmup:start",
+                  "confidence": 0.6216,
+                  "probabilities": {
+                    "real-move-warmup:wait": 0.1399,
+                    "real-move-warmup:replan": 0.2385,
+                    "real-move-warmup:start": 0.6216
+                  }
+                }
+              ]
+            },
+            "snapshot_id": "real-move-warmup",
+            "input_sha256": "6a854a4b35c9e6601b75df32df03ac83c30d95c490c6fe92c71b65b59c565083"
+          }
+        },
+        "exit_code": -15,
+        "exit_confirmed_monotonic_ns": 6169933886564
+      }
+    ],
+    "port": 8769,
+    "model": "typed-decisions",
+    "revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+  },
+  "exit_evidence": {
+    "generation": "76e7dfe93ee746d4ac80dae2b9edda56:1",
+    "exit_code": -15,
+    "exit_confirmed": true
+  }
+}

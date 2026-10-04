@@ -1,0 +1,2451 @@
+{
+  "head": "4cf7e11a201d82c0332a5ecc4f6bd1864d30444d",
+  "status": " M docs/AstrEX_workingTree/00_施工总索引与派工规则.md\n M docs/AstrEX_workingTree/B09_低风险_决策前端页面与展示.md\n D docs/CARTPOLE_STEP4_GUI_RESULT.md\n M docs/MOBILE_MANIPULATION_PYROKI_MVP_PLAN.md\n?? apps/AstrBotEX/execution/\n?? apps/AstrBotEX/scripts/verify_decision_ui.mjs\n?? apps/AstrBotEX/tests/decision_ui_fixture.py\n?? docs/B09_DECISION_UI_RESULT.md\n?? docs/evidence/b09_20261002/\n",
+  "tracked": {
+    ".env.example": {
+      "kind": "file",
+      "size": 120,
+      "sha256": "e1e621946b8c916ae63518e514899106a2e9ef151970d90d7202cc83cb575091",
+      "allocated": 4096
+    },
+    ".gitattributes": {
+      "kind": "file",
+      "size": 419,
+      "sha256": "1741be47e9e3be8a32e49b98d70ea8facb67a99d04b4e2deae48574d9ada1083",
+      "allocated": 4096
+    },
+    ".gitignore": {
+      "kind": "file",
+      "size": 906,
+      "sha256": "59bc8de96fc790a1d2e2ab762ff380aa5310a11807f25423a3de9dbf711697ba",
+      "allocated": 4096
+    },
+    ".gitmodules": {
+      "kind": "file",
+      "size": 225,
+      "sha256": "0ca2593dc5f6671864bc5f514443e44c8ebcfcad713c419d14ed69713126c0e0",
+      "allocated": 4096
+    },
+    "README.md": {
+      "kind": "file",
+      "size": 1579,
+      "sha256": "063c7fa88a8b84af36b9181295052f3865681a0ce215ef38531901c9269c882e",
+      "allocated": 4096
+    },
+    "THIRD_PARTY_NOTICES.md": {
+      "kind": "file",
+      "size": 577,
+      "sha256": "2a3e0ca0b881532b2bd57adf33f4cbad01e32ad26a4226163bf9bd3c5d0680af",
+      "allocated": 4096
+    },
+    "apps/AstrBot": {
+      "kind": "gitlink",
+      "entry": "160000 ab42c0d9b726d82ad0f9563e04c53a4460c00d61 0"
+    },
+    "apps/AstrBotEX/.dockerignore": {
+      "kind": "file",
+      "size": 133,
+      "sha256": "d82914e1879ebb3792d9265304ca4a84d23aca846da3eac319171be77041131b",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/.env.example": {
+      "kind": "file",
+      "size": 628,
+      "sha256": "ed44228d81d77d40a8732b784861ef02419f10242042dddf11b280bf182ab3f2",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/.gitattributes": {
+      "kind": "file",
+      "size": 971,
+      "sha256": "a1f4fe899882c2fc88b427f20cb75777455cc945eed82c1f2937103d054b0424",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/.gitignore": {
+      "kind": "file",
+      "size": 105,
+      "sha256": "6cd244e3bedf6cf7f67cf8e4e6c4d65b2bea1769e314fe58e4db45fb2e5c4b9a",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/Dockerfile": {
+      "kind": "file",
+      "size": 617,
+      "sha256": "03960b4132259cb6d83de2034e655639a8e05b4236d0db258ec0556fe2de469a",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/Dockerfile.ros2": {
+      "kind": "file",
+      "size": 1402,
+      "sha256": "c765d061b4746ab07f0ecf300d9f633d76e3714c57c176f680bc462961b9270f",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/README.md": {
+      "kind": "file",
+      "size": 13654,
+      "sha256": "926f784ab0bf25e7350b92cc6fa35b7654115e6d86c03e7c9d1241f69cb64254",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/README_AstrBotEX插件系统规范.md": {
+      "kind": "file",
+      "size": 12026,
+      "sha256": "0b66a8e4a7eac804c517b986c99629056eea9c1f144bf80fc6940ddb6bd88ef0",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/TECHNICAL.md": {
+      "kind": "file",
+      "size": 23752,
+      "sha256": "ec5197730fa40cdc548bb0a9cc1c423945a587d8f0308a9babc129784af35027",
+      "allocated": 24576
+    },
+    "apps/AstrBotEX/astrbot_ex/__init__.py": {
+      "kind": "file",
+      "size": 94,
+      "sha256": "bb1c88eb05d679fe6be186fcf3005ee63e5acf247ece541272c1c43a8e4beb46",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/__init__.py": {
+      "kind": "file",
+      "size": 45,
+      "sha256": "c1aafcb7aa4da6479516cbe1da850eef89394d9e37f22a32e2516069bb400e42",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/actions/__init__.py": {
+      "kind": "file",
+      "size": 125,
+      "sha256": "9a009b5761a3ea8fc95db7d1dc7fbe06a23f8bea09f7207642d2f33002cbe15b",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/actions/dispatcher.py": {
+      "kind": "file",
+      "size": 45014,
+      "sha256": "415ad4a80de049a63326f9839147d1d03fffb5d99158b82be334bd5dc807ab40",
+      "allocated": 45056
+    },
+    "apps/AstrBotEX/astrbot_ex/core/actions/ledger.py": {
+      "kind": "file",
+      "size": 26599,
+      "sha256": "29e58c8da2c851e26dd0eff11b040796df3ad0fa579209ef73132183031539db",
+      "allocated": 28672
+    },
+    "apps/AstrBotEX/astrbot_ex/core/actions/models.py": {
+      "kind": "file",
+      "size": 81136,
+      "sha256": "e962444be2db007f28b8499b0221e41b9f16b3e9751968c2002cd889886ae6af",
+      "allocated": 81920
+    },
+    "apps/AstrBotEX/astrbot_ex/core/actions/plugin_api.py": {
+      "kind": "file",
+      "size": 4473,
+      "sha256": "81f7bab569c9f6af91e15e116782f6bc2282a8f486d5c4e5e1fe47710eae9090",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/astrbot_ex/core/actions/service.py": {
+      "kind": "file",
+      "size": 10860,
+      "sha256": "fa9a0fff3362bbbd2deeb0101b2091abe8a60ed6ca653e4b554eb44ed48aa273",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/astrbot_ex/core/actions/storage.py": {
+      "kind": "file",
+      "size": 5031,
+      "sha256": "c3b739876af2be7a403b9d18cc397349dfe4ce11194470fb756751d9196da6df",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/astrbot_ex/core/api_server.py": {
+      "kind": "file",
+      "size": 65497,
+      "sha256": "619f0c19e802a50955289f2fa3792630aae3fffc4c237f2dd0a64a6357a2ec37",
+      "allocated": 65536
+    },
+    "apps/AstrBotEX/astrbot_ex/core/astrbot_bridge.py": {
+      "kind": "file",
+      "size": 26860,
+      "sha256": "ddff39d91c39c158186ead72287938ebc9f18fe744debae123c3a947d87875a7",
+      "allocated": 28672
+    },
+    "apps/AstrBotEX/astrbot_ex/core/backup.py": {
+      "kind": "file",
+      "size": 22928,
+      "sha256": "786fde87c055c8d3ced38820fd1f4840112b2ef1d9f75f66ddef844144c00cff",
+      "allocated": 24576
+    },
+    "apps/AstrBotEX/astrbot_ex/core/connection_manager.py": {
+      "kind": "file",
+      "size": 41083,
+      "sha256": "51ba43aeb1b9f41d27d1cb213fba7c6e276f92bfde2d333c6b37ecbe4b2a4aa8",
+      "allocated": 45056
+    },
+    "apps/AstrBotEX/astrbot_ex/core/contracts.py": {
+      "kind": "file",
+      "size": 128369,
+      "sha256": "7c182425b13805ec66f8610d0d7ba55d37e60fe4bea2badb1cb432f9339039b9",
+      "allocated": 131072
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/__init__.py": {
+      "kind": "file",
+      "size": 58,
+      "sha256": "8e2ff584e5c26dd030a5cda9c94dbe037a337b200799b25cd46eb575a8c1073b",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/backends/__init__.py": {
+      "kind": "file",
+      "size": 334,
+      "sha256": "dfdc14ff29e3c5bd6ef401e0bb97ac040087d9635c245e6602e203af334098ce",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/backends/base.py": {
+      "kind": "file",
+      "size": 722,
+      "sha256": "edf96bc4bd60ed7a8a1fa4a67764898aed14de6f20689c59394ca9242e80a663",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/backends/jev.py": {
+      "kind": "file",
+      "size": 22529,
+      "sha256": "6aa57e5574f7dd925b72b091a6d326079e4acd7904bea736bc33374dd4085535",
+      "allocated": 24576
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/backends/laya.py": {
+      "kind": "file",
+      "size": 33102,
+      "sha256": "44d6dca197548419c70f2a59546aa01f63837c6a620e2a15dd49a3e9bcde639c",
+      "allocated": 36864
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/backends/mock.py": {
+      "kind": "file",
+      "size": 2068,
+      "sha256": "6621535c166c8d4d386e5e2689bb30b0ec532f87d30f3028e8aa0cac344f7d1d",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/backends/registry.py": {
+      "kind": "file",
+      "size": 635,
+      "sha256": "365018b604af4f67fabefefa0d063fa07a90b301b1bec90b6b21ec71f4b440bb",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/catalog.py": {
+      "kind": "file",
+      "size": 6706,
+      "sha256": "bd224f7025ecae78fd87b3e0fe08f27c09de36aeba3c81e68cb56b40a478c63d",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/config.py": {
+      "kind": "file",
+      "size": 12465,
+      "sha256": "bdd858071edcb8d711e4b76a970cb0f8ae7e881d883007fc1da12836bacc891e",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/goal_manager.py": {
+      "kind": "file",
+      "size": 9731,
+      "sha256": "f716ed1ad0dade584d06c3644a37d454c1a13eb954ad827ea0bd44a7450792a8",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/history.py": {
+      "kind": "file",
+      "size": 9848,
+      "sha256": "56aae9405afaa69e0d3ac788dd535b133a1f1f74618fc778c31a252f89549a85",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/management.py": {
+      "kind": "file",
+      "size": 35209,
+      "sha256": "c568559ebae6defb18b1ea86962db5d3eb0671669097290339168b339c97c197",
+      "allocated": 36864
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/models.py": {
+      "kind": "file",
+      "size": 48275,
+      "sha256": "9a84378c2aa032e2c159abaaf9826d7a5203519f55894eed74a21dff180ce25e",
+      "allocated": 49152
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/observations.py": {
+      "kind": "file",
+      "size": 14506,
+      "sha256": "2692d033fa6898c922a3a622055013e9df3a2f0f7077f8758b1d000937034522",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/owned_laya.py": {
+      "kind": "file",
+      "size": 25384,
+      "sha256": "660a1ecf0713bd761f4ae4b7567a5e998a2700e11b422e66f4e26a25f638ed52",
+      "allocated": 28672
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision/service.py": {
+      "kind": "file",
+      "size": 56146,
+      "sha256": "29299a2355f057cb985c8d61e1ec64e912641ad457cd9d56e234e6a88d8e516f",
+      "allocated": 57344
+    },
+    "apps/AstrBotEX/astrbot_ex/core/decision_transport.py": {
+      "kind": "file",
+      "size": 3364,
+      "sha256": "fefca5552601380e2bb6b328aa98897c262b7c569e84793deef6f14064d339ef",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/environments/__init__.py": {
+      "kind": "file",
+      "size": 401,
+      "sha256": "794fcf65257687575878f2e17993201d40ca45a7ff00cb6f14cf7faa65d6c514",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/environments/base.py": {
+      "kind": "file",
+      "size": 402,
+      "sha256": "088da203723a14de8af11696311766829b0e57f90a6d6fa77cbe015ebd398de4",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/environments/contracts.py": {
+      "kind": "file",
+      "size": 7413,
+      "sha256": "a941c098231c36eab3dcd6cc70a4df59520580455d4efed862d88a8fafac70bf",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/astrbot_ex/core/environments/manager.py": {
+      "kind": "file",
+      "size": 22203,
+      "sha256": "25f919721829f904b0843d84f174c915d030f8983c80ba789dde5ce2e0ec4158",
+      "allocated": 24576
+    },
+    "apps/AstrBotEX/astrbot_ex/core/environments/models.py": {
+      "kind": "file",
+      "size": 1476,
+      "sha256": "eadeb44a713eeb7bd28c32badf535174ecb0d61b7fa65d8e6dff5dcebfa3e429",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/environments/normal.py": {
+      "kind": "file",
+      "size": 840,
+      "sha256": "9cee3aa3bdcdc78aee93dc21a8dcb8e2571311966d23a21b16a3e52ef49b3c12",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/environments/plugin_api.py": {
+      "kind": "file",
+      "size": 16392,
+      "sha256": "65d5efc216655b2638d4ed8e20b01cbd1646529b5d4899e9a0c5ad431b42aad2",
+      "allocated": 20480
+    },
+    "apps/AstrBotEX/astrbot_ex/core/environments/ros2/__init__.py": {
+      "kind": "file",
+      "size": 315,
+      "sha256": "2091dc074b7ffebd53bd1a8200d97264017eaf32df05562f782b2b55c77f7443",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/environments/ros2/adapter.py": {
+      "kind": "file",
+      "size": 19164,
+      "sha256": "fc21bb2c9f754a3015c2a25dd48d835a628a829984933032d2ebfb5a3138b6e6",
+      "allocated": 20480
+    },
+    "apps/AstrBotEX/astrbot_ex/core/environments/ros2/interfaces.py": {
+      "kind": "file",
+      "size": 2208,
+      "sha256": "5fffdf8818602cc3096fe36cace0a202b67efc4f9c0a25473ad33f2f758a3c3a",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/event_bus.py": {
+      "kind": "file",
+      "size": 3159,
+      "sha256": "b4a5081761f2c9836e23a111ce431ea9fef692f95f7a1a8aa4b7a4d80a4fa4ec",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/interaction_core.py": {
+      "kind": "file",
+      "size": 42298,
+      "sha256": "415ed3d490907b1c8e340083eaf40736febf8569654fc0239b190f92c9dc3d7d",
+      "allocated": 45056
+    },
+    "apps/AstrBotEX/astrbot_ex/core/interaction_models.py": {
+      "kind": "file",
+      "size": 1170,
+      "sha256": "43dce464198c90060ad50b5045c828ea0b6ee6f51bf494eec22c434d9a95a20c",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/local_plugins.py": {
+      "kind": "file",
+      "size": 51986,
+      "sha256": "e6c53a50de6a3a26f258f361b9574ebbf4e231eb01c9c3c25895c0d2158746a7",
+      "allocated": 53248
+    },
+    "apps/AstrBotEX/astrbot_ex/core/models.py": {
+      "kind": "file",
+      "size": 4317,
+      "sha256": "c60242cc14062c640b978c3eb2310218b4546af05145c1afb3390e9228067a48",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/astrbot_ex/core/perception_config.py": {
+      "kind": "file",
+      "size": 7080,
+      "sha256": "967316f2ac155b1594d2ebc4f9735bdf9f7f6a92b90d5a5f3b99356f20ee6cd2",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/astrbot_ex/core/perception_core.py": {
+      "kind": "file",
+      "size": 2984,
+      "sha256": "dc17897cc44a053731225da9946eb2b622359235ae6ae83257cb316945dbb914",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/plugin_actor.py": {
+      "kind": "file",
+      "size": 20977,
+      "sha256": "2a7b03f68b9d0efc0daa03813eff3cf4b90f76bfba813b9f365aeeecb18125be",
+      "allocated": 24576
+    },
+    "apps/AstrBotEX/astrbot_ex/core/plugin_registry.py": {
+      "kind": "file",
+      "size": 22731,
+      "sha256": "8d49fff88214f628da4ecb5e9a41e5a4baf9546871d1c25b78cf48d44edd9ea9",
+      "allocated": 24576
+    },
+    "apps/AstrBotEX/astrbot_ex/core/providers/__init__.py": {
+      "kind": "file",
+      "size": 162,
+      "sha256": "5d956d7799647f6103b4c99bedf0b741c86d4b21006928186cc20e35f229f6d0",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/providers/astrbot_providers.py": {
+      "kind": "file",
+      "size": 6821,
+      "sha256": "d20838049e36cc2228f45f0a490444b0ca65740c1657ae7ed5b7e48b39012fe5",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/astrbot_ex/core/providers/interaction_provider.py": {
+      "kind": "file",
+      "size": 533,
+      "sha256": "884040ae31cf7e431410ce0b26ccf056bbb2a82d0dfd051a655c5eeada3ecab8",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/runtime.py": {
+      "kind": "file",
+      "size": 10559,
+      "sha256": "0854379775289f04d8f68d607a3cf986e9563f1b0361ed1aa67ae9596134259f",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/astrbot_ex/core/runtime_demo.py": {
+      "kind": "file",
+      "size": 705,
+      "sha256": "8365ed97d1d00a886f99ce505c7c50d6dfe42c5d32ebae3edb4f77b56db6f04c",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/safety.py": {
+      "kind": "file",
+      "size": 1993,
+      "sha256": "ad7765f5786784e74b0946798468b6f7a99a1bdafc2e9c4785ce427270bb99e4",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/scene_fusion.py": {
+      "kind": "file",
+      "size": 9231,
+      "sha256": "009546ef979f8036d23742af1862f49e38a8ae9437e68a342da0313afaa0468e",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/astrbot_ex/core/serialization.py": {
+      "kind": "file",
+      "size": 581,
+      "sha256": "12cd56cd51277b21afd4c014904eef100edfc7da069104b7888874b45e6a7233",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/core/topic_bus.py": {
+      "kind": "file",
+      "size": 5192,
+      "sha256": "10f432f18aa1a3d7a8f974b7d10a5a49078b46ecfb4b8455d1435a589bd6a861",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/astrbot_ex/core/vision_sources.py": {
+      "kind": "file",
+      "size": 5235,
+      "sha256": "85b397a77cb15057d63518d686ea6ceb01809b9e4cc96d7ced16369142143105",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/astrbot_ex/core/world_builder.py": {
+      "kind": "file",
+      "size": 1349,
+      "sha256": "179df99c18d60b4e11e7871ae07b89dcfcb62d6b7140b71b164aaf98d1fac12c",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/interfaces/__init__.py": {
+      "kind": "file",
+      "size": 48,
+      "sha256": "d5df899b00ea997d66e2edee63c748501d05748c2904b552988c7f6b0ffebf5a",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/interfaces/base.py": {
+      "kind": "file",
+      "size": 269,
+      "sha256": "330391119d33fb7160816818f3807680621c942f43b42ad9be805d9e9d7b1b25",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/interfaces/fusion.py": {
+      "kind": "file",
+      "size": 256,
+      "sha256": "db6ad9e8019c62e67c720267c65825cf04413afff597f91078a3c40c6e0847cf",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/interfaces/motion.py": {
+      "kind": "file",
+      "size": 348,
+      "sha256": "8e5538ef8381fc7092f8d0b47e05a615e726f4f0149ae4fab8343ec1d26fc199",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/interfaces/policy.py": {
+      "kind": "file",
+      "size": 272,
+      "sha256": "c4218d5664e384af79c44be4dad4b7a504c833047103b3b4bb69332b447497ad",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/interfaces/rule.py": {
+      "kind": "file",
+      "size": 383,
+      "sha256": "564a47db93ef0443e7e4eb209fd58c96a775094e9f23c5f695a52c0ab364de3b",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/interfaces/scan.py": {
+      "kind": "file",
+      "size": 243,
+      "sha256": "ae450e8cfd5f27f03bc63f48cb39fabb9418eb0281c9344bcea39516ebf9d755",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/interfaces/skill.py": {
+      "kind": "file",
+      "size": 457,
+      "sha256": "d8b6b50b0c70647ca35e62a385c3a03e2432fe8b0dd0eed7e705a1b0089d1eef",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/interfaces/vision.py": {
+      "kind": "file",
+      "size": 251,
+      "sha256": "8e214be79853ce7e8ce6adb18ba40e428fd9d2c44b07217680d72d24cd7cb26b",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/astrbot_ex/profiles/rescue_ball_2025/mission.json": {
+      "kind": "file",
+      "size": 382,
+      "sha256": "efcea2fc13584db729f0d22b203f7ac386a0630ab3d542a3cdf3a5a5380e9176",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/compose.ros2.yml": {
+      "kind": "file",
+      "size": 467,
+      "sha256": "198af4e2986bcaaae622fbefabf258aab368ffdf47190bdbac5889d9c693ad22",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/compose.yml": {
+      "kind": "file",
+      "size": 2915,
+      "sha256": "bb6bb2e652668e3d2aabf3784d7fb3046b64ee173917cfd26c2899ca20030f25",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/dashboard/app.js": {
+      "kind": "file",
+      "size": 75082,
+      "sha256": "cb3b51af2cc3d4c49244893e51a4487145892846790787fb8bb2f77afd7b25de",
+      "allocated": 77824
+    },
+    "apps/AstrBotEX/dashboard/decision.js": {
+      "kind": "file",
+      "size": 36643,
+      "sha256": "ec117cfbcc644234733d7d3c781622f86bd2ec2dda614cb91fd61e20302ef300",
+      "allocated": 36864
+    },
+    "apps/AstrBotEX/dashboard/environments.js": {
+      "kind": "file",
+      "size": 17189,
+      "sha256": "69bf40f9ca1605a27bedb918af9494716b5eca1f259a6af8afd2b10579eb9a86",
+      "allocated": 20480
+    },
+    "apps/AstrBotEX/dashboard/index.html": {
+      "kind": "file",
+      "size": 48854,
+      "sha256": "8bebc14668afef17657815ccf847d760b0132a9f452443b9eeb6d8c1deccffd3",
+      "allocated": 49152
+    },
+    "apps/AstrBotEX/dashboard/styles.css": {
+      "kind": "file",
+      "size": 58877,
+      "sha256": "b2a574bc2791080cad54b98f15caf844a5ee3e80b572e2012a25f1ee4b3c8a44",
+      "allocated": 61440
+    },
+    "apps/AstrBotEX/deploy/astrbotex/data/profiles/default/perception.json": {
+      "kind": "file",
+      "size": 460,
+      "sha256": "3c924ee67b76689ca941c76c17de8fe0e4c982970e65d1a1ca0ff1b6c339ec96",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/docker-entrypoint.ros2.sh": {
+      "kind": "file",
+      "size": 491,
+      "sha256": "253619cceeccfdfd6a099a3d05029283bf20588424ecf99d1c94bf0cb11c075a",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/docker-entrypoint.sh": {
+      "kind": "file",
+      "size": 325,
+      "sha256": "e08e46e933d9a490fea27c6de46ba6f0f79307713b07388cf218729aa43203c4",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/docs/B02-ACCEPTANCE-MATRIX.md": {
+      "kind": "file",
+      "size": 26079,
+      "sha256": "92cad2f42c40d2e2ae49e86c01f63cdb4b0e7304c7cb45b1bd8f27db530a5e39",
+      "allocated": 28672
+    },
+    "apps/AstrBotEX/docs/B02-ACTION-SDK.md": {
+      "kind": "file",
+      "size": 19288,
+      "sha256": "de2a721aef928ee14c89d27d50542f3129b1f41ba82eec08380a756b078864c5",
+      "allocated": 20480
+    },
+    "apps/AstrBotEX/docs/B04-DECISION-CORE.md": {
+      "kind": "file",
+      "size": 15137,
+      "sha256": "2c4e5753575d37d37a2ff8859829ba5b7bcf16bd916f4073ffd2ab1ea438edc8",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/docs/B07-JEV-BACKEND.md": {
+      "kind": "file",
+      "size": 11281,
+      "sha256": "7151c0b4b9c099ea939d4438e695cce2f100d082a9fbc244dd306cc9102f10a0",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/docs/B07-JEV-OFFLINE.md": {
+      "kind": "file",
+      "size": 9257,
+      "sha256": "183cfaa41fef96153b7a65591c755e8b8b1a618b7f66f6520e09b537336c123b",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/docs/B07-LAYA-BACKEND.md": {
+      "kind": "file",
+      "size": 24796,
+      "sha256": "a0d29147fe35dc51de1154670fcf2e6781eccf841719339e1ff0b08f0559ac48",
+      "allocated": 28672
+    },
+    "apps/AstrBotEX/docs/B08-DECISION-MANAGEMENT.md": {
+      "kind": "file",
+      "size": 15712,
+      "sha256": "a602a756ca3201fa9bdcb90c1036ce1d982ebb4549ea0f6387e7109a03be14bd",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/docs/DECISION-CONTRACT.md": {
+      "kind": "file",
+      "size": 30734,
+      "sha256": "0eb92541a66f717165345ed2676bdef1f20554283f95c18bf85ca042e67af52c",
+      "allocated": 32768
+    },
+    "apps/AstrBotEX/docs/ROS2-ACCEPTANCE.md": {
+      "kind": "file",
+      "size": 5584,
+      "sha256": "d6f93cc3fa8c89f7b82cefc51ab506659a530bd7fea9800a68b4507c51bbb588",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/docs/ROS2-DEPLOYMENT.md": {
+      "kind": "file",
+      "size": 4369,
+      "sha256": "f498aea33b4d525d1504eb7e2783a7305767b6ea3a2bb9dc4b1292045fff5504",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/docs/ROS2-SDK.md": {
+      "kind": "file",
+      "size": 5333,
+      "sha256": "20d1866122e8aafea531cad496ee6d35b52cb270e91630afa2ea08da706c2e94",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/docs/templates/output_description.md": {
+      "kind": "file",
+      "size": 16784,
+      "sha256": "7bd450ff4252511671288b0eea6a9ea4adff17f9ca89e96524cb781776649b10",
+      "allocated": 20480
+    },
+    "apps/AstrBotEX/examples/ros2_echo/main.py": {
+      "kind": "file",
+      "size": 900,
+      "sha256": "7060f1892e971780d669931460b6f540ddf73a9dd5676026fb1d9c55a11cc6fc",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/examples/ros2_echo/plugin.json": {
+      "kind": "file",
+      "size": 764,
+      "sha256": "6948812b5f8c77f0237761787ca7690133a9b8f76bf41989f5569f1ee3dcb4dc",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/README.md": {
+      "kind": "file",
+      "size": 2248,
+      "sha256": "65c07eff5a11eb37b3b6f28e6c41e1dd561afb3d95538ee1fa8a3a4b1f818949",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/config.json": {
+      "kind": "file",
+      "size": 751,
+      "sha256": "00a9f922fd2741fae4adbba3730ac4aa76cc8f543c4c5a555b1526e5957508b1",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/config.schema.json": {
+      "kind": "file",
+      "size": 968,
+      "sha256": "62957db78379d0d3e9a25509ffd9598fdd17745fe91c638f497e06ff611be29c",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/forwarder.py": {
+      "kind": "file",
+      "size": 4336,
+      "sha256": "772142cdc4dd7b351dd4cadfc31d979b7d6713095cd8e84e6815def48643a540",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/main.py": {
+      "kind": "file",
+      "size": 8096,
+      "sha256": "d1d7761271ec6b43fe1b34444a1263a0d3ecbc6c09067bba02c5fc72d5972ffa",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/models/README.md": {
+      "kind": "file",
+      "size": 271,
+      "sha256": "c681514613690f4c218161419448fadd34760f834c5f51a4a5e81050cab4cc0c",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/plugin.json": {
+      "kind": "file",
+      "size": 755,
+      "sha256": "8288f1f75b688a9c833d66e12218ba3fdc0acffd237405dd72fd9e024f0ca867",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/protocol.py": {
+      "kind": "file",
+      "size": 3027,
+      "sha256": "1173e92e55af78a217adf7d1c7613daa2d4f69cdc28342b9d338e52e31f6ddc0",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/topic_adapter.py": {
+      "kind": "file",
+      "size": 1811,
+      "sha256": "183b1d22cdbb2a3d69ba764d398440f8e2969bc61fec76aad6dfc0c2a11b2397",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/worker/__init__.py": {
+      "kind": "file",
+      "size": 43,
+      "sha256": "bd91a17aada5a8404538e9f913a3fd004d93bcba05f2a6f54cabc902086c08ee",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/worker/camera_sources.py": {
+      "kind": "file",
+      "size": 4735,
+      "sha256": "9bd76e446487691ec0160ff66ca89d8b72bad90ce0fd919e4ea7db0d8b152a06",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/worker/packet_builder.py": {
+      "kind": "file",
+      "size": 1495,
+      "sha256": "1300da887f249f94bcf3bb247220690bac71b807f8a7d7c39a6f295a71b6c9bc",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/worker/yolo_worker.py": {
+      "kind": "file",
+      "size": 5570,
+      "sha256": "c7eae21801c5fca3de54ace0cb43d3281eacc47e7bdaab61489be4b063456a2a",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/worker_launcher.py": {
+      "kind": "file",
+      "size": 949,
+      "sha256": "8c6034f699c857b3242b895c18f7a192f72b4b76e48d20e4264c45ee439a3084",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/plugins/vision/astrbotex_embedded_yolo_vision_plugin/worker_protocol.py": {
+      "kind": "file",
+      "size": 660,
+      "sha256": "dd181d50a6aca8b22a44e7e5e07c2e5a3947ea56dc657bd8d958a16848451283",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/profiles/default/perception.json": {
+      "kind": "file",
+      "size": 460,
+      "sha256": "3c924ee67b76689ca941c76c17de8fe0e4c982970e65d1a1ca0ff1b6c339ec96",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/profiles/default/vision_sources.json": {
+      "kind": "file",
+      "size": 1106,
+      "sha256": "670ce3a7fc0c4db99233914d65ef1d6b9173ecdaed1ccb93e6e341ca3cf4a8dd",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/pyproject.toml": {
+      "kind": "file",
+      "size": 301,
+      "sha256": "3c61799629edc6b69bc1c970931aa9495c4d7002eeea03f481e37116f6712d6b",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/requirements-laya.lock": {
+      "kind": "file",
+      "size": 1352,
+      "sha256": "4514d6dbe8f4c278fdbd903abfabcb30cc9cc6a70812ceef0359166bdc5df1c7",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/requirements.txt": {
+      "kind": "file",
+      "size": 31,
+      "sha256": "4c1b97832ecca2864f1770888fb4dd11af57aaa0b7fa9f281a9ba8567ff66e18",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/ros_interfaces/astrbotex_demo_interfaces/CMakeLists.txt": {
+      "kind": "file",
+      "size": 397,
+      "sha256": "0b00781bc8f505642458ee4ab2c9d76ad830eca8f07fe96e7937cef8c1a8238c",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/ros_interfaces/astrbotex_demo_interfaces/msg/Target.msg": {
+      "kind": "file",
+      "size": 65,
+      "sha256": "1072ba58b756bf3e9dc131a7e0fabd44d598960fda52300254c34e3b29a8ff73",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/ros_interfaces/astrbotex_demo_interfaces/package.xml": {
+      "kind": "file",
+      "size": 636,
+      "sha256": "a007a9ce69a5e36d4093d68159b018e98c89b28a30e12c537e0942f0b3c2eec1",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/scripts/build_contracts.py": {
+      "kind": "file",
+      "size": 5622,
+      "sha256": "1c0de21bb820f21de983dfd6b54a3bca2d09b57726a21363471df5402be18d11",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/scripts/evaluate_jev_offline.py": {
+      "kind": "file",
+      "size": 15588,
+      "sha256": "dd9157996798fa5b1091cb4824bd551cb5f3158da4d588cae89ab22047974410",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/scripts/gen_contract_fixtures.py": {
+      "kind": "file",
+      "size": 30894,
+      "sha256": "1f627630ebeb996d8abc86e9d0607b7abd31d48be3f6a3967f68d850b3250931",
+      "allocated": 32768
+    },
+    "apps/AstrBotEX/scripts/lidar_scan_visualizer.py": {
+      "kind": "file",
+      "size": 7971,
+      "sha256": "95e6ab685d6b2a53c73c8123b3860fa7a21a13ea46eefde0d43d0e11b6a4f7b7",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/scripts/mock_vision_service.py": {
+      "kind": "file",
+      "size": 2538,
+      "sha256": "17144c52b50e481559c28b6e849301d76de49cafc94a1671188b5a71d118d946",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/scripts/open_dashboard.ps1": {
+      "kind": "file",
+      "size": 387,
+      "sha256": "65d7642ef0841b4275dab45f784d66ad7306f22f9e77e5bc9d80ddb4ecf40ed9",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/scripts/run_api_server.ps1": {
+      "kind": "file",
+      "size": 932,
+      "sha256": "28a6ff761e7d9fcd1f479c6a90dfd34f2f3f528d587678cfa2da07659e26758c",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/scripts/run_core_demo.ps1": {
+      "kind": "file",
+      "size": 647,
+      "sha256": "bb2b6fc528adc26c182aa0a6904841c116eda9bb968a901411f22abc2df98069",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/scripts/run_mock_vision_service.ps1": {
+      "kind": "file",
+      "size": 885,
+      "sha256": "59d15fa1dac54346f05922c3e03151371552d5d50f385a807ddd13d4bff716dc",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/scripts/run_ros2.sh": {
+      "kind": "file",
+      "size": 643,
+      "sha256": "7c44c47ba3e2845a63dce9a66bca1dc3cff66a0c17d4bd09c839126528bf2f82",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/scripts/start_lidar_visualizer.sh": {
+      "kind": "file",
+      "size": 441,
+      "sha256": "1be793dfc4ade24d1ec62b416db050d6e549e383a6568c98895d7608461408db",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/scripts/sync_contract_mirror.py": {
+      "kind": "file",
+      "size": 1898,
+      "sha256": "2755841efcd0cffdddda8aeaef590ebe05e41a5a9a82877099384d39b0691cc2",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/scripts/verify_dashboard_management.mjs": {
+      "kind": "file",
+      "size": 11885,
+      "sha256": "725de31bd9b1caefbe8d5d26c1e7a4e316a4539117f3a1c3155606ba9c7e53d2",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/scripts/verify_decision_management.py": {
+      "kind": "file",
+      "size": 16414,
+      "sha256": "fda66907742b283aec232b29dff1b369fddc2dfed9f78ca0a2cb71cba131879f",
+      "allocated": 20480
+    },
+    "apps/AstrBotEX/scripts/verify_environment_ui.py": {
+      "kind": "file",
+      "size": 3597,
+      "sha256": "bbeb18d6463fbae3f8792c5b818304c36ed2db450f959e91a351d810754d75e0",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/scripts/verify_laya_backend.py": {
+      "kind": "file",
+      "size": 16364,
+      "sha256": "8bd2392df14ee2f48f8239a5f7acbc70fe13a9b066937f7c324dc5da9464ed85",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/scripts/verify_ros2_deployment.py": {
+      "kind": "file",
+      "size": 4791,
+      "sha256": "13c1bcc792b9e0f2756fbec34492eab800d7a0424b2cb350881953652e5be653",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/action_dispatcher_crash_helper.py": {
+      "kind": "file",
+      "size": 3794,
+      "sha256": "09fd203e0f4e5c4d683e61a8bcaa9725bb472af432c683bfa1e01e04e0d24533",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/action_ledger_crash_helper.py": {
+      "kind": "file",
+      "size": 2355,
+      "sha256": "44c485cfd90172cdbb98c375e18b3989414638fa6c88678bf01481fedd38b56b",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/contract_fixture_runner.py": {
+      "kind": "file",
+      "size": 13533,
+      "sha256": "50a258a7d3de6b12390b94600c9ee0593a4d96cef5b8a7d72f142be3a98a8a7d",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/a-accepted.json": {
+      "kind": "file",
+      "size": 688,
+      "sha256": "c0b8f27525181ac5d180e295f94ab7d6a3e00d77a30c650677bafe08a39db932",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/a-canceled.json": {
+      "kind": "file",
+      "size": 867,
+      "sha256": "79b4b28731f95a04eab1ff2a0de6e127542422dcedbec70dd51e51a28190ee3d",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/a-failed.json": {
+      "kind": "file",
+      "size": 687,
+      "sha256": "fe00375c9c78967669b769d1f400908f86d993827b4117059bb9aa2676660f90",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/a-running.json": {
+      "kind": "file",
+      "size": 683,
+      "sha256": "e8ede936faa5075632a886b766e1ac3ae68f456f2fe10b69dde42d49f07feb43",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/a-succeeded.json": {
+      "kind": "file",
+      "size": 714,
+      "sha256": "bbe1dc5da241817d35dbd4e50d43c31808e79928fd98e0bbdce02724e473ee9e",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/a-unknown.json": {
+      "kind": "file",
+      "size": 773,
+      "sha256": "5505f36b6433943dcd300653ff4e1e9ee9c32c89924362a3fe66385cb15f4088",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/builder.py": {
+      "kind": "file",
+      "size": 33880,
+      "sha256": "68035d38da3bf83c481da33357c1bac962661b7dc2ce1ce5c3e75ea014bc45a0",
+      "allocated": 36864
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/e-badparams.json": {
+      "kind": "file",
+      "size": 1631,
+      "sha256": "28c555d9de7bfa1ef6be289bc4c1cc208fc6ad5232a3dc8352ebe8a8f6769f63",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/e-expiredlease.json": {
+      "kind": "file",
+      "size": 1067,
+      "sha256": "7a4885a241706dd30df7b1a9e95c46e09b1da87317758097ebc43eaf068f2fd2",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/e-health-error.json": {
+      "kind": "file",
+      "size": 939,
+      "sha256": "7decd8995ed7b9ff3775229f97aefcc7c7d6ddcf40e75382f59cc9ddbba9934d",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/e-injection.json": {
+      "kind": "file",
+      "size": 1545,
+      "sha256": "004150da3034a5976842493c5f02d9b26c50e3cbeb2128e347def9aacfaf0ae9",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/e-nonfinite.json": {
+      "kind": "file",
+      "size": 1179,
+      "sha256": "21258ae35eaa4eb66a592156fd817cf6f380630ff59787c2000a0977d4301e65",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/e-revision.json": {
+      "kind": "file",
+      "size": 908,
+      "sha256": "446a0db33c7e259d4e4a4ca951bd18fb40610de5c6b67d8adad2f13a5f863d0c",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/e-stalesession.json": {
+      "kind": "file",
+      "size": 927,
+      "sha256": "154a0e06ff0cf43274513efa1c165ca666112f8a18b24a0d61768f3d318dc65c",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/e-unsafe.json": {
+      "kind": "file",
+      "size": 1742,
+      "sha256": "c39f672372152d8ac2e92dd7249fd7f24a6ab016a96a1ed9cf3c1f7b37283ea0",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/field_catalog.json": {
+      "kind": "file",
+      "size": 68519,
+      "sha256": "6192e8bcf19c789d092d7216a5b96d2fdc08f4bc59daa3dfa754805d597b1a95",
+      "allocated": 69632
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/jev/build_offline_corpus.py": {
+      "kind": "file",
+      "size": 11865,
+      "sha256": "19fcc2e41dd3592fd50d05de30d9245c8ddff1becb5e43484136e3e8da14a1c7",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/jev/normal.json": {
+      "kind": "file",
+      "size": 2629,
+      "sha256": "7981f9b757bb69e1fb49c02a3b8d5b92607aa0f7b8399694d8021b1d5c0f048a",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/jev/offline-v1.jsonl": {
+      "kind": "file",
+      "size": 337699,
+      "sha256": "fba8d87b04399fd644cddd96cad1ac08181baf695de5d2a03fe17db811ad9936",
+      "allocated": 339968
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/jev/offline-v1.manifest.json": {
+      "kind": "file",
+      "size": 9377,
+      "sha256": "307de3e6ac1f8bed21d4c39035bf7bf7eb1596089f536005525296bfa112281f",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/p-arm.json": {
+      "kind": "file",
+      "size": 1297,
+      "sha256": "adf2f4d9ef608a5a6a7855b7e90d7bfb272eb142d2f7569c3bd44f00870f1ba2",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/p-base.json": {
+      "kind": "file",
+      "size": 1113,
+      "sha256": "431df80cf5135d2403e8992a5af948730b0f0e26f905d8ec8a619eb1ac55917b",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/p-bbox-outofbounds.json": {
+      "kind": "file",
+      "size": 1279,
+      "sha256": "1bbf830fc645d29537592c1478546d6f84f7329b2550c2de3c61f38964e679ef",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/p-dropped-frame.json": {
+      "kind": "file",
+      "size": 1403,
+      "sha256": "a93afaca382f17e48f612c903a69a94002160b2acdaa659fe19c934c2a0a9e9a",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/p-empty.json": {
+      "kind": "file",
+      "size": 919,
+      "sha256": "16a974db8a573754c549e9985be7328944874bad408f47f27146a9f33a376cb8",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/p-epoch-change.json": {
+      "kind": "file",
+      "size": 1442,
+      "sha256": "df5774c31c8eae2ea5481e37c9816e25d2289db98c92ec693a2d78b587cfb671",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/p-missing-depth.json": {
+      "kind": "file",
+      "size": 1278,
+      "sha256": "3180baf116b1c1d4b7bd9698569d61a59f9c3c61724034b0a76b20b7370da4e7",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/p-normal.json": {
+      "kind": "file",
+      "size": 1422,
+      "sha256": "0189fc0d028bca7fd9450a33d67dac402aca9fe38ce927bf1103b1f369f3ddca",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/p-old-frame.json": {
+      "kind": "file",
+      "size": 1262,
+      "sha256": "460df860a40a606efe8fb9e06e3022f652e3fb8c49a5daa8674a297b114b2a81",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/p-target-gone.json": {
+      "kind": "file",
+      "size": 1116,
+      "sha256": "2e85c44c3f334ae168a8b4f19d07d97d47f4857e8929702de137299e1247af6d",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/scenario_index.json": {
+      "kind": "file",
+      "size": 9396,
+      "sha256": "e5dc3ed2fda0107ac08197f5e647b037814cf4f446ff86c57a8f28781057ddb0",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/simulated-arm-status.md": {
+      "kind": "file",
+      "size": 2006,
+      "sha256": "3870571ead390b7fdc2fc4c966fa40c9f7b39595bb0d9845dde78215b1679d70",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/simulated-base-status.md": {
+      "kind": "file",
+      "size": 1537,
+      "sha256": "963e3c6c491738edf8f69387a356fab0a67758479d608506cfdd93fd093b4bce",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision/yolo-front-detections.md": {
+      "kind": "file",
+      "size": 2174,
+      "sha256": "52b22f42cbb1e71c73605d5de51c0cf12851c3cfa6594f6b3637ffdd6ac0b865",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/fixtures/decision_contracts/golden.json": {
+      "kind": "file",
+      "size": 121874,
+      "sha256": "66265fc8c2bd2cd7057acc72507101920844bad9c55eb96351a14c0b95b6ac2f",
+      "allocated": 122880
+    },
+    "apps/AstrBotEX/tests/mock_plugins.py": {
+      "kind": "file",
+      "size": 4945,
+      "sha256": "b204c85ae27c9873d676f7b1f64fe119d047ecb38851dcb4839f7846d84acb81",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/native_action_lifecycle_check.py": {
+      "kind": "file",
+      "size": 5780,
+      "sha256": "ca512bb2b20070f42f4af870fce88b2291c38351f68dc589678f7c58e3592917",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_action_dispatcher.py": {
+      "kind": "file",
+      "size": 64533,
+      "sha256": "664a1c6d749911bf3e2cde927e2bd66ce6294e5bd91177832be5c86f24cdaa32",
+      "allocated": 65536
+    },
+    "apps/AstrBotEX/tests/test_action_ledger.py": {
+      "kind": "file",
+      "size": 29581,
+      "sha256": "2620b437a7b626361b91efef0f4d2a9ed27153f04f4c0bcf8997d11f7ef74875",
+      "allocated": 32768
+    },
+    "apps/AstrBotEX/tests/test_action_runtime_integration.py": {
+      "kind": "file",
+      "size": 14082,
+      "sha256": "f97bbb250d41a9d47d85430d4e67348d41afcc1caa08bbf8e3a2715a2e29030e",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/test_action_service_failures.py": {
+      "kind": "file",
+      "size": 18540,
+      "sha256": "aef6c61d2aa750fc60e11d5209716824aaeda2bdb63b687c0dc267b67edc1d42",
+      "allocated": 20480
+    },
+    "apps/AstrBotEX/tests/test_action_storage.py": {
+      "kind": "file",
+      "size": 15271,
+      "sha256": "007ada1112e78a39ffe4864879b5f478b19847226daadc9f561147fc770a6a4b",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/test_api_server.py": {
+      "kind": "file",
+      "size": 5346,
+      "sha256": "8f14520328914d8c25484209d25ecd704f4cf00088a83e1f768d6f4f3dedcfeb",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_astrbot_bridge.py": {
+      "kind": "file",
+      "size": 14339,
+      "sha256": "a7818759a6f3b342079d1029f012c3e1c5aeaa0030bd39276a239fd5a0c43170",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/test_astrbot_providers.py": {
+      "kind": "file",
+      "size": 7013,
+      "sha256": "da230f5f6b895476e5ac8822d9778453cdeb0a7653adaeb37886ab28bc14edce",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_b02_real_composition.py": {
+      "kind": "file",
+      "size": 15852,
+      "sha256": "2c616fe9e8158c45891db2f6e7206d65e14075eeea8ea813e72fb87e2becce1a",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/test_backup.py": {
+      "kind": "file",
+      "size": 15815,
+      "sha256": "3a6417de3b1471f1b4cccb391ddf584766dc364cc975dd08cf27d320260821f9",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/test_capability_catalog.py": {
+      "kind": "file",
+      "size": 4147,
+      "sha256": "be37e1db374fe81e10264380141743876331decab1595907370d5e344a1d978c",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_connection_manager.py": {
+      "kind": "file",
+      "size": 9786,
+      "sha256": "72fbf44d8f42520786b8308293ba1fc0272d744c46e166032b356d8114b400d2",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/tests/test_contract_validation.py": {
+      "kind": "file",
+      "size": 10783,
+      "sha256": "62afc7662cd33c99aed2a0dd5c5bd421d5479124b7cdc56e1bb5c9a2b781cdbd",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/tests/test_decision_backend_contract.py": {
+      "kind": "file",
+      "size": 5135,
+      "sha256": "f681621eb2755618316823e4a9c2699400571ce80ea5876ad5714dc57619f9de",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_decision_contracts.py": {
+      "kind": "file",
+      "size": 5675,
+      "sha256": "cf33a220cfdc81d201225ae4989a28b31569c279dd67fed8e162c4aabf31d712",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_decision_fixtures.py": {
+      "kind": "file",
+      "size": 17900,
+      "sha256": "d79253d3bbe0d6f3201b86ab9cfb0d2664636d76cf85123e5109a59041d4acaf",
+      "allocated": 20480
+    },
+    "apps/AstrBotEX/tests/test_decision_management_boundaries.py": {
+      "kind": "file",
+      "size": 5477,
+      "sha256": "67fb3693b5020a6088a55302ccbe7a27f5fbba7032b0ef2ba0c2c702791040a4",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_decision_management_history.py": {
+      "kind": "file",
+      "size": 6100,
+      "sha256": "fbce8fd9af502d5858fc8695c54a5576a0cf013dc4c4b6c08b3ab5d2d8852a63",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_decision_management_http.py": {
+      "kind": "file",
+      "size": 17347,
+      "sha256": "e45dccc1ac08abb0a41e9047fd64e470791a4160780c33b2c6bed78b0647928f",
+      "allocated": 20480
+    },
+    "apps/AstrBotEX/tests/test_decision_management_interleaving.py": {
+      "kind": "file",
+      "size": 10341,
+      "sha256": "6216f5241ca784c15a742a280613bb3a6d01de08950ad4bcc5cf3298aebed91c",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/tests/test_decision_management_operations.py": {
+      "kind": "file",
+      "size": 12197,
+      "sha256": "895ec94340f9a25c619fbab71b583874e1cacd80e540b5279a3cb743e0bd9dd8",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/tests/test_decision_runtime_integration.py": {
+      "kind": "file",
+      "size": 22526,
+      "sha256": "58ede6de72cf3e5762e96e771dd704910618c990c8fa4b8dac6a938485f52fb7",
+      "allocated": 24576
+    },
+    "apps/AstrBotEX/tests/test_decision_secret_redaction.py": {
+      "kind": "file",
+      "size": 3014,
+      "sha256": "0094643033b65e25eb701b12a0ff6c1b97a0f10b9b4c90abb439f5677319a182",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/test_decision_service.py": {
+      "kind": "file",
+      "size": 86854,
+      "sha256": "ea8c11e354c89c629d59208cf580cdca9917680538176e03007813aa8e10862d",
+      "allocated": 90112
+    },
+    "apps/AstrBotEX/tests/test_decision_transport.py": {
+      "kind": "file",
+      "size": 4294,
+      "sha256": "ac4ff59e659112184035e9f3994a6fbdd05b3929ba858247a9dc8809f5bd270a",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_environment_boundaries.py": {
+      "kind": "file",
+      "size": 7990,
+      "sha256": "0cab93ac8148a1b1d313baad448a3e1611bfa9bb1472fde6dbef4f162c3185cc",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_environment_http.py": {
+      "kind": "file",
+      "size": 3659,
+      "sha256": "13dc8c90d8f724202be3977273d0d19ad1ba94287e9cf30ab59b9cc3b3f5d8b6",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/test_environments.py": {
+      "kind": "file",
+      "size": 13708,
+      "sha256": "f0d5f2f87300631a89a633e81d93b720d1518faaf15293602e06270dd806c7bc",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/test_event_bus.py": {
+      "kind": "file",
+      "size": 1951,
+      "sha256": "59a7f1cf5366678fd7476d68e24528d48a9f3cc1d3e0a94544b6bba80e47ee7e",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/test_goal_contract_validation.py": {
+      "kind": "file",
+      "size": 14948,
+      "sha256": "004b91966dbb8d755b18bbf652407d34c70d1d4d368a95644982a752ab08ec66",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/test_goal_manager.py": {
+      "kind": "file",
+      "size": 6226,
+      "sha256": "77a1860aece95cc14960d83f53eeb82c323b77dd976e8f06d0ba0d099396a95a",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_interaction_core.py": {
+      "kind": "file",
+      "size": 13353,
+      "sha256": "6637d526476c8b9889b42781085da9c007cb17abddd6ea64142790ae1aeec2f2",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/test_interaction_status.py": {
+      "kind": "file",
+      "size": 2487,
+      "sha256": "32b1ac92e5873be1b5813ca92b66ec92acf6c513493970b9411d397a58e9cb01",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/test_jev_backend.py": {
+      "kind": "file",
+      "size": 26709,
+      "sha256": "31dc02d80822eb9cd3ec6e58ce62cb520782255ce8b9f15a573d7f94795e848d",
+      "allocated": 28672
+    },
+    "apps/AstrBotEX/tests/test_jev_offline_evaluation.py": {
+      "kind": "file",
+      "size": 13948,
+      "sha256": "76625885b4e2cf7c283931c90b196f2e69d1de8cfa9bdee50f50ccc26f98ba2e",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/test_laya_backend.py": {
+      "kind": "file",
+      "size": 23400,
+      "sha256": "12ba7d130ae05ed551dc51758073cd42ef026820072b16e2a66dfb03235af266",
+      "allocated": 24576
+    },
+    "apps/AstrBotEX/tests/test_laya_service_integration.py": {
+      "kind": "file",
+      "size": 11997,
+      "sha256": "3c2acf6b2507b90aaa28e1a823df12d2531cc28949502e94c417d720018e4b10",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/tests/test_local_plugin_action_lifecycle.py": {
+      "kind": "file",
+      "size": 20440,
+      "sha256": "18898d1a5caf404301722267b5759a9975ea2d998662feef5ea36a6367d29e7f",
+      "allocated": 20480
+    },
+    "apps/AstrBotEX/tests/test_local_plugins_config.py": {
+      "kind": "file",
+      "size": 11345,
+      "sha256": "9a1385afaa04e99710bd561555e47de06a64388129c61d77545c71f53c874fae",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/tests/test_observation_store.py": {
+      "kind": "file",
+      "size": 9873,
+      "sha256": "e149ed22778379ea8c59ec5635c7de8c5b6d40a13653f7bf614cdc5f01485089",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/tests/test_owned_laya.py": {
+      "kind": "file",
+      "size": 12078,
+      "sha256": "b30b8fee0b3cafe607081b624be7ce2b7a3794d62f91e0960fb82099f34cba4a",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/tests/test_perception_core.py": {
+      "kind": "file",
+      "size": 4162,
+      "sha256": "c32ae62a14ea6c91aca41eb8ac064d13b7ab5cba4bf8e9e5504e941a57cf82d1",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_plugin_action_api.py": {
+      "kind": "file",
+      "size": 3238,
+      "sha256": "d16e77b3f7a369ea39f7c77e88b84bd1614fa886c5090679575e3f593b216b87",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/test_plugin_action_mailbox.py": {
+      "kind": "file",
+      "size": 15220,
+      "sha256": "be3d076c9e42f31a0430b78cddfc9f0bdafb8889228ad7ece763ae7bbc1c8075",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/test_plugin_actor.py": {
+      "kind": "file",
+      "size": 4318,
+      "sha256": "816ec1af31b8a33bf81cfbc645a6a5b479b2cbcd63c7d09aebffe807e848899c",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_plugin_registry_actions.py": {
+      "kind": "file",
+      "size": 27469,
+      "sha256": "2917b290ca938f054a23a204389684f183de276c9fca69cc62bae16f8963e536",
+      "allocated": 28672
+    },
+    "apps/AstrBotEX/tests/test_ros2_integration.py": {
+      "kind": "file",
+      "size": 11987,
+      "sha256": "0a10e729f8dd2a75952c1d0afca42c2d695d1224d7252c38ac18fcfb0c09dcd2",
+      "allocated": 12288
+    },
+    "apps/AstrBotEX/tests/test_runtime_actor_integration.py": {
+      "kind": "file",
+      "size": 5267,
+      "sha256": "e5b149d088fc9e20f3e5e30abbf69ecf5f362e1ef909d41f4e8746b8c42971d2",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_safety.py": {
+      "kind": "file",
+      "size": 4143,
+      "sha256": "8bcf764fb225eb1c2da31a3bd30745318352357c28c49ef5a9ade734304e8937",
+      "allocated": 8192
+    },
+    "apps/AstrBotEX/tests/test_scene_fusion.py": {
+      "kind": "file",
+      "size": 12808,
+      "sha256": "7129a7578163966595b98d302546098a828324ab9216ad014489eb9376731601",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/test_snapshot_contracts.py": {
+      "kind": "file",
+      "size": 15328,
+      "sha256": "0d3ea152d3c4963e7be2d78037a4afb466aad61ec30709a6c8232864a1b7cde8",
+      "allocated": 16384
+    },
+    "apps/AstrBotEX/tests/test_topic_bus_inbox.py": {
+      "kind": "file",
+      "size": 954,
+      "sha256": "ab0274d9d6caef52a815add654b437f88e68ad972865ef286926bc6a6fb231cc",
+      "allocated": 4096
+    },
+    "apps/AstrBotEX/tests/test_world_builder.py": {
+      "kind": "file",
+      "size": 1290,
+      "sha256": "9ac51d2ccdb0ffec5696fcaa03e2e21438b2f1804ec8c592fc967ebe39647835",
+      "allocated": 4096
+    },
+    "apps/adapters/.gitkeep": {
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "allocated": 0
+    },
+    "apps/adapters/astrbot/A.E.B": {
+      "kind": "gitlink",
+      "entry": "160000 7f9790d823dc42af91cbc928cdb98c48f3eef737 0"
+    },
+    "apps/skill_registry/.gitkeep": {
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "allocated": 0
+    },
+    "config/isaac_baseline.env": {
+      "kind": "file",
+      "size": 791,
+      "sha256": "49ed0e909835b16a666a6ff90c69e57cba81c2b25df9d6ac043215ef044234eb",
+      "allocated": 4096
+    },
+    "config/isaac_known_pip_warnings.txt": {
+      "kind": "file",
+      "size": 441,
+      "sha256": "e647e11b93c3f4e499af210e3efe10dbbc4ed46120a8472cdea666b933a66beb",
+      "allocated": 4096
+    },
+    "docs/ASTRBOTEX_AEB_LATEST_FEATURES.md": {
+      "kind": "file",
+      "size": 9918,
+      "sha256": "0fe0b7ff1b42f2d400e1b8f21645eabe5138676ab3740f7073f7e16a9069e818",
+      "allocated": 12288
+    },
+    "docs/ASTRBOTEX_ARCHITECTURE_REVIEW_HISTORY.md": {
+      "kind": "file",
+      "size": 46439,
+      "sha256": "98a4bbe981132d8e7eba5abb297a9b19924b6b831b431df623ecc3f2095389c1",
+      "allocated": 49152
+    },
+    "docs/ASTRBOTEX_IMPORT_HISTORY.md": {
+      "kind": "file",
+      "size": 3649,
+      "sha256": "f5d5f9b3e0bbda055af3e792f896441e83f7662c730d5a2800eedea5468feef7",
+      "allocated": 4096
+    },
+    "docs/ASTRBOTEX_SYNC_20261001_RESULT.md": {
+      "kind": "file",
+      "size": 10004,
+      "sha256": "050901873c792f1d647695a762ccc42765f02b876d2ab46fb0b73cfa7f01705b",
+      "allocated": 12288
+    },
+    "docs/AstrEX_CartPole_MVP_V4_人话版开发说明.md": {
+      "kind": "file",
+      "size": 18548,
+      "sha256": "c803139f1465de588f88239e5b33c7612cfd99bfb293562ef454c5f8c3239415",
+      "allocated": 20480
+    },
+    "docs/AstrEX_workingTree/00_施工总索引与派工规则.md": {
+      "kind": "file",
+      "size": 11322,
+      "sha256": "eba2109bc4dd29cd0ab75ae17fc2565e780b9455b77660c7aa5a33d853f9c1c4",
+      "allocated": 12288
+    },
+    "docs/AstrEX_workingTree/01_下一代详细架构与现有代码对照.md": {
+      "kind": "file",
+      "size": 19832,
+      "sha256": "980efb7b60401e98ec5e5779832c81c2cd82800c9fecde23e6244a5e73937447",
+      "allocated": 20480
+    },
+    "docs/AstrEX_workingTree/99_最终验收报告_待实施待实测.md": {
+      "kind": "file",
+      "size": 11282,
+      "sha256": "a2237a37aa7b99d7ae228380e8e68adf0561e3bc9848ad7127300204e0198e75",
+      "allocated": 12288
+    },
+    "docs/AstrEX_workingTree/B00_高风险_基线冻结与跨端协议定稿.md": {
+      "kind": "file",
+      "size": 7938,
+      "sha256": "92bcd418a137813f1f73d6bb75100df26d1859950ac25f546ff463872246328f",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/B01_低风险_插件小说明与测试样例.md": {
+      "kind": "file",
+      "size": 3441,
+      "sha256": "00f04ec185b553e3dfb739585f13686ffb56307035bd3642fad06ddae7275af2",
+      "allocated": 4096
+    },
+    "docs/AstrEX_workingTree/B02_高风险_EX直达插件命令通道与动作SDK.md": {
+      "kind": "file",
+      "size": 7675,
+      "sha256": "8b392191b8eafce195103ce987b62a0fd9aef2cf4baebd3ef89e62f3cc6f1b40",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/B03_低风险_模拟感知与模拟执行插件.md": {
+      "kind": "file",
+      "size": 2237,
+      "sha256": "634af176b934f60c894300536bc38b99dfc019103cabb55c044aca338638c9a3",
+      "allocated": 4096
+    },
+    "docs/AstrEX_workingTree/B04_高风险_EX活动Goal与决策核心.md": {
+      "kind": "file",
+      "size": 6822,
+      "sha256": "73070c5ed4d230aa4bd86fdfb035461029d762bb1a4b7d959539c03188130dad",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/B05_高风险_AEB任务规划缓存与反馈闭环.md": {
+      "kind": "file",
+      "size": 5897,
+      "sha256": "aa12693add2bd98d49f245fe4af814deb9d8ddd04f01904762dac86ac7b2cfe9",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/B06_高风险_隐式控制与公开回复隔离.md": {
+      "kind": "file",
+      "size": 3942,
+      "sha256": "1309223e54d38d3a0286263bd4e709b8acc40016b58cc40bf8732016e4d71ff9",
+      "allocated": 4096
+    },
+    "docs/AstrEX_workingTree/B07_高风险_Jev后端接入与决策评测.md": {
+      "kind": "file",
+      "size": 4924,
+      "sha256": "fcc44a0c41093f4775c7204d7841882639d2a0a6295419c602dc1ef5a5dcebc5",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/B08_高风险_决策管理API与密钥保护.md": {
+      "kind": "file",
+      "size": 12993,
+      "sha256": "61d3e165bd1af0bf8213dc1c78e8c5c4c59b3306d211b7487d1bbb5358fb5ec0",
+      "allocated": 16384
+    },
+    "docs/AstrEX_workingTree/B09_低风险_决策前端页面与展示.md": {
+      "kind": "file",
+      "size": 6995,
+      "sha256": "70bd6b3e978302b4eefa951d1bec528463983f012664ebdfa87004270423e13a",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/B10_高风险_新YOLO感知与目标参数绑定.md": {
+      "kind": "file",
+      "size": 4623,
+      "sha256": "a5148fe69a4d60a4580b596798ad028b6daee7142d0aced86b26e69c45841fc4",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/B11_高风险_ROS2执行插件与安全停止.md": {
+      "kind": "file",
+      "size": 4489,
+      "sha256": "a7c84dfa6eee8f3df24bc8052ffb4dcdd1645e4f8492ea8ac26947b4313ddc31",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/B12_低风险_Docker回归与证据采集.md": {
+      "kind": "file",
+      "size": 6193,
+      "sha256": "3c76c5297ef221f1a2eb28687b566e8d3996046eef5170d52e89b321699a085d",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/B13_高风险_香橙派集成与最终验收.md": {
+      "kind": "file",
+      "size": 5234,
+      "sha256": "d8320aa6a7ce785013833134117efdbfc7f6d7b8ff293a690ce16bd6e9454bff",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-28-closeout/COORDINATOR-HANDOFF-before-stop.md": {
+      "kind": "file",
+      "size": 13019,
+      "sha256": "302f8726e76d2ab40add4ba0d661136b0522aa4c4ab76573581954e8c86ad72b",
+      "allocated": 16384
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-28-closeout/RESUME.md": {
+      "kind": "file",
+      "size": 4002,
+      "sha256": "45ade2ef568bbce9a083ca45d0f300c0861e25310e3d4db70bd99d5871746e4f",
+      "allocated": 4096
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-28-closeout/evidence-manifest-initial.json": {
+      "kind": "file",
+      "size": 2862,
+      "sha256": "7886ae7ba8e78e7879f91e43fcd2a00e109b5520378e142fb52b3c83ebc85419",
+      "allocated": 4096
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-28-closeout/evidence/ex-fixtures/task-evidence/B00/snapshot-review-handoff.md": {
+      "kind": "file",
+      "size": 2725,
+      "sha256": "a8653897e3f9fb228d57963d2fc96531414fc5945d57d250c507c7716a2f6293",
+      "allocated": 4096
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-28-closeout/main-status-closeout.json": {
+      "kind": "file",
+      "size": 713,
+      "sha256": "b4af8c0b057c3c7db425a66f472c69b91f37690b6a4dbdf4b1a1439fb2076715",
+      "allocated": 4096
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-28-closeout/uncommitted-source-final-manifest.json": {
+      "kind": "file",
+      "size": 43507,
+      "sha256": "83b88109205cc6d0a0a2ac47574b2ac74299316bc9d2245ff7b4d2d841ae7f4c",
+      "allocated": 45056
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-28-closeout/uncommitted-source-manifest.json": {
+      "kind": "file",
+      "size": 43507,
+      "sha256": "8380180b29b59e4790d56bb4c606b85f27bc0489d9c113f638c39fcd16ddda0c",
+      "allocated": 45056
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-28-closeout/worker-stop-record.json": {
+      "kind": "file",
+      "size": 9894,
+      "sha256": "d212a9ed7e560dfb658c91a49b96cd194729a4d8d87fafb2e518da017634a896",
+      "allocated": 12288
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-28-closeout/worktree-status-final.json": {
+      "kind": "file",
+      "size": 2905,
+      "sha256": "429a9563c691e773ffbf5ee594da470b8049d0e798448cb13e6f865044a418a0",
+      "allocated": 4096
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-28-closeout/worktree-status-initial.json": {
+      "kind": "file",
+      "size": 2905,
+      "sha256": "429a9563c691e773ffbf5ee594da470b8049d0e798448cb13e6f865044a418a0",
+      "allocated": 4096
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-28-接续与审查记录.md": {
+      "kind": "file",
+      "size": 6102,
+      "sha256": "91b0ff3027c4c7cc56744b11554d26e72b0c5d0a3bcde638ffb4a719c39cbdc7",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-29-接续与验收记录.md": {
+      "kind": "file",
+      "size": 5341,
+      "sha256": "6c0820ed6a90fd87c0b5ec6fc9e9a5173d7710a77a6048c9ae434726041a0e6b",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/implementation/2026-09-30-接续与验收记录.md": {
+      "kind": "file",
+      "size": 11334,
+      "sha256": "6c73e691414b7eceeaee515aefdf314ed04e249dfa4048d330e6ed9181e2bfa5",
+      "allocated": 12288
+    },
+    "docs/AstrEX_workingTree/implementation/B00/CHECKPOINT-1.md": {
+      "kind": "file",
+      "size": 6027,
+      "sha256": "7e8dafa5ffc5e6ce2eac1582fcd24eee7d67cc975b882ea0b5751383e5cc6e9b",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/implementation/B02-协调与验收补充.md": {
+      "kind": "file",
+      "size": 5366,
+      "sha256": "9b799261d0afab60dea71dbdc74247f34f90c548d05598aeed3b256a5fd3e07b",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/implementation/COORDINATOR-HANDOFF.md": {
+      "kind": "file",
+      "size": 13584,
+      "sha256": "22f3f2fa345c3a9016afc3d86d68429cbc46ef3ec7987759eba1a17627d8d1ca",
+      "allocated": 16384
+    },
+    "docs/AstrEX_workingTree/implementation/CURRENT-SCOPE.md": {
+      "kind": "file",
+      "size": 1082,
+      "sha256": "88a08e8559dee15c5a1a6a725b5a096fb1358f3566c202174305c721b935b641",
+      "allocated": 4096
+    },
+    "docs/AstrEX_workingTree/implementation/marina-approval-fix.md": {
+      "kind": "file",
+      "size": 4732,
+      "sha256": "edf2499fc2ab08863f6b1b12b3554e5c53168f58c8670a07640725bef16eeae3",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/implementation/pending-review/B00-actions-parsers-RAW-UNREVIEWED.txt": {
+      "kind": "file",
+      "size": 43244,
+      "sha256": "de2b75c9657843409d03b42f37dcdd346174cef1b29bdde76c1275e94ebb8cf6",
+      "allocated": 45056
+    },
+    "docs/AstrEX_workingTree/implementation/pending-review/B00-decision-contract-UNREVIEWED.md": {
+      "kind": "file",
+      "size": 22732,
+      "sha256": "48d68dd4bb62e063ad7283c2f7adb457b1d19d14a35e9defbb01f796218989c0",
+      "allocated": 24576
+    },
+    "docs/AstrEX_workingTree/implementation/pending-review/B01-fixture-builder-UNREVIEWED.patch": {
+      "kind": "file",
+      "size": 40701,
+      "sha256": "2f1e846e5421325b08d74ada23d01f9eaae59eb57f214f72863324a2316b06f7",
+      "allocated": 40960
+    },
+    "docs/AstrEX_workingTree/implementation/pending-review/README.md": {
+      "kind": "file",
+      "size": 727,
+      "sha256": "cfe2db4bdc0e42bcc5c7f48c3f3c89b94e00198b6d64d3f4da2c514eb77ea865",
+      "allocated": 4096
+    },
+    "docs/AstrEX_workingTree/进度报告_2026-09-27.md": {
+      "kind": "file",
+      "size": 4726,
+      "sha256": "17572f56a1b5d849a6597468314318c0573cdac6ab1582ac02b35b93cc7d538d",
+      "allocated": 8192
+    },
+    "docs/AstrEX_workingTree/进度报告_2026-09-28.md": {
+      "kind": "file",
+      "size": 9650,
+      "sha256": "33e32fcf7e386708816f418f0f0300325d8b418d30392cad2a90ab8eaac1c534",
+      "allocated": 12288
+    },
+    "docs/AstrEX_workingTree/进度报告_2026-09-28_1515.md": {
+      "kind": "file",
+      "size": 3383,
+      "sha256": "007a125976084f422f95ebde3769d7b4530bb2e010122afc44074e7aa454afad",
+      "allocated": 4096
+    },
+    "docs/AstrEX_项目目录使用指南.md": {
+      "kind": "file",
+      "size": 20067,
+      "sha256": "16516ebcb8dc1682fd51e89653c190c872e5fe070a76fe0c91b52a3cd8b2980d",
+      "allocated": 20480
+    },
+    "docs/B04_BOUNDARY_20261001_RESULT.md": {
+      "kind": "file",
+      "size": 10550,
+      "sha256": "4ad54f587e669d8706d339466fa41b7d6b7a0d6f3721a4b5276ba3e1cd8769dc",
+      "allocated": 12288
+    },
+    "docs/B07_LAYA_EX_BACKEND_RESULT.md": {
+      "kind": "file",
+      "size": 13609,
+      "sha256": "5d96fdc87069d79a7e293c0c6c1ea1853e71dd0ad8c1bcd2e995d31418d01475",
+      "allocated": 16384
+    },
+    "docs/B08_DECISION_MANAGEMENT_RESULT.md": {
+      "kind": "file",
+      "size": 14905,
+      "sha256": "ccd35d757f37bec89b72379598fd697023e8b3968a58da32c85ac2a7dfb27250",
+      "allocated": 16384
+    },
+    "docs/CARTPOLE_CONTROL_SERVICE.md": {
+      "kind": "file",
+      "size": 14549,
+      "sha256": "c616d6a94c40e8493ee76602fa11dad74cf01fa6130f957649d6b83ece8cb900",
+      "allocated": 16384
+    },
+    "docs/CARTPOLE_EXPERIMENT_HISTORY.md": {
+      "kind": "file",
+      "size": 4566,
+      "sha256": "da67f0a21cb0dafbbde7a8cbd6455accc0a6969058256de3135497e559b4f3cb",
+      "allocated": 8192
+    },
+    "docs/CARTPOLE_STEP4_GUI_RESULT.md": {
+      "kind": "missing"
+    },
+    "docs/ISAAC_51_DEV_BASELINE.md": {
+      "kind": "file",
+      "size": 13462,
+      "sha256": "8c3b28cb663649b27c1964d7c80d3a6dfe5c28a6837b51b6939facdaa5e79572",
+      "allocated": 16384
+    },
+    "docs/ISAAC_ENVIRONMENT_HISTORY.md": {
+      "kind": "file",
+      "size": 2365,
+      "sha256": "31f02e0cdcee63291e495b9f3221160cadd40524b06fd057d3dab141d220fc84",
+      "allocated": 4096
+    },
+    "docs/ISAAC_HISTORICAL.md": {
+      "kind": "file",
+      "size": 4549,
+      "sha256": "f1470c012d137d9e0458e83c735a2de8224cffef5563d7e2bb8197de0ef10d3c",
+      "allocated": 8192
+    },
+    "docs/MOBILE_MANIPULATION_PYROKI_MVP_PLAN.md": {
+      "kind": "file",
+      "size": 100869,
+      "sha256": "68608cf066a246d1541fac78ae964a5772c5fdca16ee43b42d7fad35b33813b5",
+      "allocated": 102400
+    },
+    "docs/PRE_B09_BASELINE_20261002_RESULT.md": {
+      "kind": "file",
+      "size": 4776,
+      "sha256": "62d6de4d8ee4ddff7bc0934a1cc7bf43a384faaf186ec0bc357494f3116f8a33",
+      "allocated": 8192
+    },
+    "docs/ROS2_接口构建排查.txt": {
+      "kind": "file",
+      "size": 11004,
+      "sha256": "0d746cf2014ec3447e020e93ccbaaf01843071e7e1bccb0d5029c63f01e0e8d6",
+      "allocated": 12288
+    },
+    "docs/env/current/isaaclab232_conda_export.yml": {
+      "kind": "file",
+      "size": 7593,
+      "sha256": "a4c3b5d89321b58451cbb13b38a396c1765ece57938ec5c3d66608328a149777",
+      "allocated": 8192
+    },
+    "docs/env/current/isaaclab232_git.txt": {
+      "kind": "file",
+      "size": 293,
+      "sha256": "c9fc26e2f4b6af36df313e4fb2b53c96c2ef235dbb2190632bcf7f3215db587d",
+      "allocated": 4096
+    },
+    "docs/env/current/isaaclab232_pip_freeze.txt": {
+      "kind": "file",
+      "size": 5354,
+      "sha256": "46fcb6d8d515cc4269a3eb1259d1975e073d494a50cf0335b3afee27a128a1bb",
+      "allocated": 8192
+    },
+    "docs/env/current/isaaclab232_versions.txt": {
+      "kind": "file",
+      "size": 540,
+      "sha256": "c5291758a212583c0273d4b76c0a96a5aa6d919621ade0f86778f038d0d41207",
+      "allocated": 4096
+    },
+    "docs/env/legacy/README.md": {
+      "kind": "file",
+      "size": 3238,
+      "sha256": "4078871b0cffbbe1aa9a7866652c042a54fd5d19c644bbca8c79eb16751e8f76",
+      "allocated": 4096
+    },
+    "docs/env/legacy/isaaclab60_6010test_final_conda_export.yml": {
+      "kind": "file",
+      "size": 7969,
+      "sha256": "458b455b3cc75112c412ae4bac20ed86f4e848f5aa961bf9974c76324e80f095",
+      "allocated": 8192
+    },
+    "docs/env/legacy/isaaclab60_6010test_final_freeze.txt": {
+      "kind": "file",
+      "size": 6494,
+      "sha256": "40d3906727a33c3b815fc6db8946135ce60cd93977d80488b6ab80226cc61f1c",
+      "allocated": 8192
+    },
+    "docs/env/legacy/isaaclab60_final_conda_export.yml": {
+      "kind": "file",
+      "size": 8759,
+      "sha256": "1caca7aef613b8315e94d66e7547f9385b467b74436622f176b81755b94d206f",
+      "allocated": 12288
+    },
+    "docs/env/legacy/isaaclab60_final_freeze.txt": {
+      "kind": "file",
+      "size": 7301,
+      "sha256": "a5e65288c7072de18278811eb495639ba2dad06f281267656ba2e4d8e51f5bd7",
+      "allocated": 8192
+    },
+    "docs/evidence/PRE_B09_ARCHIVE_MANIFEST.json": {
+      "kind": "file",
+      "size": 54960,
+      "sha256": "8e4b371d6a853fbcbd20a8e4122c73f0733331526c314ef8a63c10d5bf7d1f20",
+      "allocated": 57344
+    },
+    "docs/evidence/astrbotex_sync_20261001/README.md": {
+      "kind": "file",
+      "size": 636,
+      "sha256": "2f540f396a97ac9cbfab7778f20e8475cedfe4966d986f1515514f228b944d23",
+      "allocated": 4096
+    },
+    "docs/evidence/astrbotex_sync_20261001/before.json": {
+      "kind": "file",
+      "size": 38230,
+      "sha256": "b5ab260e5e87b6e382159ba59012b11f7681f1e69dbae0a5ce0c3be1933f4f23",
+      "allocated": 40960
+    },
+    "docs/evidence/astrbotex_sync_20261001/comparison.json": {
+      "kind": "file",
+      "size": 11865,
+      "sha256": "0c0e6971a13e5175d3f8584ffe5bb1d933f006881598f2bd6ecb2611716a3ec1",
+      "allocated": 12288
+    },
+    "docs/evidence/astrbotex_sync_20261001/concurrent_changes.json": {
+      "kind": "file",
+      "size": 2515,
+      "sha256": "6b9fc2a563a3c133f210bcdc8053bd3b412ba4025e33a87889beb1ebe1d65186",
+      "allocated": 4096
+    },
+    "docs/evidence/astrbotex_sync_20261001/merges.json": {
+      "kind": "file",
+      "size": 514,
+      "sha256": "0ca43d769850c7dda7f5da8a7356db339b399bff27d2978bf44b125eb27b745d",
+      "allocated": 4096
+    },
+    "docs/evidence/astrbotex_sync_20261001/protection_check.json": {
+      "kind": "file",
+      "size": 2147,
+      "sha256": "d33bde497d28c326a58a57c99af9b4871768ef166894599102aa6da2c59b768e",
+      "allocated": 4096
+    },
+    "docs/evidence/astrbotex_sync_20261001/sync_manifest.json": {
+      "kind": "file",
+      "size": 41647,
+      "sha256": "f005fa5ffc4534e0b7c74f1746b692dd07a7d298ca5b6005d302dec5c4f49d71",
+      "allocated": 45056
+    },
+    "docs/evidence/astrbotex_sync_20261001/test_environment.json": {
+      "kind": "file",
+      "size": 462,
+      "sha256": "bb54ee40f9ce7104f630e12608a900056ff4599dadbff1018af6eb35fafe0a55",
+      "allocated": 4096
+    },
+    "docs/evidence/astrbotex_sync_20261001/vendor_verification.json": {
+      "kind": "file",
+      "size": 168,
+      "sha256": "e94280000d0b61859c5e041c7cc0e5b6f91683e4a084ce97974e48fbfc372177",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/API-CONTRACT.md": {
+      "kind": "file",
+      "size": 2922,
+      "sha256": "3c5dfe9b0d7d7e451a337f4dab0096ff3b4cf88d05bb237b4ba8155c0fa31346",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/README.md": {
+      "kind": "file",
+      "size": 603,
+      "sha256": "e1549145def1db2e4781643096347d78fae0fa722a612e6cd33f3234c009fa57",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/SHA256SUMS.json": {
+      "kind": "file",
+      "size": 3872,
+      "sha256": "59640b4b660745b240ba95af4ec06296b6b511197d889a55f34fe9ce89abcbb3",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/affected-tests-01.json": {
+      "kind": "file",
+      "size": 2662,
+      "sha256": "034bebc3c5202700ed49c2651304977b889d67e44477c985fe9080ba503bcc1b",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/boundaries-tests-01.json": {
+      "kind": "file",
+      "size": 211,
+      "sha256": "6c49cdd1941f693039c84e0fb4c1fbcb8d4da5144a283eca78c650510af1fcdc",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/browser-cleanup.json": {
+      "kind": "file",
+      "size": 1309,
+      "sha256": "8247e0a3e17dd9e4958171f7a2848d96d239b70a7f38f2a2a95d3eff66ab02e0",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/browser-command.json": {
+      "kind": "file",
+      "size": 2484,
+      "sha256": "900a720d0b2cf7af06bfe61cb9b092a6b68b50b943805c55794a2c0edb5ab99b",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/legacy-http-01.json": {
+      "kind": "file",
+      "size": 642,
+      "sha256": "669ae5dff0c2dd9536e30cc24f3acfddc13e9d63ba093e7a520d8e4f6e5ad3f2",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/owned-process-cleanup.json": {
+      "kind": "file",
+      "size": 559,
+      "sha256": "64f8421f3c24247bb161f965e61d924fa15dc316debab415688ec83d5f997859",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/protection-audit.json": {
+      "kind": "file",
+      "size": 6658,
+      "sha256": "ba83d7288e56a00bf063a058ee97802b5ea0b152f2ddd75e7a0cc59c591b7888",
+      "allocated": 8192
+    },
+    "docs/evidence/b08_20261001/real-run-01-command.json": {
+      "kind": "file",
+      "size": 674,
+      "sha256": "704f9c9e93af3cc94d9597b8a0647bb0f97c0e4bdc08c1dc4e4af4cb81f421b7",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/real-run-01-summary.json": {
+      "kind": "file",
+      "size": 17500,
+      "sha256": "e49f7de1e56773717e100f3c601b315d11adc47e54c2ebe6b5735c46ccbfc9c9",
+      "allocated": 20480
+    },
+    "docs/evidence/b08_20261001/real-source-frozen.json": {
+      "kind": "file",
+      "size": 3341,
+      "sha256": "604289ae0ab90cf3451040d1d6500377889304ed769a9bad3b978058b5e6b505",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/secret-redaction-tests-01.json": {
+      "kind": "file",
+      "size": 1845,
+      "sha256": "65776f835ffd28987d680bfb860382d5126ce635412ebf8e47b32bd0d6808951",
+      "allocated": 4096
+    },
+    "docs/evidence/b08_20261001/source.before.json": {
+      "kind": "file",
+      "size": 35108,
+      "sha256": "a3c13afcbd1f515f12836812a610deda1d8af3d8b44e1cb9aab25c33db79e407",
+      "allocated": 36864
+    },
+    "docs/evidence/b08_20261001/static-checks.json": {
+      "kind": "file",
+      "size": 1140,
+      "sha256": "71f07927638c05bdbf3f387bf1a98e13b6d3d38bbfc69f6d9e59b9edd59c0804",
+      "allocated": 4096
+    },
+    "docs/evidence/laya_b07_20261001/PROTOCOL_REPORT.md": {
+      "kind": "file",
+      "size": 12011,
+      "sha256": "ae1541552186f3b8aaf9edfa02096d5129e0aef6c673b78bd0f9e50ea70f7fa5",
+      "allocated": 12288
+    },
+    "docs/evidence/laya_b07_20261001/README.md": {
+      "kind": "file",
+      "size": 618,
+      "sha256": "3891227d1b9c2f1faa94dfd1a9b21ec780a90d448c02ecb762539c7795fda7f5",
+      "allocated": 4096
+    },
+    "docs/evidence/laya_b07_20261001/environment.json": {
+      "kind": "file",
+      "size": 566,
+      "sha256": "1a0083f8f094b19b21e83d3bc4fc19c7ddcc1b1ef0638f0b2a83a2217915a9b2",
+      "allocated": 4096
+    },
+    "docs/evidence/laya_b07_20261001/fixed_scenarios.json": {
+      "kind": "file",
+      "size": 318,
+      "sha256": "aa65407e3af05d87d9ac0b0a5bdfb0047b77aa433e316c91a3a8f4fc539bcc3f",
+      "allocated": 4096
+    },
+    "docs/evidence/laya_b07_20261001/input-budget-check.json": {
+      "kind": "file",
+      "size": 13490,
+      "sha256": "dda070d9067a17f38f9187a0d4b7fe03e5adb5afb36bb370784c108e4ea8d7d6",
+      "allocated": 16384
+    },
+    "docs/evidence/laya_b07_20261001/laya-environment.freeze.txt": {
+      "kind": "file",
+      "size": 1211,
+      "sha256": "cc045bd2677f1a80febc3c98873b1b5024110833cbf76d4044b52c2ee224e904",
+      "allocated": 4096
+    },
+    "docs/evidence/laya_b07_20261001/manifest.json": {
+      "kind": "file",
+      "size": 4235,
+      "sha256": "ad2e8d6bb5380d85055866601329adcdc69a529786e1ad0569177bc0968ba54e",
+      "allocated": 8192
+    },
+    "docs/evidence/laya_b07_20261001/protection-audit.json": {
+      "kind": "file",
+      "size": 808,
+      "sha256": "ba53a3651f5375918802d50e89f7b243ab68c4ebda587211146749cc6910ae15",
+      "allocated": 4096
+    },
+    "docs/evidence/laya_b07_20261001/real-source-frozen.json": {
+      "kind": "file",
+      "size": 672,
+      "sha256": "20b430b30136c9063a6a127cdba4bba63c535676d82f88cdcf1dbf997bc886f9",
+      "allocated": 4096
+    },
+    "docs/evidence/laya_b07_20261001/source-install-manifest.json": {
+      "kind": "file",
+      "size": 246,
+      "sha256": "9665fd21137d27fb777e958062f1e2cb9d6554fb2a94f28a27871011429e8411",
+      "allocated": 4096
+    },
+    "docs/evidence/laya_b07_20261001/source.before.json": {
+      "kind": "file",
+      "size": 25722,
+      "sha256": "7c8ae597c8a4423ae703f496b86047604e493948ff6fc3732bfe73c4c23eecba",
+      "allocated": 28672
+    },
+    "docs/evidence/laya_b07_20261001/verification-summary.json": {
+      "kind": "file",
+      "size": 1038,
+      "sha256": "9ac0f0bba820440e034033cd459b8d7167baa4a26de4bdbde480b45da8a04393",
+      "allocated": 4096
+    },
+    "docs/evidence/laya_b07_20261001/weights-manifest.json": {
+      "kind": "file",
+      "size": 1207,
+      "sha256": "fcc7e8f108933d6fb890e2792540053fda158dd5d156c52f13d612299e37403a",
+      "allocated": 4096
+    },
+    "docs/evidence/pre_b09_20261002/README.md": {
+      "kind": "file",
+      "size": 442,
+      "sha256": "19a0763b6b48ad578fcd4dbef211a6fc81584c549918b6e8e5f81a9708702479",
+      "allocated": 4096
+    },
+    "docs/evidence/pre_b09_20261002/archive-verified.json": {
+      "kind": "file",
+      "size": 209,
+      "sha256": "77534f431d431fdb912f66e13c8532ca21343ab1c28cab03063082fc7fc7cb43",
+      "allocated": 4096
+    },
+    "docs/evidence/pre_b09_20261002/cleanup-summary.json": {
+      "kind": "file",
+      "size": 2387,
+      "sha256": "3ffc1f44b8b58643314475f405952370cdd0f356b1e8c9580cfe343ef857014e",
+      "allocated": 4096
+    },
+    "docs/evidence/pre_b09_20261002/credential-scan.json": {
+      "kind": "file",
+      "size": 179,
+      "sha256": "30f4ec4675a174881b727dc7c2f73404da620a1bdc90d99f224986fabb57fc72",
+      "allocated": 4096
+    },
+    "docs/evidence/pre_b09_20261002/directory-link-check.json": {
+      "kind": "file",
+      "size": 5847,
+      "sha256": "cd8e41478e18ece41c8d56292d65ce1cb1cf4fab411a9f324509782b9cd3d4c9",
+      "allocated": 8192
+    },
+    "docs/evidence/pre_b09_20261002/entrypoint-check.json": {
+      "kind": "file",
+      "size": 165,
+      "sha256": "7ef7cdef891923ab6095398ed491c227fb0340b724260a577fdc22ec732de453",
+      "allocated": 4096
+    },
+    "docs/evidence/pre_b09_20261002/final-checks.json": {
+      "kind": "file",
+      "size": 297,
+      "sha256": "cbf63cae4bead6367b05df59c463d6e69faa8c7199662e76363df49e2c545133",
+      "allocated": 4096
+    },
+    "docs/evidence/pre_b09_20261002/pre-cleanup-check.json": {
+      "kind": "file",
+      "size": 155,
+      "sha256": "690d840c5b880eadad2ce1702d6aef3ba1d5393ffdb1715d78f8240aa55f43a6",
+      "allocated": 4096
+    },
+    "docs/evidence/pre_b09_20261002/staging-check.json": {
+      "kind": "file",
+      "size": 858,
+      "sha256": "417aa84403d800be1659f2347c5dc75f936c256a2b69304ca0b072241c3a12c6",
+      "allocated": 4096
+    },
+    "ros2_ws/src/astrex_interfaces/CMakeLists.txt": {
+      "kind": "file",
+      "size": 1098,
+      "sha256": "44adce0aaace8cf8a9e0c0a144af451a61c5d1d1ae06507f0656e5183efe2e21",
+      "allocated": 4096
+    },
+    "ros2_ws/src/astrex_interfaces/action/.gitkeep": {
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "allocated": 0
+    },
+    "ros2_ws/src/astrex_interfaces/msg/.gitkeep": {
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "allocated": 0
+    },
+    "ros2_ws/src/astrex_interfaces/package.xml": {
+      "kind": "file",
+      "size": 793,
+      "sha256": "97e569d877a904161e34c04905b7a15ff992ece96458eaa90cd003e6f53ecc2d",
+      "allocated": 4096
+    },
+    "ros2_ws/src/astrex_interfaces/srv/.gitkeep": {
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "allocated": 0
+    },
+    "ros2_ws/src/astrex_interfaces/srv/MoveCartTo.srv": {
+      "kind": "file",
+      "size": 217,
+      "sha256": "d5be9a4c2a3744634cccfd6bbb5cb977c1202d31ef36d44731f4ebe766484cb4",
+      "allocated": 4096
+    },
+    "ros2_ws/src/astrex_interfaces/srv/SpinPole.srv": {
+      "kind": "file",
+      "size": 380,
+      "sha256": "a0d1e933fc7101cd908698937ca7e873447febf4b1ae88d48901411924ff2bd1",
+      "allocated": 4096
+    },
+    "ros2_ws/src/astrex_ros_bridge/astrex_ros_bridge/__init__.py": {
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "allocated": 0
+    },
+    "ros2_ws/src/astrex_ros_bridge/astrex_ros_bridge/balance_hold_controller.py": {
+      "kind": "file",
+      "size": 7941,
+      "sha256": "3f3fa3db495d2e7bb712f9c91ba3115884e113dc6bf0ca1f01cc6c76e968b4ac",
+      "allocated": 8192
+    },
+    "ros2_ws/src/astrex_ros_bridge/astrex_ros_bridge/cartpole_reference.py": {
+      "kind": "file",
+      "size": 5128,
+      "sha256": "65615ea8b146ea590eb2f5a1bd4ebf382933e5a1e1e7f4fd4c44f060eb73361b",
+      "allocated": 8192
+    },
+    "ros2_ws/src/astrex_ros_bridge/astrex_ros_bridge/cartpole_service_node.py": {
+      "kind": "file",
+      "size": 35544,
+      "sha256": "c47d64242d68e6cd7b299042349497426145c4607f80b37031ecc73bd4de47a2",
+      "allocated": 36864
+    },
+    "ros2_ws/src/astrex_ros_bridge/astrex_ros_bridge/cartpole_task.py": {
+      "kind": "file",
+      "size": 17192,
+      "sha256": "d429c34919f1f4cbacd5dd1d02289b8f3ae880aa7cdab3a63569fa8d1386713a",
+      "allocated": 20480
+    },
+    "ros2_ws/src/astrex_ros_bridge/astrex_ros_bridge/state_cache.py": {
+      "kind": "file",
+      "size": 3680,
+      "sha256": "9dd91626aa3636ecd51a79b216bd75830ed8066d87b65c264df5f1277806d5f3",
+      "allocated": 4096
+    },
+    "ros2_ws/src/astrex_ros_bridge/astrex_ros_bridge/state_cache_node.py": {
+      "kind": "file",
+      "size": 2454,
+      "sha256": "fd766a7debf47105686d5a487303da4b206e68de7ea423f383e946f1ad42971a",
+      "allocated": 4096
+    },
+    "ros2_ws/src/astrex_ros_bridge/package.xml": {
+      "kind": "file",
+      "size": 834,
+      "sha256": "4f20ea742c3448d18a1c9cb4417ab3640e1ebce633e226eb3989ccc08d4b61d0",
+      "allocated": 4096
+    },
+    "ros2_ws/src/astrex_ros_bridge/resource/astrex_ros_bridge": {
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "allocated": 0
+    },
+    "ros2_ws/src/astrex_ros_bridge/setup.cfg": {
+      "kind": "file",
+      "size": 103,
+      "sha256": "29efc48289c28af9c7ed1ebbd32d88af784c3865dde901ebb54f940e89bf371c",
+      "allocated": 4096
+    },
+    "ros2_ws/src/astrex_ros_bridge/setup.py": {
+      "kind": "file",
+      "size": 863,
+      "sha256": "4ad5391743e7766bd5a87bc17cbb24b627f18a52cc1dff06312819bdf83606ea",
+      "allocated": 4096
+    },
+    "ros2_ws/src/astrex_ros_bridge/test/test_balance_hold_controller.py": {
+      "kind": "file",
+      "size": 4899,
+      "sha256": "6156470fd3755f6e425b731975e32ebdfb9830ec568519964f95cb5f3ff01aa2",
+      "allocated": 8192
+    },
+    "ros2_ws/src/astrex_ros_bridge/test/test_cartpole_reference.py": {
+      "kind": "file",
+      "size": 5785,
+      "sha256": "06bbe38dc333eec79f6494c4d79dd7d97821b724305e3944741179e5f323344b",
+      "allocated": 8192
+    },
+    "ros2_ws/src/astrex_ros_bridge/test/test_cartpole_service_node.py": {
+      "kind": "file",
+      "size": 17632,
+      "sha256": "f276694ccd2952b7b3cdf455b5573b317a41c161c737439d7e6385f18fe40a90",
+      "allocated": 20480
+    },
+    "ros2_ws/src/astrex_ros_bridge/test/test_cartpole_task.py": {
+      "kind": "file",
+      "size": 11178,
+      "sha256": "fa6c5dd58d72e991e7b4a17b6990ffbd1831497bc62737cce866670f34eeaff3",
+      "allocated": 12288
+    },
+    "ros2_ws/src/astrex_ros_bridge/test/test_state_cache.py": {
+      "kind": "file",
+      "size": 3310,
+      "sha256": "43c3d9208f5edbfe2c877e60440ba7076d327063ae0cad7fdc909b13c797004b",
+      "allocated": 4096
+    },
+    "runtime/logs/.gitkeep": {
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "allocated": 0
+    },
+    "runtime/rosbag_tmp/.gitkeep": {
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "allocated": 0
+    },
+    "scripts/check_isaac_env.sh": {
+      "kind": "file",
+      "size": 169,
+      "sha256": "3a6682660994656fdefcff6990aa0dad1a18b79328c21e3901a28ff225030755",
+      "allocated": 4096
+    },
+    "scripts/dev_env.sh": {
+      "kind": "file",
+      "size": 287,
+      "sha256": "96ef1e4f2f63f387cb2b79c505504ffa677d48f4f97590379b103c173ac02299",
+      "allocated": 4096
+    },
+    "scripts/lib/cartpole_service_launcher.py": {
+      "kind": "file",
+      "size": 18242,
+      "sha256": "d6a1194294b1bb394bab2b63846b8494f2fec2e2d97a0bb0a35174cca045b6d2",
+      "allocated": 20480
+    },
+    "scripts/lib/isaac_common.sh": {
+      "kind": "file",
+      "size": 1064,
+      "sha256": "a71cab375006c0475eb085a59989b26b27b0e777a6ef0ccf3328242eafcd288c",
+      "allocated": 4096
+    },
+    "scripts/lib/isaac_entry.py": {
+      "kind": "file",
+      "size": 15643,
+      "sha256": "0be7a100a0380160bffe943a92768ae2a52e4fb7ed6a67c93abe2cb8c0d107db",
+      "allocated": 16384
+    },
+    "scripts/start_cartpole_service.sh": {
+      "kind": "file",
+      "size": 372,
+      "sha256": "5b5421a182b3fb4f316b8a9cb77178494d8d881ca54a8ac3101f4414fbd59595",
+      "allocated": 4096
+    },
+    "scripts/start_isaac_rl.sh": {
+      "kind": "file",
+      "size": 166,
+      "sha256": "a4e2ca948be3ae069bab3d247cc16050cf91b2d498463bdbd7800b206660b21e",
+      "allocated": 4096
+    },
+    "scripts/start_isaac_ros.sh": {
+      "kind": "file",
+      "size": 319,
+      "sha256": "586ad9870e83273a5457994a2a9da8f7b46190b0e97eb058efd01f10d33a038a",
+      "allocated": 4096
+    },
+    "sim/scripts/rl_official.py": {
+      "kind": "file",
+      "size": 4605,
+      "sha256": "bfdefbb3e5104e4bdfef810fb06bccda7d66d69479176784966f4c0aeab99614",
+      "allocated": 8192
+    },
+    "sim/scripts/ros_domain_check.py": {
+      "kind": "file",
+      "size": 7084,
+      "sha256": "43384f197e6fabb7373c74eee85adfc21fb7cb01ca24b19785316f5f6e1aa91e",
+      "allocated": 8192
+    },
+    "sim/scripts/run_ros_cartpole.py": {
+      "kind": "file",
+      "size": 35173,
+      "sha256": "19b842827327587d9624855d2db25560933b3b99a22a67b7ca32a7b1f1d477ca",
+      "allocated": 36864
+    },
+    "sim/usd_work/.gitkeep": {
+      "kind": "file",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "allocated": 0
+    },
+    "tests/isaac/ros_system_regression.py": {
+      "kind": "file",
+      "size": 23867,
+      "sha256": "63a7ed535c9b0df8896a24ca340c48fef67ec6bd08f6491756b0c739f1e37e44",
+      "allocated": 24576
+    },
+    "tests/isaac/test_launcher_contracts.py": {
+      "kind": "file",
+      "size": 22388,
+      "sha256": "de94a3dbfb609c66196e76d66f19d4997e43c8ae62028baca0845d8fc96bb89b",
+      "allocated": 24576
+    },
+    "tests/isaac/test_ros_domain_preflight.py": {
+      "kind": "file",
+      "size": 7421,
+      "sha256": "4a7c616ff7087128832d18c31df708fec77ac51e083297b9edfef99616d2747f",
+      "allocated": 8192
+    },
+    "tests/isaac/validate_ros_cartpole_boundary_reset.py": {
+      "kind": "file",
+      "size": 27491,
+      "sha256": "8082a45b48674eb1e4c2f90fb4917c61933aafffff936ab2853e636b22c807f1",
+      "allocated": 28672
+    },
+    "tests/test_cartpole_service_launcher.py": {
+      "kind": "file",
+      "size": 9563,
+      "sha256": "fc1b64437c4648d47e841b436cf536131d67af4304e59881ea4956a3efe08f8c",
+      "allocated": 12288
+    }
+  },
+  "index_sha256": "0678c8ac979d258e2d33a0b4fc21c6a633f018b0faa06b12c265a9a7c4d29a46",
+  "index_path": "/home/sssxy/Projects/AstrEX_project_main/.git/index",
+  "remotes": "origin\thttps://github.com/sssxy-Mr2p5pi/AstrEX_project_main.git (fetch)\norigin\thttps://github.com/sssxy-Mr2p5pi/AstrEX_project_main.git (push)\n",
+  "submodules": " ab42c0d9b726d82ad0f9563e04c53a4460c00d61 apps/AstrBot (v4.26.0-beta.8-413-gab42c0d9b)\n 7f9790d823dc42af91cbc928cdb98c48f3eef737 apps/adapters/astrbot/A.E.B (heads/main)\n"
+}

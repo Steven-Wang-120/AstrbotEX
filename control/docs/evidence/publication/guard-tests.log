@@ -1,0 +1,31 @@
+test_base_stop_missing_or_invalid_physics_feedback_cannot_pass (test_gate.Gates.test_base_stop_missing_or_invalid_physics_feedback_cannot_pass) ... ok
+test_base_stop_rejects_sliding_and_full_vector_rotation (test_gate.Gates.test_base_stop_rejects_sliding_and_full_vector_rotation) ... ok
+test_base_stop_requires_every_wheel_not_averages (test_gate.Gates.test_base_stop_requires_every_wheel_not_averages) ... ok
+test_base_uses_same_lease_and_rejects_arm_authorization (test_gate.Gates.test_base_uses_same_lease_and_rejects_arm_authorization) ... ok
+test_cached_stamp_does_not_refresh_state (test_gate.Gates.test_cached_stamp_does_not_refresh_state) ... ok
+test_controller_stream_hang_stops_despite_valid_renewals (test_gate.Gates.test_controller_stream_hang_stops_despite_valid_renewals) ... ok
+test_duplicate_cannot_reexecute_or_change_payload (test_gate.Gates.test_duplicate_cannot_reexecute_or_change_payload) ... ok
+test_effort_cap_cannot_exceed_profile (test_gate.Gates.test_effort_cap_cannot_exceed_profile) ... ok
+test_gripper_clamp_survives_arm_hold_but_explicit_open_releases (test_gate.Gates.test_gripper_clamp_survives_arm_hold_but_explicit_open_releases) ... ok
+test_gripper_physics_velocity_cannot_exceed_profile (test_gate.Gates.test_gripper_physics_velocity_cannot_exceed_profile) ... ok
+test_lease_and_command_replays_cannot_refresh_validity (test_gate.Gates.test_lease_and_command_replays_cannot_refresh_validity) ... ok
+test_lease_expiry_stops_even_if_old_jtc_targets_continue (test_gate.Gates.test_lease_expiry_stops_even_if_old_jtc_targets_continue) ... ok
+test_new_command_cannot_relabel_old_raw_target (test_gate.Gates.test_new_command_cannot_relabel_old_raw_target) ... ok
+test_sim_reset_latches_closed (test_gate.Gates.test_sim_reset_latches_closed) ... ok
+test_stop_window_resets_on_feedback_gap (test_gate.Gates.test_stop_window_resets_on_feedback_gap) ... ok
+test_support_contacts_are_whitelisted_and_reset_each_phase (test_gate.Gates.test_support_contacts_are_whitelisted_and_reset_each_phase) ... ok
+test_uninitialized_gate_status_is_valid_json_without_changing_deadline (test_gate.Gates.test_uninitialized_gate_status_is_valid_json_without_changing_deadline) ... ok
+test_unparameterized_or_wrong_start_trajectory_rejected (test_gate.Gates.test_unparameterized_or_wrong_start_trajectory_rejected) ... ok
+test_wire_size_and_nonfinite (test_gate.Gates.test_wire_size_and_nonfinite) ... ok
+test_changed_execution_key_immediately_stops_suppression (test_local_faults.LocalFaultTests.test_changed_execution_key_immediately_stops_suppression) ... ok
+test_config_permissions_profile_and_expiry_are_enforced (test_local_faults.LocalFaultTests.test_config_permissions_profile_and_expiry_are_enforced) ... ok
+test_default_off_does_not_read_a_control_file (test_local_faults.LocalFaultTests.test_default_off_does_not_read_a_control_file) ... ok
+test_old_command_or_simulator_cannot_pause_current_feedback (test_local_faults.LocalFaultTests.test_old_command_or_simulator_cannot_pause_current_feedback) ... ok
+test_owned_gateway_crash_needs_live_child_and_task_binding (test_local_faults.LocalFaultTests.test_owned_gateway_crash_needs_live_child_and_task_binding) ... ok
+test_pause_expires_and_same_sequence_cannot_extend_it (test_local_faults.LocalFaultTests.test_pause_expires_and_same_sequence_cannot_extend_it) ... ok
+test_unknown_operation_and_long_pause_are_rejected (test_local_faults.LocalFaultTests.test_unknown_operation_and_long_pause_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 0.005s
+
+OK

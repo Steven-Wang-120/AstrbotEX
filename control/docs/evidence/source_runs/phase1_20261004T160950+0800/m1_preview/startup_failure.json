@@ -1,0 +1,7 @@
+{
+  "error_type": "RuntimeError",
+  "error": "Native RTX lidar creation failed",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/sssxy/Projects/AstrEX_project_main/sim/scripts/run_mobile_manipulation.py\", line 94, in main\n    sensors = (attach_sensors(world, spec, args.sensor_profile,\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sssxy/Projects/AstrEX_project_main/sim/mobile_manipulation/scene.py\", line 91, in attach_sensors\n    raise RuntimeError(\"Native RTX lidar creation failed\")\nRuntimeError: Native RTX lidar creation failed\n",
+  "pid": 46069,
+  "ready": false
+}

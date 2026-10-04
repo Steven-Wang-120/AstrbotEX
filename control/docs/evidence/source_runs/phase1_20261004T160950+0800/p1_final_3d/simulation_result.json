@@ -1,0 +1,7 @@
+{
+  "status": "STOPPED",
+  "simulation_seconds": 50.566669303923845,
+  "wall_seconds_after_ready": 130.65435415399952,
+  "requested_stop": false,
+  "formal_acceptance": false
+}

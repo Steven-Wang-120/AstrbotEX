@@ -1,0 +1,20 @@
+{
+  "schema": "astrex.mm.preserved-test-output.v1",
+  "scope": "sampling_schedule_and_guard_regression",
+  "evidence_source": "agent_tool_output",
+  "source_tool": "functions.exec -> tools.exec_command",
+  "source_tool_result_chunk_id": "0e6fa8",
+  "original_stdout_capture_file": null,
+  "output_provenance": "Exact transcription of the output string returned by the earlier tool call; not a new test run and not an original redirected stdout file.",
+  "working_directory": "/home/sssxy/Projects/AstrEX_project_main",
+  "environment_command": "source scripts/mobile_manipulation_env.sh",
+  "test_command": "/usr/bin/python3 -m pytest -q tests/isaac/test_mobile_trial_evidence.py ros2_ws/src/astrex_mobile_manipulation/test/test_gate.py",
+  "following_check_command": "/usr/bin/python3 -m py_compile sim/mobile_manipulation/evaluate.py ros2_ws/src/astrex_mobile_manipulation/astrex_mobile_manipulation/isaac_gate.py",
+  "returned_output": "...................................                                      [100%]\n35 passed in 0.03s\n",
+  "reported_tests_passed": 35,
+  "reported_pytest_seconds": 0.03,
+  "combined_shell_exit_code": 0,
+  "tool_reported_wall_time_seconds": 0.302334055,
+  "rerun_for_preservation": false,
+  "limitations": "The original tool call did not write stdout to a file. Its output did not provide per-test timings. Compilation produced no output."
+}

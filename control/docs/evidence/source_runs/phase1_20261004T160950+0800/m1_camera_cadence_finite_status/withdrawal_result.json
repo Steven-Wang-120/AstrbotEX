@@ -1,0 +1,24 @@
+{
+  "status": "FAILED_OPTIMIZATION_WITHDRAWN",
+  "source_snapshot": [
+    {
+      "path": "sim/mobile_manipulation/scene.py",
+      "sha256": "a501eeaef4c449ce39e6a88680127bff5d765f8c669b82611dccca934d8bfd65"
+    },
+    {
+      "path": "sim/scripts/run_mobile_manipulation.py",
+      "sha256": "e80b1bc472f27e713472574c46e912023ced88eaa29c802c876affeab04164fb"
+    },
+    {
+      "path": "config/mobile_manipulation/mobile_development_scene.json",
+      "sha256": "6a447a0100867cf649dea7611ffd4601a3d23a4f156d9aceaacc5c615c19f3eb"
+    }
+  ],
+  "sensor_capture_exit_code": 1,
+  "isaac_process_exit_code": 139,
+  "motion_submitted": false,
+  "reason": "No RGB/CameraInfo/lidar messages; later native segmentation fault. Timing of raw feedback does not count as success without sensor load.",
+  "root_cause": "not_proven",
+  "active_configuration": "restored native continuous render products with original ROS decimation",
+  "no_guard_threshold_changed": true
+}

@@ -1,0 +1,148 @@
+{
+  "status": "FAIL",
+  "formal_acceptance": false,
+  "requested_simulation_seconds": 30.0,
+  "wall_seconds": 101.644403925,
+  "sensor_profile_id": "RGB_LIDAR_2D",
+  "manifest": {
+    "mode": "sensor_only",
+    "scene_seed": 101,
+    "sensor_profile_id": "RGB_LIDAR_2D",
+    "sensors": {
+      "width": 640,
+      "height": 480,
+      "render_hz": 60,
+      "camera_hz": 15,
+      "lidar_hz": 10,
+      "camera_position": [
+        1.25,
+        -1.25,
+        1.6
+      ],
+      "camera_target": [
+        0.55,
+        0.0,
+        0.76
+      ],
+      "lidar_position": [
+        0.0,
+        -0.8,
+        0.3
+      ],
+      "table_position": [
+        0.6,
+        0.0,
+        0.375
+      ],
+      "table_dimensions": [
+        1.0,
+        0.8,
+        0.75
+      ],
+      "frame_id": "world",
+      "camera_frame": "mm_camera_optical",
+      "lidar_frame": "mm_lidar",
+      "calibration_id": "fixed_rig_v1"
+    },
+    "lidar": {
+      "asset": "Example_Rotary_2D",
+      "type": "laser_scan",
+      "topic": "/astrex/mm/scan"
+    },
+    "input_source": "RAW_SENSOR",
+    "perception_backend": null,
+    "config_hash": "420b89b1e83d310f4cbe8f6bc22c468897326f614611cc01546759ad865e5e76",
+    "robot_usd": null,
+    "robot_prim": "/World/Robot",
+    "pid": 17834,
+    "started_wall_ns": 1791102104718214039,
+    "simulation_stamp_ns": 159033341628,
+    "published_monotonic_ns": 5189197711360
+  },
+  "streams": {
+    "image": {
+      "count": 454,
+      "simulation_span_s": 30.200001575,
+      "simulation_hz": 14.999999217715272,
+      "wall_hz": 4.473799721321837,
+      "non_increasing_stamps": 0,
+      "frames": [
+        "mm_camera_optical"
+      ]
+    },
+    "camera_info": {
+      "count": 453,
+      "simulation_span_s": 30.133334904,
+      "simulation_hz": 14.999999218141634,
+      "wall_hz": 4.466559756286058,
+      "non_increasing_stamps": 0,
+      "frames": [
+        "mm_camera_optical"
+      ]
+    },
+    "lidar": {
+      "count": 256,
+      "simulation_span_s": 30.116668237,
+      "simulation_hz": 8.467072054362188,
+      "wall_hz": 2.5193728572878094,
+      "non_increasing_stamps": 0,
+      "frames": [
+        "mm_lidar"
+      ]
+    },
+    "clock": {
+      "count": 1814,
+      "simulation_span_s": 30.216668243,
+      "simulation_hz": 59.99999686993949,
+      "wall_hz": 17.889054150396245,
+      "non_increasing_stamps": 0,
+      "frames": [
+        ""
+      ]
+    }
+  },
+  "errors": [
+    "lidar: simulated rate 8.467 differs from configured 10 Hz"
+  ],
+  "clock_publishers": [
+    {
+      "name": "astrex_mm_sim",
+      "namespace": "/"
+    }
+  ],
+  "tf": {
+    "mm_camera_optical": {
+      "translation": [
+        1.25,
+        -1.25,
+        1.600000023841858
+      ],
+      "rotation_xyzw": [
+        0.8395846439933854,
+        0.21907749651629826,
+        -0.1255071752323943,
+        -0.4809892151138492
+      ]
+    },
+    "mm_lidar": {
+      "translation": [
+        0.0,
+        -0.8,
+        0.3
+      ],
+      "rotation_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "pairing": {
+    "threshold_ms": 50,
+    "paired": 256,
+    "total": 256,
+    "maximum_delta_ms": 33.333335
+  },
+  "raw_sampling_rule": "First received sensor message and then first at least 1 simulation second after last saved"
+}
