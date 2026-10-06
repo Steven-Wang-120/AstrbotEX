@@ -213,7 +213,7 @@ D:\Code\AstrBotEX
 
 ### 插件说明
 
-`plugins/` 目录包含六个分类目录，当前仅内置一个 YOLO 视觉插件（`astrbotex_embedded_yolo_vision_plugin`），默认不启用。其他插件需要从 EXplugin 项目部署或自行开发。
+`plugins/` 目录包含六个分类目录。视觉分类包含原有的 `astrbotex_embedded_yolo_vision_plugin`，以及新增的 [`yolo`](plugins/vision/yolo/README.md) 原生 ROS2 YOLOv8-seg 插件。后者内置模型权重，输出 `yolo.json` 和 `yolo.jpg`，支持由 A.E.B. 的 LLM 工具持久标记多个物体；插件与发布端口默认不启用。A.E.B. 侧的配套变更见 [补丁与部署说明](https://github.com/suzefeng-alan/astrex-yolo)。其他插件可从 EXplugin 项目部署或自行开发。
 
 ## 开发与测试
 
