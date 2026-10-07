@@ -137,19 +137,22 @@ class SnapshotHttpApiTest(unittest.TestCase):
             thread = threading.Thread(target=server.serve_forever, daemon=True)
             thread.start()
             base_url = f"http://127.0.0.1:{server.server_address[1]}"
+            authorization = "Bearer " + server.decision_management.credential_path.read_text().strip()
             perception_path = Path(temp_dir) / "profiles" / "default" / "perception.json"
             try:
                 create_request = urllib.request.Request(
                     f"{base_url}/api/v1/ex/backups",
                     data=b"{}",
-                    headers={"Content-Type": "application/json"},
+                    headers={"Content-Type": "application/json", "Authorization": authorization},
                     method="POST",
                 )
                 with urllib.request.urlopen(create_request, timeout=5) as response:
                     created = json.loads(response.read())
                 self.assertTrue(created["ok"])
 
-                with urllib.request.urlopen(f"{base_url}{created['backup']['download_url']}", timeout=5) as response:
+                download_request = urllib.request.Request(f"{base_url}{created['backup']['download_url']}",
+                                                          headers={"Authorization": authorization})
+                with urllib.request.urlopen(download_request, timeout=5) as response:
                     archive_bytes = response.read()
                     self.assertEqual(response.headers.get_content_type(), "application/zip")
                 with zipfile.ZipFile(io.BytesIO(archive_bytes), "r") as archive:
@@ -168,7 +171,7 @@ class SnapshotHttpApiTest(unittest.TestCase):
                 upload_request = urllib.request.Request(
                     f"{base_url}/api/v1/ex/backups/upload",
                     data=body,
-                    headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+                    headers={"Content-Type": f"multipart/form-data; boundary={boundary}", "Authorization": authorization},
                     method="POST",
                 )
                 with urllib.request.urlopen(upload_request, timeout=10) as response:
@@ -273,6 +276,85 @@ class SnapshotActionFactsTest(unittest.TestCase):
                 self.ledger.report(name, self.binding, "unknown").result(3)
             self.ledger.reconcile_stop(name, self.binding, StopEvidence(name, True, "mock", name)).result(3)
         self.assertTrue(self.server.action_service.await_stop_proof())
+
+    def test_async_uncertain_action_supersedes_restore_receipt_fail_closed(self):
+        service = self.server.decision_service
+        management = self.server.decision_management
+        poll_entered, advance_poll, replaced = threading.Event(), threading.Event(), threading.Event()
+        captured = {}
+        poll_rows, queue_stop, wait_stop = service._poll_rows, service._queue_stop, management._wait_stop
+        def synchronized_poll():
+            if threading.current_thread() is service._control and not poll_entered.is_set():
+                poll_entered.set()
+                if not advance_poll.wait(3):
+                    raise RuntimeError("test poll barrier expired")
+            return poll_rows()
+        def observe_queue(*args, **kwargs):
+            result = queue_stop(*args, **kwargs)
+            if "receipt" in captured and service.goals.reason == "uncertain_action_requires_explicit_review":
+                captured["replacement"] = service.status()["stop"]
+                replaced.set()
+            return result
+        def synchronized_wait(operation, receipt, **kwargs):
+            captured.update(receipt=receipt, intent=management._intent)
+            advance_poll.set()
+            self.assertTrue(replaced.wait(3))
+            self.assertEqual(management._intent, captured["intent"])
+            self.assertNotEqual(captured["replacement"]["operation_id"], receipt["operation_id"])
+            self.assertGreater(captured["replacement"]["gate_epoch"], receipt["gate_epoch"])
+            return wait_stop(operation, receipt, **kwargs)
+        from astrbot_ex.core.actions.ledger import StopEvidence
+        try:
+            with mock.patch.object(service, "_poll_rows", side_effect=synchronized_poll), \
+                 mock.patch.object(service, "_queue_stop", side_effect=observe_queue), \
+                 mock.patch.object(management, "_wait_stop", side_effect=synchronized_wait), \
+                 mock.patch.object(service, "management_review", wraps=service.management_review) as review:
+                self.assertTrue(poll_entered.wait(3))
+                self.ledger.admit(self.command("async-unknown"), ("async-resource",), self.binding,
+                                  task_id="snapshot-task").result(3)
+                self.ledger.report("async-unknown", self.binding, "accepted").result(3)
+                self.ledger.report("async-unknown", self.binding, "unknown").result(3)
+                before = self.facts()
+                self.profile.write_text(self.original.decode("utf-8") + "\n", encoding="utf-8")
+                profile = self.profile.read_bytes()
+                with self.assertRaisesRegex(SnapshotError, "stop proof pending") as caught:
+                    self.server.snapshot_service.restore_upload("snapshot.zip", self.archive)
+                self.assertEqual(caught.exception.__cause__.__cause__.code, "stop_operation_superseded")
+                review.assert_not_called()
+                self.assertEqual(self.facts(), before)
+                self.assertEqual(self.profile.read_bytes(), profile)
+                self.assertIs(self.server.action_ledger, self.ledger)
+                self.assertFalse(self.ledger.health.closed)
+                self.assertEqual(self.ledger.get("async-unknown").result(3).held_resources, ("async-resource",))
+                self.assertIsNone(self.ledger.stop_proof("async-unknown", self.binding).result(3))
+                self.assertFalse(self.server.action_service.status()["gate_open"])
+                self.assertTrue(self.server.decision_service.status()["blocked"])
+        finally:
+            advance_poll.set()
+            if self.ledger.get("async-unknown").result(3) is not None:
+                self.ledger.reconcile_stop("async-unknown", self.binding,
+                    StopEvidence("async-unknown", True, "mock", "test cleanup only")).result(3)
+                self.assertTrue(self.server.action_service.await_stop_proof())
+
+    def test_external_management_invalidation_cannot_authorize_snapshot_restore(self):
+        management = self.server.decision_management
+        wait_stop = management._wait_stop
+        def invalidate_then_wait(operation, receipt, **kwargs):
+            management.invalidate("test_external_operation")
+            return wait_stop(operation, receipt, **kwargs)
+        before = self.facts()
+        self.profile.write_text(self.original.decode("utf-8") + "\n", encoding="utf-8")
+        profile = self.profile.read_bytes()
+        with mock.patch.object(management, "_wait_stop", side_effect=invalidate_then_wait), \
+             mock.patch.object(self.server.decision_service, "management_review",
+                               wraps=self.server.decision_service.management_review) as review:
+            with self.assertRaisesRegex(SnapshotError, "operation_superseded") as caught:
+                self.server.snapshot_service.restore_upload("snapshot.zip", self.archive)
+        self.assertEqual(caught.exception.__cause__.code, "operation_superseded")
+        review.assert_not_called()
+        self.assertEqual(self.facts(), before)
+        self.assertEqual(self.profile.read_bytes(), profile)
+        self.assertFalse(self.server.action_service.status()["gate_open"])
 
     def test_reload_rollback_does_not_rollback_execution_facts(self):
         self.ledger.admit(self.command("after-export"), (), self.binding, task_id="snapshot-task").result(3)

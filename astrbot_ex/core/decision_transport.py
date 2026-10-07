@@ -5,7 +5,7 @@ import threading
 from typing import Any, Callable
 
 from astrbot_ex.core.actions.models import ContractError as ActionContractError
-from astrbot_ex.core.contracts import ContractError, parse_request, require_id, require_sequence, require_text
+from astrbot_ex.core.contracts import ContractError, parse_request, reject, require_id, require_sequence, require_text
 
 
 class DecisionTransport:
@@ -20,7 +20,14 @@ class DecisionTransport:
         if feature != "text" or binary is not None or not connection_id:
             return {"ok": False, "error": {"code": "decision_route_rejected"}}, None
         try:
-            parsed = parse_request(method, payload)
+            if method == "decision.capabilities.get":
+                # Independent RPC, not an extension to the byte-frozen B00 parser.
+                if (not isinstance(payload, dict) or set(payload) != {"schema_version"}
+                        or type(payload["schema_version"]) is not int or payload["schema_version"] != 1):
+                    reject("invalid_capabilities_request", "schema_version", "exact v1 request required")
+                parsed = {"schema_version": 1}
+            else:
+                parsed = parse_request(method, payload)
             result = self.handler(connection_id, method, parsed)
             if not isinstance(result, dict):
                 raise ValueError("invalid decision handler response")

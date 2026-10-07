@@ -8,18 +8,31 @@ import copy
 import json
 import time
 import uuid
-from urllib.request import Request, urlopen
+from pathlib import Path
+from urllib.parse import urlparse
+from urllib.request import Request, ProxyHandler, build_opener
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--url', default='http://127.0.0.1:8765')
+    parser.add_argument('--token-file', type=Path, required=True,
+                        help='B08 administrator credential file; never passed in the URL')
     args = parser.parse_args()
+    address = urlparse(args.url)
+    if (address.scheme != 'http' or address.hostname not in {'127.0.0.1', 'localhost'}
+            or address.username or address.password or address.path not in {'', '/'}
+            or address.query or address.fragment):
+        parser.error('--url must be a local loopback HTTP origin')
+    token = args.token_file.read_text().strip()
+    if not token or any(c.isspace() for c in token):
+        parser.error('invalid credential file')
+    opener = build_opener(ProxyHandler({}))
     def api(path, data=None):
         request = Request(args.url.rstrip('/') + '/api/v1/ex/' + path,
                           data=None if data is None else json.dumps(data).encode(),
-                          headers={'Content-Type':'application/json'})
-        with urlopen(request, timeout=10) as response:
+                          headers={'Content-Type':'application/json', 'Authorization':'Bearer ' + token})
+        with opener.open(request, timeout=10) as response:
             return json.load(response)
     def switch(mode):
         api('environments/select', {'mode':mode})
@@ -82,7 +95,7 @@ def main():
         assert all(p['state'] == 'ready' for p in endpoints), endpoints
         assert any(p['rx_received'] > 0 for p in endpoints)
         assert any(p['tx_published'] > 0 for p in endpoints)
-        print(json.dumps({'container_external_roundtrip':True, 'ros_domain':73,
+        print(json.dumps({'ros2_external_roundtrip':True, 'ros_domain':73,
               'discovery_and_roundtrip_sec':round(time.monotonic()-started,3),
               'endpoints':endpoints}), flush=True)
     finally:

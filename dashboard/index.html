@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ASTRBOTEX · CONTROL PANEL</title>
-    <link rel="stylesheet" href="./styles.css?v=20260923-environments" />
+    <link rel="stylesheet" href="./styles.css?v=20261006-c07" />
   </head>
   <body>
     <div class="app-shell">
@@ -41,6 +41,9 @@
           <button class="nav-item" data-page="archives">
             <span class="nav-num">07</span><span class="nav-label">存档</span>
           </button>
+          <button class="nav-item" data-page="decision">
+            <span class="nav-num">08</span><span class="nav-label">决策</span>
+          </button>
         </nav>
 
         <div class="sidebar-foot">
@@ -56,6 +59,12 @@
       </aside>
 
       <div class="main-col">
+        <div class="management-auth">
+          <label for="managementCredential">管理凭据</label>
+          <input class="config-input" id="managementCredential" type="password" autocomplete="off" spellcheck="false" placeholder="只保存在本页内存" />
+          <button class="btn btn-ghost btn-sm" id="managementCredentialApply">应用凭据</button>
+          <span id="managementCredentialStatus" role="status">从服务端凭据文件读取；刷新后重新输入。</span>
+        </div>
         <div class="status-strip" role="status" aria-live="polite">
           <div class="strip-cell strip-conn" id="connectionPill">
             <span class="sq" aria-hidden="true"></span><span data-label>连接中</span>
@@ -753,6 +762,79 @@
               </section>
             </div>
           </section>
+          <section class="page" id="page-decision">
+            <header class="page-head"><div class="page-head-num">08</div><div class="page-head-text">
+              <h1>决策</h1><p>连接模型、启停 EX 与查看当前任务</p></div>
+              <button class="btn btn-ghost btn-sm" id="decisionRefresh">刷新状态</button>
+            </header>
+            <p class="decision-muted" id="decisionFreshness">等待管理凭据</p>
+            <p class="decision-message" id="decisionMessage" role="status" aria-live="polite">刷新只读取状态；操作需要显式点击。</p>
+            <div class="decision-layout">
+              <section class="panel decision-wide">
+                <div class="panel-head"><span class="panel-num">08.A</span><h2>决策供应商</h2></div>
+                <div class="decision-providers">
+                  <button type="button" class="decision-provider" id="decisionProviderjev" aria-haspopup="dialog" aria-controls="decisionModal" aria-pressed="false">
+                    <strong>Jev</strong><span>云端决策模型</span><small id="decisionProviderStatejev">点击配置</small>
+                  </button>
+                  <button type="button" class="decision-provider" id="decisionProviderlaya" aria-haspopup="dialog" aria-controls="decisionModal" aria-pressed="false">
+                    <strong>Laya</strong><span>外部服务或 EX 自启</span><small id="decisionProviderStatelaya">点击配置</small>
+                  </button>
+                </div>
+                <p class="decision-muted" id="decisionConnection">连接暂不可确认</p>
+              </section>
+              <section class="panel">
+                <div class="panel-head"><span class="panel-num">08.B</span><h2>EX</h2></div>
+                <strong id="decisionEXState" role="status">状态暂不可确认</strong>
+                <div class="decision-buttons">
+                  <button class="btn btn-primary" id="decisionStart" disabled>启用 EX</button>
+                  <button class="btn btn-danger-solid" id="decisionStop" disabled>停止 EX</button>
+                </div>
+                <p class="decision-warning" id="decisionError" hidden></p>
+              </section>
+              <section class="panel">
+                <div class="panel-head"><span class="panel-num">08.C</span><h2>当前 LLM 任务</h2></div>
+                <strong id="decisionTaskStatus" role="status">任务暂不可确认</strong>
+                <p id="decisionTaskTitle" class="decision-task-title"></p>
+                <p id="decisionTaskGoal" class="decision-muted"></p>
+                <p id="decisionTaskProgress" class="decision-muted"></p>
+              </section>
+            </div>
+            <dialog id="decisionModal" class="decision-modal" aria-labelledby="decisionModalTitle" aria-describedby="decisionServiceHint">
+              <div class="decision-modal-head"><h2 id="decisionModalTitle">供应商配置</h2>
+                <button type="button" class="btn btn-ghost btn-sm" id="decisionModalClose" aria-label="关闭配置">关闭</button></div>
+              <p class="decision-message" id="decisionModalMessage" role="status" aria-live="polite">配置仅在保存时写入。</p>
+              <form id="decisionConfigForm">
+                <label class="connection-field"><span>服务地址</span><input id="decisionAddress" class="config-input" type="url" required autocomplete="off" spellcheck="false" /></label>
+                <label class="connection-field"><span>支持的模型</span><select id="decisionModel" class="config-input" required></select></label>
+                <div id="decisionLayaFields" hidden>
+                  <label class="connection-field"><span>服务方式</span><select id="decisionLayaMode" class="config-input">
+                    <option value="external">连接已启动服务</option><option value="owned">由 EX 自启</option></select></label>
+                  <label class="connection-field"><span>认证</span><select id="decisionAuth" class="config-input">
+                    <option value="none">无需认证</option><option value="bearer">密钥认证</option></select></label>
+                </div>
+                <div id="decisionOwnedFields" hidden>
+                  <label class="connection-field"><span>已安装 Python 的绝对路径</span><input id="decisionPython" class="config-input" autocomplete="off" spellcheck="false" /></label>
+                  <label class="connection-field"><span>真实模型缓存目录（绝对路径）</span><input id="decisionCache" class="config-input" autocomplete="off" spellcheck="false" /></label>
+                  <label class="connection-field"><span>部署设备</span><select id="decisionDevice" class="config-input">
+                    <option value="">请选择已安装的设备</option><option value="cpu">CPU</option><option value="cuda">CUDA</option></select></label>
+                </div>
+                <p class="decision-muted" id="decisionServiceHint"></p>
+                <label class="connection-field"><span>供应商密钥</span><input id="decisionSecret" class="config-input" type="password" autocomplete="off" spellcheck="false" /></label>
+                <p class="decision-muted" id="decisionSecretState"></p>
+                <label class="decision-clear"><input id="decisionSecretClear" type="checkbox" /> 明确清除已保存密钥</label>
+                <p class="decision-draft" id="decisionConfigNote"></p>
+                <button type="button" class="btn btn-ghost btn-sm" id="decisionReviewConfig" hidden>核对当前配置，保留修改</button>
+                <p class="decision-muted">测试当前草稿会调用一次最小模型推理，可能产生费用或加载开销；不会保存配置或启动任务。</p>
+                <p id="decisionTestResult" class="decision-test-result" role="status" aria-live="polite"></p>
+                <div class="decision-buttons">
+                  <button type="button" class="btn btn-ghost" id="decisionTest">测试当前草稿</button>
+                  <button type="submit" class="btn btn-primary" id="decisionSave">保存配置</button>
+                  <button type="button" class="btn btn-ghost" id="decisionCancel">取消</button>
+                </div>
+              </form>
+              <div class="decision-modal-safety"><button type="button" class="btn btn-danger-solid" id="decisionModalStop">停止 EX</button></div>
+            </dialog>
+          </section>
         </main>
 
         <div class="foot-ruler" aria-hidden="true">
@@ -775,6 +857,7 @@
     <input id="pluginZipInput" type="file" accept=".zip,application/zip" hidden />
     <input id="archiveZipInput" type="file" accept=".zip,application/zip" hidden />
     <script src="./environments.js?v=20260923"></script>
-    <script src="./app.js?v=20260923-environments"></script>
+    <script src="/dashboard/decision.js?v=20261006-c07"></script>
+    <script src="./app.js?v=20261006-c07"></script>
   </body>
 </html>

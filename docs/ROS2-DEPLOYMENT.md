@@ -1,7 +1,7 @@
 # ROS 2 部署
 
 本期只交付新框架和 `ros2_echo` 示例，旧插件已归档。
-香橙派沿用原来的 EX 入口 `http://100.95.122.29:8765`，只升级三合一部署中的 EX 服务。
+本分支加入 B08 后，管理 HTTP 只监听 `127.0.0.1:8765`。远程访问使用 `ssh -L 8765:127.0.0.1:8765 用户@主机`，再打开本机地址并输入管理凭据。原香橙派部署记录属于上游历史，不代表本轮已部署。
 AstrBot 的 6185 和 Napcat 的 6099 保持原用途；`~/astrbotex-test` 留作源码及验收目录，不另开 EX 网页。
 
 ## 原生 Linux / 香橙派
@@ -68,12 +68,19 @@ overlay 必须包括生成代码、typesupport 和嵌套依赖，匹配 CPU/Pyth
 ```bash
 source /opt/ros/humble/setup.bash
 source ros_interfaces/install/setup.bash
-ROS_DOMAIN_ID=73 .venv/bin/python -m unittest discover -s tests -p 'test_*.py'
+.venv/bin/python scripts/verify_ros2_deployment.py \
+  --url http://127.0.0.1:8765 --token-file /实际数据目录/secrets/admin.token
 ```
 
 真实 ROS 测试使用独立 Domain 73 和唯一 Topic 前缀。无 ROS 时明确 skip，不能视为真实 ROS 通过。
-测试覆盖独立对端进程、双 owner、QoS 修复、自定义嵌套类型、缺包隔离、20 次切换和有界积压。
+本脚本只在独立、空闲、仅有 echo 示例的实例验证真实 DDS 往返，并恢复配置。更完整的上游系统测试已迁至独立验证仓库，不能把上述命令称为完整机器人验收。
 
 实例存档包含环境配置与插件绑定，不包含外部 ROS 二进制或镜像。
 恢复后重新检查接口和资源，不恢复旧消息、旧节点或运行中的任务。
 旧插件归档路径记录在验收文件中；恢复旧插件不属于本期工作。
+
+## 独立接口构建目录
+
+`ASTRBOTEX_ROS_INTERFACES` 可指向独立构建得到的 install 目录。未设置时沿用 `ros_interfaces/install`。`ASTRBOTEX_ROS_OVERLAY` 仍用于额外机器人接口。两个路径都由启动环境提供，不接受 HTTP 输入。
+
+本机 Jazzy 使用系统 Python 3.12 和 `--system-site-packages` 的 EX venv；加载 ROS setup 后保留其 `PYTHONPATH`。本轮只检查 Docker 配置和 shell 语法，未构建或部署镜像。Linux host 网络继续供 DDS 使用，HTTP 不因此开放到全部网卡。

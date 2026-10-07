@@ -1,5 +1,7 @@
 # AstrBotEX
 
+决策技术入口：[Laya 协议与部署](docs/B07-LAYA-BACKEND.md)、[管理 API 与页面](docs/B08-DECISION-MANAGEMENT.md)、[来源与复验入口](docs/LOCAL_DEVELOPMENT_INTEGRATION_RESULT.md)。管理 HTTP 只监听 `127.0.0.1`，需要管理凭据；远程访问使用 SSH 隧道。
+
 2026-09 ROS 2 环境框架：在同一个 8765 Dashboard 的“06 环境”中切换普通/ROS 2，
 通过插件声明的端口收发 ROS 消息。见 [SDK 与 API](docs/ROS2-SDK.md)、
 [部署说明](docs/ROS2-DEPLOYMENT.md) 和 [验收记录](docs/ROS2-ACCEPTANCE.md)。
@@ -21,6 +23,16 @@ AstrBotEX 位于推理模型与机器人底层控制系统之间：推理模型�
 - **底层控制系统**：完成运动闭环、执行器控制和独立于上层软件的物理安全保护。
 
 推理模型只选择 AstrBotEX 当前允许的高层动作，不直接调用硬件插件。AstrBotEX 保有动作执行权，并结合现场状态、观测时效性和执行反馈决定提案是否可以执行，以及何时需要重新调用推理模型进行计划调整。
+
+### 当前决策链路与任务边界
+
+- `HostTask` 是 Host/A.E.B 持有的多步骤任务；`currentGoal` 是交给 EX 的一个当前步骤及已绑定参数，不是整份计划。EX 不自行生成下一步 Goal。
+- 普通聊天由同一 LLM 选择直接回复、澄清或调用请求局部的 `manage_astrbotex_task`，不另设 router 模型或逐任务 admin-only/审批。Host 提供可信身份、任务归属与持久化受理回执；已有任务的本人 update/cancel/review 不因 EX disabled 或规划 provider 不可用而失去控制入口。
+- provider 支持固定 `jev-1.13.0` 和 `typed-decisions`、schema v2 连接配置、Laya external/owned 分离及无动作的最小推理 probe。保存或 probe 不启动 runtime、不授执行；EX 启用操作应用所选配置、切换 decision control mode、启动 runtime 并启用生产执行 gate，仍需新的当前 Goal。
+- EX 在 dispatch 前拦截低置信选择或 `request_replan`，保留原 choice/score；先关 gate、取得实际停止证明、持久化退役草稿，再经当前 Goal/epoch 的 CAS 退役并发布反馈。证明/存储失败不冒充成功；Host 只重规划未完成后缀，已完成前缀不得重放。正常模型 wait 不隐式变成重规划。
+- 目录使用已加载的 manifest/config 与实际插件 generation/state，并核对当前磁盘差异和有界 guide；未就绪、目录变化或 guide 不可用的 owner 可见但不可执行。不把磁盘新版本冒充已加载版本。
+
+普通 Host 回复的去重边界是受支持的 buffered 消息路径中的一个逻辑结果，不是保证送达或每个物理消息包恰好一次；第三方强制 live/streaming、主动发送和直接 `event.send` 不在该保证内。详见 [技术说明](TECHNICAL.md#host-工具与公开回复边界)。
 
 ## 核心特性
 
@@ -152,7 +164,7 @@ EXplugin 设备适配层
 ```powershell
 cd D:\Code\AstrBotEX
 python -m pip install -e .
-python -m astrbot_ex.core.api_server --host 0.0.0.0 --port 8765 --tick-hz 20
+python -m astrbot_ex.core.api_server --host 127.0.0.1 --port 8765 --tick-hz 20
 ```
 
 也可以使用项目自带的启动脚本：

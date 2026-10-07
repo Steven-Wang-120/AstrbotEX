@@ -25,6 +25,8 @@ from astrbot_ex.core.actions.service import ActionService
 from astrbot_ex.core.actions.storage import prepare_action_ledger
 from astrbot_ex.core.decision.catalog import CapabilityCatalog
 from astrbot_ex.core.decision.service import DecisionService, ShutdownErrors
+from astrbot_ex.core.decision.management import DecisionManagement, ManagementSettings
+from astrbot_ex.core.decision.config import ManagementError
 from astrbot_ex.core.decision.controller import DecisionController
 from astrbot_ex.core.decision.public_delivery import TaskPublicDelivery
 from astrbot_ex.core.backup import SnapshotError, SnapshotService
@@ -197,7 +199,11 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
     server_version = "AstrBotEXAPI/0.1"
 
     def do_GET(self) -> None:
+        if not self._authorize_http():
+            return
         if self._try_send_static():
+            return
+        if self.server.decision_management.handle_http(self):
             return
         path = self._path()
         backup_filename = self._match_backup_filename(path)
@@ -374,6 +380,11 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         return True
 
     def do_POST(self) -> None:
+        if not self._authorize_http():
+            return
+        if self.server.decision_management.handle_http(self):
+            return
+        self.server.decision_management.invalidate("legacy_write")
         path = self._path()
         if path == "/api/v1/ex/backups":
             self._create_backup()
@@ -617,6 +628,11 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
 
     def do_PUT(self) -> None:
+        if not self._authorize_http():
+            return
+        if self.server.decision_management.handle_http(self):
+            return
+        self.server.decision_management.invalidate("legacy_write")
         path = self._path()
         connection_id = self._match_connection_id(path)
         if connection_id:
@@ -644,6 +660,11 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
 
     def do_DELETE(self) -> None:
+        if not self._authorize_http():
+            return
+        if self.server.decision_management.handle_http(self):
+            return
+        self.server.decision_management.invalidate("legacy_write")
         path = self._path()
         connection_id = self._match_connection_id(path)
         if connection_id:
@@ -683,6 +704,14 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
 
     def log_message(self, format: str, *args: Any) -> None:
         return
+
+    def _authorize_http(self) -> bool:
+        management = getattr(self.server, "decision_management", None)
+        if management is None:
+            self._send_json({"ok": False, "code": "management_unavailable",
+                             "message": "management access is unavailable"}, HTTPStatus.SERVICE_UNAVAILABLE)
+            return False
+        return management.authorize(self)
 
     @property
     def controller(self) -> RuntimeController:
@@ -797,7 +826,6 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Disposition", f'attachment; filename="{path.name}"')
         self.send_header("Content-Length", str(path.stat().st_size))
         self.send_header("Cache-Control", "no-store")
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         with path.open("rb") as source:
             shutil.copyfileobj(source, self.wfile, length=1024 * 1024)
@@ -835,11 +863,14 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def _send_json(self, payload: Any, status: HTTPStatus = HTTPStatus.OK) -> None:
+        management = getattr(self.server, "decision_management", None)
+        if management is not None:
+            payload = management.sanitize(to_jsonable(payload))
         body = json.dumps(to_jsonable(payload), ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
 
@@ -1042,9 +1073,8 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         stream = EventStream(self.controller)
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", "text/event-stream; charset=utf-8")
-        self.send_header("Cache-Control", "no-cache")
+        self.send_header("Cache-Control", "no-store")
         self.send_header("Connection", "keep-alive")
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         try:
             for event in stream.recent():
@@ -1087,6 +1117,9 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         return fields
 
     def _write_sse(self, event_name: str, payload: Any) -> None:
+        management = getattr(self.server, "decision_management", None)
+        if management is not None:
+            payload = management.sse_payload(payload)
         data = json.dumps(to_jsonable(payload), ensure_ascii=False)
         self._write_raw(f"event: {event_name}\ndata: {data}\n\n")
 
@@ -1119,18 +1152,26 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
     snapshot_service: SnapshotService
     environment_manager: EnvironmentManager
     action_service: ActionService
+    decision_management: DecisionManagement
 
     def server_close(self) -> None:
+        errors = []
+        if hasattr(self, "decision_management"):
+            try:
+                self.decision_management.close()
+            except Exception as exc:
+                errors.append(exc)
         try:
             if hasattr(self, "controller"):
                 self.controller.stop("api server shutdown")
             if hasattr(self, "environment_manager"):
                 self.environment_manager.close("api server shutdown")
-        except Exception:
+        except Exception as exc:
             # Keep the old adapter and action reporting alive when stop is unproven.
             super().server_close()
+            if errors:
+                raise ShutdownErrors("API server shutdown failed", [*errors, exc]) from None
             raise
-        errors = []
         for name in ("task_public_delivery", "decision_controller"):
             try:
                 if hasattr(self, name):
@@ -1166,7 +1207,10 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
             raise ShutdownErrors("API server shutdown failed", errors)
 
 
-def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
+def build_server(host: str, port: int, tick_hz: float, *,
+                 management_settings: ManagementSettings | None = None) -> AstrBotEXHTTPServer:
+    if host not in {"127.0.0.1", "localhost"}:
+        raise ValueError("management HTTP requires a loopback binding")
     project_root = Path(__file__).resolve().parents[2]
     data_dir = os.environ.get("ASTRBOTEX_DATA_DIR")
     data_root = Path(data_dir).resolve() if data_dir else project_root
@@ -1189,6 +1233,15 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
     environment_manager.action_service = action_service
     decision_service = DecisionService(action_service, topic_bus=topic_bus, environment=environment_manager)
     environment_manager.decision_service = decision_service
+    try:
+        decision_management = DecisionManagement(decision_service, data_root, event_bus=event_bus,
+                                                settings=management_settings)
+    except BaseException:
+        try:
+            decision_service.close()
+        finally:
+            action_service.close()
+        raise
     fusion = None
     try:
         perception_config = load_perception_config(data_root / "profiles" / "default" / "perception.json")
@@ -1261,8 +1314,10 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
     controller = RuntimeController(runtime=runtime, tick_hz=tick_hz)
     server = AstrBotEXHTTPServer((host, port), AstrBotEXRequestHandler)
     server.controller = controller
+    decision_management.attach_runtime(controller, connections)
     server.action_service = action_service
     server.decision_service = decision_service
+    server.decision_management = decision_management
     server.action_dispatcher = dispatcher
     server.action_ledger = ledger
     server.capability_catalog = catalog
@@ -1304,8 +1359,16 @@ def build_server(host: str, port: int, tick_hz: float) -> AstrBotEXHTTPServer:
         action_service.update_versions()
         interaction_core.refresh_mic_subscriptions()
         environment_manager.restore_selected_mode()
+        decision_management.after_restore()
 
     def before_snapshot_restore() -> None:
+        try:
+            decision_management.before_restore()
+        except ManagementError as exc:
+            # A superseded stop receipt cannot prove this restore safe either.
+            if exc.code not in {"stop_not_proven", "stop_operation_superseded"}:
+                raise
+            raise SnapshotError(action_service.status()["error"] or "stop proof pending") from exc
         controller.stop("instance snapshot restore")
         if not action_service.stop_actions("instance snapshot restore"):
             raise SnapshotError(action_service.status()["error"] or "action stop not proven")
@@ -1379,6 +1442,7 @@ def main() -> None:
     args = parser.parse_args()
 
     server = build_server(args.host, args.port, args.tick_hz)
+    print(f"Management credential file: {server.decision_management.credential_path}")
     print(f"AstrBotEX API listening on http://{args.host}:{args.port}")
     print(f"Dashboard: http://{args.host}:{args.port}/")
     print("Core endpoints: /api/status, /api/events, /api/runtime/start, /api/runtime/stop")

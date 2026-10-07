@@ -1,4 +1,6 @@
 const API_BASE = window.ASTRBOTEX_API_BASE || window.location.origin;
+let managementCredential = "";
+let managementCredentialEpoch = 0;
 const MAX_TRACE_EVENTS = 200;
 const PLUGIN_CATEGORIES = ["vision", "perception", "control", "decision", "special", "interaction"];
 
@@ -134,16 +136,79 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+async function managementFetch(path, options = {}) {
+  if (!managementCredential) throw new Error("请输入管理凭据；刷新后需要重新输入。");
+  const target = new URL(path, `${API_BASE}/`);
+  if (target.origin !== window.location.origin || target.protocol !== "http:") {
+    throw new Error("请通过本机或 SSH 隧道的同源 HTTP 页面访问管理服务。");
+  }
+  const epoch = managementCredentialEpoch;
+  const headers = new Headers(options.headers || {});
+  headers.set("Authorization", `Bearer ${managementCredential}`);
+  const response = await fetch(target.href, { ...options, headers, cache: "no-store", redirect: "error" });
+  if (epoch !== managementCredentialEpoch) throw new Error("凭据已变更，已忽略旧请求。");
+  if (response.status === 401) {
+    managementCredential = "";
+    managementCredentialEpoch += 1;
+    window.DecisionPage?.credentialChanged();
+    if (state.eventSource) state.eventSource.close();
+    setText("managementCredentialStatus", "凭据无效或已失效，请重新输入。");
+    setEventConnection(false, "等待凭据");
+  }
+  return response;
+}
+
 async function apiJson(path, options = {}) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
+  const headers = new Headers(options.headers || {});
+  if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  const response = await managementFetch(path, { ...options, headers });
   const data = await response.json().catch(() => ({}));
   if (!response.ok || data.ok === false) {
-    throw new Error(data.error || `${response.status} ${response.statusText}`);
+    throw new Error(data.message || data.error || `${response.status} ${response.statusText}`);
   }
   return data;
+}
+
+async function applyManagementCredential() {
+  const input = $("managementCredential");
+  const value = input.value.trim();
+  if (!value) throw new Error("请输入管理凭据。");
+  managementCredential = value;
+  managementCredentialEpoch += 1;
+  const epoch = managementCredentialEpoch;
+  window.DecisionPage?.credentialChanged();
+  input.value = "";
+  if (state.eventSource) state.eventSource.close();
+  setText("managementCredentialStatus", "正在验证凭据；仅保存在本页内存。");
+  try {
+    await refreshStatus();
+    await Promise.allSettled([refreshPlugins(), refreshEnvironment()]);
+    if (!managementCredential || epoch !== managementCredentialEpoch) return;
+    setText("managementCredentialStatus", "凭据已应用；刷新后需要重新输入。");
+    connectEvents();
+  } catch (error) {
+    if (epoch !== managementCredentialEpoch) return;
+    setText("managementCredentialStatus", error.message);
+    throw error;
+  }
+}
+
+async function authenticatedBlob(path) {
+  const response = await managementFetch(path);
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message || data.error || `${response.status} ${response.statusText}`);
+  }
+  return response.blob();
+}
+
+function loadAuthenticatedCover(image, path) {
+  authenticatedBlob(path).then((blob) => {
+    if (!image.isConnected) return;
+    const url = URL.createObjectURL(blob);
+    image.onload = image.onerror = () => URL.revokeObjectURL(url);
+    image.src = url;
+  }).catch(() => { image.remove(); });
 }
 
 /* ============ ROUTER ============ */
@@ -163,6 +228,7 @@ function parseHash() {
     return { page: "connection", connectionId: decodeURIComponent(parts.slice(1).join("/")) };
   }
   if (parts[0] === "connections") return { page: "connections" };
+  if (parts[0] === "decision") return { page: "decision" };
   if (parts[0] === "environments") return { page: "environments" };
   if (parts[0] === "archives") return { page: "archives" };
   if (parts[0] === "logs") return { page: "logs" };
@@ -171,10 +237,11 @@ function parseHash() {
   return { page: "core" };
 }
 
-function writeHash() {
+function writeHash(push = false) {
   let hash = "#/core";
   if (state.activePage === "plugins") hash = `#/plugins/${state.activePluginTab}`;
   else if (state.activePage === "connections") hash = "#/connections";
+  else if (state.activePage === "decision") hash = "#/decision";
   else if (state.activePage === "environments") hash = "#/environments";
   else if (state.activePage === "archives") hash = "#/archives";
   else if (state.activePage === "connection" && state.activeConnectionId) {
@@ -186,11 +253,15 @@ function writeHash() {
     hash = `#/plugins/${state.activePluginCategory || "special"}/${encodeURIComponent(state.activePluginId)}`;
   }
   if (window.location.hash !== hash) {
-    history.replaceState(null, "", hash);
+    history[push ? "pushState" : "replaceState"](null, "", hash);
   }
 }
 
 function switchPage(page, options = {}) {
+  if (state.activePage === "decision" && page !== "decision" && window.DecisionPage?.leave() === false) {
+    writeHash();
+    return;
+  }
   state.activePage = page;
   document.querySelectorAll(".page").forEach((el) => el.classList.toggle("active", el.id === `page-${page}`));
   document.querySelectorAll(".nav-item[data-page]").forEach((el) => {
@@ -199,6 +270,7 @@ function switchPage(page, options = {}) {
   });
   const fab = $("pluginUploadFab");
   if (fab) fab.hidden = page !== "plugins";
+  if (page === "decision") window.DecisionPage?.enter();
   if (page === "plugins") renderPluginGrid();
   if (page === "logs") renderEvents();
   if (page === "plugin") renderPluginDashboard();
@@ -206,7 +278,7 @@ function switchPage(page, options = {}) {
   if (page === "connections") refreshConnections({ preserveForm: true }).catch(() => {});
   if (page === "environments") refreshEnvironment().catch(() => {});
   if (page === "connection") renderConnectionDetail({ preserveForm: state.connectionDirty });
-  if (!options.silent) writeHash();
+  if (!options.silent) writeHash(options.push === true);
 }
 
 /* ============ ARCHIVES ============ */
@@ -225,11 +297,13 @@ async function createArchive() {
     const backup = data.backup || {};
     if (!backup.download_url) throw new Error("服务端未返回存档下载地址");
     const link = document.createElement("a");
-    link.href = new URL(backup.download_url, `${API_BASE}/`).href;
+    const url = URL.createObjectURL(await authenticatedBlob(backup.download_url));
+    link.href = url;
     link.download = backup.filename || "astrbotex_snapshot.zip";
     document.body.appendChild(link);
     link.click();
     link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
     const fileCount = Number(backup.file_count || 0);
     setArchiveStatus("success", "存档已生成并开始下载", `${backup.filename} · ${fileCount} 个文件`);
     showToast("实例存档已开始下载");
@@ -244,13 +318,13 @@ async function uploadArchive(file) {
   const form = new FormData();
   form.append("file", file, file.name);
   try {
-    const response = await fetch(`${API_BASE}/api/v1/ex/backups/upload`, {
+    const response = await managementFetch("/api/v1/ex/backups/upload", {
       method: "POST",
       body: form,
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || data.ok === false) {
-      throw new Error(data.error || `${response.status} ${response.statusText}`);
+      throw new Error(data.message || data.error || `${response.status} ${response.statusText}`);
     }
     await Promise.allSettled([
       refreshStatus(),
@@ -680,6 +754,7 @@ function setConnection(ok, label) {
 }
 
 function setEventConnection(ok, label) {
+  window.DecisionPage?.connectionChanged(ok);
   setText("eventStatus", label);
   setText("stripSse", ok ? "LIVE" : "RETRY");
   const pill = $("logConnectionPill");
@@ -733,19 +808,55 @@ function renderEvents() {
 
 function connectEvents() {
   if (state.eventSource) state.eventSource.close();
-  const source = new EventSource(`${API_BASE}/api/events`);
-  state.eventSource = source;
-  source.onopen = () => { setEventConnection(true, "SSE 已连接"); scheduleEnvironmentRefresh(); };
-  source.onerror = () => setEventConnection(false, "SSE 重连中");
-  source.addEventListener("event", (message) => {
+  if (!managementCredential) { setEventConnection(false, "等待凭据"); return; }
+  const controller = new AbortController();
+  const epoch = managementCredentialEpoch;
+  let retryTimer = null;
+  state.eventSource = { close: () => { controller.abort(); clearTimeout(retryTimer); } };
+  const receive = (name, lines) => {
+    if (name !== "event" || !lines.length) return;
     try {
-      const event = JSON.parse(message.data);
+      const event = JSON.parse(lines.join("\n"));
       pushEvent(event);
+      if (event.type === "decision_changed") window.DecisionPage?.notify();
       if (["environment", "environment_changed", "ros_graph_changed", "ros_endpoints_changed"].includes(event.type)) scheduleEnvironmentRefresh();
+    } catch { /* Ignore malformed events, as the old EventSource client did. */ }
+  };
+  async function readEvents() {
+    let reader = null;
+    try {
+      const response = await managementFetch("/api/events", {
+        signal: controller.signal, headers: { Accept: "text/event-stream" },
+      });
+      if (!response.ok || !response.body) throw new Error(`SSE ${response.status}`);
+      setEventConnection(true, "SSE 已连接");
+      scheduleEnvironmentRefresh();
+      reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "", name = "message", lines = [];
+      while (!controller.signal.aborted && epoch === managementCredentialEpoch) {
+        const chunk = await reader.read();
+        if (chunk.done) throw new Error("SSE 已断开");
+        buffer += decoder.decode(chunk.value, { stream: true });
+        if (buffer.length > 131072) throw new Error("SSE 消息超出展示上限");
+        let end;
+        while ((end = buffer.indexOf("\n")) >= 0) {
+          const line = buffer.slice(0, end).replace(/\r$/, "");
+          buffer = buffer.slice(end + 1);
+          if (!line) { receive(name, lines); name = "message"; lines = []; }
+          else if (line.startsWith("event:")) name = line.slice(6).trimStart();
+          else if (line.startsWith("data:")) lines.push(line.slice(5).replace(/^ /, ""));
+        }
+      }
     } catch {
-      // ignore malformed events
+      if (controller.signal.aborted || epoch !== managementCredentialEpoch || !managementCredential) return;
+      setEventConnection(false, "SSE 重连中");
+      retryTimer = setTimeout(readEvents, 1000);
+    } finally {
+      if (reader) await reader.cancel().catch(() => {});
     }
-  });
+  }
+  readEvents();
 }
 
 function toggleLogAutoscroll() {
@@ -918,9 +1029,9 @@ function renderPluginGrid() {
     cover.className = "plugin-cover";
     if (plugin.cover_url) {
       const image = document.createElement("img");
-      image.src = `${API_BASE}${plugin.cover_url}`;
       image.alt = plugin.name;
       cover.appendChild(image);
+      loadAuthenticatedCover(image, plugin.cover_url);
     } else {
       cover.innerHTML = `<span>${escapeHtml((plugin.name || plugin.id).slice(0, 2).toUpperCase())}</span>`;
     }
@@ -986,9 +1097,9 @@ function renderPluginDashboard() {
   cover.innerHTML = "";
   if (plugin.cover_url) {
     const image = document.createElement("img");
-    image.src = `${API_BASE}${plugin.cover_url}`;
     image.alt = plugin.name;
     cover.appendChild(image);
+    loadAuthenticatedCover(image, plugin.cover_url);
   } else {
     cover.innerHTML = `<span>${escapeHtml((plugin.name || plugin.id).slice(0, 2).toUpperCase())}</span>`;
   }
@@ -1427,13 +1538,13 @@ async function uploadPluginZip(file, category) {
   const form = new FormData();
   form.append("file", file);
   form.append("category", category);
-  const response = await fetch(`${API_BASE}/api/v1/ex/plugins/upload`, {
+  const response = await managementFetch("/api/v1/ex/plugins/upload", {
     method: "POST",
     body: form,
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok || data.ok === false) {
-    throw new Error(data.error || `${response.status} ${response.statusText}`);
+    throw new Error(data.message || data.error || `${response.status} ${response.statusText}`);
   }
   await refreshPlugins();
   const plugin = state.plugins.find((item) => item.id === data.plugin.id) || data.plugin;
@@ -1510,7 +1621,7 @@ function setPluginDashboardTitle(text) {
 }
 
 window.addEventListener("beforeunload", (event) => {
-  if (state.configDirty || state.pubsubDirty || state.connectionDirty || environmentHasDrafts()) {
+  if (state.configDirty || state.pubsubDirty || state.connectionDirty || environmentHasDrafts() || window.DecisionPage?.hasDraft()) {
     event.preventDefault();
     event.returnValue = "";
   }
@@ -1519,11 +1630,18 @@ window.addEventListener("beforeunload", (event) => {
 /* ============ BINDINGS ============ */
 
 function bindActions() {
+  window.DecisionPage?.init();
   setText("apiBaseLabel", API_BASE.replace(/^https?:\/\//, ""));
+  $("managementCredentialApply").addEventListener("click", (event) =>
+    runAction(event.currentTarget, "验证中", applyManagementCredential)
+  );
+  $("managementCredential").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") { event.preventDefault(); $("managementCredentialApply").click(); }
+  });
 
   document.querySelectorAll(".nav-item[data-page]").forEach((button) => {
     button.addEventListener("click", () => {
-      switchPage(button.dataset.page);
+      switchPage(button.dataset.page, { push: true });
     });
   });
 
@@ -1685,6 +1803,7 @@ function bindActions() {
 /* ============ ROUTE APPLICATION ============ */
 
 async function applyRoute(route) {
+  if (route.page === "decision") { switchPage("decision", { silent: true }); return; }
   if (route.page === "connection" && route.connectionId) {
     state.activeConnectionId = route.connectionId;
     state.connectionDirty = false;

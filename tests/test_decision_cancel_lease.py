@@ -56,6 +56,9 @@ class CancelLeaseTests(WiringFixture):
         self.assertTrue(first["accepted"])
         fact = Feedback.parse(self.terminal()).to_dict()
         self.assertEqual(fact["status"], "canceled")
+        receipt = self.s.status()["stop"]
+        self.assertEqual(receipt["state"], "proven")
+        self.assertEqual(self.s.status()["stop_error"], "")
         self.assertTrue(fact["details"]["stop_evidence"]["stopped"])
         evidence = fact["details"]["terminal_evidence"]
         self.assertTrue(evidence["verified"])
@@ -141,6 +144,12 @@ class CancelLeaseTests(WiringFixture):
         self.assertEqual(self.s.goals.phase, "blocked")
         self.assertIsNotNone(self.s.goals.active)
         self.assertFalse(self.c.state()["execution"]["stop_proven"])
+        self.assertEqual(self.c.journal.snapshot()["goal_summaries"], [])
+        # Local management receipt records physical proof; the upstream fault
+        # latch still requires explicit review and must not emit task success.
+        self.assertTrue(wait_for(lambda: self.s.status()["stop"]["state"] == "proven"))
+        self.assertEqual(self.s.goals.phase, "blocked")
+        self.assertTrue(self.server.action_dispatcher.blocked)
         self.assertEqual(self.c.journal.snapshot()["goal_summaries"], [])
 
     def test_terminal_draft_superseded_by_new_goal_cannot_clear_pending(self):

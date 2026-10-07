@@ -169,6 +169,11 @@ class DecisionController:
     def handle(self, connection_id, method, parsed):
         if not self.route(connection_id):
             reject("decision_route_rejected", "connection_id", "configured text route required")
+        if method == "decision.capabilities.get":
+            if (not isinstance(parsed, dict) or set(parsed) != {"schema_version"}
+                    or type(parsed["schema_version"]) is not int or parsed["schema_version"] != 1):
+                reject("invalid_capabilities_request", "schema_version", "exact v1 request required")
+            return self.capabilities()
         if method == "decision.goal.submit":
             payload = parsed.to_dict()
             try:
@@ -246,6 +251,26 @@ class DecisionController:
         if method == "decision.context.get":
             return self.context()
         reject("unsupported_method", "method", "unsupported decision method")
+
+    def capabilities(self):
+        """Readonly pre-admission manifest summary; never creates a turn or Goal."""
+        with self.service._condition, self.service.goals._lock:
+            catalog = self.service.catalog.snapshot()
+            actions = [{"owner": entry["owner"], "plugin_generation": entry["generation"],
+                **copy.deepcopy(action)} for entry in catalog.entries if entry["available"]
+                for action in entry["manifest"]["actions"]]
+            if len(actions) > 256:
+                raise RuntimeError("capabilities_catalog_capacity")
+            result = {"schema_version": 1, "ex_session": self.service.goals.ex_session,
+                "revision": self.service.goals.revision, "catalog_revision": catalog.revision,
+                "control_mode": self.service.actions.control_mode,
+                "execution": {"mode": self.service.mode,
+                    "execution_allowed": self.service.mode == "execute" and
+                        getattr(self.service.backend, "execution_allowed", False) is True,
+                    "runtime_state": self.service.actions._runtime_state}, "actions": actions}
+        if measure_json_budget(result) is not None:
+            raise RuntimeError("capabilities_capacity")
+        return result
 
     def context(self):
         catalog = self.service.catalog.snapshot()
@@ -368,6 +393,14 @@ class DecisionController:
                 and terminal[3] == summary["reason_code"] and goals.phase == "stopping")
             completed = (summary["status"] == "succeeded" and goals.phase == "awaiting_llm"
                 and goals.reason == "completion_evidence_committed" and goals._clock() < goal.expires_ns)
+            evidence = summary["details"].get("terminal_evidence", {})
+            if revoked and (evidence.get("verified") is not True
+                    or evidence.get("goal_id") != goal.payload()["goal_id"]
+                    or evidence.get("goal_revision") != goal.revision
+                    or evidence.get("dispatcher_epoch") != dispatcher._epoch
+                    or evidence.get("stop_proof_epoch") != self.service.actions._stop_proof_epoch
+                    or summary["details"].get("stop_evidence", {}).get("stopped") is not True):
+                return False
             if (self._closed or self._fault or self.service._closed or not (revoked or completed)
                     or dispatcher._gate or dispatcher.blocked
                     or self.service.actions._stop_proof_epoch < dispatcher._epoch

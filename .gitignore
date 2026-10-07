@@ -8,3 +8,12 @@ build/
 Thumbs.db
 profiles/default/plugins_state.json
 execution/
+
+# Local model environments, credentials and generated validation output
+.secrets/
+credentials/
+runtime/
+ros_interfaces/install/
+ros_interfaces/log/
+
+secrets/
