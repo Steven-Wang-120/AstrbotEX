@@ -217,7 +217,7 @@ create 要求 EX decision/execute、runtime running、合法生产 gate、可用
 
 拒绝先撤销授权、关闭 gate；已有动作须取得实际 Actor/Ledger `StopEvidence` 并复核当前 Dispatcher epoch、资源释放和终态。Controller/FeedbackJournal 在安全锁外收集前序账本事实、持久化 completion draft，然后在当前 Goal/revision/epoch 的 CAS 成功后退役并发布唯一 failed 事实。draft 不是已发布完成事实，重启不能自动提升为事实；存储或发布失败关闭执行，缺停止证明、unknown/timed_out 或迟到旧证据不得产生重规划许可或任务成功。
 
-停止回执必须匹配 `operation_id + state=proven`；HTTP 返回、本地 cancel/close、健康或新客户端不等于证明。模型 `restart_required` 与 Actor 停止证据独立，owned/external 恢复边界见 [B07](docs/B07-LAYA-BACKEND.md)。退役反馈交回 Host 后只允许重规划未完成后缀，完成前缀不可重放；取消不自动规划，unknown/timed_out 转 resume_review。源入口为 `service.py`、`controller.py`、`feedback_journal.py`，回归为 `tests/test_decision_replanning.py`、`tests/test_decision_aeb_replanning.py`。
+停止回执必须匹配 `operation_id + state=proven`；HTTP 返回、本地 cancel/close、健康或新客户端不等于证明。模型 `restart_required` 与 Actor 停止证据独立，owned/external 恢复边界见 [B07](docs/B07-LAYA-BACKEND.md)。退役反馈交回 Host 后只允许重规划未完成后缀，完成前缀不可重放；取消不自动规划，unknown/timed_out 转 resume_review。源入口为 `service.py`、`controller.py`、`feedback_journal.py`，回归为 `tests/test_decision_replanning.py`（EX 单元）及 [AstrBotVLA-tests](https://github.com/Steven-Wang-120/AstrBotVLA-tests/blob/main/docs/PR-REMEDIATION-20261007.md) 的 `validation_tests/integration/test_decision_aeb_replanning.py`（六项跨仓集成，原用例 ID 映射保留）。
 
 ### 管理激活与完整停止
 

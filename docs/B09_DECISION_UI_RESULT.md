@@ -17,18 +17,18 @@
 
 ## 两类浏览器检查
 
-[verify_decision_ui.mjs](../scripts/verify_decision_ui.mjs) 区分：
+[verify_decision_ui.mjs](https://github.com/Steven-Wang-120/AstrBotVLA-tests/blob/main/validation_drivers/verify_decision_ui.mjs) 区分：
 
 - `--mode fixture`：冻结管理合同替身，检查布局、草稿、恶意文本、乱序/拒绝等页面边界，不能证明真实后端激活。
-- `--mode actual`：`tests/decision_ui_real_fixture.py` 用实际 build_server、管理 HTTP 与生产 builtin transport；供应商是 loopback 合成 HTTP，临时 SQLite/凭据，不调用付费模型、owned 进程或物理插件。该模式的完整检查需要通过 CLI 参数 `--aeb-root` 显式指定已核对的 A.E.B companion；两项投影检查由该参数启用，仅预设 `ASTRBOTEX_AEB_TEST_ROOT` 不能替代该参数，不能把省略参数或缺 companion 当成受支持的完整 actual 检查。实际 A.E.B handler/TaskStore 经 ROUTER/DEALER 和嵌套 capabilities 查询提供投影，不以字典 stub 冒充跨端。
+- `--mode actual`：`validation_support/decision_ui_real_fixture.py` 用实际 build_server、管理 HTTP 与生产 builtin transport；供应商是 loopback 合成 HTTP，临时 SQLite/凭据，不调用付费模型、owned 进程或物理插件。该模式的完整检查需要通过 CLI 参数 `--aeb-checkout` 显式指定已核对的 A.E.B companion；仅预设环境变量不能替代该参数；缺 companion 时直接拒绝，不能把省略参数或缺 companion 当成受支持的完整 actual 检查。实际 A.E.B handler/TaskStore 经 ROUTER/DEALER 和嵌套 capabilities 查询提供投影，不以字典 stub 冒充跨端。
 
-从仓库根，显式指定已安装的 Node/Chromium/Python；所选 Python 必须能导入实际 Host SDK 与 pyzmq，不能仅安装 EX 依赖。使用新空外部 output：
+从 AstrBotVLA-tests 根运行独立脚本，显式指定已安装的 Node/Chromium/Python 和 EX/AEB checkout；所选 Python 必须能导入实际 Host SDK 与 pyzmq（Host 源码可用 `--host-checkout`），不能仅安装 EX 依赖。使用新空外部 output：
 
 ```sh
-node --check dashboard/decision.js
-node --check scripts/verify_decision_ui.mjs
-node scripts/verify_decision_ui.mjs --mode fixture --python /absolute/ex-python --chrome /absolute/chromium --output /absolute/external-evidence/browser-fixture
-node scripts/verify_decision_ui.mjs --mode actual --python /absolute/ex-python --chrome /absolute/chromium --aeb-root /absolute/aeb-checkout --output /absolute/external-evidence/browser-actual
+# decision.js 的 syntax 检查仍从 EX 根运行：node --check dashboard/decision.js
+node --check validation_drivers/verify_decision_ui.mjs
+node validation_drivers/verify_decision_ui.mjs --mode fixture --ex-checkout ../ex --aeb-checkout ../aeb --python /absolute/ex-python --chrome /absolute/chromium --output /absolute/external-evidence/browser-fixture
+node validation_drivers/verify_decision_ui.mjs --mode actual --ex-checkout ../ex --aeb-checkout ../aeb --host-checkout ../host --python /absolute/host-python --chrome /absolute/chromium --output /absolute/external-evidence/browser-actual
 ```
 
 实际检查应观察匿名读写401、draft probe 无保存/CAS/Goal/Action 副作用、供应商 config/key 保存、runtime decision/execute 激活、Stop、业务409与草稿、health/inference 区分、管理凭据刷新清除、投影范围/断线不可用。不得仅凭页面缓存或按钮文案推断后台状态；源码身份和真实状态采样应随输出保存。替身和 actual 模式的结果不互换，不构成模型语义/GPU/ROS/机器人验收。

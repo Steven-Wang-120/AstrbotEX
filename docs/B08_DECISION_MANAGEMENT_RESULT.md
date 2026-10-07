@@ -26,8 +26,9 @@ execute 应用所选供应商配置，经 RuntimeController 切 decision control
 
 ```sh
 python -B -m unittest tests.test_decision_management_boundaries tests.test_decision_management_history tests.test_decision_management_http tests.test_decision_management_interleaving tests.test_decision_management_operations tests.test_owned_laya tests.test_decision_secret_redaction -v
-python -B -m scripts.verify_decision_management --help
-python -B -m scripts.verify_decision_management --output /absolute/fresh-external-evidence
+# 以下独立脚本从 AstrBotVLA-tests 根运行（产品单元测试仍在 EX）：
+python -B -m validation_drivers.verify_decision_management --ex-checkout ../ex --aeb-checkout ../aeb --help
+python -B -m validation_drivers.verify_decision_management --ex-checkout ../ex --aeb-checkout ../aeb --output /absolute/fresh-external-evidence
 ```
 
 生命周期专项为 `tests/test_decision_management_lifecycle.py`、`test_decision_management_activation.py`、`test_decision_management_provider_http.py`、`test_decision_management_projection.py`。浏览器的合同替身与实际 HTTP 两类入口见 [页面说明](B09_DECISION_UI_RESULT.md)。上述验证入口是 synthetic-only，装配真实管理 HTTP/RuntimeController、隔离软件 Actor 与合成 loopback owned 服务，不调用模型/ROS/机器人；旧 `--python/--cache/--device` 参数不适用。真实模型另用 [Laya 验证入口](B07-LAYA-BACKEND.md#3-独立部署与验证用法)和独立环境/固定缓存。输出使用新空外部目录，不写 docs/evidence。

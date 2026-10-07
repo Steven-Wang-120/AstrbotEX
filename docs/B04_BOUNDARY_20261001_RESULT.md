@@ -48,10 +48,11 @@ EX 的 currentGoal 只是一当前步骤，不是 HostTask 全部计划。Host �
 
 ```sh
 python -B -m unittest tests.test_decision_service -v
-python -B scripts/diagnose_dispatcher_stress.py --check-import
-python -B scripts/diagnose_dispatcher_stress.py
+# 以下独立脚本从 AstrBotVLA-tests 根运行：
+python -B -m validation_drivers.diagnose_dispatcher_stress --ex-checkout ../ex --aeb-checkout ../aeb --check-import
+python -B -m validation_drivers.diagnose_dispatcher_stress --ex-checkout ../ex --aeb-checkout ../aeb
 ```
 
 具名测试：[test_decision_service.py](../tests/test_decision_service.py)、[原规模 Dispatcher 测试](../tests/test_action_dispatcher.py)。测试 Laya stub 只证明快照→BackendDecision→EX→Dispatcher→测试 Actor，不能证明权重/延迟/ROS/Isaac 闭环。
 
-退役具名回归为 `tests/test_decision_replanning.py`、`tests/test_decision_aeb_replanning.py`，覆盖低置信、正常 wait、实际 Actor cancel proof、缺证明、持久化反馈、完成前缀和旧代次 fencing。压力诊断保持真实 1000 sequences、原随机种子、assertions 与 Future 时限；定向通过不构成长期稳定保证。平台压力入口见 [来源与检查](LOCAL_DEVELOPMENT_INTEGRATION_RESULT.md)，详细运行结果只保存到外部 evidence/临时目录。
+退役具名回归为 `tests/test_decision_replanning.py`（EX 单元）与 [AstrBotVLA-tests](https://github.com/Steven-Wang-120/AstrBotVLA-tests/blob/main/docs/PR-REMEDIATION-20261007.md) 的 `validation_tests/integration/test_decision_aeb_replanning.py`（六项跨仓集成），覆盖低置信、正常 wait、实际 Actor cancel proof、缺证明、持久化反馈、完成前缀和旧代次 fencing。压力诊断保持真实 1000 sequences、原随机种子、assertions 与 Future 时限；定向通过不构成长期稳定保证。平台压力入口见 [来源与检查](LOCAL_DEVELOPMENT_INTEGRATION_RESULT.md)，详细运行结果只保存到外部 evidence/临时目录。

@@ -96,8 +96,9 @@ GET `/view` v1：`schema_version/ex_session/revision/effective_revision/provider
 
 ```sh
 python -B -m unittest tests.test_decision_management_boundaries tests.test_decision_management_history tests.test_decision_management_http tests.test_decision_management_interleaving tests.test_decision_management_operations tests.test_owned_laya tests.test_decision_secret_redaction -v
-python -B -m scripts.verify_decision_management --help
-python -B -m scripts.verify_decision_management --output /absolute/fresh-external-evidence
+# 以下独立脚本从 AstrBotVLA-tests 根运行（产品单元测试仍在 EX）：
+python -B -m validation_drivers.verify_decision_management --ex-checkout ../ex --aeb-checkout ../aeb --help
+python -B -m validation_drivers.verify_decision_management --ex-checkout ../ex --aeb-checkout ../aeb --output /absolute/fresh-external-evidence
 ```
 
 生命周期/激活/真实 loopback/projection 专项为 `test_decision_management_lifecycle.py`、`test_decision_management_activation.py`、`test_decision_management_provider_http.py`、`test_decision_management_projection.py`。上述管理验证入口为 synthetic-only：真实管理 HTTP/RuntimeController、隔离软件 Actor 与合成 loopback owned 服务，不调用模型/ROS/机器人；不再接受旧模型环境的 `--python/--cache/--device` 参数。真实模型验证另用 [Laya 入口](B07-LAYA-BACKEND.md#3-独立部署与验证用法)及独立环境/固定缓存。测试 Actor 不授权硬件；合成供应商、FakeProcess、合同 fixture 分别不证明模型质量、实际进程或端到端集成。新日志/截图/JSON 只输出外部 evidence/临时目录。

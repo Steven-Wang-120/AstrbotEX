@@ -22,7 +22,7 @@
 
 具名原测试：`tests.test_action_dispatcher.DispatcherTests.test_1000_real_dispatcher_state_sequences_with_resources_and_rearm`。保持真实 Dispatcher/Actor/Ledger、1000 sequences、原随机种子、断言和 Future timeouts，不缩规模筛绿。
 
-[diagnose_dispatcher_stress.py](../scripts/diagnose_dispatcher_stress.py) 记录实际 imported source hashes、SQLite 慢 SQL/commit（>0.1s）与 8s 周期线程栈。`--dump-mode auto` 在 Windows 使用 Python watchdog，在其他平台使用 native faulthandler；Python watchdog 无法在别的线程长期持有 GIL 或 native 故障时保证输出。`--check-import` 仅核对准确用例，不运行压力、不算通过。超时/关闭竞争要保留源身份与栈分析，一次未复现不构成长时稳定保证。
+[diagnose_dispatcher_stress.py](https://github.com/Steven-Wang-120/AstrBotVLA-tests/blob/main/validation_drivers/diagnose_dispatcher_stress.py) 记录实际 imported source hashes、SQLite 慢 SQL/commit（>0.1s）与 8s 周期线程栈。`--dump-mode auto` 在 Windows 使用 Python watchdog，在其他平台使用 native faulthandler；Python watchdog 无法在别的线程长期持有 GIL 或 native 故障时保证输出。`--check-import` 仅核对准确用例，不运行压力、不算通过。超时/关闭竞争要保留源身份与栈分析，一次未复现不构成长时稳定保证。
 
 Windows provider 的可选 fchmod/明确 fd 关闭、owned `.exe` 路径与 POSIX ACL/目录 fsync/整树终止证明是不同范围；Linux/Windows 基线结果也不能互换。当前运行结果应绑定实际源码，不能把旧失败笼统当新 provider 不支持，也不能用定向通过推断全系统平台支持。
 
@@ -32,12 +32,13 @@ Windows provider 的可选 fchmod/明确 fd 关闭、owned `.exe` 路径与 POSI
 
 ```sh
 python -B -m unittest discover -s tests -t . -v
-python -B scripts/diagnose_dispatcher_stress.py --help
-python -B scripts/diagnose_dispatcher_stress.py --check-import
-python -B scripts/diagnose_dispatcher_stress.py
+# 以下独立脚本从 AstrBotVLA-tests 根运行：
+python -B -m validation_drivers.diagnose_dispatcher_stress --ex-checkout ../ex --aeb-checkout ../aeb --help
+python -B -m validation_drivers.diagnose_dispatcher_stress --ex-checkout ../ex --aeb-checkout ../aeb --check-import
+python -B -m validation_drivers.diagnose_dispatcher_stress --ex-checkout ../ex --aeb-checkout ../aeb
 ```
 
-任意目录也可 `python -B /absolute/checkout/scripts/diagnose_dispatcher_stress.py /absolute/checkout`，stdout/stderr 指向新外部日志。
+独立诊断入口与跨仓集成用例已迁往 [AstrBotVLA-tests](https://github.com/Steven-Wang-120/AstrBotVLA-tests/blob/main/docs/PR-REMEDIATION-20261007.md)。从该仓库根运行上述 module 命令，明确 EX/AEB checkout；stdout/stderr 指向新外部日志。EX 的功能单元测试及必需样例保留。
 
 - 模型协议/质量：[B07 验证](B07-LAYA-BACKEND.md#8-验证与已知限制)、[锁定依赖](../requirements-laya.lock)。生产 decoder、测试 Actor 和真实权重选择质量分开。
 - 管理/归属/停止：[B08 验证](B08-DECISION-MANAGEMENT.md#7-具名验证入口与限制)。external 不调用 owned 生命周期，runtime IDLE 不代替 registry proof。
