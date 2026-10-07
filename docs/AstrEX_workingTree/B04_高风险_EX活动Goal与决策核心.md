@@ -1,4 +1,4 @@
-> 2026-10-02 集成说明：本文保留原施工任务和历史验收边界；已完成的 B04/B07/B08/B09 以 [当前集成报告](../LOCAL_DEVELOPMENT_INTEGRATION_RESULT.md) 为准，不重复开发。
+> 下文保留施工步骤与设计门槛，不作运行结果。当前停止/退役与切换边界见 [技术说明](../B04_BOUNDARY_20261001_RESULT.md)，可重复检查见 [复验入口](../LOCAL_DEVELOPMENT_INTEGRATION_RESULT.md)。低置信/request_replan 在 dispatch 前拒绝，实际停止与持久化 draft 后经当前 Goal CAS 发布 failed；不隐式 wait、不重放完成前缀。
 
 # B04｜高风险｜EX活动Goal与决策核心
 
@@ -14,7 +14,9 @@
 
 ## 2. 状态所有权
 
-GoalManager持有一个 `active` 和至多一个 `pending_replace`。历史用于诊断，不能被决策执行。计划队列属于AEB，EX不缓存可自动推进的全部步骤。
+GoalManager持有一个 `active` 和至多一个 `pending_replace`。历史用于诊断，不能被决策执行。`currentGoal` 是当前一步，`HostTask` 是 Host/AEB 持有的多步骤任务；EX不缓存可自动推进的全部步骤。低置信或 request_replan 的当前步骤退役不回滚已完成前缀，后续 Host 只能重规划未完成后缀。
+
+目录捕获已加载 manifest/config 和真实 generation/state，并检测目录 version/manifest/config 差异或缺失；guide 有 UTF-8/8192 B/hash 校验。disabled、非 ready、目录变化或 guide 不可用仍可见但不可执行，不以磁盘最新版本替换实际加载版本。
 
 ```mermaid
 stateDiagram-v2

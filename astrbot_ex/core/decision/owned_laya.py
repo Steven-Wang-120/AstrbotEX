@@ -11,7 +11,6 @@ import json
 import os
 import socket
 import subprocess
-import tempfile
 import threading
 import time
 import uuid
@@ -22,6 +21,7 @@ from pathlib import Path
 
 from .backends.laya import BUNDLE_SHA, LayaBackend, LayaConfig
 from .models import DecisionSnapshot
+from .config import atomic_bytes, ManagementError, storage_recovery_pending
 
 
 class OwnedLayaError(RuntimeError):
@@ -32,13 +32,14 @@ class OwnedLayaError(RuntimeError):
 
 @dataclass(frozen=True, slots=True)
 class Deployment:
-    """Trusted composition only. None of these paths comes from an HTTP body."""
+    """Python/cache may come from validated admin HTTP config; output/state are trusted composition paths."""
 
     python: Path
     cache: Path
     output: Path
     port: int = 8769
     device: str = "cuda"
+    auth_mode: str = "none"
     state_path: Path | None = None
     startup_timeout_s: float = 120
     warmup_deadline_ms: int = 30000
@@ -52,13 +53,28 @@ class Deployment:
         object.__setattr__(self, "state_path", Path(state))
         if type(self.port) is not int or not 1 <= self.port <= 65535:
             raise OwnedLayaError("invalid_deployment")
-        if self.device not in {"cuda", "cpu"}:
+        if self.device not in {"cuda", "cpu"} or self.auth_mode not in {"none", "bearer"}:
             raise OwnedLayaError("invalid_deployment")
         for value in (self.startup_timeout_s, self.terminate_timeout_s, self.kill_timeout_s):
             if type(value) not in (int, float) or not 0 < value <= 300:
                 raise OwnedLayaError("invalid_deployment")
         if type(self.warmup_deadline_ms) is not int or not 1 <= self.warmup_deadline_ms <= 60000:
             raise OwnedLayaError("invalid_deployment")
+
+
+    def preflight(self):
+        """Validate only an explicitly requested local owned launch."""
+        if not self.python.is_absolute() or not self.python.is_file():
+            raise OwnedLayaError("python_executable_missing")
+        if os.name == "nt":
+            if self.python.suffix.lower() != ".exe":
+                raise OwnedLayaError("unsupported_owned_launcher")
+        elif not os.access(self.python, os.X_OK):
+            raise OwnedLayaError("python_not_executable")
+        if not self.cache.is_absolute() or not self.cache.is_dir():
+            raise OwnedLayaError("model_cache_missing")
+        if not os.access(self.cache, os.R_OK | os.W_OK):
+            raise OwnedLayaError("model_cache_unavailable")
 
 
 def fixed_warmup_snapshot():
@@ -93,10 +109,11 @@ class OwnedLayaService:
     """
 
     def __init__(self, deployment, *, process_factory=None, probe_factory=LayaBackend,
-                 warmup=None, clock=time.monotonic):
+                 warmup=None, clock=time.monotonic, secret_provider=None):
         if not isinstance(deployment, Deployment):
             raise OwnedLayaError("invalid_deployment")
         self.deployment = deployment
+        self._secret_provider = secret_provider
         self._process_factory = process_factory or subprocess.Popen
         self._probe_factory = probe_factory
         self._warmup = warmup
@@ -119,7 +136,11 @@ class OwnedLayaService:
         self._permit_backend = None
         self._permit_running = False
         self._draining = False
+        self._storage_uncertain = storage_recovery_pending(deployment.state_path)
         self._load_metadata()
+        if self._storage_uncertain:
+            self._quarantined = True
+            self._state, self._error = "restart_required", "storage_write_uncertain"
 
     @property
     def generation(self):
@@ -185,6 +206,8 @@ class OwnedLayaService:
             self._error = "ownership_unknown"
 
     def _persist_locked(self):
+        if self._storage_uncertain:
+            raise OwnedLayaError("storage_write_uncertain")
         path = self.deployment.state_path
         path.parent.mkdir(parents=True, exist_ok=True)
         if path.is_symlink():
@@ -193,17 +216,25 @@ class OwnedLayaService:
                           "restart_required": self._quarantined,
                           "error_code": self._error, "history": list(self._history)},
                          ensure_ascii=True, allow_nan=False, separators=(",", ":")).encode()
-        fd, temporary = tempfile.mkstemp(prefix=".laya-state-", dir=path.parent)
         try:
-            os.fchmod(fd, 0o600)
-            with os.fdopen(fd, "wb") as stream:
-                stream.write(raw)
-                stream.flush()
-                os.fsync(stream.fileno())
-            os.replace(temporary, path)
-        finally:
-            if os.path.exists(temporary):
-                os.unlink(temporary)
+            atomic_bytes(path, raw)
+        except ManagementError as exc:
+            if exc.code == "storage_write_uncertain":
+                self._storage_uncertain = self._quarantined = True
+                self._state, self._error = "restart_required", exc.code
+            raise OwnedLayaError(exc.code if exc.code in {"storage_write_uncertain", "storage_cleanup_failed"}
+                                 else "unsafe_service_state") from None
+        except OSError:
+            if storage_recovery_pending(path):
+                self._storage_uncertain = self._quarantined = True
+                self._state, self._error = "restart_required", "storage_write_uncertain"
+                raise OwnedLayaError("storage_write_uncertain") from None
+            raise OwnedLayaError("service_state_write_failed") from None
+
+    def _probe_backend(self, config):
+        if config.auth_mode == "bearer":
+            return self._probe_factory(config, secret_provider=self._secret_provider)
+        return self._probe_factory(config)
 
     def _environment(self):
         env = dict(os.environ)
@@ -215,7 +246,15 @@ class OwnedLayaService:
                    HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1",
                    TORCH_COMPILE_DISABLE="1", USE_TF="0", TOKENIZERS_PARALLELISM="false",
                    PYTHONDONTWRITEBYTECODE="1")
-        env.pop("LAYA_API_KEY", None)
+        for name in ("LAYA_API_KEY", "LAYA_API_KEY_FILE", "TYPESAFE_API_KEY", "TYPESAFE_API_KEY_FILE",
+                     "JEV_API_KEY", "JEV_API_KEY_FILE"):
+            env.pop(name, None)
+        if self.deployment.auth_mode == "bearer":
+            from .backends.connection import bearer_headers
+            try:
+                env["LAYA_API_KEY"] = bearer_headers("bearer", self._secret_provider)["Authorization"][7:]
+            except Exception:
+                raise OwnedLayaError("missing_or_invalid_secret") from None
         env["LAYA_SHA256_DIGESTS"] = json.dumps({"typed-decisions": {
             "model.safetensors": "4fa56de72383a9d3efa9cfa78955733c81b9fc8067a587ca4beb82c78107a24e",
             "tokenizer/tokenizer.json": "6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30",
@@ -281,6 +320,8 @@ class OwnedLayaService:
             intent = threading.Event()
             self._check_intent(intent, cancel, is_current)
             with self._lock:
+                if self._storage_uncertain:
+                    raise OwnedLayaError("storage_write_uncertain")
                 if self._ownership_unknown:
                     raise OwnedLayaError("ownership_unknown")
                 if self._process is not None and self._process.poll() is None:
@@ -290,14 +331,27 @@ class OwnedLayaService:
                 if self._quarantined and not recovery:
                     raise OwnedLayaError("restart_required")
                 self._intent = intent
-            with socket.socket() as probe:
-                try:
-                    probe.bind(("127.0.0.1", self.deployment.port))
-                except OSError:
-                    with self._lock:
+            try:
+                self.deployment.preflight()
+                environment = self._environment()
+                with socket.socket() as probe:
+                    # POSIX reuse ignores closed TCP TIME_WAIT, not live listeners.
+                    # Windows reuse can admit competing binds; keep its strict probe.
+                    if os.name == "posix":
+                        probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    try:
+                        probe.bind(("127.0.0.1", self.deployment.port))
+                    except OSError:
+                        raise OwnedLayaError("service_port_occupied") from None
+                self.deployment.output.mkdir(parents=True, exist_ok=True)
+                log = (self.deployment.output / f"laya-serve-{self._session}-{self._serial + 1}.txt").open("w")
+            except Exception as exc:
+                code = exc.code if isinstance(exc, OwnedLayaError) else "service_start_failed"
+                with self._lock:
+                    self._state, self._error = "failed", code
+                    if self._intent is intent:
                         self._intent = None
-                    raise OwnedLayaError("service_port_occupied") from None
-            self.deployment.output.mkdir(parents=True, exist_ok=True)
+                raise OwnedLayaError(code) from None
             started = time.monotonic_ns()
             with self._lock:
                 self._serial += 1
@@ -306,7 +360,6 @@ class OwnedLayaService:
                 self._state, self._error, self._health = "starting", None, None
                 self._quarantined = False
                 self._process = None
-                log = (self.deployment.output / f"laya-serve-{self._session}-{self._serial}.txt").open("w")
                 self._log = log
                 item = {"generation": generation, "started_monotonic_ns": started,
                         "weight_revision": BUNDLE_SHA, "requested_device": self.deployment.device}
@@ -318,14 +371,15 @@ class OwnedLayaService:
                     self._persist_locked()  # Persist intent before spawn; a crash cannot lose ownership.
                 self._check_intent(intent, cancel, is_current)
                 process = self._process_factory([str(self.deployment.python), "-m", "laya.serve"],
-                                                env=self._environment(), stdout=log,
-                                                stderr=subprocess.STDOUT)
+                                                env=environment, stdout=log,
+                                                stderr=subprocess.STDOUT, shell=False)
                 with self._lock:
                     self._process = process
                     item["pid"] = process.pid
                     self._persist_locked()
-                config = LayaConfig(enabled=True, allow_live_http=True, port=self.deployment.port)
-                probe_backend = self._probe_factory(config)
+                config = LayaConfig(enabled=True, allow_live_http=True, port=self.deployment.port,
+                                    auth_mode=self.deployment.auth_mode)
+                probe_backend = self._probe_backend(config)
                 self._set_startup_backend(probe_backend, intent)
                 end = self._clock() + self.deployment.startup_timeout_s
                 while True:
@@ -334,7 +388,7 @@ class OwnedLayaService:
                         raise OwnedLayaError("service_exited_before_ready")
                     if self._clock() >= end:
                         raise OwnedLayaError("readiness_deadline")
-                    readiness = probe_backend.probe()
+                    readiness = probe_backend.health_probe()
                     self._check_intent(intent, cancel, is_current)
                     summary = self._health_summary(readiness.get("health"))
                     with self._lock:
@@ -353,13 +407,14 @@ class OwnedLayaService:
                 probe_backend.close()
                 probe_backend = None
                 if warmup:
-                    cold = self._probe_factory(replace(config, deadline_ms=self.deployment.warmup_deadline_ms))
+                    cold = self._probe_backend(replace(config, deadline_ms=self.deployment.warmup_deadline_ms))
                     probe_backend = cold
                     self._set_startup_backend(cold, intent)
                     self._check_intent(intent, cancel, is_current)
                     warm_started = time.monotonic_ns()
                     if self._warmup is None:
-                        decision = cold.decide(fixed_warmup_snapshot())
+                        from .backends.connection import probe_snapshot
+                        decision = cold.decide(probe_snapshot())
                         last = cold.last_record or {}
                         record = {"decision": decision.to_dict(), "snapshot_id": last.get("snapshot_id"),
                                   "input_sha256": last.get("input_sha256")}
@@ -388,7 +443,13 @@ class OwnedLayaService:
                         item["quarantine_error"] = code
                     self._state = "restart_required" if self._quarantined else "failed"
                 if process is not None:
-                    self._terminate(process, generation)
+                    try:
+                        self._terminate(process, generation)
+                    except Exception:
+                        with self._lock:
+                            self._state, self._error = "restart_required", "service_exit_not_confirmed"
+                            self._quarantined = True
+                        raise OwnedLayaError("service_exit_not_confirmed") from None
                 else:
                     with self._lock:
                         item["exit_code"] = None
@@ -429,6 +490,8 @@ class OwnedLayaService:
             self._persist_locked()
 
     def _check_guard_locked(self, generation):
+        if self._storage_uncertain:
+            raise OwnedLayaError("storage_write_uncertain")
         if self._ownership_unknown:
             raise OwnedLayaError("ownership_unknown")
         if generation != self._generation:
@@ -475,12 +538,19 @@ class OwnedLayaService:
 
     def _terminate(self, process, generation):
         """Only the captured Popen handle is eligible for TERM/KILL."""
+        with self._lock:
+            if self._ownership_unknown or self._process is not process or self._generation != generation:
+                raise OwnedLayaError("ownership_unknown")
+            if process.poll() is None:
+                process.terminate()
         if process.poll() is None:
-            process.terminate()
             try:
                 process.wait(timeout=self.deployment.terminate_timeout_s)
             except subprocess.TimeoutExpired:
-                process.kill()
+                with self._lock:
+                    if self._ownership_unknown or self._process is not process or self._generation != generation:
+                        raise OwnedLayaError("ownership_unknown")
+                    process.kill()
                 try:
                     process.wait(timeout=self.deployment.kill_timeout_s)
                 except subprocess.TimeoutExpired:
@@ -493,13 +563,16 @@ class OwnedLayaService:
                 if item.get("generation") == generation:
                     item["exit_code"] = exit_code
                     item["exit_confirmed_monotonic_ns"] = time.monotonic_ns()
+                    item["stop_scope"] = "owned_popen_handle"
+                    item["descendant_exit_confirmed"] = False
                     break
             if self._process is process and self._generation == generation:
                 if self._log is not None:
                     self._log.close()
                     self._log = None
             self._persist_locked()
-        return {"generation": generation, "exit_code": exit_code, "exit_confirmed": True}
+        return {"generation": generation, "exit_code": exit_code, "exit_confirmed": True,
+                "stop_scope": "owned_popen_handle", "descendant_exit_confirmed": False}
 
     def stop(self, *, expected_generation=None):
         self.interrupt("service_stop", expected_generation=expected_generation)
@@ -518,7 +591,8 @@ class OwnedLayaService:
                 result = self._terminate(process, generation)
             except Exception:
                 with self._lock:
-                    self._state, self._error = "failed", "service_exit_not_confirmed"
+                    self._state, self._error = "restart_required", "service_exit_not_confirmed"
+                    self._quarantined = True
                     self._persist_locked()
                 raise
             with self._lock:

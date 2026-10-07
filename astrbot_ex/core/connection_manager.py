@@ -816,6 +816,15 @@ class ConnectionManager:
             raise RuntimeError("decision text route missing or ambiguous")
         return matches[0]
 
+    def decision_connection_identity(self) -> tuple[str, object]:
+        """Trusted local adapter identity; never serialized or supplied over the wire."""
+        with self._lock:
+            connection_id = self.decision_connection_id()
+            adapter = self._adapters.get(connection_id)
+            if not isinstance(adapter, _ZmqAdapter):
+                raise RuntimeError("scoped business route unavailable")
+            return connection_id, adapter
+
     def request_connection(self, connection_id: str, feature: str, method: str, payload: dict,
                            *, timeout_sec: float = 1) -> tuple[dict, bytes | None]:
         with self._lock:

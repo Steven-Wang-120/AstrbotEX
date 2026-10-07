@@ -101,18 +101,21 @@ class JevBackendTests(unittest.TestCase):
         decision = self.backend(lambda *args: reply(raw)).decide(snapshot())
         self.assertEqual([c["option_id"] for c in decision.choices], ["arm-wait", "base-wait"])
 
-    def test_low_confidence_wait_or_explicit_replan_not_fake_probability(self):
+    def test_low_confidence_preserves_original_option_and_scores(self):
         raw = copy.deepcopy(FIXTURE["response"])
         raw["answers"]["arm"]["confidence"] = 0.59
         backend = self.backend(lambda *a: reply(raw))
         decision = backend.decide(snapshot())
-        self.assertEqual(decision.choices[0], {"owner": "arm", "option_id": "arm-wait"})
-        self.assertEqual(backend.last_record.conservative_overrides, 1)
+        self.assertEqual(decision.choices[0], {"owner": "arm", "option_id": "arm-start",
+            "confidence": 0.59, "probabilities": raw["answers"]["arm"]["probabilities"]})
+        self.assertEqual(backend.last_record.conservative_overrides, 0)
+        self.assertEqual(backend.min_confidence, 0.6)
         original = snapshot()
         original.owners[0]["candidates"] = [c for c in original.owners[0]["candidates"] if c["kind"] != "wait"]
         raw["answers"]["arm"]["probabilities"] = {"arm-start": 0.8, "arm-replan": 0.2}
         decision = backend.decide(original)
-        self.assertEqual(decision.choices[0]["option_id"], "arm-replan")
+        self.assertEqual(decision.choices[0]["option_id"], "arm-start")
+        self.assertEqual(decision.choices[0]["confidence"], 0.59)
 
     def test_no_conservative_candidate_rejected_before_transport(self):
         original = snapshot()
@@ -290,8 +293,8 @@ class JevBackendTests(unittest.TestCase):
         finally:
             release.set()
 
-    def test_cancel_close_model_and_config_change_drop_late_response(self):
-        for operation, expected in (("cancel", "canceled"), ("close", "closed"), ("model", "config_changed"), ("threshold", "config_changed")):
+    def test_cancel_close_connection_and_config_change_drop_late_response(self):
+        for operation, expected in (("cancel", "canceled"), ("close", "closed"), ("connection", "config_changed"), ("threshold", "config_changed")):
             with self.subTest(operation=operation):
                 entered, release = threading.Event(), threading.Event()
                 results, errors = [], []
@@ -309,8 +312,8 @@ class JevBackendTests(unittest.TestCase):
                 thread.start()
                 try:
                     self.assertTrue(entered.wait(1))
-                    if operation == "model":
-                        backend.reconfigure(replace(backend.config, model="jev-1.14.0"))
+                    if operation == "connection":
+                        backend.reconfigure(replace(backend.config, base_url="https://gateway.example.invalid/prefix"))
                     elif operation == "threshold":
                         backend.reconfigure(replace(backend.config, min_confidence=0.7))
                     else:
@@ -495,7 +498,7 @@ class JevBackendTests(unittest.TestCase):
         with self.assertRaises(jev.JevBackendError):
             backend.reconfigure(config())
         for changes in ({"model": "jev-latest"}, {"deadline_ms": True}, {"max_candidates_per_owner": 256},
-                        {"min_confidence": float("nan")}, {"mode": "execute"}, {"observation_guides": []}):
+                        {"min_confidence": float("nan")}, {"mode": "unknown"}, {"observation_guides": []}):
             with self.subTest(changes=changes), self.assertRaises(jev.JevBackendError):
                 config(**changes)
 

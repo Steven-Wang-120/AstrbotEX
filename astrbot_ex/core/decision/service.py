@@ -91,6 +91,7 @@ class DecisionService:
         self._last_poll_ns = 0
         self._last_stop_epoch = -1
         self.completion_hook = None
+        self._decision_rejection = None
         self._control = threading.Thread(target=self._run, name="decision-control", daemon=True)
         self._backend_worker = threading.Thread(target=self._backend_loop, name="decision-backend", daemon=True)
         self._backend_worker.start()
@@ -589,6 +590,33 @@ class DecisionService:
         self.observations.request_observations(snapshot.observations)
         return validate_backend_selection(snapshot, decision, current)
 
+    def _reject_decision(self, snapshot, decision, reason) -> None:
+        """Preserve the choice, revoke this Goal, then use the proven terminal path."""
+        with self.goals._lock, self.actions.dispatcher._lock:
+            # Fence the original snapshot at revocation, not only at reply parsing.
+            self._validate_response(snapshot, decision)
+            terminal = self.goals.reject_decision(snapshot.versions.goal_revision, reason,
+                goal_id=snapshot.goal["goal_id"])
+            if terminal is None:
+                raise RuntimeError("goal_authorization_expired")
+        diagnostic = {"snapshot_id": snapshot.snapshot_id, "backend": decision.backend,
+            "model": decision.model, "choices": copy.deepcopy(decision.choices),
+            "choice_count": len(decision.choices), "truncated": False}
+        # Journal facts have an 8 KiB budget. Keep original scores, never normalize
+        # or substitute options; the local decision record retains the full reply.
+        while len(json.dumps(diagnostic, ensure_ascii=False).encode("utf-8")) > 3500:
+            diagnostic["truncated"] = True
+            choice = diagnostic["choices"][-1]
+            probabilities = choice.get("probabilities", {})
+            if probabilities:
+                choice.setdefault("probability_count", len(probabilities))
+                probabilities.pop(next(reversed(probabilities)))
+            else:
+                diagnostic["choices"].pop()
+        self._decision_rejection = (terminal, diagnostic)
+        self._queue_stop()
+        self._record(snapshot, "decision_rejected", reason, decision=decision.to_dict())
+
     def _apply(self, snapshot, decision) -> None:
         try:
             if self.environment is not None:
@@ -600,6 +628,13 @@ class DecisionService:
             selected = self._validate_response(snapshot, decision)
             catalog = self.catalog.snapshot()
             entries = {e["owner"]: e for e in catalog.entries}
+            threshold = getattr(self.backend, "min_confidence", None)
+            if (self.mode == "execute" and threshold is not None and any(
+                    choice.get("confidence", 0) < threshold for choice in decision.choices)):
+                if getattr(self.backend, "execution_allowed", False) is not True:
+                    raise RuntimeError("backend_execute_not_allowed")
+                self._reject_decision(snapshot, decision, "low_confidence")
+                return
             occupied = {r for row in self._rows for r in row.held_resources}
             starts, cancels, observed, replans = [], [], {}, []
             owner_by_option = {c["option_id"]: o["owner"] for o in snapshot.owners for c in o["candidates"]}
@@ -628,9 +663,7 @@ class DecisionService:
             if self.mode != "execute" or getattr(self.backend, "execution_allowed", False) is not True:
                 raise RuntimeError("backend_execute_not_allowed")
             if replans:
-                self.goals.awaiting_llm(snapshot.versions.goal_revision, "backend_requested_replan")
-                self._queue_stop()
-                self._record(snapshot, "awaiting_llm", "backend_requested_replan")
+                self._reject_decision(snapshot, decision, "backend_requested_replan")
                 return
             if cancels:
                 for cid, binding in cancels:
@@ -858,7 +891,10 @@ class DecisionService:
                 if self.goals._terminal_stop == terminal and self.goals.gate_epoch == epoch:
                     self.goals.block("terminal_stop_requires_explicit_review")
             return
-        if status == "failed" and not failed_commands:
+        rejection = (copy.deepcopy(self._decision_rejection[1])
+            if self._decision_rejection is not None and self._decision_rejection[0] == terminal
+            and status == "failed" and reason in {"low_confidence", "backend_requested_replan"} else None)
+        if status == "failed" and not failed_commands and rejection is None:
             return
         commands = []
         deadline = time.monotonic() + self._io_timeout
@@ -900,7 +936,9 @@ class DecisionService:
                     "terminal_evidence": {"verified": True, "goal_id": goal.payload()["goal_id"],
                         "goal_revision": goal.revision, "stop_proof_epoch": proof_epoch,
                         "dispatcher_epoch": self.actions.dispatcher._epoch, "commands": commands}}}
-            if status == "failed":
+            if rejection is not None:
+                summary["details"]["decision_rejection"] = rejection
+            if status == "failed" and failed_commands:
                 summary["details"]["failure_evidence"] = {"verified": True,
                     "goal_id": goal.payload()["goal_id"], "goal_revision": goal.revision,
                     "commands": failure_evidence}

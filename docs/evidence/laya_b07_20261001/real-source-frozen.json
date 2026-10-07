@@ -1,8 +1,0 @@
-{
-  "astrbot_ex/core/decision/backends/laya.py": "07444cd1b3a58a481cd00ecf4885d608a64fea9a59fa33fc9cdc5a02381f6ca8",
-  "astrbot_ex/core/decision/backends/registry.py": "365018b604af4f67fabefefa0d063fa07a90b301b1bec90b6b21ec71f4b440bb",
-  "astrbot_ex/core/decision/backends/__init__.py": "dfdc14ff29e3c5bd6ef401e0bb97ac040087d9635c245e6602e203af334098ce",
-  "tests/test_laya_backend.py": "12ba7d130ae05ed551dc51758073cd42ef026820072b16e2a66dfb03235af266",
-  "tests/test_laya_service_integration.py": "3c2acf6b2507b90aaa28e1a823df12d2531cc28949502e94c417d720018e4b10",
-  "scripts/verify_laya_backend.py": "5478f7034e13e7775a4b11a5c5cc325342d2869600dd03911dd2d09e41817415"
-}

@@ -1,196 +1,231 @@
-"""B09 browser fixture: real B08 HTTP, existing fake Laya child, isolated test Actor.
+"""C07 isolated browser contract fixture, NOT production activation acceptance.
 
-stdin JSON commands are test orchestration, never exposed as dashboard endpoints.
-No model inference, robot plugins, GPU, or new production composition.
+Uses real temporary EX HTTP composition for neighboring pages and authentication.
+Only decision endpoints are replaced here with the frozen stage-B contract. Probe
+results, task projections, activation and stop are test data: no supplier requests,
+model processes, robot plugins, Goal/Action admission or physical motion.
 """
 from __future__ import annotations
 
 import copy
 import json
-import os
-import socket
 import sys
-import tempfile
 import threading
 import time
 import unittest
-from pathlib import Path
-from unittest.mock import patch
 
-from astrbot_ex.core.api_server import build_server
-from astrbot_ex.core.actions.models import ActionStatus
-from astrbot_ex.core.actions.ledger import OwnerBinding, StopEvidence
-from astrbot_ex.core.decision.management import ManagementSettings
-from astrbot_ex.core.decision.owned_laya import Deployment, OwnedLayaService
-from scripts.verify_decision_management import compose_actor, until
+from astrbot_ex.core.decision.config import ManagementError
 from tests.test_decision_management_http import ManagementHTTPFixture
-from tests.test_goal_manager import goal_payload
-from tests.test_laya_backend import health, reply
-from tests.test_owned_laya import FakeBackend, FakeProcess
+
+PREFIX = "/api/v1/ex/decision"
 
 
 class BrowserFixture(ManagementHTTPFixture, unittest.TestCase):
     def setUp(self):
-        self.deployment_temp = tempfile.TemporaryDirectory(prefix='b09-owned-fixture-')
-        root = Path(self.deployment_temp.name)
-        with socket.socket() as probe:
-            probe.bind(('127.0.0.1', 0))
-            port = probe.getsockname()[1]
-        self.release = threading.Event()
-        self.release.set()
-        self.actor = self.owner = None
-        self.goal_number = 0
+        super().setUp()
+        self.lock = threading.RLock()
+        self.operations = {}
+        self.number = 0
+        self.mode = "disabled"
+        self.connection = "unverified"
+        self.task = self.idle_task()
+        self.fault = None
+        self.test_result = {"ok": True, "inference_ok": True, "health_ok": True,
+                            "inference_called": True, "error_code": None}
+        self.delay = 0
+        self.requests = []
+        self.hold_config = None
+        handler = type("C07FixtureHandler", (self.server.RequestHandlerClass,), {})
+        original_get, original_post = handler.do_GET, handler.do_POST
+        fixture = self
 
-        def warmup(backend):
-            if not self.release.wait(30):
-                raise RuntimeError('fixture_load_timeout')
-            return {'test_fixture': True, 'inference_called': False}
+        def get(request):
+            try:
+                if request._path().startswith(PREFIX):
+                    fixture.handle(request, False)
+                else:
+                    original_get(request)
+            except ConnectionError:
+                pass  # Browser intentionally aborts reads during credential/offline checks.
 
-        def factory(deployment):
-            return OwnedLayaService(deployment, process_factory=lambda *a, **kw: FakeProcess(),
-                                    probe_factory=FakeBackend, warmup=warmup)
+        def post(request):
+            if request._path().startswith(PREFIX):
+                fixture.handle(request, True)
+            else:
+                original_post(request)
 
-        def transport(method, path, *a, **kw):
-            if method != 'GET' or path != '/health':
-                raise AssertionError('B09 fixture must not perform model inference')
-            return reply(health())
+        handler.do_GET, handler.do_POST = get, post
+        self.server.RequestHandlerClass = handler
 
-        self.settings = ManagementSettings(laya_deployment=Deployment(Path(sys.executable), root/'cache',
-            root/'logs', port=port, device='cpu', state_path=root/'execution/laya/service-state.json'),
-            laya_service_factory=factory, laya_transport_factory=lambda manager, generation: transport, operation_timeout_s=4)
-        with patch('tests.test_decision_management_http.ManagementSettings', return_value=self.settings):
-            super().setUp()
+    @staticmethod
+    def idle_task():
+        return {"available": True, "phase": "idle", "title": "", "current_goal": None,
+                "completed": 0, "total": 0, "can_cancel": False, "updated_at": 0, "message": "No active task"}
 
-    def tearDown(self):
-        self.release.set()
-        if self.owner:
-            for row in self.server.action_ledger.list_commands().result(1):
-                if row.status in {ActionStatus.UNKNOWN, ActionStatus.TIMED_OUT, ActionStatus.FAILED}:
-                    binding=OwnerBinding(row.owner,row.generation)
-                    if self.server.action_ledger.stop_proof(row.command_id,binding).result(1) is None:
-                        self.server.action_ledger.reconcile_stop(row.command_id,binding,
-                            StopEvidence(row.command_id,True,'arm','fixture-cleanup')).result(1)
-        super().tearDown()
-        if self.actor:
-            self.actor.stop()
-        self.deployment_temp.cleanup()
+    @property
+    def store(self):
+        return self.server.decision_management.store
 
-    def run_operation(self, path, payload=None):
-        status, value, _ = self.write(path, payload)
-        self.assertEqual(status, 202, value)
-        result = self.operation(value)
-        self.assertEqual(result['state'], 'succeeded', result)
-        return result
+    def config(self):
+        return {"ok": True, **self.store.get(), "framework_config_revision": 0}
 
-    def actor_goal(self, finish=True):
-        if self.actor is None:
-            self.owner, self.actor, _ = compose_actor(self.server)
-        self.run_operation('/mode', {'mode': 'execute'})
-        self.goal_number += 1
-        count = len(self.owner.commands)
-        self.owner.started.clear()
-        service = self.server.decision_service
-        service.submit_goal(goal_payload(service.goals, self.goal_number,
-            goal_text_en='TEST FIXTURE: move safely; not a robot task.',
-            completion={'required_success_actions': ['arm.move.v1']}))
-        self.assertTrue(self.owner.started.wait(3), 'test Actor not called')
-        command = self.owner.commands[count]
-        until(lambda: self.server.action_ledger.get(command.command_id).result(1).status == ActionStatus.RUNNING,
-              'test_actor_running_missing')
-        if finish:
-            self.server.action_dispatcher.report(command.command_id, OwnerBinding('arm', 1),
-                ActionStatus.SUCCEEDED, details={'test_actor_only': True}).result(1)
-            self.run_operation('/stop')
-        return command.command_id
+    def view(self):
+        return {"schema_version": 1, "ex_session": self.store.ex_session,
+                "revision": self.store.revision, "effective_revision": self.store.effective_revision,
+                "provider": self.store.saved["backend"],
+                "connection": {"state": self.connection, "code": None, "message": "fixture connection"},
+                "ex": {"state": self.mode, "can_start": self.mode in ("disabled", "failed"),
+                       "can_stop": self.mode != "disabled", "message": "fixture EX state"},
+                "task": copy.deepcopy(self.task), "error": None}
+
+    def handle(self, handler, post):
+        if not handler._authorize_http():
+            return
+        suffix = handler._path()[len(PREFIX):]
+        try:
+            body = json.loads(handler.rfile.read(int(handler.headers.get("Content-Length", 0)))) if post else None
+            with self.lock:
+                record = {"method": "POST" if post else "GET", "path": suffix, "body": copy.deepcopy(body)}
+                if body and "value" in body:
+                    record["body"]["value"] = "[redacted]"
+                self.requests.append(record)
+                if self.fault and self.fault["path"] == suffix:
+                    fault, self.fault = self.fault, None
+                    handler._send_json({"ok": False, "code": fault["code"]}, fault["status"])
+                    return
+                if not post:
+                    if suffix == "/config":
+                        result = self.config()
+                        delay = self.hold_config or 0
+                        self.hold_config = None
+                    elif suffix == "/view":
+                        result, delay = self.view(), 0
+                    elif suffix.startswith("/operations/"):
+                        op = self.operations[suffix.rsplit("/", 1)[1]]
+                        if time.monotonic() >= op["ready_at"]:
+                            op["state"] = "succeeded"
+                            if op["kind"] == "mode":
+                                self.mode = "running"
+                            elif op["kind"] == "stop":
+                                self.mode = "disabled"
+                        result = {**self.config(), "operation": {k: v for k, v in op.items() if k != "ready_at"}}
+                        delay = 0
+                    else:
+                        raise ManagementError("route_not_found", 404)
+                else:
+                    if suffix != "/stop":
+                        self.store.check(body["expected_revision"], body["ex_session"])
+                    elif body["ex_session"] != self.store.ex_session:
+                        raise ManagementError("session_conflict")
+                    if suffix == "/config":
+                        if set(body) != {"ex_session", "expected_revision", "config"}:
+                            raise ManagementError("invalid_fields", 400)
+                        if self.mode == "running":
+                            raise ManagementError("requires_disabled")
+                        self.store.save(body["config"], body["expected_revision"], body["ex_session"])
+                        self.connection = "unverified"
+                        result, delay = self.config(), 0
+                    elif suffix == "/secret":
+                        if set(body) - {"ex_session", "expected_revision", "provider", "action", "value"}:
+                            raise ManagementError("invalid_fields", 400)
+                        self.store.update_secret(body["action"], body.get("value"), body["expected_revision"],
+                                                 body["ex_session"], provider=body["provider"])
+                        result, delay = self.config(), 0
+                    elif suffix in ("/test", "/mode", "/stop"):
+                        self.number += 1
+                        operation_id = "c07-fixture-" + str(self.number)
+                        kind = suffix[1:]
+                        result_value = None
+                        if kind == "test":
+                            if set(body) - {"ex_session", "expected_revision", "provider", "config", "value"}:
+                                raise ManagementError("invalid_fields", 400)
+                            draft = body.get("config", self.store.saved)
+                            self.store.validate(draft, allow_reference=True)
+                            selected = body.get("provider", draft["backend"])
+                            matches = draft == self.store.saved and "value" not in body and selected == self.store.saved["backend"]
+                            result_value = {**self.test_result, "provider": selected, "scope": "TEST FIXTURE only",
+                                            "binding": {"current_config_verified": matches and self.test_result["ok"],
+                                                        "config_matches_saved": draft == self.store.saved,
+                                                        "session_matches": True, "provider_matches_saved": selected == self.store.saved["backend"],
+                                                        "credential_matches_saved": "value" not in body, "current": matches}}
+                        elif kind == "mode":
+                            if body["mode"] != "execute":
+                                raise ManagementError("invalid_mode", 400)
+                        else:
+                            # Stop supersedes pending activation in the isolated contract fixture.
+                            for old in self.operations.values():
+                                if old["kind"] == "mode" and old["state"] == "pending":
+                                    old["ready_at"] = float("inf")
+                                    old["state"] = "superseded"
+                        self.operations[operation_id] = {"operation_id": operation_id, "kind": kind, "state": "pending",
+                                                         "result": result_value, "error_code": None,
+                                                         "ready_at": time.monotonic() + self.delay}
+                        handler._send_json({**self.config(), "operation_id": operation_id}, 202)
+                        return
+                    else:
+                        raise ManagementError("route_not_found", 404)
+            if delay:
+                threading.Event().wait(delay)
+            handler._send_json(result)
+        except ManagementError as exc:
+            handler._send_json({"ok": False, "code": exc.code, "ex_session": self.store.ex_session,
+                                "revision": self.store.revision}, exc.status)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
 
     def command(self, request):
-        kind = request['command']
-        management = self.server.decision_management
-        if kind == 'info':
-            return {'base': self.base, 'token_file': str(self.root/'secrets/admin.token'),
-                    'scope': 'real B08 HTTP; fake owned Laya; isolated test Actor only'}
-        if kind == 'hold':
-            self.release.clear()
-        elif kind == 'release':
-            self.release.set()
-        elif kind == 'quarantine':
-            management.laya.quarantine(management.laya.generation, 'deadline_exceeded')
-        elif kind == 'change_config':
-            version = self.get_config()
-            value = copy.deepcopy(version['saved'])
-            value['mock']['kind'] = request.get('kind', 'request_replan')
-            status, result, _ = self.write('/config', {'config': value}, version=version)
-            self.assertEqual(status, 200, result)
-            return {'revision': result['revision']}
-        elif kind == 'seed_actions':
-            version = self.get_config()
-            value = copy.deepcopy(version['saved']);value['backend']='mock';value['mock']['kind']='start'
-            self.assertEqual(self.write('/config', {'config': value})[0], 200)
-            return {'command_ids': [self.actor_goal() for _ in range(request.get('count', 21))]}
-        elif kind == 'active_actor':
-            cid = self.actor_goal(False)
-            self.owner.stop_proof = request.get('stop_proof', True)
-            if not self.owner.stop_proof:
-                self.server.action_dispatcher.report(cid, OwnerBinding('arm', 1), ActionStatus.FAILED,
-                    details={'test_actor_only': True}).result(1)
-            return {'command_id': cid}
-        elif kind == 'prove_failed':
-            cid = self.owner.commands[-1].command_id
-            self.server.action_ledger.reconcile_stop(cid, OwnerBinding('arm', 1),
-                StopEvidence(cid, True, 'arm', 'fixture-proof')).result(1)
-            return {'command_id': cid}
-        elif kind == 'seed_history':
-            for n in range(22):
-                sid = 'TEST-FIXTURE-snapshot-'+str(n)
-                now = time.monotonic_ns()
-                management.history.consume({'kind':'prepared','snapshot_id':sid,'time_ns':now,
-                    'snapshot':{'versions':{'ex_session':management.store.ex_session}, 'fixture':True},
-                    'backend':'jev' if n == 21 else 'fixture', 'backend_type':'TEST FIXTURE'})
-                management.history.consume({'kind':'backend_returned','snapshot_id':sid,'time_ns':now+2000000,
-                    'result':{'choices':[{'kind':'start','test_fixture':True}], 'elapsed_ms':2,
-                              'unsafe_text':'<img src=x onerror="window.b09Injected=true">',
-                              **({'large':'fixture '*18000} if n == 20 else {})},
-                    'record':{'model':'TEST FIXTURE', 'revision':'fixture-v1','post_attempted':True,
-                              'post_written_to_socket':None, **({'raw_response':{'fixture':True}} if n != 21 else {})}})
-                management.history.consume({'kind':'outcome','snapshot_id':sid,'time_ns':now+3000000,
-                    'outcome':'discarded', 'reason_code':'fixture_old_result','details':{'commands':[]}})
-            return {'fixture_records':22}
-        elif kind == 'notify':
-            for _ in range(request.get('count', 1)):
-                self.server.controller.runtime.event_bus.emit('decision_changed', 'B09 TEST FIXTURE')
-        elif kind == 'restart':
-            self.release.set()
-            if self.actor:
-                self.actor.stop(); self.actor=self.owner=None
-            port = self.server.server_address[1]
-            self.server.shutdown();self.thread.join(3);self.server.server_close()
-            with patch.dict(os.environ, {'ASTRBOTEX_DATA_DIR':str(self.root),
-                                         'ASTRBOTEX_STT_ENABLED':'','ASTRBOTEX_TTS_ENABLED':''}):
-                self.server=build_server('127.0.0.1',port,20,management_settings=self.settings)
-            self.thread=threading.Thread(target=self.server.serve_forever,kwargs={'poll_interval':.01})
-            self.thread.start()
-            return {'ex_session': self.server.decision_management.store.ex_session}
-        else:
-            raise ValueError('unknown fixture command')
-        return {'ok': True}
+        kind = request["command"]
+        with self.lock:
+            if kind == "info":
+                return {"base": self.base, "token": self.token, "scope": "isolated frozen HTTP contract fixture"}
+            if kind == "requests":
+                return copy.deepcopy(self.requests)
+            if kind == "configure":
+                self.fault = request.get("fault")
+                self.delay = request.get("delay", 0)
+                self.test_result.update(request.get("test_result", {}))
+                if "task" in request:
+                    self.task = {**self.idle_task(), **request["task"]}
+                if "mode" in request:
+                    self.mode = request["mode"]
+                if "connection" in request:
+                    self.connection = request["connection"]
+                if "hold_config" in request:
+                    self.hold_config = request["hold_config"]
+                return {"ok": True}
+            if kind == "change_config":
+                value = copy.deepcopy(self.store.saved)
+                value["jev"]["min_interval_ms"] += 1
+                self.store.save(value, self.store.revision, self.store.ex_session)
+                return {"revision": self.store.revision}
+            if kind == "restart":
+                self.store.ex_session = "c07-restarted-session"
+                return {"ex_session": self.store.ex_session}
+            if kind == "facts":
+                return {"config": self.config(), "requests": copy.deepcopy(self.requests),
+                        "goal": self.server.decision_service.goals.active is not None,
+                        "actions": len(self.server.action_ledger.list_commands().result(1)),
+                        "runtime": self.server.controller.runtime.state.value}
+            raise ValueError("unknown fixture command")
 
 
 def main():
-    fixture=BrowserFixture(); fixture.setUp()
+    fixture = BrowserFixture()
+    fixture.setUp()
     try:
-        print(json.dumps({'ready': fixture.command({'command':'info'})}), flush=True)
+        print(json.dumps({"ready": fixture.command({"command": "info"})}), flush=True)
         for line in sys.stdin:
-            request=json.loads(line)
-            if request['command']=='quit':
+            request = json.loads(line)
+            if request["command"] == "quit":
                 break
             try:
-                result={'id':request['id'],'result':fixture.command(request)}
-            except Exception as exc:
-                result={'id':request['id'],'error':str(exc)}
+                result = {"id": request["id"], "result": fixture.command(request)}
+            except Exception:
+                result = {"id": request["id"], "error": "fixture command failed"}
             print(json.dumps(result), flush=True)
     finally:
         fixture.tearDown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

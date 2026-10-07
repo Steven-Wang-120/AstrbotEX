@@ -1,6 +1,0 @@
-{
-  "source_revision": "6d942c92081fbc139e736bbd9ac0023223c29b7f",
-  "archive_sha256": "8a29215b43ffa9f853d039d6fc0b21bbd8a6c1edf0db6054b8faa65548fcd683",
-  "package_version": "0.3.22",
-  "torch_index": "https://download.pytorch.org/whl/cu128"
-}

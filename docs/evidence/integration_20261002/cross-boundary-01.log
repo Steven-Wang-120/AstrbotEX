@@ -1,7 +1,0 @@
-test_active_cancel_one_terminal_with_original_structured_proof_and_replay (tests.test_decision_cancel_lease.CancelLeaseTests.test_active_cancel_one_terminal_with_original_structured_proof_and_replay) ... ok
-test_missing_stop_and_late_proof_stay_blocked_without_terminal (tests.test_decision_cancel_lease.CancelLeaseTests.test_missing_stop_and_late_proof_stay_blocked_without_terminal) ... ok
-
-----------------------------------------------------------------------
-Ran 2 tests in 0.526s
-
-OK

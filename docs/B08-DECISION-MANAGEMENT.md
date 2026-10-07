@@ -1,371 +1,105 @@
-# B08 决策管理 API 与 B09 交接
+# B08 决策管理 API 与页面
 
-本说明描述 B08 的实现接口。测试结果以本轮结果报告和原始日志为准。
-本文不声明机器人、ROS 2、Isaac 或微调通过。
+管理层复用 [HTTP 装配](../astrbot_ex/core/api_server.py)、[DecisionManagement](../astrbot_ex/core/decision/management.py)、[配置/SecretStore](../astrbot_ex/core/decision/config.py)、[OwnedLayaService](../astrbot_ex/core/decision/owned_laya.py) 与 [RequestHistory](../astrbot_ex/core/decision/history.py)。正式 Goal 走 [任务契约](DECISION-CONTRACT.md)，选择/执行走原 Action/Actor/Ledger，不另造执行器。
 
-本轮验证与已知限制见 [B08 结果报告](B08_DECISION_MANAGEMENT_RESULT.md)。
+## 1. 访问与秘密边界
 
-## 1. 模块边界
+从仓库根运行：
 
-B08 管理 EX 的决策配置、后端模式、自有 Laya 服务和查询接口。
-B08 不接收新的机器人 Goal，不生成轨迹，也不执行机器人控制循环。
-正式 Goal 继续使用冻结的任务契约和现有入口。
-
-```text
-管理请求 → 现有 HTTP 服务 → DecisionManagement
-                              ├─ DecisionConfigStore / SecretStore
-                              ├─ DecisionService 的可信方法
-                              ├─ OwnedLayaService
-                              └─ RequestHistory
-
-正式 Goal → DecisionService → 后端选择 → 原 Dispatcher / Actor / Ledger
+```sh
+python -B -m astrbot_ex.core.api_server --host 127.0.0.1 --port 8765
 ```
 
-主要源码：
+打开 `http://127.0.0.1:8765/#/decision`，使用启动输出所指本机凭据文件，在现有凭据栏输入。管理 HTTP 只绑定回环，远程经 SSH 隧道。所有 `/api/`（含旧别名、runtime/插件/环境/备份入口）需要管理 Bearer；Host 须合法 loopback，带 Origin 时须同源，无 Origin 的脚本也须鉴权。敏感响应 no-store，无通配 CORS。
 
-- `astrbot_ex/core/api_server.py`：HTTP、旧入口鉴权、SSE 和配置恢复钩子。
-- `astrbot_ex/core/decision/config.py`：配置版本、原子保存和密钥文件。
-- `astrbot_ex/core/decision/management.py`：管理路由和异步操作。
-- `astrbot_ex/core/decision/owned_laya.py`：自有进程、预热、隔离和恢复。
-- `astrbot_ex/core/decision/history.py`：实际请求、后端结果和 EX 受理记录。
+admin token、Jev key、Laya key 分离。GET 只返回引用/存在状态，不返回 key 值；页面凭据仅内存，不放 URL、localStorage、日志或导出。secrets/execution 不随 profiles/plugins 配置快照备份，任务 DB/反馈/账本不是可清理的验收垃圾。
 
-普通装配中的 Laya 只允许 shadow。HTTP 不能授予 Laya 的执行能力。
-隔离测试 Actor 的 execute 权限只能来自可信 `ManagementSettings`。
-这个权限不属于 JSON 配置，不进入备份，也不能从 HTTP 恢复。
+Jev `secret_ref` 与 Laya `laya_secret_ref` 各自独立。set 需合法非空 value；keep/clear 不带 value，keep 不写入/增 CAS，set/clear 增 CAS。原子存储采用同目录暂存、文件 fsync、immutable secret no-clobber、回滚/恢复 marker，POSIX 另做目录 fsync。Windows 使用可选 fchmod、明确 fd 关闭和 owned `.exe` preflight；POSIX mode 不证明 Windows ACL，Windows 发布不承诺同等目录崩溃持久性。
 
-## 2. 访问与存储
+`storage_write_uncertain` 保留恢复 fence 并阻止后续写入/backend mapping/owned 启动，不能因 get() 可读就认为已持久化，或删除 marker/key 解锁。`secret_cleanup_failed` 可能发生于 CAS 已提交之后，须刷新而非盲重试旧 revision。旧 WebSocket token 的连接 GET/快照存储风险仍独立存在。
 
-从现有 EX 环境启动管理服务：
+## 2. 保存、生效与 CAS
 
-```bash
-cd /home/sssxy/Projects/AstrbotEX
-PYTHONPATH=. PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
-  -m astrbot_ex.core.api_server --host 127.0.0.1 --port 8765
-```
+响应关联 `ex_session/revision/effective_revision/framework_config_revision`。saved 是磁盘配置，effective 是已应用配置，二者不等于已运行。除停止边界外写请求使用最近 GET 的 `ex_session + expected_revision`；409 重新读取并核对，保留草稿，不自动重放。
 
-打开 `http://127.0.0.1:8765/`。启动输出仅列管理凭据文件路径。
-读取该本机文件，在原仪表盘的凭据栏输入。
-启动 HTTP 和输入凭据都不启动 Laya，也不授权动作。
-B08 决策管理使用本说明的 API；一级决策页面已集成，详见 B09 历史报告和本轮集成报告。
+保存只校验/持久化，不探测、启动模型/runtime、切模式或提交 Goal。影响后端的配置、key 与切换要求 disabled、无活动/待替代 Goal、无未完成动作/旧请求且停止已证明。可信 `replace_backend()` 不接受 HTTP callable/import 路径/shell/allow_test_execution。
 
+schema v2 配置：
 
-HTTP 服务仅绑定 `127.0.0.1` 或 `localhost`。
-远程访问使用 SSH 隧道和 HTTP 页面。
-旧 `file://` 页面打开方式不属于本轮访问方式。
+- Jev：`mode=disabled|shadow|execute`、live HTTP、deadline/限频/min_confidence；`service_connection={base_url:"https://api.typesafe.ai",model:"jev-1.13.0",auth_mode:"bearer"}`，未核对 alias 拒绝。
+- Laya：预算与 enabled/live/execution 字段；`service_connection={mode:"external"|"owned",base_url:"http://127.0.0.1:8769",model:"typed-decisions",auth_mode:"none"|"bearer"}`。external 默认 deployment=null，不依赖本地 Python/cache/CUDA 或 owned generation；owned 部署见 [B07](B07-LAYA-BACKEND.md#2-外部连接与可选自启冻结-v2-合同)。
+- URL 前缀追加供应商路径，HTTPS 保持 TLS 验证、拒绝重定向/URL 凭据/query/fragment；明文 HTTP 仅 loopback。
+- 唯一 validated 转换入口 `DecisionConfigStore.backend_config()`；owned `laya_deployment(...,output=...,state_path=...)` 的输出/状态路径由可信装配提供。
+- v1 Laya 迁到 owned/deployment=null，补部署配置前不可启动；迁移不联网/认领/启动，保存时写回 v2，不凭迁移获得执行。
 
-所有 `/api/` 请求都需要以下请求头：
+严格 JSON、大小预算与未知字段拒绝保留，秘密不混入 saved 对象或错误文本。
 
-```http
-Authorization: Bearer <本机凭据文件中的值>
-```
+## 3. HTTP 路由与启停合同
 
-`Host` 必须是合法回环地址。
-存在 `Origin` 时，它必须与 HTTP 来源一致。
-没有 `Origin` 的本机脚本仍然需要凭据。
-敏感响应使用 `Cache-Control: no-store`，不提供通配 CORS。
+前缀 `/api/v1/ex/decision`：
 
-凭据位置：
-
-| 文件 | 内容 | HTTP 行为 |
-|---|---|---|
-| `data_root/secrets/admin.token` | 管理凭据 | 不返回其值；启动输出仅给文件路径 |
-| `data_root/secrets/jev-<id>.secret` | Jev 供应商密钥 | 只写；查询仅给是否已配置 |
-| `profiles/default/decision.json` | 保存配置和 `secret_ref` | 通过鉴权接口读取或保存 |
-| `execution/actions.sqlite3` | 动作账本 | 只查询；不随配置备份恢复 |
-| `execution/laya/service-state.json` | 服务代次和退出证据 | 恢复配置不能清除服务隔离 |
-
-密钥目录权限为 `0700`，文件权限为 `0600`。
-`secrets` 和 `execution` 位于现有备份 roots 之外。
-本轮防泄密范围是新增管理凭据和 Jev 密钥。
-旧连接配置中的 WebSocket token 迁移另行安排。
-旧 GET 和备份中的这类 token 不因此变成已迁移状态。
-
-旧状态、事件、runtime、动作、插件、连接、环境和备份入口也需要鉴权。
-这包括它们的非版本化别名。
-旧仪表盘只在页面内存保存凭据。
-上传、下载、封面与 SSE 都使用认证请求。
-刷新页面后，需要重新输入凭据。
-
-## 3. 配置版本与写请求
-
-标准响应包含四个关联字段：
-
-| 字段 | 含义 |
+| 方法与路径 | 行为 |
 |---|---|
-| `ex_session` | 当前 EX 进程会话 |
-| `revision` | 已保存配置版本 |
-| `effective_revision` | 实际应用的配置版本；尚未应用时为 `null` |
-| `framework_config_revision` | DecisionService 的运行配置版本 |
+| GET `/config` | saved/effective、secret presence 与版本 |
+| POST `/config` | CAS + 完整 config，保存不生效 |
+| POST `/secret` | provider（默认 Jev）、set/keep/clear；set 才含 value |
+| POST `/test` | 202 + operation；可测 draft/provider/临时 key，不保存或应用 |
+| POST `/mode` | disabled/shadow/execute；execute 是 runtime 激活操作 |
+| POST `/stop` | 当前 session；先撤执行，旧 config revision 不阻止停止 |
+| GET `/operations/{id}` | 异步状态，未知/过期 404 |
+| GET `/view` | 精简供应商/运行/当前任务投影 |
+| GET `/status`、`/backends` | 只读诊断/能力，不触发调用 |
+| GET `/catalog`、`/snapshot` | 目录资格、Goal、构建/请求/结果诊断 |
+| GET `/decisions`、`/actions` | 有界请求历史与 Ledger 只读分页 |
+| POST `/service/start`、`/service/stop`、`/service/recover` | 所选 owned 专用，external 不调用这些生命周期 |
 
-`saved` 表示磁盘保存的配置。
-`effective` 表示已应用的配置。
-保存配置不会启动 Laya、请求推理、切换模式、启动 runtime 或提交 Goal。
+`/test` 经 validated draft 工厂捕获所选 key，临时启用 live HTTP、关闭执行并 finally close。Jev/Laya 都用固定 wait-only 合成快照和生产 decoder，不提交业务 Goal/Action/plugin/账本，不保存、不推进 CAS、不授 execute。Laya health 与 inference/鉴权/协议成功分开。probe binding 校验当前 intent/sequence、EX session、provider、saved config 和 credential；临时草稿成功不能标为 saved connection verified。probe 不清 remote unresolved。
 
-除 `/stop` 外，POST 必须包含：
+execute 应用所选配置，owned 才启动/复用受 generation guard 的自有服务；经 RuntimeController 切 decision control mode、启动 runtime，再启用 decision execute。running 要同时满足上述状态和 production backend gate。无 Goal 时 Dispatcher 动作 gate 仍关闭；Start 不提交 Goal，也不额外推理外部服务。缺 key、runtime/provider 失败撤授权并保留 failed/uncertain，不自动回退 legacy。HTTP 不授 fixture transport 的测试权限。
 
-```json
-{
-  "ex_session": "<当前会话>",
-  "expected_revision": 3
-}
+stop 先撤销新执行、等匹配 framework proof/Goal 退役，再停 runtime，最后结束可证明归属的 owned 句柄；external 不 kill。runtime 关闭必须复核 registry stop_error/state/runtime_started/runtime_starting/stop_proven 和 plugin_fault/fault 事件，IDLE 单独不证明已停。失败显示 uncertain、禁止重启，后续真实 Stop 成功才解除；runtime 停止失败也继续尝试结束自有服务。这是框架生命周期证据，不是硬件物理停车。
+
+生命周期锁顺序为 apply→service；恢复冷启动释放 service 锁后再取 apply→service。旧意图/manager/generation 的清理不能杀掉新操作接管的进程。owned manager 捕获 key 引用和值，只有旧 generation 确认退出、无 active/draining 请求、quarantine 或 ownership_unknown 时才重建；换 key 不解除隔离。进程退出与 Actor StopEvidence 不可互换。
+
+## 4. 精简 view 与可信当前任务
+
+GET `/view` v1：`schema_version/ex_session/revision/effective_revision/provider/connection/ex/task/error`。
+
+- connection：`state/code/message`，state 为 unverified/testing/verified/failed/disconnected。
+- ex：`state/can_start/can_stop/message`，state 为 disabled/starting/running/stopping/failed/uncertain；从真实状态和 proof 得出，不从按钮或 probe 推断。
+- task：`available/phase/title/current_goal/completed/total/can_cancel:false/updated_at/message`；updated_at 是 epoch seconds，缺投影就 unavailable，不能用旧 Goal 补造 idle/当前任务。
+- error：null 或 `{code,message}`；不返回 raw JSON、完整计划、用户身份、参数或 tool trace。
+
+任务经独立 text `task.projection.get` 查询，请求严格为 `{schema_version:1,ex_session:...}`。Host routes 限定 peer/robot/session，歧义或旧会话未决不假报 idle。内部关联 robot/task/generation/turn；管理侧核验响应形状、session、当前 intent/连接身份与请求代次，迟到或范围不明返回 unavailable。task phase 是 Host TaskStore 状态，不是 EX Goal phase。管理 Bearer 不授用户取消权，页面 can_cancel=false。
+
+普通聊天以只读 `decision.capabilities.get` 获取 bounded 声明动作，同一 LLM 选择直接回复/澄清/请求局部 `manage_astrbotex_task`；不新增 router、admin-only 或逐任务审批。Host 从可信 event/routes 提供身份，模型只传业务意图。create 要求 execution-ready 与规划 provider；本人已有任务 update/cancel/review 不因 disabled/provider 不可用而被禁止，但仍校验归属和会话。受理/公开回复回执与 buffered Host 支持边界见 [TECHNICAL](../TECHNICAL.md#host-工具与公开回复边界)。
+
+低置信或 request_replan 在 dispatch 前拒绝整轮、保留原 choice/score，实际停止证明和持久化 draft 后经当前 Goal CAS 发布 failed 事实。currentGoal 只是一当前步骤，HostTask 是多步骤任务；只重规划未完成后缀，完成前缀不重放；取消不自动规划，unknown/timed_out 需 resume_review。
+
+## 5. 异步、停止与错误处理
+
+202 只表示受理，须查询 operation 终态；pending/running/succeeded/failed/blocked/superseded 不混用。匹配的 request_stop operation_id 与 stop.state=proven 才是框架停止事实；HTTP、cancel、连接关闭或 GUI 暂停不是证明。session/revision/gate/generation fencing 阻止迟到重新授权。
+
+稳定 code 配合短 message，不回显供应商异常/凭据：400 修正输入；401 重填管理凭据（供应商 inference401 是独立失败）；403 检查 loopback/Origin；404 查当前记录；409 核对 session/revision/backend gate/归属/停止；429 等已有操作；500 保留脱敏存储诊断。不从错误文本猜已停，不自动重试写。
+
+恢复须停止/旧请求结束、新版本、保持 disabled，不恢复活动 Goal、不回滚 Ledger、不清服务隔离；旧 PID 是审计信息，不能按端口或名称认领/扫杀。
+
+## 6. 诊断证据与页面边界
+
+历史区分快照、实际 body/hash、POST 尝试、本地 socket 写出、响应、模型选择、EX admitted/discarded 和 Ledger 状态。hash 对应完整字节，展示截断不改 hash；缺正文/响应不按快照重建成实调用。RequestHistory 最近 128 项、单项展示 64 KiB、分页最大 100，有截断/丢失/裁剪标记，非永久审计。SSE decision_changed 只通知关联，详情 GET 鉴权。
+
+普通页面只含 Jev/Laya 卡片、连接弹窗、测试、EX 启停、当前任务和短状态；Mock 是诊断/测试后端。草稿独立于轮询，409 保留核对；session/credential/request 代次使旧响应失效，加载/刷新/网络恢复不执行写。外部文本安全渲染，停止不被脏草稿阻塞。浏览器入口见 [页面说明](B09_DECISION_UI_RESULT.md)。
+
+## 7. 具名验证入口与限制
+
+从仓库根运行（临时实例、无机器人）：
+
+```sh
+python -B -m unittest tests.test_decision_management_boundaries tests.test_decision_management_history tests.test_decision_management_http tests.test_decision_management_interleaving tests.test_decision_management_operations tests.test_owned_laya tests.test_decision_secret_redaction -v
+python -B -m scripts.verify_decision_management --help
+python -B -m scripts.verify_decision_management --output /absolute/fresh-external-evidence
 ```
 
-使用最近一次 GET 返回的版本，不猜测版本号。
-版本或会话冲突返回 `409`。
-发生冲突后，读取最新配置，再决定是否重新保存。
-不要自动重放配置或控制请求。
+生命周期/激活/真实 loopback/projection 专项为 `test_decision_management_lifecycle.py`、`test_decision_management_activation.py`、`test_decision_management_provider_http.py`、`test_decision_management_projection.py`。上述管理验证入口为 synthetic-only：真实管理 HTTP/RuntimeController、隔离软件 Actor 与合成 loopback owned 服务，不调用模型/ROS/机器人；不再接受旧模型环境的 `--python/--cache/--device` 参数。真实模型验证另用 [Laya 入口](B07-LAYA-BACKEND.md#3-独立部署与验证用法)及独立环境/固定缓存。测试 Actor 不授权硬件；合成供应商、FakeProcess、合同 fixture 分别不证明模型质量、实际进程或端到端集成。新日志/截图/JSON 只输出外部 evidence/临时目录。
 
-`/stop` 必须匹配当前 `ex_session`。
-它忽略过期的 `expected_revision`，避免旧配置阻止紧急关门。
-
-配置、密钥和模式应用遵守 disabled 与空闲边界。
-有 Goal、未停止动作、待处理请求或停止证明时，接口拒绝应用配置。
-Laya 的 `model`、`revision`、`port` 首轮只读。
-Python、缓存路径、启动命令和工厂来自可信部署配置。
-HTTP 不接收 shell、导入路径、Python callable 或 `allow_test_execution`。
-
-POST 使用严格 JSON 对象和 `Content-Type: application/json`。
-请求体上限为 64 KiB。
-重复 JSON 字段、非有限数和未知字段属于无效输入。
-请求目标最长 4096 字符，不接受片段标记。
-管理查询最多 8 个字段，不接受重复查询字段。
-重复的 Host、Origin、Authorization 或消息长度头会被拒绝。
-
-## 4. 路由
-
-以下路由都使用前缀 `/api/v1/ex/decision`。
-
-| 方法与路径 | 请求补充字段 | 返回与行为 |
-|---|---|---|
-| GET `/status` | 无 | 缓存状态、服务状态、操作计数和已知质量限制；不探测或恢复 |
-| GET `/backends` | 无 | Mock、Jev、Laya 的真实能力和执行限制 |
-| GET `/config` | 无 | `saved`、`effective` 和密钥配置状态 |
-| POST `/config` | `config`：完整 saved 对象 | `200`；原子保存新版本，保持运行配置不变 |
-| POST `/secret` | `action`；仅 set 使用 `value` | `200`；set、keep、clear 明确分开 |
-| POST `/test` | 无 | `202`；独立探测，后续查询 operation |
-| POST `/mode` | `mode`：disabled、shadow 或 execute | `202`；按可信边界应用配置与模式 |
-| POST `/stop` | 可选 `reason`，1–128 字符 | 先撤授权并请求停止，再返回操作关联 |
-| POST `/service/start` | 无 | `202`；显式启动自有 Laya、健康检查和固定预热 |
-| POST `/service/stop` | 无 | `202`；先请求停止，证明后结束自有服务 |
-| POST `/service/recover` | 无 | `202`；证明、旧进程退出、新进程预热、新后端应用 |
-| GET `/operations/{id}` | operation ID | 异步操作状态；未知 ID 返回 `404` |
-| GET `/catalog` | 无 | 能力目录、最近候选资格和当前模式 |
-| GET `/snapshot` | 无 | 当前及待替代 Goal、最近构建快照、最近请求、最近已完成结果 |
-| GET `/decisions` | `cursor`、`limit`、`request_id` | 有界请求记录和下一游标 |
-| GET `/actions` | `cursor`、`limit`、`command_id`、`status` | Ledger 中的动作、资源和停止证据 |
-
-`limit` 默认 20，最大 100。
-`decisions.cursor` 使用请求序号。
-`actions.cursor` 使用 command ID。
-这两个游标不能互换。
-
-探测范围因后端不同而不同：
-
-- Mock 只报告本地构造能力，不发送网络请求。
-- Jev 报告真实探测未实现，不产生付费云请求。
-- Laya 只请求 `GET /health`，不执行模型推理，不续租，也不清除隔离。
-
-`/mode` 不启动模型进程、runtime 或 Goal。
-Laya 未就绪时，启用模式返回冲突。
-`disabled` 只撤授权，不把保存配置自动应用成新的后端。
-模式启用后，仍然需要新的正式 Goal。
-
-## 5. 请求样例
-
-先读取配置。保留完整 `saved` 对象，再修改需要的字段。
-以下 JavaScript 只说明调用内容。认证由调用方加入请求头。
-
-```javascript
-const current = await get("/api/v1/ex/decision/config");
-const saved = structuredClone(current.saved);
-saved.backend = "laya";
-saved.laya.enabled = true;
-saved.laya.allow_live_http = true;
-await post("/api/v1/ex/decision/config", {
-  ex_session: current.ex_session,
-  expected_revision: current.revision,
-  config: saved
-});
-```
-
-保存返回新 `revision`。
-后续启动、探测和模式请求使用新版本：
-
-```json
-{
-  "ex_session": "<当前会话>",
-  "expected_revision": 4
-}
-```
-
-对 `POST /mode` 增加：
-
-```json
-{
-  "ex_session": "<当前会话>",
-  "expected_revision": 4,
-  "mode": "shadow"
-}
-```
-
-普通装配不使用 Laya execute。
-服务启动和探测完成后，再显式请求模式应用。
-
-密钥只通过 `/secret` 修改：
-
-```json
-{
-  "ex_session": "<当前会话>",
-  "expected_revision": 4,
-  "action": "set",
-  "value": "<供应商密钥>"
-}
-```
-
-`keep` 和 `clear` 不发送 `value`。
-空字符串不能表示 clear。
-`keep` 不增加版本；set 和 clear 增加版本。
-不要把请求中的真实密钥保存进调试日志。
-
-## 6. 异步操作与停止
-
-`202` 只表示操作已受理，不表示模型加载完成或动作已停止。
-响应的 `operation_id` 用于查询 `/operations/{id}`。
-
-操作状态：
-
-| 状态 | 含义 |
-|---|---|
-| `pending` | 已受理，尚未开始处理 |
-| `running` | 正在处理 |
-| `succeeded` | 本操作完成其指定范围 |
-| `failed` | 明确失败 |
-| `blocked` | 停止证明、旧请求或服务隔离阻止继续 |
-| `superseded` | 更新的配置、停止或其他意图取代本操作 |
-
-操作关联会话、配置版本、后端、服务代次和时间戳。
-活动操作最多 8 个；保留最近 128 个已完成操作。
-记录裁剪不删除仍在处理的操作。
-
-停止请求先关闭执行门禁，并取消本地后端等待。
-加载和健康检查不占用这个关门入口。
-后续 operation 只有收到匹配的停止证明后才报告成功。
-`cancel()`、HTTP 返回、GUI 暂停和健康检查都不证明物理停止。
-
-停止与模型恢复是两件事。
-POST 已尝试后，超时、取消或结果不确定会锁存 `restart_required`。
-健康探测不能清除这个状态。
-恢复必须确认本模块自有旧进程已退出。
-随后启动、预热新服务，并通过可信方法替换后端实例。
-恢复完成仍为 disabled，不重放旧请求或 Goal。
-再次执行需要明确模式授权和新 Goal。
-
-从磁盘读到的旧 PID 只是审计数据，不是杀进程的权限。
-不能确认所有权时，接口保留 `ownership_unknown`，交给人工处理。
-
-## 7. 请求证据与动作事实
-
-记录区分以下阶段：
-
-1. EX 构建快照。
-2. 后端收到该快照并准备请求。
-3. POST 已尝试。
-4. 本机 socket 写入完成。
-5. 收到 HTTP 响应。
-6. 模型返回候选选择。
-7. EX 受理、拒绝或丢弃选择。
-8. Ledger 记录实际动作状态。
-
-`prepared`、`post_attempted`、`post_written_to_socket` 和 `response_received` 是不同字段。
-socket 写入不证明远端收到，也不证明动作完成。
-实际请求缺失时，记录明确标记；不能用重建快照冒充实际输入。
-
-关联字段包括 request ID、snapshot ID、会话和各版本。
-Laya 记录还包含短选项到原候选 ID 的映射、模型 revision、耗时和输入 hash。
-hash 对应完整实际字节，不因脱敏或展示截断改变。
-截断展示只供阅读，不能用于重新执行。
-
-Laya 的完整实际请求/响应已经接线。Jev 目前仅关联其既有 hash、耗时和错误诊断。
-Jev 完整正文/响应缺项如实为空；本轮没有真实云端探测或推理。
-
-请求历史仅保留内存中的最近 128 项。
-单项记录的展示预算为 64 KiB，不是整页 64 KiB。
-读取接口返回 `record_truncated`、原始大小和下一游标。
-超预算时，部分字段会改为对应的 `*_display` 展示。
-B09 必须读取实际返回的预算与截断标记，不能假定大输入完整展示。
-
-`/actions` 读取 Ledger，不创建或重放动作。
-`admitted` 表示门禁受理，`accepted` 表示 Actor 接收。
-`running` 表示实际进度，`succeeded` 表示业务成功。
-不能用模型选择、Topic 发布或前端 operation 成功代替这些事实。
-
-## 8. 错误处理
-
-HTTP 错误格式：
-
-```json
-{
-  "ok": false,
-  "code": "revision_conflict",
-  "message": "revision_conflict",
-  "ex_session": "<当前会话>",
-  "revision": 4,
-  "effective_revision": null,
-  "framework_config_revision": 1
-}
-```
-
-认证和 Host/Origin 错误不要求返回配置版本。
-operation 的失败原因位于 `operation.error_code`。
-不要从 error 文本推断动作已停止。
-
-| HTTP 状态 | 常见 code | 调用方处理 |
-|---|---|---|
-| `400` | `invalid_json`、`invalid_body_size`、`unknown_request_field`、`invalid_config` | 修改输入，不自动重试 |
-| `400` | `duplicate_security_header`、`invalid_request_target`、`duplicate_query_field`、`invalid_query` | 删除重复字段，缩短请求目标 |
-| `400` | `readonly_laya_identity`、`readonly_jev_identity` | 保留只读模型身份 |
-| `400` | `invalid_secret_action`、`invalid_secret_value` | 明确使用 set、keep 或 clear |
-| `400` | `invalid_pagination`、`invalid_action_cursor` | 修改分页参数 |
-| `401` | `unauthorized` | 重新提供本机管理凭据 |
-| `403` | `invalid_host_or_origin` | 使用同源回环 HTTP 页面或本机脚本 |
-| `404` | `route_not_found`、`operation_not_found` | 检查路径或重新查询当前状态 |
-| `405` | `method_not_allowed` | 使用路由指定的方法 |
-| `409` | `session_conflict`、`revision_conflict` | 读取最新会话与配置 |
-| `409` | `backend_execute_not_allowed` | 遵守真实后端能力，不绕过门禁 |
-| `409` | `restart_required`、`ownership_unknown` | 显式恢复；所有权不明时人工处理 |
-| `429` | `operation_capacity` | 先查询已有操作，避免重复提交 |
-| `500` | `config_write_failed`、`invalid_saved_config`、`management_request_failed` | 保留证据并检查部署或存储 |
-
-后端或停止检查还能返回其固定边界错误码。
-例如 `backend_switch_requires_disabled`、`backend_switch_request_in_progress`、`stop_not_proven`。
-这些表示当前状态不允许继续，不表示可以忽略保护条件。
-
-## 9. B09 交接
-
-B09 继续使用现有导航和页面结构。
-B09 不决定候选，不修改安全门禁，也不私建模型服务。
-
-页面至少区分：
-
-- 保存配置与实际应用配置。
-- EX 调度后端与未来控制端轨迹评分器。
-- 当前 Goal、最近构建快照、实际请求和实际结果。
-- 模型选择、EX 受理结果和 Ledger 的动作状态。
-- 停止请求已受理、正在证明和停止已证明。
-- 原始模型结果与规则回退结果。
-
-配置草稿独立于轮询状态。
-`409` 时保留草稿，并显示服务器新版本。
-`202` 时显示处理中，通过 operation 查询终态。
-旧响应不能覆盖新会话、新配置或新 operation。
-SSE 的 `decision_changed` 只通知关联 ID。
-页面通过鉴权 GET 读取详细记录，不能从 SSE 重建实际输入。
-
-刷新、重连或打开页面不发送执行写请求。
-模型或插件文本使用安全文本渲染。
-管理凭据不进入 URL、localStorage、错误日志或下载文件。
-
-未来控制插件可以把 Grounder、轨迹评分和物理结果放入业务 `details`。
-B09 展示这些事实，不把测试 Actor 结果写成机器人任务通过。
-Laya 已知 replan 场景 0/8 的失败结果继续保留。
-本说明不改变模型提示、候选策略或质量结论。
+> 验证范围：管理/页面检查分别覆盖配置 CAS、固定 wait-only probe、runtime/registry 停止证明与限定 Host routes 的任务投影；合同替身、合成 loopback 供应商及软件 Actor 不等于真实模型语义、硬件停车或长时稳定性验证。公开回复的去重范围仅限受支持的正常 buffered Host 路径。

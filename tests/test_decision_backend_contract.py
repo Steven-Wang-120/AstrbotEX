@@ -92,8 +92,11 @@ class BackendContractTests(unittest.TestCase):
             backend.config.model = "jev-1.14.0"
         with self.assertRaises(AttributeError):
             backend.config = JevConfig()
-        backend.reconfigure(replace(backend.config, model="jev-1.14.0"))
-        self.assertEqual(backend.config.model, "jev-1.14.0")
+        with self.assertRaises(JevBackendError):
+            backend.reconfigure(replace(backend.config, model="jev-1.14.0"))
+        self.assertEqual(backend._epoch, 0)
+        backend.reconfigure(replace(backend.config, base_url="https://gateway.example.invalid/prefix"))
+        self.assertEqual(backend.config.base_url, "https://gateway.example.invalid/prefix")
         self.assertEqual(backend._epoch, 1)
         backend.close()
 

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import unittest
+from dataclasses import replace
+from unittest.mock import patch
 
 from astrbot_ex.core.actions.models import parse_action_manifest
 from astrbot_ex.core.decision.catalog import CapabilityCatalog, CapabilityInput
@@ -76,6 +78,75 @@ class CapabilityCatalogTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 catalog.refresh([record(version=bad)])
         self.assertEqual(catalog.snapshot().revision, 3)
+
+    def test_ready_state_directory_and_guide_gate_executable_entries(self):
+        catalog = CapabilityCatalog()
+        source = record()
+        for state in ("loading", "starting", "stopping", "blocked", "unloaded"):
+            with self.subTest(state=state):
+                entry = catalog.refresh([replace(source, state=state)]).entries[0]
+                self.assertFalse(entry["available"])
+                self.assertEqual(entry["unavailable_reason"], state)
+                self.assertEqual(catalog.snapshot().executable(), ())
+        for status in ("version_changed", "manifest_changed", "config_changed", "directory_unavailable"):
+            with self.subTest(status=status):
+                entry = catalog.refresh([replace(source, directory_status=status)]).entries[0]
+                self.assertFalse(entry["available"])
+                self.assertEqual(entry["unavailable_reason"], status)
+        rejected = {"status": "rejected", "reason": "invalid", "text": "", "content_hash": ""}
+        self.assertEqual(catalog.refresh([replace(source, guide=rejected)]).executable(), ())
+        entry = catalog.refresh([replace(source, generation=2)]).executable()[0]
+        self.assertEqual((entry["owner"], entry["generation"]), ("owner", 2))
+        with self.assertRaisesRegex(ValueError, "owner_mismatch"):
+            catalog.refresh([replace(source, manifest=manifest("other"))])
+        self.assertEqual(catalog.snapshot().entries[0]["generation"], 2)
+
+    def test_owner_action_schema_and_resources_remain_distinct(self):
+        catalog = CapabilityCatalog()
+        records = []
+        for owner, field in (("arm", "meters"), ("base", "speed")):
+            declared = manifest(owner).to_dict()
+            declared["actions"][0]["schema"] = {"type": "object", "properties": {
+                field: {"type": "integer", "minimum": 0}}, "required": [field],
+                "additionalProperties": False}
+            declared["actions"][0]["resources"] = [f"{owner}.motor"]
+            records.append(replace(record(owner), manifest=parse_action_manifest(declared, owner=owner)))
+        entries = catalog.refresh(records).executable()
+        for entry, field in zip(entries, ("meters", "speed")):
+            action = entry["manifest"]["actions"][0]
+            self.assertEqual(action["action_id"], f'{entry["owner"]}.check.v2')
+            self.assertEqual(action["resources"], [f'{entry["owner"]}.motor'])
+            self.assertEqual(action["schema"]["required"], [field])
+            self.assertFalse(action["schema"]["additionalProperties"])
+
+    def test_duplicate_action_ids_are_globally_rejected_atomically(self):
+        catalog = CapabilityCatalog()
+        original = catalog.refresh([record()])
+        shared = [record("arm"), record("base")]
+        for source in shared:
+            source.manifest.actions[0].action_id = "shared.check.v2"
+            # The SDK already rejects a foreign prefix. Exercise the catalog's
+            # global defense independently of that earlier validation boundary.
+            with self.assertRaisesRegex(ValueError, "owner_mismatch"):
+                parse_action_manifest(source.manifest.to_dict(), owner=source.owner)
+        for enabled in (True, False):
+            with self.subTest(enabled=enabled), patch(
+                    "astrbot_ex.core.decision.catalog.parse_action_manifest",
+                    side_effect=lambda data, owner: next(r.manifest for r in shared if r.owner == owner)):
+                with self.assertRaisesRegex(ValueError, "duplicate catalog action_id"):
+                    catalog.refresh([shared[0], replace(shared[1], enabled=enabled)])
+                self.assertEqual(catalog.snapshot(), original)
+        duplicate = manifest().to_dict()
+        duplicate["actions"].append(duplicate["actions"][0].copy())
+        with self.assertRaises(ValueError):
+            parse_action_manifest(duplicate, owner="owner")
+        # Defense in depth: even a parser-bypassing same-owner manifest is rejected.
+        invalid = manifest()
+        invalid.actions.append(invalid.actions[0])
+        with patch("astrbot_ex.core.decision.catalog.parse_action_manifest", return_value=invalid):
+            with self.assertRaisesRegex(ValueError, "duplicate catalog action_id"):
+                catalog.refresh([replace(record(), manifest=invalid)])
+        self.assertEqual(catalog.snapshot(), original)
 
 
 if __name__ == "__main__":

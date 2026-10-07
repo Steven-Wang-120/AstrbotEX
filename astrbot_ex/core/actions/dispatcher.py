@@ -838,10 +838,13 @@ class ActionDispatcher:
                 retry = [(cid, reason) for cid, reason in self._timeout_pending.items()
                          if cid not in self._timeout_enqueued]
             for cid, reason in retry:
-                self._block(reason)
                 with self._lock:
-                    if cid not in self._timeout_pending or cid in self._timeout_enqueued:
+                    live = self._live.get(cid)
+                    if (self._timeout_pending.get(cid) != reason or cid in self._timeout_enqueued
+                            or live is None or live.status in TERMINAL_STATUSES):
                         continue
+                    # A captured retry must not close a gate reviewed after its timeout.
+                    self._block(reason)
                     self._timeout_enqueued.add(cid)
                 try:
                     self._enqueue(lambda name=cid, why=reason: self._timeout(name, why),

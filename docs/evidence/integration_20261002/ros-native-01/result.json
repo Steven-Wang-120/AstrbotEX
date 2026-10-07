@@ -1,8 +1,0 @@
-{
-  "pass": false,
-  "returncode": 1,
-  "transport": "native ROS 2 Jazzy DDS",
-  "domain_id": 73,
-  "robot_commands": 0,
-  "restoration_record": "roundtrip.log"
-}

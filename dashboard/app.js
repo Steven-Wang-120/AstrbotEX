@@ -258,7 +258,10 @@ function writeHash(push = false) {
 }
 
 function switchPage(page, options = {}) {
-  if (state.activePage === "decision" && page !== "decision") window.DecisionPage?.leave();
+  if (state.activePage === "decision" && page !== "decision" && window.DecisionPage?.leave() === false) {
+    writeHash();
+    return;
+  }
   state.activePage = page;
   document.querySelectorAll(".page").forEach((el) => el.classList.toggle("active", el.id === `page-${page}`));
   document.querySelectorAll(".nav-item[data-page]").forEach((el) => {

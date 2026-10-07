@@ -14,6 +14,7 @@ import json
 import math
 import queue
 import re
+import ssl
 import threading
 import time
 from dataclasses import dataclass, field
@@ -23,6 +24,8 @@ from astrbot_ex.core.actions.models import ContractError
 from astrbot_ex.core.decision.models import (
     BackendDecision, DecisionSnapshot, validate_backend_selection,
 )
+
+from .connection import bearer_headers, endpoint, open_connection, probe_snapshot, service_url
 
 BUNDLE_SHA = "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
 PINNED_MODEL = "typed-decisions"
@@ -46,6 +49,8 @@ _ERROR_CODES = frozenset({
     "revision_mismatch", "device_unverified", "response_shape", "routing_mismatch",
     "answer_shape", "unknown_option", "invalid_probabilities", "invalid_confidence",
     "choice_not_argmax", "invalid_usage", "input_truncated", "invalid_decision",
+    "invalid_service_url", "missing_or_invalid_secret", "http_401", "http_403", "http_redirect",
+    "tls_failure", "incomplete_response",
 })
 
 
@@ -61,6 +66,9 @@ class LayaBackendError(RuntimeError):
 class LayaConfig:
     enabled: bool = False
     allow_live_http: bool = False
+    execution_enabled: bool = False
+    base_url: str | None = None
+    auth_mode: str = "none"
     port: int = 8769
     model: str = PINNED_MODEL
     revision: str = BUNDLE_SHA
@@ -74,8 +82,14 @@ class LayaConfig:
     min_interval_ms: int = 0
 
     def __post_init__(self):
-        if type(self.enabled) is not bool or type(self.allow_live_http) is not bool:
+        if (type(self.enabled) is not bool or type(self.allow_live_http) is not bool or
+                type(self.execution_enabled) is not bool or self.auth_mode not in {"none", "bearer"}):
             raise LayaBackendError("invalid_config")
+        if self.base_url is not None:
+            try:
+                service_url(self.base_url)
+            except ValueError:
+                raise LayaBackendError("invalid_service_url") from None
         if self.model != PINNED_MODEL:
             raise LayaBackendError("unpinned_model")
         if self.revision != BUNDLE_SHA:
@@ -114,14 +128,16 @@ def _remaining(deadline, cancel):
     return left
 
 
-def _http_transport(port, method, path, body, deadline, cancel, max_bytes, *, on_written=None):
-    """Loopback only; HTTPConnection never follows a redirect."""
-    connection = http.client.HTTPConnection("127.0.0.1", port, timeout=_remaining(deadline, cancel))
+def _http_transport(port, method, path, body, deadline, cancel, max_bytes, *, on_written=None,
+                    base_url=None, headers=None):
+    """Verified TLS when remote; HTTPConnection never follows a redirect."""
+    url = base_url or f"http://127.0.0.1:{port}"
+    connection = open_connection(url, _remaining(deadline, cancel))
     try:
-        headers = {"Accept": "application/json"}
+        headers = dict(headers or {"Accept": "application/json"})
         if body is not None:
             headers["Content-Type"] = "application/json"
-        connection.request(method, path, body=body, headers=headers)
+        connection.request(method, endpoint(url, path), body=body, headers=headers)
         if method == "POST" and on_written is not None:
             # HTTPConnection.request returns after writing the request/body to
             # the local socket. This still does not prove server acceptance.
@@ -132,6 +148,7 @@ def _http_transport(port, method, path, body, deadline, cancel, max_bytes, *, on
         length = response.getheader("Content-Length")
         if length is not None and (not length.isdecimal() or int(length) > max_bytes):
             raise LayaBackendError("response_too_large")
+        expected_length = response.length
         chunks, size = [], 0
         while True:
             if connection.sock is not None:
@@ -144,6 +161,8 @@ def _http_transport(port, method, path, body, deadline, cancel, max_bytes, *, on
             if size > max_bytes:
                 raise LayaBackendError("response_too_large")
             chunks.append(chunk)
+        if expected_length is not None and size != expected_length:
+            raise LayaBackendError("incomplete_response")
         # Only the timing header is relevant; do not retain arbitrary headers.
         timing = response.getheader("X-Inference-Time-Ms")
         return HTTPReply(response.status, b"".join(chunks),
@@ -210,7 +229,7 @@ class LayaBackend:
     """
 
     def __init__(self, config: LayaConfig | None = None, *, transport: Transport | None = None,
-                 allow_test_execution: bool = False, trace_queue=None):
+                 allow_test_execution: bool = False, trace_queue=None, secret_provider=None):
         self._config = config if config is not None else LayaConfig()
         if not isinstance(self._config, LayaConfig) or type(allow_test_execution) is not bool:
             raise LayaBackendError("invalid_config")
@@ -218,6 +237,9 @@ class LayaBackend:
             raise LayaBackendError("invalid_config")
         if trace_queue is not None and not isinstance(trace_queue, queue.Queue):
             raise LayaBackendError("invalid_config")
+        if secret_provider is not None and not callable(secret_provider):
+            raise LayaBackendError("invalid_config")
+        self._secret_provider = secret_provider
         self._trace_queue = trace_queue
         self._trace_dropped = 0
         self._injected_transport = transport is not None
@@ -235,7 +257,20 @@ class LayaBackend:
 
     @property
     def execution_allowed(self) -> bool:
-        return self._allow_execution
+        config = self._config
+        if self._closed or self._restart_required or not config.enabled:
+            return False
+        if self._injected_transport:
+            return self._allow_execution
+        return (config.allow_live_http and config.execution_enabled and
+                (config.auth_mode == "none" or self._secret_provider is not None))
+
+    @property
+    def execution_capability(self):
+        return {"backend": "laya", "model": self._config.model,
+                "transport": "injected" if self._injected_transport else "live",
+                "configured": self._config.enabled and self._config.execution_enabled and self._config.allow_live_http,
+                "allowed": self.execution_allowed}
 
     @property
     def config(self) -> LayaConfig:
@@ -264,11 +299,11 @@ class LayaBackend:
             raise LayaBackendError("canceled")
         _remaining(call.deadline, call.cancel)
 
-    def _begin(self, started, *, probe=False):
+    def _begin(self, started, *, probe=False, inference_probe=False):
         with self._lock:
             if self._closed:
                 raise LayaBackendError("closed")
-            if not probe and not self._config.enabled:
+            if not probe and not inference_probe and not self._config.enabled:
                 raise LayaBackendError("disabled")
             if not probe and self._restart_required:
                 raise LayaBackendError("restart_required")
@@ -400,13 +435,21 @@ class LayaBackend:
                 reply = self._transport(method, path, body, call.deadline, call.cancel,
                                         self._config.max_response_bytes)
             else:
+                try:
+                    headers = bearer_headers(self._config.auth_mode, self._secret_provider)
+                except ValueError:
+                    raise LayaBackendError("missing_or_invalid_secret") from None
                 reply = _http_transport(
                     self._config.port, method, path, body, call.deadline, call.cancel,
-                    self._config.max_response_bytes,
+                    self._config.max_response_bytes, base_url=self._config.base_url, headers=headers,
                     on_written=lambda: self._record_update(call, post_written_to_socket=True),
                 )
         except LayaBackendError:
             raise
+        except ssl.SSLError:
+            raise LayaBackendError("tls_failure") from None
+        except TimeoutError:
+            raise LayaBackendError("deadline_exceeded") from None
         except Exception:
             raise LayaBackendError("transport_failure") from None
         if (not isinstance(reply, HTTPReply) or type(reply.status) is not int or
@@ -420,7 +463,8 @@ class LayaBackend:
         self._record_update(call, phase="health")
         reply = self._transport_reply(call, "GET", "/health", None)
         if reply.status != 200:
-            raise LayaBackendError("invalid_health")
+            raise LayaBackendError("http_" + str(reply.status) if reply.status in (401, 403) else
+                                   "http_redirect" if 300 <= reply.status < 400 else "invalid_health")
         raw = _strict_json(reply.body)
         self._record_update(call, health=raw)
         keys = {"status", "loaded", "revisions", "device", "device_is_preference",
@@ -447,6 +491,7 @@ class LayaBackend:
             type(fallback["count"]) is not int or fallback["count"] < 0 or
             (fallback["last_reason"] is not None and not isinstance(fallback["last_reason"], str))):
             raise LayaBackendError("invalid_health")
+        self._record_update(call, health_ok=True)
         return raw
 
     def _decode(self, raw, frozen, mapping, elapsed):
@@ -560,9 +605,9 @@ class LayaBackend:
         if reply.status in {400, 401, 403, 404, 405, 413, 415, 422, 503}:
             with self._lock:
                 call.known_rejection = True
-            raise LayaBackendError("http_rejected")
+            raise LayaBackendError("http_" + str(reply.status) if reply.status in (401, 403) else "http_rejected")
         if reply.status != 200:
-            raise LayaBackendError("http_failure")
+            raise LayaBackendError("http_redirect" if 300 <= reply.status < 400 else "http_failure")
         raw = _strict_json(reply.body)
         self._record_update(call, raw_response=raw)
         with self._lock:
@@ -606,8 +651,11 @@ class LayaBackend:
             return value
 
     def decide(self, snapshot: DecisionSnapshot) -> BackendDecision:
+        return self._decide(snapshot)
+
+    def _decide(self, snapshot, *, inference_probe=False):
         started_ns = time.monotonic_ns()
-        call = self._begin(started_ns / 1000000000)
+        call = self._begin(started_ns / 1000000000, inference_probe=inference_probe)
         call.record = {
             "started_monotonic_ns": started_ns, "completed_monotonic_ns": None,
             "snapshot_id": None, "versions": None, "model": self._config.model,
@@ -644,7 +692,25 @@ class LayaBackend:
                     self._active = None
 
     def probe(self):
-        """Independent GET; never starts a Goal, infers, or clears quarantine.
+        """Fixed wait-only inference. Health alone is not protocol/auth proof."""
+        result = {"ok": False, "health_ok": False, "inference_ok": False,
+                  "inference_called": False, "error_code": None, "model": self._config.model,
+                  "checked_at_ns": time.time_ns(), "restart_required": self._restart_required}
+        before = self.last_record
+        try:
+            self._decide(probe_snapshot(), inference_probe=True)
+            result.update(ok=True, inference_ok=True)
+        except LayaBackendError as exc:
+            result["error_code"] = exc.code
+        record = self.last_record
+        if record and record != before and record.get("snapshot_id") == "provider-probe":
+            result.update(health_ok=record.get("health_ok", False),
+                          inference_called=record.get("post_attempted", False))
+        result["restart_required"] = self.status()["restart_required"]
+        return result
+
+    def health_probe(self):
+        """Independent readiness GET; never infers or clears quarantine.
 
         A quarantined live worker occupies the only worker slot, so probe reports
         busy rather than creating a second outstanding transport thread.

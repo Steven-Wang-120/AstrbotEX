@@ -1732,46 +1732,35 @@ body {
 .management-auth input { width: 240px; max-width: 100%; }
 .management-auth [role="status"] { overflow-wrap: anywhere; }
 
-/* B09 decision page: reuse the dashboard palette and control primitives. */
+/* C07: only the decision page and its native, keyboard-accessible dialog. */
 #page-decision .panel { padding: 20px; min-width: 0; }
 #page-decision .panel-head { margin: -4px 0 16px; padding: 0 0 12px; }
 #page-decision .page-head { flex-wrap: wrap; }
-.decision-layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 20px; }
+.decision-layout { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
 .decision-wide { grid-column: 1 / -1; }
-.decision-readline, .decision-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0; }
-.decision-readline { justify-content: space-between; color: var(--ink-2); font-size: 12px; }
-.decision-readline [data-stale="true"] { color: var(--warn); }
+.decision-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 16px 0; }
 .decision-message { padding: 12px 16px; margin-bottom: 20px; background: var(--accent-soft); border-left: 3px solid var(--accent); overflow-wrap: anywhere; }
 .decision-message[data-kind="error"] { border-color: var(--err); color: var(--err); }
 .decision-message[data-kind="warning"] { border-color: var(--warn); }
-.decision-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin-bottom: 18px; }
-.decision-metrics > div { display: grid; padding: 14px; gap: 6px; background: var(--bg-sunk); border-radius: 6px; }
-.decision-metrics span { font-size: 12px; color: var(--ink-2); }
-.decision-metrics strong { font-size: 16px; overflow-wrap: anywhere; }
-.decision-kv { display: grid; grid-template-columns: minmax(115px,auto) minmax(0,1fr); gap: 7px 16px; margin: 12px 0; }
-.decision-kv dt { color: var(--ink-2); font-size: 12px; }
-.decision-kv dd { margin: 0; font-size: 12px; overflow-wrap: anywhere; white-space: pre-wrap; }
-.decision-form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 12px 0; }
-.decision-form-grid[hidden] { display: none; }
-#page-decision .connection-field { min-width: 0; margin: 8px 0; }
-#page-decision input[type="checkbox"] { width: 20px; height: 20px; }
-.decision-json { margin: 12px 0; border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
-.decision-json summary { cursor: pointer; font-size: 12px; font-weight: 600; overflow-wrap: anywhere; }
-.decision-json pre, .decision-identity { margin: 10px 0; padding: 10px; background: var(--bg-sunk); white-space: pre-wrap; overflow-wrap: anywhere; max-height: 340px; overflow: auto; font: 11px/1.6 var(--font-mono); }
-.decision-record { border: 1px solid var(--line); border-radius: 6px; padding: 14px; margin: 12px 0; min-width: 0; }
-.decision-record h3, .decision-placeholder h3 { font-size: 13px; overflow-wrap: anywhere; margin-bottom: 8px; }
-.decision-record button { margin: 4px 8px 4px 0; }
-.decision-muted { color: var(--ink-2); font-size: 12px; margin: 10px 0; overflow-wrap: anywhere; }
-.decision-warning { color: var(--warn); font-size: 12px; margin: 10px 0; overflow-wrap: anywhere; }
-.decision-draft { color: var(--accent); font-weight: 600; font-size: 12px; margin: 10px 0; }
-.decision-placeholder { padding: 14px; border: 1px dashed var(--line); border-radius: 6px; margin-top: 16px; }
-.decision-placeholder p { font-size: 12px; }
-.decision-phases { display: flex; flex-wrap: wrap; gap: 8px; font-size: 11px; }
-.decision-phases span { background: var(--bg-sunk); padding: 5px 8px; border-radius: 4px; }
-.decision-mode-select { width: 115px; }
+.decision-providers { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.decision-provider { display: grid; gap: 8px; text-align: left; padding: 22px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-sunk); color: var(--ink); cursor: pointer; }
+.decision-provider strong { font-size: 22px; }
+.decision-provider span, .decision-provider small { color: var(--ink-2); }
+.decision-provider[data-selected="true"] { border-color: var(--accent); background: var(--accent-soft); }
+#page-decision button:focus-visible, #page-decision input:focus-visible, #page-decision select:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.decision-muted, .decision-warning, .decision-draft, .decision-test-result { font-size: 12px; margin: 10px 0; overflow-wrap: anywhere; }
+.decision-muted { color: var(--ink-2); }
+.decision-warning { color: var(--warn); }
+.decision-draft { color: var(--accent); font-weight: 600; }
+.decision-task-title, #decisionTaskGoal { overflow-wrap: anywhere; white-space: pre-wrap; }
+.decision-modal { width: min(560px,calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 24px; margin: auto; overflow: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--ink); box-shadow: 0 16px 70px #0005; }
+.decision-modal::backdrop { background: #0007; }
+.decision-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.decision-modal-head h2 { font-size: 20px; }
+#page-decision .connection-field { min-width: 0; margin: 12px 0; }
+.decision-clear { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.decision-clear input { width: 18px; height: 18px; }
+.decision-modal-safety { position: sticky; bottom: -24px; padding: 12px 0; background: var(--bg); border-top: 1px solid var(--line); }
 #page-decision button:disabled { opacity: .5; cursor: not-allowed; }
-@media (max-width: 1050px) { .decision-layout { grid-template-columns: minmax(0,1fr); } }
-@media (max-width: 680px) { .decision-metrics, .decision-form-grid { grid-template-columns: minmax(0,1fr); } .decision-kv { grid-template-columns: minmax(0,1fr); gap: 3px; } .decision-kv dd { margin-bottom: 8px; } }
-
-#decisionOperations { max-height: 420px; overflow: auto; }
 #page-decision [hidden] { display: none !important; }
+@media (max-width: 680px) { .decision-layout, .decision-providers { grid-template-columns: minmax(0,1fr); } .decision-modal { padding: 18px; } .decision-modal-safety { bottom: -18px; } }

@@ -1314,6 +1314,7 @@ def build_server(host: str, port: int, tick_hz: float, *,
     controller = RuntimeController(runtime=runtime, tick_hz=tick_hz)
     server = AstrBotEXHTTPServer((host, port), AstrBotEXRequestHandler)
     server.controller = controller
+    decision_management.attach_runtime(controller, connections)
     server.action_service = action_service
     server.decision_service = decision_service
     server.decision_management = decision_management
@@ -1364,7 +1365,8 @@ def build_server(host: str, port: int, tick_hz: float, *,
         try:
             decision_management.before_restore()
         except ManagementError as exc:
-            if exc.code != "stop_not_proven":
+            # A superseded stop receipt cannot prove this restore safe either.
+            if exc.code not in {"stop_not_proven", "stop_operation_superseded"}:
                 raise
             raise SnapshotError(action_service.status()["error"] or "stop proof pending") from exc
         controller.stop("instance snapshot restore")

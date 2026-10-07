@@ -8,6 +8,7 @@ import math
 import os
 import queue
 import re
+import ssl
 import threading
 import time
 from dataclasses import dataclass
@@ -18,6 +19,8 @@ from astrbot_ex.core.actions.models import ContractError
 from astrbot_ex.core.decision.models import (
     BackendDecision, DecisionSnapshot, validate_backend_selection,
 )
+
+from .connection import endpoint, open_connection, probe_snapshot, service_url
 
 PINNED_MODEL = "jev-1.13.0"
 API_HOST = "api.typesafe.ai"
@@ -42,6 +45,7 @@ class JevBackendError(RuntimeError):
 
 @dataclass(frozen=True, slots=True)
 class JevConfig:
+    base_url: str = "https://api.typesafe.ai"
     model: str = PINNED_MODEL
     mode: str = "disabled"
     allow_live_http: bool = False
@@ -57,9 +61,13 @@ class JevConfig:
     observation_guides: tuple[tuple[str, str], ...] = ()
 
     def __post_init__(self):
-        if not isinstance(self.model, str) or len(self.model) > 256 or not re.fullmatch(r"jev-\d+\.\d+\.\d+", self.model):
-            raise JevBackendError("unpinned_model")
-        if self.mode not in ("disabled", "shadow") or type(self.allow_live_http) is not bool:
+        try:
+            service_url(self.base_url)
+        except ValueError:
+            raise JevBackendError("invalid_service_url") from None
+        if self.model != PINNED_MODEL:
+            raise JevBackendError("unsupported_model")
+        if self.mode not in ("disabled", "shadow", "execute") or type(self.allow_live_http) is not bool:
             raise JevBackendError("invalid_mode")
         if self.secret_env is not None and (
             not isinstance(self.secret_env, str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,127}", self.secret_env)
@@ -123,11 +131,11 @@ def _remaining(deadline, cancel):
     return remaining
 
 
-def _http_transport(body, headers, deadline, cancel, max_bytes):
+def _http_transport(body, headers, deadline, cancel, max_bytes, *, base_url="https://api.typesafe.ai"):
     """No redirect handler. A daemon boundary also bounds DNS/slow-header reads."""
-    connection = http.client.HTTPSConnection(API_HOST, timeout=_remaining(deadline, cancel))
+    connection = open_connection(base_url, _remaining(deadline, cancel))
     try:
-        connection.request("POST", API_PATH, body=body, headers=dict(headers))
+        connection.request("POST", endpoint(base_url, API_PATH), body=body, headers=dict(headers))
         if connection.sock is not None:
             connection.sock.settimeout(_remaining(deadline, cancel))
         response = connection.getresponse()
@@ -202,15 +210,18 @@ class JevBackend:
     """
 
     def __init__(self, config: JevConfig | None = None, *, transport: Transport | None = None,
-                 secret_provider: Callable[[], str] | None = None):
+                 secret_provider: Callable[[], str] | None = None, allow_test_execution: bool = False):
         self._config = config or JevConfig()
-        if not isinstance(self._config, JevConfig):
+        if (not isinstance(self._config, JevConfig) or type(allow_test_execution) is not bool or
+                (transport is not None and not callable(transport)) or
+                (secret_provider is not None and not callable(secret_provider))):
             raise JevBackendError("invalid_config")
         if secret_provider is not None and self._config.secret_env is not None:
             raise JevBackendError("ambiguous_secret_config")
         self._secret_provider = secret_provider
-        self._transport = transport or _http_transport
+        self._transport = transport
         self._injected_transport = transport is not None
+        self._allow_test_execution = allow_test_execution
         self._lock = threading.Lock()
         self._active: threading.Event | None = None
         self._worker: threading.Thread | None = None
@@ -222,8 +233,22 @@ class JevBackend:
 
     @property
     def execution_allowed(self) -> bool:
-        """This reviewed adapter is evaluation-only, including injected transports."""
-        return False
+        config = self._config
+        return (not self._closed and config.mode == "execute" and
+                ((self._injected_transport and self._allow_test_execution) or
+                 (not self._injected_transport and config.allow_live_http)) and
+                (self._secret_provider is not None or config.secret_env is not None))
+
+    @property
+    def min_confidence(self) -> float:
+        return self._config.min_confidence
+
+    @property
+    def execution_capability(self):
+        return {"backend": "jev", "model": self._config.model,
+                "transport": "injected" if self._injected_transport else "live",
+                "configured": self._config.mode == "execute" and self._config.allow_live_http,
+                "min_confidence": self.min_confidence, "allowed": self.execution_allowed}
 
     @property
     def config(self):
@@ -343,14 +368,8 @@ class JevBackend:
                 raise JevBackendError("choice_not_argmax")
             choice = {"owner": owner, "option_id": selected,
                       "confidence": answer["confidence"], "probabilities": probabilities}
-            if answer["confidence"] < config.min_confidence:
-                conservative = sorted((c for c in eligible.values() if c["kind"] in ("wait", "request_replan")),
-                                      key=lambda c: (c["kind"] != "wait", c["option_id"]))
-                if not conservative:
-                    raise JevBackendError("no_conservative_candidate")
-                # Original scores describe the vendor selection, not our override.
-                choice = {"owner": owner, "option_id": conservative[0]["option_id"]}
-                overrides += 1
+            # EX owns the confidence gate. Preserve the vendor's selected option
+            # and scores even when EX must reject execution and request replanning.
             choices.append(choice)
         decision = BackendDecision.parse({
             "schema_version": 1, "snapshot_id": frozen.snapshot_id, "versions": frozen.versions.to_dict(),
@@ -359,13 +378,33 @@ class JevBackend:
         validate_backend_selection(frozen, decision, frozen.versions)
         return decision, usage, overrides
 
+    def probe(self):
+        """One fixed wait-only inference, using the exact production validator."""
+        result = {"ok": False, "health_ok": None, "inference_ok": False,
+                  "inference_called": False, "error_code": None, "model": self._config.model,
+                  "checked_at_ns": time.time_ns(), "restart_required": False}
+        before = self.last_record
+        http_before = self._last_http_started
+        try:
+            self._decide(probe_snapshot(), inference_probe=True)
+            result.update(ok=True, inference_ok=True)
+        except JevBackendError as exc:
+            result["error_code"] = exc.code
+        record = self.last_record
+        result["inference_called"] = bool(record is not before and record and
+                                          self._last_http_started != http_before)
+        return result
+
     def decide(self, snapshot: DecisionSnapshot) -> BackendDecision:
+        return self._decide(snapshot)
+
+    def _decide(self, snapshot, *, inference_probe=False):
         started = time.monotonic()
         with self._lock:
             if self._closed:
                 raise JevBackendError("closed")
             config, epoch = self._config, self._epoch
-            if config.mode == "disabled":
+            if config.mode == "disabled" and not inference_probe:
                 raise JevBackendError("disabled")
             if not self._injected_transport and not config.allow_live_http:
                 raise JevBackendError("live_http_not_authorized")
@@ -412,9 +451,13 @@ class JevBackend:
                     with self._lock:
                         self._check_locked(epoch, cancel, deadline)
                         self._last_http_started = time.monotonic()
-                    value = self._transport(body, {"Authorization": "Bearer " + secret,
-                        "Content-Type": "application/json", "Accept": "application/json"},
-                        deadline, cancel, config.max_response_bytes)
+                    headers = {"Authorization": "Bearer " + secret,
+                               "Content-Type": "application/json", "Accept": "application/json"}
+                    if self._injected_transport:
+                        value = self._transport(body, headers, deadline, cancel, config.max_response_bytes)
+                    else:
+                        value = _http_transport(body, headers, deadline, cancel, config.max_response_bytes,
+                                                base_url=config.base_url)
                     if (not isinstance(value, HTTPReply) or type(value.status) is not int or
                         not 100 <= value.status <= 599 or not isinstance(value.body, bytes)):
                         raise JevBackendError("invalid_transport_reply")
@@ -427,6 +470,8 @@ class JevBackend:
                         "canceled", "deadline_exceeded", "response_too_large", "incomplete_response",
                         "missing_or_invalid_secret", "invalid_transport_reply",
                     } else "transport_failure"))
+                except ssl.SSLError:
+                    result.put(JevBackendError("tls_failure"))
                 except TimeoutError:
                     result.put(JevBackendError("deadline_exceeded"))
                 except Exception:
@@ -472,7 +517,7 @@ class JevBackend:
                 cancel.wait(delay)
             if reply.status != 200:
                 raise JevBackendError("http_redirect" if 300 <= reply.status < 400 else
-                                      "http_" + str(reply.status) if reply.status in (401, 422, 529) else "http_error")
+                                      "http_" + str(reply.status) if reply.status in (401, 403, 422, 529) else "http_error")
             elapsed = (time.monotonic() - started) * 1000
             decision, usage, overrides = self._response(reply, frozen, config, elapsed)
             with self._lock:

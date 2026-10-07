@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/tests/decision_ui_fixture.py", line 21, in <module>
-    from astrbot_ex.core.actions.models import ActionStatus, OwnerBinding, StopEvidence
-ImportError: cannot import name 'OwnerBinding' from 'astrbot_ex.core.actions.models' (/home/sssxy/Projects/AstrEX_project_main/apps/AstrBotEX/astrbot_ex/core/actions/models.py)

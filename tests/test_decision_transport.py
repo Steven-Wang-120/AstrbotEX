@@ -37,6 +37,7 @@ class DecisionTransportTests(unittest.TestCase):
     def test_all_frozen_request_methods_dispatch_injected_callable(self):
         common = {"schema_version": 1, "request_id": "req", "ex_session": "ex", "goal_id": "g"}
         requests = {
+            "decision.capabilities.get": {"schema_version": 1},
             "decision.context.get": {"schema_version": 1},
             "decision.state.get": {"schema_version": 1},
             "decision.events.get": {"schema_version": 1, "ex_session": "ex", "since_event_seq": 0},
@@ -62,6 +63,22 @@ class DecisionTransportTests(unittest.TestCase):
             self.assertFalse(self.request(method, payload, feature, conn, binary)["ok"])
         self.assertEqual(self.calls, [])
         self.assertEqual(self.public, [])
+
+    def test_capabilities_independent_exact_parser_does_not_relax_b00(self):
+        from astrbot_ex.core.contracts import ContractError, parse_request
+        with self.assertRaises(ContractError):
+            parse_request("decision.capabilities.get", {"schema_version": 1})
+        for payload in ({}, {"schema_version": True}, {"schema_version": 2},
+                        {"schema_version": 1, "ex_session": "ex"}, {"schema_version": 1, "task_id": "t"}):
+            self.assertFalse(self.request("decision.capabilities.get", payload)["ok"])
+        for feature, conn, binary in (("audio", "trusted", None), ("text", "", None),
+                                      ("text", "trusted", b"")):
+            self.assertFalse(self.request("decision.capabilities.get", {"schema_version": 1},
+                feature, conn, binary)["ok"])
+        self.assertEqual(self.calls, [])
+        self.assertEqual(self.public, [])
+        self.assertTrue(self.request("decision.capabilities.get", {"schema_version": 1})["ok"])
+        self.assertEqual(self.calls[0], ("trusted", "decision.capabilities.get", {"schema_version": 1}))
 
     def test_public_task_gate_generation_dedup_and_normal_chat(self):
         payload = {"visibility": "user", "source": "private_planning", "task_id": "t", "turn_id": "turn",
