@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "python": {
+      "type": "string"
+    },
+    "device": {
+      "type": "string"
+    },
+    "conf": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "model": {
+      "type": "string"
+    },
+    "state_path": {
+      "type": "string"
+    }
+  }
+}

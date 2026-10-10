@@ -1,0 +1,8 @@
+{
+  "file": "yolov8n-seg.pt",
+  "sha256": "a7cd8f929e1903d78a12a48efecab430209f18dc46cb96c3599a5980c63c423c",
+  "bytes": 7071756,
+  "source": "https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n-seg.pt",
+  "task": "segment",
+  "ultralytics_version": "8.3.203"
+}
