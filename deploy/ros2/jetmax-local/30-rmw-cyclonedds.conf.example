@@ -1,0 +1,21 @@
+# EXAMPLE ONLY - drop-in for the EX service. Not installed by this repository.
+#
+# Path: /etc/systemd/system/<EX_SERVICE_NAME>.service.d/30-rmw-cyclonedds.conf
+#
+# RMW is chosen BEFORE the process starts. The EX web UI cannot switch it and
+# must never claim it did: changing this file requires a daemon-reload and a
+# restart of EX and of every producer (run-camera, run-yolo). Until all of them
+# restart, `RMW_IMPLEMENTATION` differs between processes and discovery fails.
+#
+# Keep the existing Fast DDS installation in place; this does not remove it.
+
+[Service]
+Environment="RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+Environment="ROS_DOMAIN_ID=0"
+Environment="ROS_LOCALHOST_ONLY=1"
+#Environment="CYCLONEDDS_URI=file:///etc/astrex/cyclonedds.xml"
+
+# The producers need the same values. If run-camera/run-yolo are separate
+# units, copy the three Environment lines into their drop-ins as well, or start
+# them from a wrapper that loads profile.env.example. Setting it only on the EX
+# service is the classic half-configured deployment.
