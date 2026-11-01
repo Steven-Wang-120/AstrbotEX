@@ -147,9 +147,19 @@
   function entryFrom(event, eventId) {
     var data = event && event.data && typeof event.data === "object" ? event.data : {};
     var level = resolveLevel(event);
-    var source = stripControl(data.source || event.source || event.type || "event");
+    var source = stripControl((data.log && data.log.source) || data.source || event.source || event.type || "event");
     var code = stripControl(data.code || data.reason_code || "");
     var message = stripControl(event.message || "");
+    if (event.type === 'ros_diagnostic') {
+      var scope = data.scope || {}, evidence = data.evidence || {}, summary = [];
+      if (scope.plugin_id || scope.port_id) summary.push([scope.plugin_id, scope.port_id].filter(Boolean).join('/'));
+      if (scope.topic) summary.push(scope.topic);
+      if (evidence.graph_peer_count !== undefined) summary.push('graph=' + evidence.graph_peer_count);
+      if (evidence.matched_peer_count !== undefined) summary.push('matched=' + (evidence.matched_peer_count === null ? 'unknown' : evidence.matched_peer_count));
+      if (evidence.receive_age_sec !== undefined) summary.push('回调年龄=' + (evidence.receive_age_sec === null ? '无回调' : evidence.receive_age_sec + 's'));
+      if (data.remediation && data.remediation.length) summary.push('建议：' + (Array.isArray(data.remediation) ? data.remediation[0] : data.remediation));
+      if (summary.length) message += ' · ' + truncate(stripControl(summary.join(' · ')), 768);
+    }
     var detail = detailFrom(event);
     var timestamp = event && event.timestamp ? Number(event.timestamp) * 1000 : Date.now();
     if (!isFinite(timestamp)) timestamp = Date.now();
@@ -469,13 +479,25 @@
       var eventId = meta && meta.eventId ? String(meta.eventId) : null;
       if (rememberId(eventId)) return; /* replay of something already shown */
       var entry = entryFrom(event, eventId);
-      entries.push(entry);
+      var insertAt = -1;
+      if (eventId) {
+        var split = eventId.lastIndexOf(':'), prefix = eventId.slice(0, split);
+        var sequence = eventId.slice(split + 1);
+        if (/^[1-9][0-9]*$/.test(sequence)) {
+          insertAt = entries.findIndex(function (old) {
+            if (!old.id) return false;
+            var oldSplit = old.id.lastIndexOf(':');
+            return old.id.slice(0, oldSplit) === prefix && /^[1-9][0-9]*$/.test(old.id.slice(oldSplit + 1)) && BigInt(old.id.slice(oldSplit + 1)) > BigInt(sequence);
+          });
+        }
+      }
+      if (insertAt < 0) entries.push(entry); else entries.splice(insertAt, 0, entry);
       totalBytes += entry.bytes || 0;
       sources.add(entry.source);
       trimCache();
       if (dom && dom.sourceFilter) renderSourceOptions();
       if (dom && passes(entry)) {
-        appendRow(entry);
+        if (insertAt < 0) appendRow(entry); else rebuild();
         if (!autoscroll) {
           unread += 1;
           updateUnread();
@@ -490,7 +512,7 @@
       if (!Array.isArray(events)) return;
       for (var index = 0; index < events.length; index += 1) {
         var event = events[index];
-        var eventId = event && event.data && event.data.log && event.data.log.event_id;
+        var eventId = event && ((event.data && event.data.log && event.data.log.event_id) || event.event_id);
         EXLogs.push(event, eventId ? { eventId: String(eventId) } : {});
       }
     },
@@ -586,6 +608,8 @@
       if (dom && dom.consoleEl) dom.consoleEl.textContent = "";
       dom = null;
       mounted = false;
+      seenIds.clear(); seenOrder = []; sources.clear();
+      filters.sources.clear(); filters.text = '';
       entries = [];
       totalBytes = 0;
       unread = 0;
