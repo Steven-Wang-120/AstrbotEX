@@ -188,6 +188,9 @@ class Ros2EnvironmentAdapter:
                         port.native, port.message_type = native, cls
                         port.resolved_topic = native.topic_name
                         port.state, port.reason = "waiting_peer", None
+                        # A new native endpoint invalidates the previous binding's evidence;
+                        # the observation window restarts at this instant.
+                        port.mark_bound()
                     self._ports[port.endpoint_id] = (port, node, lane)
                     lane.ports[port.endpoint_id] = port
                 self._refresh.set()
@@ -325,6 +328,8 @@ class Ros2EnvironmentAdapter:
                                             diagnostic['state'] = 'unknown'
                                             diagnostic['reason'] = 'Native match or delivery confirmed; static QoS comparison differs: ' + diagnostic['reason']
                                     incompatible = incompatible and not communicating
+                                    # Legacy state stays graph/match based; delivery health is
+                                    # reported separately through _Port.data_health.
                                     port.state = 'ready' if communicating else ('qos_incompatible' if incompatible else 'waiting_peer')
                                     port.reason_code = port.state if incompatible else None
                                     port.reason = '; '.join(d['reason'] for d in diagnostics if d['reason']) if incompatible else None

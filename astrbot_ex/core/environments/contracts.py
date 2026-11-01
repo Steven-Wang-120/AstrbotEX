@@ -10,11 +10,38 @@ PRESETS = {
     "sensor_data": {"reliability": "best_effort", "durability": "volatile", "history": "keep_last", "depth": 5},
     "reliable_volatile": {"reliability": "reliable", "durability": "volatile", "history": "keep_last", "depth": 10},
 }
+DIAGNOSTICS_MODES = ("off", "periodic")
+DIAGNOSTICS_DEFAULTS = {"mode": "off", "startup_grace_sec": 10.0, "stale_after_sec": 5.0}
 
 def integer(value, label, minimum, maximum):
     if isinstance(value, bool) or not isinstance(value, int) or not minimum <= value <= maximum:
         raise ValueError(f"{label} must be an integer in [{minimum}, {maximum}]")
     return value
+
+def number(value, label, minimum, maximum):
+    """Finite int/float in range; booleans are rejected rather than coerced."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{label} must be a finite number")
+    result = float(value)
+    if not math.isfinite(result) or not minimum <= result <= maximum:
+        raise ValueError(f"{label} must be in [{minimum}, {maximum}]")
+    return result
+
+def diagnostics_policy(raw=None, direction="subscribe"):
+    """C01 §1: policy lives in the manifest, defaults to off, periodic is subscribe-only."""
+    if raw is None: raw = {}
+    if not isinstance(raw, dict): raise ValueError("diagnostics must be an object")
+    unknown = set(raw) - set(DIAGNOSTICS_DEFAULTS)
+    if unknown: raise ValueError(f"unsupported diagnostics fields: {sorted(unknown)}")
+    mode = raw.get("mode", DIAGNOSTICS_DEFAULTS["mode"])
+    if mode not in DIAGNOSTICS_MODES: raise ValueError(f"invalid diagnostics mode: {mode}")
+    if mode == "periodic" and direction != "subscribe":
+        raise ValueError("diagnostics.mode=periodic is only allowed for subscribe ports")
+    return {
+        "mode": mode,
+        "startup_grace_sec": number(raw.get("startup_grace_sec", DIAGNOSTICS_DEFAULTS["startup_grace_sec"]), "diagnostics.startup_grace_sec", 0.0, 300.0),
+        "stale_after_sec": number(raw.get("stale_after_sec", DIAGNOSTICS_DEFAULTS["stale_after_sec"]), "diagnostics.stale_after_sec", 0.2, 300.0),
+    }
 
 def topic_name(value):
     if not isinstance(value, str) or not value or value.endswith("/") or "//" in value:
@@ -55,6 +82,8 @@ def parse_ports(raw):
         if not isinstance(types, list) or not types or any(not isinstance(t, str) or not TYPE_NAME.fullmatch(t) for t in types):
             raise ValueError(f"{name}: message_types must list package/msg/Type")
         port["default_topic"] = topic_name(port.get("default_topic", "/" + name))
+        # Declaring nothing keeps legacy manifests working; policy is never a binding field.
+        port["diagnostics"] = diagnostics_policy(port.get("diagnostics"), port["direction"])
         port.setdefault("execution_lane", "sensor" if port["direction"] == "subscribe" else "general")
         if port["execution_lane"] not in ("sensor", "control", "general"): raise ValueError(f"{name}: invalid lane")
         gate = port.setdefault("requires_runtime_running", port["execution_lane"] == "control")
