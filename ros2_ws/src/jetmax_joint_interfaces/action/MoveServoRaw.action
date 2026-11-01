@@ -1,0 +1,10 @@
+# Absolute servo register target; duration is hardware travel time, not a timeout.
+int32 target_raw
+uint32 duration_ms
+---
+# target_observed / cancelled / timeout / feedback_lost / io_error / shutdown
+string outcome
+string message
+jetmax_joint_interfaces/JointState final_state
+---
+jetmax_joint_interfaces/JointState state

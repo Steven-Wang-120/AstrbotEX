@@ -1,0 +1,12 @@
+# TEST FIXTURE ONLY. This profile is rejected by the real backend.
+profile_kind: fake
+serial_device: /dev/ttyTHS1
+io_timeout_s: 0.05
+poll_period_s: 0.025
+feedback_max_age_s: 0.25
+goal_margin_s: 0.5
+joints:
+  arm_base: {limits: [100, 900], tolerance_raw: 2, settled_ms: 100}
+  arm_shoulder: {limits: [100, 700], tolerance_raw: 2, settled_ms: 100}
+  arm_elbow: {limits: [470, 900], tolerance_raw: 2, settled_ms: 100}
+  gripper: {limits: [45, 90]}

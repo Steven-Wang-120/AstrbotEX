@@ -1,0 +1,31 @@
+#!/usr/bin/python3
+"""Cancel a specific goal (or current goals) through the standard ROS action API."""
+import argparse
+import uuid
+import rclpy
+from action_msgs.srv import CancelGoal
+from rclpy.node import Node
+parser = argparse.ArgumentParser()
+parser.add_argument('joint', choices=['arm_base', 'arm_shoulder', 'arm_elbow', 'gripper'])
+parser.add_argument('--goal-id', help='UUID from state.goal_id; omitted cancels this joint current goal')
+args = parser.parse_args()
+rclpy.init()
+node = Node('jetmax_cancel_client')
+suffix = 'set_angle' if args.joint == 'gripper' else 'move'
+client = node.create_client(CancelGoal, '/jetmax_hw/' + args.joint + '/' + suffix + '/_action/cancel_goal')
+try:
+    if not client.wait_for_service(timeout_sec=3):
+        raise SystemExit('Action server unavailable')
+    request = CancelGoal.Request()
+    if args.goal_id:
+        request.goal_info.goal_id.uuid = list(uuid.UUID(args.goal_id).bytes)
+    future = client.call_async(request)
+    rclpy.spin_until_future_complete(node, future, timeout_sec=3)
+    if not future.done():
+        raise SystemExit('Cancel response unknown; query state, do not resend motion')
+    result = future.result()
+    print('return_code:', result.return_code, 'accepted_goals:', len(result.goals_canceling))
+    print('Cancellation acceptance is not confirmation of physical stop; inspect the state topic.')
+finally:
+    node.destroy_node()
+    rclpy.shutdown()

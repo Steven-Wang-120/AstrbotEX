@@ -1,0 +1,3 @@
+#!/usr/bin/python3
+from jetmax_joint_nodes.nodes import main
+main()

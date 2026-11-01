@@ -1,0 +1,30 @@
+profile_kind: real
+serial_device: /dev/ttyTHS1
+io_timeout_s: 0.05
+poll_period_s: 0.08
+feedback_max_age_s: 0.25
+goal_margin_s: 2.0
+joints:
+  arm_base:
+    limits:
+    - 635
+    - 675
+    tolerance_raw: 5
+    settled_ms: 400
+  arm_shoulder:
+    limits:
+    - 418
+    - 458
+    tolerance_raw: 5
+    settled_ms: 400
+  arm_elbow:
+    limits:
+    - 636
+    - 676
+    tolerance_raw: 5
+    settled_ms: 400
+  gripper:
+    limits:
+    - 45
+    - 75
+goal_timeout_cap_s: null

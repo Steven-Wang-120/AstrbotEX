@@ -1,0 +1,5 @@
+# Raw evidence stays local; compressed copies are versioned.
+/events.jsonl
+/ros-logs/
+/validation_logs/
+/*.log

@@ -1,0 +1,12 @@
+# Wiring verified by readback/microjog evidence; motion envelopes remain unreviewed.
+profile_kind: real
+serial_device: /dev/ttyTHS1
+io_timeout_s: 0.05
+poll_period_s: 0.08
+feedback_max_age_s: 0.25
+goal_margin_s: 2.0
+joints:
+  arm_base: {limits: null, tolerance_raw: null, settled_ms: null}
+  arm_shoulder: {limits: null, tolerance_raw: null, settled_ms: null}
+  arm_elbow: {limits: null, tolerance_raw: null, settled_ms: null}
+  gripper: {limits: null}

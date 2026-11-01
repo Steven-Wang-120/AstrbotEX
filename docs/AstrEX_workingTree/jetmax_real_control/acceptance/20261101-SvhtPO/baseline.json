@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "joints": {
+    "arm_base": {
+      "passed": true,
+      "p0": 635,
+      "distinct_replies": 723,
+      "observed_reply_hz": 12.043842456201542,
+      "observation_seconds": 60,
+      "raw_span": 2,
+      "max_receipt_interval_ms": 94.4664478302002,
+      "invalid_status_count": 0,
+      "query_ms_median": 2.2403379998650053,
+      "query_ms_p95": 5.441208000092956,
+      "sensor_sample_age": "unknown",
+      "query_duration_is_sensor_age": false
+    },
+    "arm_shoulder": {
+      "passed": true,
+      "p0": 418,
+      "distinct_replies": 724,
+      "observed_reply_hz": 12.046124017849678,
+      "observation_seconds": 60,
+      "raw_span": 0,
+      "max_receipt_interval_ms": 92.82946586608887,
+      "invalid_status_count": 0,
+      "query_ms_median": 2.2136709999358573,
+      "query_ms_p95": 5.376883000053567,
+      "sensor_sample_age": "unknown",
+      "query_duration_is_sensor_age": false
+    },
+    "arm_elbow": {
+      "passed": true,
+      "p0": 636,
+      "distinct_replies": 724,
+      "observed_reply_hz": 12.043676475271754,
+      "observation_seconds": 60,
+      "raw_span": 2,
+      "max_receipt_interval_ms": 93.37449073791504,
+      "invalid_status_count": 0,
+      "query_ms_median": 2.2285410000222328,
+      "query_ms_p95": 5.290008999963902,
+      "sensor_sample_age": "unknown",
+      "query_duration_is_sensor_age": false
+    }
+  }
+}

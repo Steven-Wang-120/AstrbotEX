@@ -1,0 +1,7 @@
+---
+# Acceptance is asynchronous. Follow state.stop_state for the write outcome.
+bool accepted
+string goal_id
+string stop_state
+bool physical_stop_confirmed
+string message

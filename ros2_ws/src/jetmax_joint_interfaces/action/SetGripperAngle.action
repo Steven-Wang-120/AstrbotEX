@@ -1,0 +1,9 @@
+# Absolute PWM command angle. No position, aperture or force sensor is implied.
+float64 target_deg
+---
+# command_written / cancelled / timeout / io_error / shutdown
+string outcome
+string message
+jetmax_joint_interfaces/JointState final_state
+---
+jetmax_joint_interfaces/JointState state

@@ -1,0 +1,32 @@
+[
+  {
+    "source": "/data/shared/AsttEX_project_data/jetmax_system_migration/control_acceptance_20261031T063635Z/candidate-v8/dev/jetmax/work/ros2_ws/src/jetmax_hardware_node/jetmax_hardware_node/native_query.c",
+    "source_sha256": "194433f10a4a7d2f569cf896a42170854cb18c8d62b8b60ad7ffd0421023c894",
+    "destination": "native/native_query.c",
+    "change": "unchanged"
+  },
+  {
+    "source": "/data/shared/AsttEX_project_data/jetmax_system_migration/control_acceptance_20261031T063635Z/candidate-v8/dev/jetmax/work/ros2_ws/src/jetmax_hardware_node/jetmax_hardware_node/grouped_gpio.py",
+    "source_sha256": "ec4d244f7eae88510456e91f4c42b878a61c87f75676da5a7762c3fa6664f486",
+    "destination": "jetmax_joint_nodes/grouped_gpio.py",
+    "change": "unchanged"
+  },
+  {
+    "source": "/data/shared/AsttEX_project_data/jetmax_system_migration/control_acceptance_20261031T063635Z/candidate-v8/dev/jetmax/work/python/jetmax_core/validation.py",
+    "source_sha256": "621558e4ba766a97df0fbfd29ba16b0f4c60b8c66fa87eccb34833264a183990",
+    "destination": "jetmax_joint_nodes/validation.py",
+    "change": "unchanged"
+  },
+  {
+    "source": "/data/shared/AsttEX_project_data/jetmax_system_migration/control_acceptance_20261031T063635Z/candidate-v8/dev/jetmax/work/python/jetmax_core/servo.py",
+    "source_sha256": "4babe0eaad4278d4e0e2fb60a5294972f5c493baf62cfdc551d4a24b7b7f51cf",
+    "destination": "jetmax_joint_nodes/protocol.py",
+    "change": "Extract packet constants, codec and parser only; exclude client with global cancellation state."
+  },
+  {
+    "source": "/data/shared/AsttEX_project_data/jetmax_system_migration/control_acceptance_20261031T063635Z/candidate-v8/acceptance_tests/native_query_fake.c",
+    "source_sha256": "ccfa7777e36be28e0070665f9592c8d2df892bea231c6a751a901bfaa40d8935",
+    "destination": "test/native_query_fake.c",
+    "change": "unchanged; fake syscalls used only in tests"
+  }
+]
