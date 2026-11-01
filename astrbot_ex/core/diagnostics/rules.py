@@ -22,6 +22,14 @@ def evaluate_port_health(sample, *, now_ns):
     diag = {"policy": policy, "monitoring_active": sample.get("monitoring_active"),
             "monitoring_epoch": sample.get("monitoring_epoch"), "binding_received": sample.get("binding_received"),
             "receive_age_sec": None, "consume_age_sec": None, "monitoring_age_sec": None, "reason_code": None}
+    # Ages remain factual even when periodic monitoring is paused. In particular,
+    # they must not overwrite the port's valid local age with a missing value.
+    for age_key, time_key in (('receive_age_sec', 'last_receive_monotonic_ns'),
+                              ('consume_age_sec', 'last_consume_monotonic_ns'),
+                              ('monitoring_age_sec', 'monitoring_started_monotonic_ns')):
+        timestamp = sample.get(time_key)
+        if _counter(now_ns) and _counter(timestamp) and timestamp <= now_ns:
+            diag[age_key] = (now_ns - timestamp) / 1e9
     result = {"data_health": "unknown", "diagnostics": diag, "issues": []}
     def finish(health, reason=None):
         result["data_health"] = health

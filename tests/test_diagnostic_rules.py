@@ -43,6 +43,13 @@ class DiagnosticRulesTests(unittest.TestCase):
                 self.assertEqual(result["data_health"], expected)
                 self.assertEqual(result["issues"], [])
 
+    def test_paused_monitoring_preserves_factual_receive_and_consume_ages(self):
+        result = evaluate_port_health(sample(monitoring_active=False, last_receive_monotonic_ns=5_000_000_000,
+            last_consume_monotonic_ns=6_000_000_000, binding_received=1), now_ns=10_000_000_000)
+        self.assertEqual(result['data_health'], 'paused')
+        self.assertEqual(result['diagnostics']['receive_age_sec'], 5.0)
+        self.assertEqual(result['diagnostics']['consume_age_sec'], 4.0)
+
     def test_visible_peer_has_no_delivery_guarantee(self):
         result = evaluate_port_health(sample(), now_ns=10_000_000_000)
         self.assertEqual(result["issues"][0]["code"], "ROS_RX_NO_DATA_WITH_PEER")
