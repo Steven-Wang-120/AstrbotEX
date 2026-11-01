@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import threading
 import unittest
+from unittest.mock import patch
 
 from astrbot_ex.core.diagnostics.service import (
     MAX_EVIDENCE_TEXT,
@@ -30,6 +31,7 @@ from astrbot_ex.core.diagnostics.service import (
     REFRESH_RUNNING,
     REFRESH_SUPERSEDED,
     DiagnosticsService,
+    DiagnosticsServiceError,
     issue_key,
 )
 
@@ -479,7 +481,8 @@ class PartialEvidenceTests(unittest.TestCase):
 
     def test_missing_rules_module_is_partial_not_healthy(self):
         service, _collector, _preflight, bus, _clock = build(evaluator=None)
-        service._run_cycle()
+        with patch.object(service, '_resolver', side_effect=DiagnosticsServiceError('rules unavailable')):
+            service._run_cycle()
         snapshot = service.snapshot()
         self.assertTrue(snapshot["partial"])
         self.assertNotEqual(snapshot["summary"], "ok")

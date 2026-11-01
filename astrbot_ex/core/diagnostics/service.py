@@ -247,6 +247,9 @@ class DiagnosticsService:
         # belongs to a generation nobody is looking at any more.
         self._refresh_identity = None
 
+        self._cycle_lock = threading.RLock()
+        self._emit_lock = threading.RLock()
+        self._invalidation_epoch = 0
         self._snapshot_cache = self._build_snapshot()
         self._emit_count = 0
 
@@ -270,11 +273,11 @@ class DiagnosticsService:
 
     def close(self, timeout=2.0):
         """Stop the thread and refuse further events. Idempotent."""
-        with self._lock:
-            already = self._closed
-            self._closed = True
-            thread = self._thread
-            self._thread = None
+        with self._emit_lock:
+            with self._lock:
+                already = self._closed
+                self._closed = True
+                thread = self._thread
         self._wake.set()
         if thread is not None and thread.is_alive() and thread is not threading.current_thread():
             thread.join(float(timeout))
@@ -283,6 +286,9 @@ class DiagnosticsService:
                 raise DiagnosticsServiceTimeout(
                     "diagnostics thread did not stop within %.1fs; it is still running"
                     % float(timeout))
+        with self._lock:
+            if thread is None or not thread.is_alive():
+                self._thread = None
         return {"closed": True, "already_closed": already,
                 "thread_alive": bool(thread is not None and thread.is_alive())}
 
@@ -306,7 +312,7 @@ class DiagnosticsService:
             if isinstance(preflight, dict) and self._preflight_ns is not None:
                 age = max(0.0, (now_ns - self._preflight_ns) / 1_000_000_000.0)
                 preflight["age_sec"] = age
-                preflight["current"] = age * 1_000_000_000 <= self._preflight_ttl_ns
+                preflight["current"] = not self._preflight_error and age * 1_000_000_000 <= self._preflight_ttl_ns
             return snapshot
 
     def request_refresh(self):
@@ -339,6 +345,7 @@ class DiagnosticsService:
         with self._lock:
             if self._closed:
                 return {"invalidated": False, "reason": "closed"}
+            self._invalidation_epoch += 1
             withdrawn = self._withdraw_all("scope_invalidated")
             self._preflight = None
             self._preflight_ns = None
@@ -376,10 +383,12 @@ class DiagnosticsService:
 
     def _safe_cycle(self, *, refresh):
         try:
-            self._run_cycle()
+            outcome = self._run_cycle()
         except Exception as exc:  # a cycle bug must not kill the thread silently
             with self._lock:
                 self._partial = True
+                self._current = False
+                self._healthy_streak.clear()
                 self._partial_reason = "cycle failed: %s" % (type(exc).__name__,)
                 self._snapshot_cache = self._build_snapshot()
             if refresh:
@@ -389,9 +398,11 @@ class DiagnosticsService:
             with self._lock:
                 moved = (self._refresh_identity is not None
                          and self._identity_text(self._environment) != self._refresh_identity)
-            if moved:
+            if moved or outcome.get('superseded'):
                 # The probe answered for a generation that is already gone.
                 self._finish_refresh(REFRESH_SUPERSEDED, "E_SUPERSEDED")
+            elif outcome.get('collection_failed') or outcome.get('preflight_failed') or outcome.get('rules_error'):
+                self._finish_refresh(REFRESH_FAILED, 'E_COLLECTION_FAILED')
             else:
                 self._finish_refresh(REFRESH_COMPLETED, None)
         return True
@@ -405,10 +416,17 @@ class DiagnosticsService:
 
     # -- one sampling cycle ------------------------------------------------
     def _run_cycle(self):
+        with self._cycle_lock:
+            with self._lock:
+                if self._closed:
+                    return {'closed': True}
+                epoch = self._invalidation_epoch
+            return self._collect_cycle(epoch)
+
+    def _collect_cycle(self, epoch):
+        collection = self._collect()
         now_ns = int(self._clock_ns())
         wall = float(self._wall_clock())
-
-        collection = self._collect()
         raw_environment = collection.get("environment")
         # A failed collection carries no identity. Keeping the previous one is
         # what makes "partial" meaningful: an empty environment would look like
@@ -416,16 +434,6 @@ class DiagnosticsService:
         environment = (self._normalize_environment(raw_environment) if raw_environment
                        else dict(self._environment))
         identity_changed = bool(raw_environment) and self._identity_changed(environment)
-
-        if identity_changed:
-            # Old issues belong to a scope that no longer exists: withdraw, do
-            # not recover. Recovery would claim the fault cleared.
-            stale = self._withdraw_all("scope_changed")
-            for event in stale:
-                self._emit(event)
-            self._preflight = None
-            self._preflight_ns = None
-            self._preflight_identity = None
 
         ports = collection.get("ports") or []
         complete = bool(collection.get("complete", True))
@@ -437,12 +445,12 @@ class DiagnosticsService:
 
         rules_error = None
         try:
-            port_health, candidates, port_scopes = self._evaluate_ports(ports, now_ns)
+            port_health, candidates, port_scopes, health_scopes = self._evaluate_ports(ports, now_ns)
         except DiagnosticsServiceError as exc:
             # B00 rules are not installed on this branch: stay alive, report the
             # gap as partial evidence instead of pretending ports are healthy.
             rules_error = str(exc)
-            port_health, candidates, port_scopes = [], [], {}
+            port_health, candidates, port_scopes, health_scopes = [], [], {}, {}
             complete = False
             partial_reason = "rules unavailable: %s" % (exc,)
         if not complete:
@@ -450,7 +458,7 @@ class DiagnosticsService:
 
         preflight_report, preflight_candidates = self._maybe_collect_preflight(
             environment, now_ns, wall,
-            force=self._refresh["state"] == REFRESH_RUNNING,
+            force=self._refresh["state"] == REFRESH_RUNNING, epoch=epoch,
         )
 
         active_mode = environment.get("active_mode")
@@ -473,18 +481,26 @@ class DiagnosticsService:
 
         events = []
         with self._lock:
+            if self._closed or epoch != self._invalidation_epoch:
+                return {'superseded': True}
+            if identity_changed:
+                events.extend(self._withdraw_all('scope_changed'))
             if raw_environment:
                 self._environment = environment
             self._runtime_running = runtime_running
-            self._current = True
+            self._current = complete
             self._collected_at_ns = now_ns
             self._collected_at_wall = wall
             self._ports = port_health
-            partial = (not complete) or truncated_ports
+            partial = (not complete) or truncated_ports or bool(self._preflight_error) or bool((preflight_report or {}).get("partial"))
             partial_candidates = []
             if partial:
                 if partial_reason:
                     reason = partial_reason
+                elif self._preflight_error:
+                    reason = self._preflight_error
+                elif (preflight_report or {}).get('partial'):
+                    reason = 'preflight evidence incomplete'
                 elif truncated_ports:
                     reason = "port sample limit %d reached" % self._max_ports
                 else:
@@ -502,16 +518,18 @@ class DiagnosticsService:
             if complete:
                 events.extend(self._apply_candidates(candidates, now_ns, wall))
                 events.extend(self._withdraw_inactive(port_scopes, runtime_running, wall))
-                events.extend(self._recover_missing(candidates, wall))
+                events.extend(self._recover_missing(candidates + partial_candidates, wall, health_scopes))
             else:
-                # Keep issues, mark them non-current. No streak progress.
+                # A failed sample breaks the consecutive-health requirement.
+                self._healthy_streak.clear()
                 for issue in self._issues.values():
                     issue["current"] = False
             self._snapshot_cache = self._build_snapshot()
 
         for event in events:
-            self._emit(event)
-        return {"partial": self._partial, "rules_error": rules_error}
+            self._emit(event, epoch=epoch)
+        return {"partial": self._partial, "rules_error": rules_error,
+                "collection_failed": not complete, "preflight_failed": bool(self._preflight_error)}
 
     def _collect(self):
         try:
@@ -530,7 +548,7 @@ class DiagnosticsService:
         evaluator = self._resolver()
         health, candidates = [], []
         # scope_key -> whether this port is currently expected to be monitored
-        scopes = {}
+        scopes, health_scopes = {}, {}
         for raw in ports:
             if not isinstance(raw, dict):
                 continue
@@ -545,13 +563,22 @@ class DiagnosticsService:
             if not isinstance(result, dict):
                 result = {"data_health": "unknown", "diagnostics": {}, "issues": []}
             health.append(self._port_view(sample, result))
+            health_scopes[scope_key(sample)] = result.get('data_health')
             scopes[scope_key(sample)] = result.get("data_health") not in (
                 "paused", "disabled", "not_monitored")
+            if result.get('data_health') == 'unknown':
+                candidate = self._normalize_candidate({
+                    'code': PARTIAL_CODE, 'severity': 'warning', 'source': 'ros.port',
+                    'message': '端口诊断证据不完整，不能确认收数健康',
+                    'evidence': {'reason_code': result.get('diagnostics', {}).get('reason_code')},
+                    'remediation': ['检查端口采样和资源状态；未知证据不能证明恢复']}, sample)
+                if candidate is not None:
+                    candidates.append(candidate)
             for candidate in result.get("issues") or []:
                 normalized = self._normalize_candidate(candidate, sample)
                 if normalized is not None:
                     candidates.append(normalized)
-        return health, candidates, scopes
+        return health, candidates, scopes, health_scopes
 
     @staticmethod
     def _port_view(sample, result):
@@ -586,7 +613,8 @@ class DiagnosticsService:
             if merged_scope.get(name) is None and sample.get(name) is not None:
                 merged_scope[name] = sample.get(name)
         normalized_scope = _normalize_scope(merged_scope)
-        if normalized_scope.get("session_id") is None and normalized_scope.get("endpoint_id") is None:
+        required = SCOPE_FIELDS if normalized_scope.get('endpoint_id') is not None else SCOPE_FIELDS[:2]
+        if any(normalized_scope.get(name) is None for name in required):
             # C01 section 9: an incomplete scope must not produce a publishable
             # candidate; the manager fills session_id before the service sees it.
             return None
@@ -624,7 +652,7 @@ class DiagnosticsService:
             "remediation": ["检查 EX 进程日志与 ROS 运行状态；证据恢复前不要据此判断端口健康"],
         }
 
-    def _maybe_collect_preflight(self, environment, now_ns, wall, *, force):
+    def _maybe_collect_preflight(self, environment, now_ns, wall, *, force, epoch=None):
         identity = self._identity_text(environment)
         age_ns = None if self._preflight_ns is None else now_ns - self._preflight_ns
         due = (
@@ -647,6 +675,8 @@ class DiagnosticsService:
                 self._preflight_error = "preflight returned %s" % (type(report).__name__,)
             return self._preflight, []
         with self._lock:
+            if self._closed or (epoch is not None and epoch != self._invalidation_epoch):
+                return None, []
             self._preflight = report
             self._preflight_ns = now_ns
             self._preflight_wall = wall
@@ -785,7 +815,7 @@ class DiagnosticsService:
             events.append(self._issue_event(issue, "withdrawn", wall, reason=reason))
         return events
 
-    def _recover_missing(self, candidates, wall):
+    def _recover_missing(self, candidates, wall, health_scopes):
         """Two consecutive healthy samples recover an issue (C04)."""
         events = []
         present = {issue_key(candidate["scope"], candidate["code"]) for candidate in candidates}
@@ -796,6 +826,21 @@ class DiagnosticsService:
                 continue
             if (issue["scope_key"], issue["family"]) in present_families:
                 # Same family still active under another code: handled above.
+                continue
+            if issue['scope'].get('endpoint_id') is not None:
+                health = health_scopes.get(issue['scope_key'])
+                healthy = health == 'receiving' if issue['family'] == RX_LIVENESS_FAMILY else health in ('receiving', 'warming_up', 'no_data', 'stale')
+            else:
+                healthy = not self._preflight_error and not (self._preflight or {}).get('partial')
+                needed = {'ROS_DEPENDENCY_MISSING': ('rclpy_available', 'rosidl_available'),
+                          'ROS_RMW_MISMATCH': ('rmw_consistency',),
+                          'ROS_LOOPBACK_MULTICAST_DISABLED': ('loopback_multicast',),
+                          'ROS_OVERLAY_PATH_MISSING': ('overlay_paths',)}.get(issue['code'], ())
+                checks = {item.get('id'): item.get('status') for item in (self._preflight or {}).get('checks', [])}
+                if needed:
+                    healthy = healthy and all(checks.get(name) == 'pass' for name in needed)
+            if not healthy:
+                self._healthy_streak.pop(key, None)
                 continue
             streak = self._healthy_streak.get(key, 0) + 1
             if streak >= RECOVERY_STREAK:
@@ -862,13 +907,15 @@ class DiagnosticsService:
         payload["detected_at"] = wall
         return {"type": "ros_diagnostic", "message": message, "data": payload}
 
-    def _emit(self, event):
-        with self._lock:
-            if self._closed:
-                return
-            self._emit_count += 1
-        # No service lock held here: a subscriber may call snapshot().
-        self._bus.emit(event["type"], event["message"], **event["data"])
+    def _emit(self, event, *, epoch=None):
+        # Serialize the final closed/epoch check with close(), without holding
+        # the snapshot lock during subscribers' callbacks.
+        with self._emit_lock:
+            with self._lock:
+                if self._closed or (epoch is not None and epoch != self._invalidation_epoch):
+                    return
+                self._emit_count += 1
+            self._bus.emit(event["type"], event["message"], **event["data"])
 
     # -- snapshot ----------------------------------------------------------
     def _build_snapshot(self):
@@ -900,7 +947,7 @@ class DiagnosticsService:
             preflight["collected_at"] = self._preflight_wall
             preflight["age_sec"] = None if self._preflight_ns is None else max(
                 0.0, (now_ns - self._preflight_ns) / 1_000_000_000.0)
-            preflight["current"] = self._preflight_ns is not None and (
+            preflight["current"] = not self._preflight_error and self._preflight_ns is not None and (
                 (now_ns - self._preflight_ns) <= self._preflight_ttl_ns)
         elif self._preflight_error:
             preflight = {"collected_at": None, "age_sec": None, "current": False,
@@ -939,6 +986,10 @@ class DiagnosticsService:
             return "error"
         if severity == "warning":
             return "warning"
+        if any(port.get('data_health') == 'unknown' for port in self._ports):
+            return 'unknown'
+        if any(check.get('status') == 'unknown' for check in (self._preflight or {}).get('checks', [])):
+            return 'unknown'
         return "ok"
 
     # -- helpers -----------------------------------------------------------
