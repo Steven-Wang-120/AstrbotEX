@@ -20,6 +20,13 @@ def complete_report():
 
 
 class NativeVerifierTests(unittest.TestCase):
+    def test_embedded_publisher_payload_is_complete_base64_jpeg(self):
+        import base64
+        payload = base64.b64decode(verifier.TINY_JPEG_B64, validate=True)
+        self.assertTrue(payload.startswith(b'\xff\xd8'))
+        self.assertTrue(payload.endswith(b'\xff\xd9'))
+        self.assertGreater(len(payload), 150)
+
     def test_success_requires_all_rounds_nonempty_checks_and_positive_deltas(self):
         report = complete_report()
         self.assertTrue(verifier.report_passes(report, repeat=2, duration=30))

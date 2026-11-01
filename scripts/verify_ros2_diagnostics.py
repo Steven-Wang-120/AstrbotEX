@@ -57,13 +57,14 @@ SCENARIOS = ("synthetic", "entry")
 
 EXIT_PASS, EXIT_FAIL, EXIT_USAGE, EXIT_NOT_RUN = 0, 1, 2, 3
 
-# 160-byte 1x1 JPEG (SOI/APP0-JFIF/SOF/DHT/SOS/EOI). The probe counts messages
-# and their size; it does not decode pixels. A real entry point that does decode
-# still gets a structurally valid JPEG, not a random blob.
+# 285-byte 1x1 JPEG. Generated once; no image library is needed at runtime.
+# The acceptance publisher sends these complete JPEG bytes as CompressedImage.
 TINY_JPEG_B64 = (
-    "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRof"
-    "h0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAAB"
-    "AAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AKp//2Q=="
+    '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a'
+    'HBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy'
+    'MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIA'
+    'AhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAj/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEB'
+    'AAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AJ/AB//Z'
 )
 
 
@@ -660,6 +661,7 @@ class _Publisher:
 
 def _ros_publisher(topic: str, *, with_observer: bool, domain: int) -> _Publisher:
     """Create the only publisher this script owns. No subscriber unless asked."""
+    payload = base64.b64decode(TINY_JPEG_B64, validate=True)
     import rclpy
     from rclpy.context import Context
     from rclpy.executors import SingleThreadedExecutor
@@ -679,7 +681,7 @@ def _ros_publisher(topic: str, *, with_observer: bool, domain: int) -> _Publishe
                                  QoSPresetProfiles.SENSOR_DATA.value)
         observer = True
     return _Publisher(node, publisher, executor, rclpy, context,
-                      base64.b64decode(TINY_JPEG_B64), observer)
+                      payload, observer)
 
 
 # --------------------------------------------------------------------------- #
