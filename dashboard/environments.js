@@ -458,6 +458,7 @@ function evidenceList(evidence) {
 function remediationText(remediation) {
  if(!remediation)return "";
  if(typeof remediation==="string")return remediation;
+ if(Array.isArray(remediation))return remediation.slice(0,6).map(step=>"· "+String(step)).join(" ");
  if(typeof remediation==="object"){
   const parts=[];
   if(remediation.summary)parts.push(String(remediation.summary));
