@@ -149,7 +149,7 @@ def project_event(event: RuntimeEvent, budget: int = PROJECTION_BUDGET) -> dict:
     if isinstance(block, dict):
         projected["log"] = {key: block.get(key) for key in
                             ("level", "source", "stream_id", "sequence", "event_id")}
-    if len(json.dumps(projected, ensure_ascii=False, default=str)) <= budget:
+    if len(json.dumps(projected, ensure_ascii=False, default=str).encode("utf-8")) <= budget:
         return projected
     # Still too large: keep the envelope and replace the payload with a marker.
     projected["data"] = {"truncated": TRUNCATION_MARK,
