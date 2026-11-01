@@ -1,0 +1,32 @@
+# EXAMPLE ONLY - not installed by this repository.
+#
+# Turns the loopback interface multicast flag on before the EX service starts.
+# The flag does not survive a reboot, so this is a oneshot that runs each boot.
+#
+# Install:
+#   sudo cp astrex-loopback-multicast.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now astrex-loopback-multicast.service
+#   ip link show lo | grep -o MULTICAST      # must print MULTICAST
+#
+# Verify the ip path on the target first: `command -v ip` may return
+# /usr/sbin/ip or /sbin/ip depending on the distribution. Replace <IP_PATH>
+# below with the value that exists on that host.
+#
+# No leading '-' on ExecStart: if the flag cannot be set, the unit MUST fail.
+# A silent success here would leave the operator believing discovery is fixed
+# while the EX service starts against an interface without multicast.
+
+[Unit]
+Description=AstrBotEX: enable multicast on the loopback interface (JetMax local profile)
+Documentation=file:/opt/astrex/deploy/ros2/jetmax-local/README.md
+After=network.target
+Before=<EX_SERVICE_NAME>.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=<IP_PATH> link set dev lo multicast on
+
+[Install]
+WantedBy=multi-user.target

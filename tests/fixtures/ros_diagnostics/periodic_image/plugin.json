@@ -1,0 +1,27 @@
+{
+  "id": "diag_image_probe",
+  "name": "ROS 2 诊断图像探针（仅测试）",
+  "version": "0.1.0",
+  "entry": "main.py",
+  "provides": ["trace_plugin"],
+  "enabled_default": false,
+  "ros2": {
+    "schema_version": 1,
+    "ports": [
+      {
+        "id": "image",
+        "label": "压缩图像输入",
+        "direction": "subscribe",
+        "message_types": ["sensor_msgs/msg/CompressedImage"],
+        "default_topic": "/ex_diag/image",
+        "qos_preset": "sensor_data",
+        "queue": {"capacity": 2, "overflow": "keep_latest"},
+        "diagnostics": {
+          "mode": "periodic",
+          "startup_grace_sec": 2.0,
+          "stale_after_sec": 2.0
+        }
+      }
+    ]
+  }
+}
