@@ -34,6 +34,8 @@ import argparse
 import base64
 import json
 import os
+import signal
+import socket
 import sys
 import threading
 import time
@@ -288,6 +290,8 @@ class SseReader:
         self.error = None
         self._stop = threading.Event()
         self._thread = None
+        self._response = None
+        self._frame_bytes = 0
         self._lock = threading.Lock()
 
     def start(self):
@@ -303,6 +307,7 @@ class SseReader:
         )
         try:
             with self.api._opener.open(request, timeout=30) as response:
+                self._response = response
                 fields = {}
                 for raw in response:
                     if self._stop.is_set():
@@ -312,14 +317,23 @@ class SseReader:
                         if fields:
                             with self._lock:
                                 self.frames.append(fields)
+                                self._frame_bytes += len(json.dumps(fields).encode('utf-8'))
+                                while len(self.frames) > 1000 or self._frame_bytes > 2 * 1024 * 1024:
+                                    self._frame_bytes -= len(json.dumps(self.frames.pop(0)).encode('utf-8'))
                             fields = {}
                         continue
                     if line.startswith(":"):
                         continue
                     key, _, value = line.partition(":")
-                    fields[key] = value.lstrip()
+                    if key == 'data' and key in fields:
+                        fields[key] += '\n' + value.lstrip(' ')
+                    else:
+                        fields[key] = value.lstrip(' ')
         except Exception as exc:  # noqa: BLE001 - recorded, never raised into the main flow
-            self.error = f"{exc.__class__.__name__}: {exc}"
+            if not self._stop.is_set():
+                self.error = exc.__class__.__name__
+        finally:
+            self._response = None
 
     def snapshot(self) -> list:
         with self._lock:
@@ -327,8 +341,13 @@ class SseReader:
 
     def close(self):
         self._stop.set()
+        response = self._response
+        if response is not None:
+            try: response.fp.raw._sock.shutdown(socket.SHUT_RDWR)
+            except (AttributeError, OSError): pass
         if self._thread is not None:
             self._thread.join(timeout=2.0)
+            if self._thread.is_alive(): self.error = 'SSE_CLOSE_TIMEOUT'
 
 
 # --------------------------------------------------------------------------- #
@@ -360,7 +379,7 @@ class Recorder:
 
 def find_port(diagnostics: dict, port_id: str) -> dict:
     """Pick one port out of a snapshot without assuming nesting beyond the contract."""
-    for row in (diagnostics.get("ports") or []):
+    for row in (diagnostics.get("ports") or diagnostics.get('received', []) + diagnostics.get('sent', [])):
         if row.get("port_id") == port_id or row.get("id") == port_id:
             return row
     return {}
@@ -387,89 +406,110 @@ def wait_for(predicate, timeout_s: float, poll_s: float = POLL_INTERVAL_SEC):
 # --------------------------------------------------------------------------- #
 # scenarios
 # --------------------------------------------------------------------------- #
+def _select_mode(api, mode):
+    api.post('environments/select', {'mode': mode})
+    ok, _ = wait_for(lambda: (lambda env: env.get('active_mode') == mode and env.get('phase') == 'idle')(
+        api.get('environments').get('environment') or {}), 20)
+    if not ok: raise AcceptanceError('environment transition did not complete')
+
+
+def _idle_gate_closed(api):
+    status = api.get('status')
+    return status.get('runtime_state') == 'idle' and (status.get('actions') or {}).get('gate_open') is False
+
+
+def _initial_state(api, allowed):
+    state = api.get('environments')
+    if (state.get('environment') or {}).get('active_mode') != 'normal' or not _idle_gate_closed(api):
+        raise AcceptanceError('dedicated instance must start in normal mode, idle, with action gate closed')
+    plugins = api.get('plugins').get('plugins', [])
+    if any(item.get('enabled') and item.get('id') not in allowed for item in plugins):
+        raise AcceptanceError('disable unrelated plugins before native acceptance')
+    return state, {item.get('id'): bool(item.get('enabled')) for item in plugins}
+
+
+def _save_sse(sse, recorder):
+    sse.close()
+    (recorder.output / 'sse.json').write_text(json.dumps(sse.snapshot(), ensure_ascii=False, indent=2), encoding='utf-8')
+
+
 def run_synthetic(api: Api, args, recorder: Recorder) -> dict:
-    """Publish from this process only; never subscribe. Returns the round results."""
-    rounds = []
-    state = api.get("environments")
-    environment = state.get("environment") or {}
-    if environment.get("active_mode") != "normal":
-        raise AcceptanceError("instance must start in normal mode")
-    if (api.get("status") or {}).get("runtime_state") == "running":
-        raise AcceptanceError("runtime must be idle before the run")
-
-    fixture = "diag_image_probe"
-    original_bindings = (api.get(f"plugins/{fixture}/ros2") or {}).get("ros2", {}).get("bindings", {})
-    original_config = (state.get("config") or {}).get("ros2")
-    recorder.note("snapshot", bindings=bool(original_bindings), config=bool(original_config))
-
-    publisher = None
+    state, enabled = _initial_state(api, {'diag_image_probe'})
+    fixture = 'diag_image_probe'
+    if fixture not in enabled: raise AcceptanceError('install the disabled periodic_image fixture first')
+    original_bindings = api.get(f'plugins/{fixture}/ros2')['ros2']['bindings']
+    original_config = state['config']['ros2']
+    rounds, cleanup, publisher = [], {}, None
     sse = SseReader(api)
     try:
-        api.post("environments/ros2/config",
-                 {"config": {"domain_id": args.domain, "discovery_interval_sec": 0.2}})
-        bindings = json.loads(json.dumps(original_bindings))
-        topic = f"/ex_diag_acceptance_{os.getpid()}_{int(time.time())}"
-        bindings.setdefault("image", {}).update(enabled=True, topic=topic)
-        current = api.get(f"plugins/{fixture}/ros2")["ros2"]["revision"]
-        api.post(f"plugins/{fixture}/ros2",
-                 {"expected_revision": current, "bindings": bindings})
-        api.post(f"plugins/{fixture}/enable", {})
-        api.post("environments/select", {"mode": "ros2"})
-        api.post("runtime/start", {})
+        api.post('environments/ros2/config', {'config': {'domain_id': args.domain, 'discovery_interval_sec': .2}})
+        api.post(f'plugins/{fixture}/enable', {})
         sse.start()
-        recorder.note("started", domain=args.domain, topic=topic)
-
-        publisher = _ros_publisher(topic, with_observer=args.with_observer)
         for index in range(args.repeat):
+            # A new native adapter, binding, publisher context and activity window
+            # for every round. Cumulative counts can never stand in for new input.
+            topic = f'/ex_diag_acceptance_{os.getpid()}_{time.monotonic_ns()}_{index}'
+            bindings = json.loads(json.dumps(original_bindings))
+            bindings.setdefault('image', {}).update(enabled=True, topic=topic)
+            current = api.get(f'plugins/{fixture}/ros2')['ros2']['revision']
+            api.post(f'plugins/{fixture}/ros2', {'expected_revision': current, 'bindings': bindings})
+            _select_mode(api, 'ros2')
+            publisher = _ros_publisher(topic, with_observer=args.with_observer, domain=args.domain)
+            api.post('runtime/start', {})
+            recorder.note('topology', round=index + 1, ex_pid=api.get('status').get('pid'), publisher_pid=os.getpid(),
+                          domain=args.domain, topic=topic, with_observer=args.with_observer)
             rounds.append(_synthetic_round(api, args, recorder, publisher, index + 1))
+            api.post('runtime/stop', {'reason': 'independent acceptance round complete'})
+            _select_mode(api, 'normal')
+            publisher.close(); publisher = None
+            rounds[-1]['checks']['round_exit_idle_gate_closed'] = _idle_gate_closed(api)
     finally:
-        sse.close()
         if publisher is not None:
-            publisher.close()
-        _restore(api, recorder, fixture, original_bindings, original_config)
-    return {"rounds": rounds, "sse_frames": len(sse.snapshot()), "sse_error": sse.error}
+            try: publisher.close()
+            except Exception: cleanup['publisher_close'] = False
+        cleanup.update(_restore(api, recorder, fixture, original_bindings, original_config, enabled[fixture]))
+        _save_sse(sse, recorder)
+    return {'rounds': rounds, 'cleanup': cleanup, 'sse_frames': len(sse.snapshot()), 'sse_error': sse.error}
 
 
 def _synthetic_round(api: Api, args, recorder: Recorder, publisher, index: int) -> dict:
-    """One round: silence past grace, frames, silence past stale, frames again."""
-    result = {"round": index, "checks": {}, "started_at": utc_now()}
-    grace = _policy_seconds(api, "image", "startup_grace_sec", 2.0)
-    stale = _policy_seconds(api, "image", "stale_after_sec", 2.0)
-
-    ok, _ = wait_for(
-        lambda: port_health(api.get("environments/diagnostics"), "image") == "no_data",
-        timeout_s=grace + 10.0)
-    result["checks"]["no_data_with_peer"] = ok
-    recorder.note("round", round=index, phase="no_data", ok=ok)
-
+    started = time.monotonic()
+    result = {'round': index, 'checks': {}, 'started_at': utc_now()}
+    before = find_port(api.get('environments/ros2/endpoints'), 'image')
+    grace = _policy_seconds(api, 'image', 'startup_grace_sec', 2)
+    stale = _policy_seconds(api, 'image', 'stale_after_sec', 2)
+    def phase(health, code=None):
+        value = api.get('environments/diagnostics')
+        matched = port_health(value, 'image') == health
+        if code: matched = matched and any(issue.get('code') == code for issue in value.get('active_issues', []))
+        elif health == 'receiving':
+            matched = matched and not any(issue.get('code') in ('ROS_RX_NO_PEER', 'ROS_RX_NO_DATA_WITH_PEER', 'ROS_RX_STALE')
+                                         for issue in value.get('active_issues', []))
+        if matched: recorder.note('diagnostics', round=index, phase=health, snapshot=value)
+        return matched
+    ok, _ = wait_for(lambda: phase('no_data', 'ROS_RX_NO_DATA_WITH_PEER'), grace + 10)
+    result['checks']['no_data_with_peer'] = ok
     for _ in range(FRAMES_PER_ROUND):
-        publisher.publish()
-        time.sleep(FRAME_INTERVAL_SEC)
-    ok, health = wait_for(
-        lambda: port_health(api.get("environments/diagnostics"), "image") == "receiving",
-        timeout_s=10.0)
-    result["checks"]["receiving"] = ok
-    result["health_after_frames"] = health
-    recorder.note("round", round=index, phase="receiving", ok=ok, health=health)
-
-    time.sleep(stale + 2.0)
-    ok, health = wait_for(
-        lambda: port_health(api.get("environments/diagnostics"), "image") == "stale",
-        timeout_s=10.0)
-    result["checks"]["stale"] = ok
-    result["health_after_silence"] = health
-    recorder.note("round", round=index, phase="stale", ok=ok, health=health)
-
+        publisher.publish(); time.sleep(FRAME_INTERVAL_SEC)
+    result['checks']['receiving'], _ = wait_for(lambda: phase('receiving'), 10)
+    time.sleep(stale + 2)
+    result['checks']['stale'], _ = wait_for(lambda: phase('stale', 'ROS_RX_STALE'), 10)
     for _ in range(FRAMES_PER_ROUND):
-        publisher.publish()
-        time.sleep(FRAME_INTERVAL_SEC)
-    ok, health = wait_for(
-        lambda: port_health(api.get("environments/diagnostics"), "image") == "receiving",
-        timeout_s=10.0)
-    result["checks"]["recovered"] = ok
-    result["health_after_resume"] = health
-    result["finished_at"] = utc_now()
-    recorder.note("round", round=index, phase="recovered", ok=ok, health=health)
+        publisher.publish(); time.sleep(FRAME_INTERVAL_SEC)
+    result['checks']['recovered'], _ = wait_for(lambda: phase('receiving'), 10)
+    while time.monotonic() - started < args.duration:
+        publisher.publish(); time.sleep(FRAME_INTERVAL_SEC)
+    after = find_port(api.get('environments/ros2/endpoints'), 'image')
+    result['elapsed_sec'] = time.monotonic() - started
+    result['input_count'] = publisher.sent
+    result['rx_delta'] = after.get('rx_received', 0) - before.get('rx_received', 0)
+    result['consume_delta'] = after.get('rx_consumed', 0) - before.get('rx_consumed', 0)
+    result['binding'] = {key: after.get(key) for key in ('endpoint_id', 'owner_generation', 'environment_generation', 'binding_generation')}
+    result['checks'].update(duration=result['elapsed_sec'] >= args.duration,
+                            new_rx=result['rx_delta'] > 0, new_consumption=result['consume_delta'] > 0,
+                            input_count=result['input_count'] > 0)
+    result['finished_at'] = utc_now()
+    recorder.note('round', **result)
     return result
 
 
@@ -482,67 +522,107 @@ def _policy_seconds(api: Api, port_id: str, key: str, fallback: float) -> float:
         return fallback
 
 
-def run_entry(api: Api, args, recorder: Recorder) -> dict:
-    """Start the site's real entry point; it owns camera and inference."""
-    import subprocess
+def _stop_entry(process):
+    # Only this invocation's process group, created with start_new_session=True.
+    try: os.killpg(process.pid, signal.SIGTERM)
+    except ProcessLookupError: pass
+    try: process.wait(timeout=10)
+    except TimeoutError:
+        os.killpg(process.pid, signal.SIGKILL)
+        process.wait(timeout=5)
+    except Exception:
+        try: os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError: pass
+        process.wait(timeout=5)
+    try:
+        os.killpg(process.pid, 0)
+    except ProcessLookupError:
+        return True
+    return False
 
+
+def run_entry(api: Api, args, recorder: Recorder) -> dict:
+    import subprocess
+    state, enabled = _initial_state(api, {'yolo'})
+    if 'yolo' not in enabled: raise AcceptanceError('install the reviewed yolo plugin first')
+    original_bindings = api.get('plugins/yolo/ros2')['ros2']['bindings']
+    original_config = state['config']['ros2']
     entry = Path(args.entry)
-    command = [str(entry), "--duration", str(args.duration)]
-    recorder.note("entry", command=[entry.name] + command[1:])
-    log_path = recorder.output / "entry.log"
-    rounds = []
-    process = None
+    command = [str(entry), '--duration', str(args.duration)]
+    rounds, cleanup = [], {}
     sse = SseReader(api)
     try:
         sse.start()
-        with log_path.open("wb") as log:
-            process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT,
-                                       cwd=str(entry.parent), shell=False)
-            for index in range(args.repeat):
-                deadline = time.monotonic() + args.duration
-                peak = {"rx_received": 0, "rx_consumed": 0}
-                while time.monotonic() < deadline:
-                    if process.poll() is not None:
-                        break
-                    row = find_port(api.get("environments/diagnostics"), "image")
-                    peak["rx_received"] = max(peak["rx_received"], row.get("rx_received") or 0)
-                    peak["rx_consumed"] = max(peak["rx_consumed"], row.get("rx_consumed") or 0)
-                    time.sleep(1.0)
-                rounds.append({"round": index + 1, "peak": peak,
-                               "exit_code": process.poll()})
-                recorder.note("entry_round", round=index + 1, **peak)
-                if process.poll() is not None:
-                    break
-    finally:
-        if process is not None and process.poll() is None:
-            process.terminate()
+        for index in range(args.repeat):
+            before = find_port(api.get('environments/ros2/endpoints'), 'image')
+            baseline_rx, baseline_consume = before.get('rx_received', 0), before.get('rx_consumed', 0)
+            result = {'round': index + 1, 'checks': {}, 'peak': {'rx_received': 0, 'rx_consumed': 0}}
+            log_path = recorder.output / f'entry-{index + 1}.log'
+            started, process = time.monotonic(), None
             try:
-                process.wait(timeout=10)
-            except Exception:  # noqa: BLE001
-                process.kill()
-        sse.close()
-    return {"rounds": rounds, "entry_log": log_path.name, "sse_frames": len(sse.snapshot())}
+                with log_path.open('wb') as log:
+                    process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT,
+                                               cwd=str(entry.parent), shell=False, start_new_session=True)
+                    result['entry_pid'] = process.pid
+                    while time.monotonic() - started < args.duration:
+                        # Counters are endpoint facts, not part of the diagnostic
+                        # service's projected port view.
+                        row = find_port(api.get('environments/ros2/endpoints'), 'image')
+                        for key in result['peak']:
+                            result['peak'][key] = max(result['peak'][key], row.get(key) or 0)
+                        if process.poll() is not None: break
+                        time.sleep(POLL_INTERVAL_SEC)
+                    result['elapsed_sec'] = time.monotonic() - started
+                    try: result['exit_code'] = process.wait(timeout=5)
+                    except subprocess.TimeoutExpired: result['exit_code'] = None
+            finally:
+                result['checks']['owned_process_group_cleaned'] = process is not None and _stop_entry(process)
+                api.post('runtime/stop', {'reason': 'entry acceptance round complete'})
+                _select_mode(api, 'normal')
+            result['rx_delta'] = result['peak']['rx_received'] - baseline_rx
+            result['consume_delta'] = result['peak']['rx_consumed'] - baseline_consume
+            result['checks'].update(duration=result.get('elapsed_sec', 0) >= args.duration,
+                                    new_rx=result['rx_delta'] > 0, new_consumption=result['consume_delta'] > 0,
+                                    entry_exit_zero=result.get('exit_code') == 0,
+                                    round_exit_idle_gate_closed=_idle_gate_closed(api))
+            result['entry_log'] = log_path.name
+            recorder.note('entry_round', **result)
+            rounds.append(result)
+    finally:
+        cleanup.update(_restore(api, recorder, 'yolo', original_bindings, original_config, enabled['yolo']))
+        _save_sse(sse, recorder)
+    return {'rounds': rounds, 'cleanup': cleanup, 'sse_frames': len(sse.snapshot()), 'sse_error': sse.error}
 
 
-def _restore(api: Api, recorder: Recorder, fixture: str, bindings, config):
-    """Every restore step is attempted independently; failures are recorded, not raised."""
+def _restore(api: Api, recorder: Recorder, fixture: str, bindings, config, original_enabled=False):
+    checks = {}
     steps = [
-        ("runtime_stop", lambda: api.post("runtime/stop", {"reason": "acceptance finished"})),
-        ("mode_normal", lambda: api.post("environments/select", {"mode": "normal"})),
-        ("bindings", lambda: api.post(
-            f"plugins/{fixture}/ros2",
-            {"expected_revision": api.get(f"plugins/{fixture}/ros2")["ros2"]["revision"],
-             "bindings": bindings})),
-        ("config", lambda: api.post("environments/ros2/config", {"config": config})),
-        ("plugin_disable", lambda: api.post(f"plugins/{fixture}/disable", {})),
+        ('runtime_stop', lambda: api.post('runtime/stop', {'reason': 'acceptance finished'})),
+        ('mode_normal', lambda: _select_mode(api, 'normal')),
+        ('bindings', lambda: api.post(f'plugins/{fixture}/ros2',
+            {'expected_revision': api.get(f'plugins/{fixture}/ros2')['ros2']['revision'], 'bindings': bindings})),
+        ('config', lambda: api.post('environments/ros2/config', {'config': config})),
+        ('plugin_enabled_restored', lambda: api.post(f"plugins/{fixture}/{'enable' if original_enabled else 'disable'}", {})),
     ]
     for name, action in steps:
         try:
-            action()
-            recorder.note("restore", step=name, ok=True)
-        except Exception as exc:  # noqa: BLE001 - one failure must not skip the rest
-            recorder.note("restore", step=name, ok=False,
-                          error=f"{exc.__class__.__name__}")
+            action(); checks[name] = True
+        except Exception as exc:
+            checks[name] = False
+            recorder.note('restore_error', step=name, error=exc.__class__.__name__)
+        recorder.note('restore', step=name, ok=checks[name])
+    try: checks['idle_gate_closed'] = _idle_gate_closed(api)
+    except Exception: checks['idle_gate_closed'] = False
+    return checks
+
+
+def report_passes(report, *, repeat, duration):
+    rows = report.get('rounds') or []
+    return (len(rows) == repeat and all(isinstance(row.get('checks'), dict) and bool(row['checks'])
+        and all(value is True for value in row['checks'].values()) and row.get('elapsed_sec', 0) >= duration
+        and row.get('rx_delta', 0) > 0 and row.get('consume_delta', 0) > 0 for row in rows)
+        and bool(report.get('cleanup')) and all(value is True for value in report['cleanup'].values())
+        and not report.get('sse_error') and report.get('sse_frames', 0) > 0)
 
 
 # --------------------------------------------------------------------------- #
@@ -557,6 +637,7 @@ class _Publisher:
         self._context = context
         self._payload = payload
         self._observer = observer
+        self.sent = 0
 
     def publish(self):
         from sensor_msgs.msg import CompressedImage
@@ -564,6 +645,7 @@ class _Publisher:
         message.format = "jpeg"
         message.data = self._payload
         self._publisher.publish(message)
+        self.sent += 1
         # Spin briefly so the observer (when requested) sees the frame too.
         if self._observer is not None:
             self._executor.spin_once(timeout_sec=0.01)
@@ -576,7 +658,7 @@ class _Publisher:
             self._rclpy.shutdown(context=self._context)
 
 
-def _ros_publisher(topic: str, *, with_observer: bool) -> _Publisher:
+def _ros_publisher(topic: str, *, with_observer: bool, domain: int) -> _Publisher:
     """Create the only publisher this script owns. No subscriber unless asked."""
     import rclpy
     from rclpy.context import Context
@@ -585,7 +667,7 @@ def _ros_publisher(topic: str, *, with_observer: bool) -> _Publisher:
     from sensor_msgs.msg import CompressedImage
 
     context = Context()
-    rclpy.init(context=context)
+    rclpy.init(args=[], context=context, domain_id=domain)
     node = rclpy.create_node("b07_diag_publisher", context=context)
     publisher = node.create_publisher(
         CompressedImage, topic, QoSPresetProfiles.SENSOR_DATA.value)
@@ -639,8 +721,7 @@ def main(argv=None) -> int:
         else:
             report.update(run_entry(api, args, recorder))
         rounds = report.get("rounds") or []
-        passed = bool(rounds) and all(
-            all((row.get("checks") or {}).values()) for row in rounds if "checks" in row)
+        passed = report_passes(report, repeat=args.repeat, duration=args.duration)
         report["result"] = "PASS" if passed else "FAIL"
         recorder.write_report(report)
         return EXIT_PASS if passed else EXIT_FAIL
@@ -649,6 +730,11 @@ def main(argv=None) -> int:
         report["reason"] = str(exc)
         recorder.write_report(report)
         print(f"FAIL: {exc}", file=sys.stderr)
+        return EXIT_FAIL
+    except Exception as exc:
+        report['result'] = 'FAIL'
+        report['reason'] = exc.__class__.__name__
+        recorder.write_report(report)
         return EXIT_FAIL
     except KeyboardInterrupt:
         report["result"] = "FAIL"
