@@ -4,6 +4,7 @@ import json
 import threading
 import time
 import uuid
+import weakref
 import os
 from concurrent.futures import TimeoutError as FutureTimeoutError
 from pathlib import Path
@@ -28,6 +29,14 @@ class EnvironmentManager:
         self._closed = False
         self.accepting = False
         self.runtime_running = lambda: False
+        self._diagnostics = None
+        self._diagnostics_activity_lock = threading.Lock()
+        self._diagnostics_event_running = None
+        self._diagnostics_activity_epoch = 0
+        self._diagnostics_port_epochs = weakref.WeakKeyDictionary()
+        self._diagnostics_unsubscribe = None
+        self._diagnostics_clock = time.monotonic_ns
+        self._diagnostics_closing = False
         self.action_service = None
         self.decision_service = None
         self.quiesce_timeout = 3.0
@@ -96,6 +105,105 @@ class EnvironmentManager:
                 locked[field] = {'source': variable, 'value': int(value) if field == 'domain_id' else value}
         effective = environment_config({**config, **{key: item['value'] for key, item in locked.items()}})
         return effective, locked
+
+    def start_diagnostics(self, *, clock_ns=time.monotonic_ns, tick_sec=1.0, preflight_collector=None):
+        from ..diagnostics.service import DiagnosticsService
+        with self._lock:
+            if self._closed or self._diagnostics_closing:
+                raise EnvironmentBusyError("environment manager is closing")
+            if self._diagnostics is not None:
+                return self._diagnostics
+            self._diagnostics_clock = clock_ns
+            self._diagnostics_unsubscribe = self.event_bus.subscribe(self._diagnostics_runtime_event)
+            service = DiagnosticsService(self.collect_diagnostics,
+                preflight_collector or self.collect_diagnostics_preflight, self.event_bus,
+                clock_ns=clock_ns, tick_sec=tick_sec)
+            self._diagnostics = service
+        service.start()
+        return service
+
+    def _diagnostics_runtime_event(self, event):
+        # Runtime emits while holding its own locks. Never take resources_lock,
+        # visit ports, probe the OS or publish another event from this callback.
+        if event.type not in ("runtime_state", "fault"):
+            return
+        running = event.type == "runtime_state" and event.data.get("state") == "running"
+        with self._diagnostics_activity_lock:
+            if running != self._diagnostics_event_running:
+                self._diagnostics_event_running = running
+                self._diagnostics_activity_epoch += 1
+
+    def _invalidate_diagnostics(self):
+        service = self._diagnostics
+        if service is not None:
+            service.invalidate(self.snapshot())
+
+    def collect_diagnostics(self):
+        before = self.snapshot()
+        running = bool(self.runtime_running())
+        with self._diagnostics_activity_lock:
+            if self._diagnostics_event_running != running:
+                self._diagnostics_event_running = running
+                self._diagnostics_activity_epoch += 1
+            activity_epoch = self._diagnostics_activity_epoch
+        now_ns = self._diagnostics_clock()
+        active = running and before['active_mode'] == 'ros2' and before['phase'] == 'idle' and not self._diagnostics_closing
+        with self.resources_lock:
+            ports = [port for owner in self._owners.values() for port in owner.ports()]
+        rows = []
+        # All port methods take their own small lock; no ROS/system probes here.
+        for port in ports[:1025]:
+            with port.lock:
+                if self._diagnostics_port_epochs.get(port) != activity_epoch:
+                    port.set_diagnostics_activity(False, now_ns)
+                    self._diagnostics_port_epochs[port] = activity_epoch
+                port.set_diagnostics_activity(active and port.binding['enabled'] and not port.closed, now_ns)
+                row = port.diagnostics_sample(now_ns)
+            row['session_id'] = before['session_id']
+            rows.append(row)
+        after = self.snapshot()
+        consistent = before == after and running == bool(self.runtime_running())
+        return {'environment': after, 'runtime_running': running, 'ports': rows,
+                'complete': consistent, 'partial_reason': None if consistent else 'environment changed during collection'}
+
+    def collect_diagnostics_preflight(self):
+        from .ros2.preflight import collect_preflight
+        # Inspect only an already-active adapter. Never import/init ROS to query RMW.
+        with self.resources_lock:
+            adapter = self._adapter
+            rmw = None
+            rclpy = getattr(adapter, '_rclpy', None)
+            if self._snapshot.active_mode == 'ros2' and getattr(adapter, '_context', None) is not None and rclpy is not None:
+                query = getattr(rclpy, 'get_rmw_implementation_identifier', None)
+                if query is not None:
+                    try: rmw = query()
+                    except Exception: pass
+        return collect_preflight(runtime_rmw=rmw)
+
+    def diagnostics_snapshot(self):
+        if self._diagnostics_closing or self._closed:
+            raise EnvironmentBusyError('diagnostics service is closing')
+        if self._diagnostics is None:
+            raise EnvironmentBusyError('diagnostics service is unavailable')
+        return self._diagnostics.snapshot()
+
+    def refresh_diagnostics(self, *, expected_session, expected_revision):
+        with self._lock:
+            if self._diagnostics_closing or self._closed or self._diagnostics is None:
+                raise EnvironmentBusyError('diagnostics service is closing')
+            self._check_revision(expected_session=expected_session, expected_revision=expected_revision)
+            result = self._diagnostics.request_refresh()
+            if result.get('error_code') == 'E_CLOSED':
+                raise EnvironmentBusyError('diagnostics service is closing')
+            return {'ok': True, 'accepted': True, 'refresh_id': result['refresh_id'], 'environment': self.snapshot()}
+
+    def close_diagnostics(self, timeout=2.0):
+        self._diagnostics_closing = True
+        if self._diagnostics_unsubscribe is not None:
+            self._diagnostics_unsubscribe()
+            self._diagnostics_unsubscribe = None
+        if self._diagnostics is not None:
+            self._diagnostics.close(timeout=timeout)
 
     def stop_token_valid(self, token, owner_id):
         return bool(token and token == self._stop_token and owner_id in self._stop_owners
@@ -205,6 +313,7 @@ class EnvironmentManager:
             while len(self._operations) > 32: self._operations.pop(next(iter(self._operations)))
             self._worker = threading.Thread(target=self._transition, args=(mode, op), name="ex-environment-switch", daemon=True)
             self._worker.start()
+        self._invalidate_diagnostics()
         if self.decision_service is not None:
             self.decision_service.request_stop('environment_switch')
         self._emit_change("environment switching")
@@ -272,6 +381,7 @@ class EnvironmentManager:
                 self._snapshot.revision += 1
                 self._operations[op].update(phase="failed", finished_at=time.time(), error=copy.deepcopy(self._snapshot.last_error))
         finally:
+            self._invalidate_diagnostics()
             self._emit_change("environment operation finished")
 
     def get_operation(self, operation_id):
@@ -327,6 +437,7 @@ class EnvironmentManager:
             self._config = config
             self._snapshot.revision += 1
             active = self._snapshot.active_mode == "ros2"
+        self._invalidate_diagnostics()
         self._emit_change("environment config saved")
         return {"ok": True, "saved": True, "applied": not active, "restart_required": active,
                 "config": copy.deepcopy(config["ros2"]), "environment": self.snapshot()}
@@ -360,6 +471,7 @@ class EnvironmentManager:
         return None
 
     def reset_after_restore(self):
+        self._invalidate_diagnostics()
         if self.action_service is not None:
             self.action_service.revoke()
             if not self.action_service.stop_actions('snapshot restore'):
@@ -378,6 +490,7 @@ class EnvironmentManager:
                 self._snapshot.last_error = self._snapshot.operation_id = None
                 self._snapshot.generation += 1
                 self._snapshot.revision += 1
+        self._invalidate_diagnostics()
         self._emit_change("environment reset after restore")
 
     def _finish_worker(self):
@@ -386,7 +499,14 @@ class EnvironmentManager:
             worker.join(timeout=5.0)
             if worker.is_alive(): raise EnvironmentBusyError("environment operation has not stopped")
 
-    def close(self, reason="shutdown"):
+    def close(self, reason="shutdown", *, close_diagnostics=True):
+        # Diagnostic failures must never bypass the existing stop proof.
+        diagnostics_error = None
+        if close_diagnostics:
+            try:
+                self.close_diagnostics()
+            except Exception as exc:
+                diagnostics_error = exc
         if self.action_service is not None:
             self.action_service.revoke()
         self._finish_worker()
@@ -414,6 +534,9 @@ class EnvironmentManager:
                     errors.append(str(exc))
         if errors:
             raise EnvironmentBusyError('; '.join(errors))
+
+        if diagnostics_error is not None:
+            raise diagnostics_error
 
     def _adapter_changed(self, kind):
         self._emit_change('ROS resources changed', event_type=kind)

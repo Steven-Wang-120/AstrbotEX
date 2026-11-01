@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import tempfile
 import unittest
+import unittest.mock
 from typing import Any
 
 import astrbot_ex.core.api_server as api_server
