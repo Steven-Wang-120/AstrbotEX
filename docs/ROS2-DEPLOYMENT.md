@@ -183,3 +183,24 @@ token 只从文件读取、只走 header，异常和日志都不回显。
 `ASTRBOTEX_ROS_INTERFACES` 可指向独立构建得到的 install 目录。未设置时沿用 `ros_interfaces/install`。`ASTRBOTEX_ROS_OVERLAY` 仍用于额外机器人接口。两个路径都由启动环境提供，不接受 HTTP 输入。
 
 本机 Jazzy 使用系统 Python 3.12 和 `--system-site-packages` 的 EX venv；加载 ROS setup 后保留其 `PYTHONPATH`。本轮只检查 Docker 配置和 shell 语法，未构建或部署镜像。Linux host 网络继续供 DDS 使用，HTTP 不因此开放到全部网卡。
+
+
+## 显式 IP Web UI 部署（2026-11-01 用户要求）
+
+默认管理接口仍监听 `127.0.0.1:8765`。需要直接通过设备 IP 打开 Dashboard 时，
+由部署者同时配置精确监听地址和管理 origin，例如本次 Orange Pi：
+
+```sh
+ASTRBOTEX_HOST=100.95.122.29
+ASTRBOTEX_PORT=8765
+ASTRBOTEX_MANAGEMENT_ORIGIN=http://100.95.122.29:8765
+```
+
+也可使用 CLI 的 `--host`、`--port`、`--management-origin`。
+此时浏览器直接打开上述 origin；不需要 SSH 端口转发。监听地址和 origin 必须完全匹配，
+不接受 `0.0.0.0`，管理 origin 只允许部署配置提供，不能通过网页/API 修改。
+API 和 SSE 继续要求管理凭据；Host 只增加这个精确 IP/端口，Origin 仍须同源，重复安全头仍拒绝。
+管理凭据保留在数据目录的 `secrets/admin.token`，不放 URL、镜像、日志或截图。
+
+这是用户在设备更新阶段明确要求的 C00 loopback 部署边界调整；默认本地行为和动作门禁保持原语义。
+ROS 验收脚本继续只连接本机 loopback 的专用实例，不能用远程开放配置代替隔离域验证。

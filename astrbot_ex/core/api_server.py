@@ -24,7 +24,7 @@ from astrbot_ex.core.actions.service import ActionService
 from astrbot_ex.core.actions.storage import prepare_action_ledger
 from astrbot_ex.core.decision.catalog import CapabilityCatalog
 from astrbot_ex.core.decision.service import DecisionService, ShutdownErrors
-from astrbot_ex.core.decision.management import DecisionManagement, ManagementSettings
+from astrbot_ex.core.decision.management import DecisionManagement, ManagementSettings, management_public_address
 from astrbot_ex.core.decision.config import ManagementError
 from astrbot_ex.core.decision.controller import DecisionController
 from astrbot_ex.core.decision.public_delivery import TaskPublicDelivery
@@ -1264,8 +1264,12 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
 
 def build_server(host: str, port: int, tick_hz: float, *,
                  management_settings: ManagementSettings | None = None) -> AstrBotEXHTTPServer:
-    if host not in {"127.0.0.1", "localhost"}:
-        raise ValueError("management HTTP requires a loopback binding")
+    settings = ManagementSettings() if management_settings is None else management_settings
+    if not isinstance(settings, ManagementSettings):
+        raise ManagementError("invalid_management_settings", 500)
+    public_address = management_public_address(settings.public_origin)
+    if host not in {"127.0.0.1", "localhost"} and public_address != (host, port):
+        raise ValueError("non-loopback management binding requires an exact configured management origin")
     project_root = Path(__file__).resolve().parents[2]
     data_dir = os.environ.get("ASTRBOTEX_DATA_DIR")
     data_root = Path(data_dir).resolve() if data_dir else project_root
@@ -1498,9 +1502,12 @@ def main() -> None:
     parser.add_argument("--host", default=os.environ.get("ASTRBOTEX_HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.environ.get("ASTRBOTEX_PORT", "8765")))
     parser.add_argument("--tick-hz", type=float, default=float(os.environ.get("ASTRBOTEX_TICK_HZ", "20")))
+    parser.add_argument("--management-origin", default=os.environ.get("ASTRBOTEX_MANAGEMENT_ORIGIN"),
+                        help="Exact http://IP:port origin for an explicitly configured remote Web UI; keeps bearer authentication.")
     args = parser.parse_args()
 
-    server = build_server(args.host, args.port, args.tick_hz)
+    server = build_server(args.host, args.port, args.tick_hz,
+                          management_settings=ManagementSettings(public_origin=args.management_origin))
     print(f"Management credential file: {server.decision_management.credential_path}")
     print(f"AstrBotEX API listening on http://{args.host}:{args.port}")
     print(f"Dashboard: http://{args.host}:{args.port}/")
