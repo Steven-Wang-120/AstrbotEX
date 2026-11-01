@@ -1,0 +1,286 @@
+/* ============================================================
+   B06 · 环境与端口诊断
+   作用域限定在环境页与插件 ROS 面板；不改全局配色，
+   日志台黑底由 B05 的 logs.css 负责，这里一律使用浅色面板。
+   ============================================================ */
+
+/* ---- 等级/健康标签：文字 + 图标 + 颜色，不只靠颜色区分 ---- */
+#page-environments .env-health,
+#pluginRosPanel .env-health {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: var(--bg-sunk);
+  color: var(--ink-2);
+  font-size: 11px;
+  line-height: 1.7;
+  white-space: nowrap;
+}
+
+#page-environments .env-health-mark,
+#pluginRosPanel .env-health-mark {
+  font-style: normal;
+  font-size: 9px;
+  line-height: 1;
+}
+
+#page-environments .env-health-ok,
+#pluginRosPanel .env-health-ok {
+  border-color: #BFDCCB;
+  background: #E8F4EE;
+  color: var(--ok);
+}
+
+#page-environments .env-health-warning,
+#pluginRosPanel .env-health-warning {
+  border-color: #EBD3A6;
+  background: #FBF2E0;
+  color: var(--warn);
+}
+
+#page-environments .env-health-error,
+#pluginRosPanel .env-health-error {
+  border-color: #EBC1C1;
+  background: #FBEBEB;
+  color: var(--err);
+}
+
+#page-environments .env-health-muted,
+#pluginRosPanel .env-health-muted {
+  border-color: var(--line);
+  background: var(--bg-sunk);
+  color: var(--ink-3);
+}
+
+#page-environments .env-health-unknown,
+#pluginRosPanel .env-health-unknown {
+  border-color: var(--line);
+  border-style: dashed;
+  background: var(--bg-raise);
+  color: var(--ink-2);
+}
+
+/* ---- 诊断面板 ---- */
+#page-environments .environment-diagnostics .panel-head { gap: 10px; }
+
+#page-environments .env-diag-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-sunk);
+}
+
+#page-environments .env-diag-status[data-stale="1"] { border-style: dashed; }
+
+#page-environments .env-diag-reason {
+  flex: 1 1 240px;
+  min-width: 0;
+  color: var(--ink-2);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+#page-environments .env-diag-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#page-environments .env-diag-fact {
+  display: grid;
+  gap: 3px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: var(--bg-raise);
+}
+
+#page-environments .env-diag-fact-label {
+  color: var(--ink-3);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+#page-environments .env-diag-fact b {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+#page-environments #environmentDiagnosticsIssues {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* ---- 单条诊断问题 ---- */
+#page-environments .env-issue {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-left-width: 3px;
+  border-radius: 8px;
+  background: var(--bg-raise);
+}
+
+#page-environments .env-issue[data-severity="info"] { border-left-color: var(--ok); }
+#page-environments .env-issue[data-severity="warning"] { border-left-color: var(--warn); }
+#page-environments .env-issue[data-severity="error"],
+#page-environments .env-issue[data-severity="critical"] { border-left-color: var(--err); }
+
+#page-environments .env-issue-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+#page-environments .env-issue-code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink);
+  user-select: text;
+}
+
+#page-environments .env-issue-scope,
+#page-environments .env-issue-source {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+#page-environments .env-issue-source { color: var(--ink-3); }
+
+#page-environments .env-issue-log {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+#page-environments .env-issue-log:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+#page-environments .env-issue-message {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+#page-environments .env-issue-evidence {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 2px 12px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-2);
+}
+
+#page-environments .env-issue-evidence dt { color: var(--ink-3); }
+#page-environments .env-issue-evidence dd { margin: 0; overflow-wrap: anywhere; }
+
+#page-environments .env-issue-fix {
+  margin: 0;
+  padding-top: 6px;
+  border-top: 1px dashed var(--line-soft);
+  font-size: 11px;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+#page-environments .env-issue-meta {
+  font-size: 10px;
+  color: var(--ink-3);
+}
+
+/* ---- 端口卡片：资源状态 / 收数健康 / 对端 三列分开 ---- */
+#page-environments .ros-endpoint { border-left-width: 3px; }
+#page-environments .ros-endpoint[data-health="receiving"] { border-left-color: var(--ok); }
+#page-environments .ros-endpoint[data-health="warming_up"],
+#page-environments .ros-endpoint[data-health="no_data"],
+#page-environments .ros-endpoint[data-health="stale"] { border-left-color: var(--warn); }
+#page-environments .ros-endpoint[data-health="unavailable"] { border-left-color: var(--err); }
+#page-environments .ros-endpoint[data-health="not_monitored"],
+#page-environments .ros-endpoint[data-health="disabled"],
+#page-environments .ros-endpoint[data-health="paused"] { border-left-color: var(--line); }
+
+#page-environments .ros-endpoint-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+#page-environments .ros-endpoint-head b {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  user-select: text;
+}
+
+#page-environments .ros-endpoint-type {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-2);
+}
+
+#page-environments .ros-endpoint-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+#page-environments .ros-col-label {
+  display: block;
+  color: var(--ink-3);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+#page-environments .ros-col-value {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* ---- 插件 ROS 面板的端口实时行 ---- */
+#pluginRosPanel .env-plugin-live {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+/* ---- 窄屏 ---- */
+@media (max-width: 900px) {
+  #page-environments .env-diag-summary { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+  #page-environments .ros-endpoint-columns { grid-template-columns: 1fr; }
+  #page-environments .env-issue-head { align-items: flex-start; }
+  #page-environments .env-issue-log { margin-left: 0; }
+}
