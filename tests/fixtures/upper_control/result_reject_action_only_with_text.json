@@ -1,0 +1,20 @@
+{
+  "case_id": "result_reject_action_only_with_text",
+  "expected_accept": false,
+  "expected_error": "invalid_result",
+  "kind": "result",
+  "note": "An action-only reply must not smuggle public text.",
+  "payload": {
+    "public_text": "我这就去做。",
+    "segments": [
+      {
+        "text": "寻找红色杯子。"
+      }
+    ],
+    "send_count": 1
+  },
+  "route": "action_only",
+  "sides": [
+    "aeb"
+  ]
+}

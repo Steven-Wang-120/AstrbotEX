@@ -1,0 +1,43 @@
+{
+  "case_id": "batch_reject_oversize",
+  "expected_accept": false,
+  "expected_error": "payload_too_large",
+  "kind": "batch",
+  "note": "24 x 4096 CJK characters exceeds the 256 KiB budget; never truncated.",
+  "payload_builder": {
+    "base": {
+      "batch_id": "batch-20261102-0001",
+      "catalog_version": "catalog-3f9a1c",
+      "ex_session": "ex-session-0007",
+      "plan_id": "plan-20261102-0001",
+      "plan_revision": 1,
+      "prompt_version": "prompt-77b02e",
+      "request_id": "req-20261102-0001",
+      "robot_id": "robot-aeb-01",
+      "route_ref": "route-astrbotex-default",
+      "schema": "aeb.upper_steps.v1",
+      "segments": [
+        {
+          "ordinal": 0,
+          "segment_id": "seg-0001",
+          "text": "寻找红色杯子。"
+        }
+      ],
+      "visibility": "decision_only"
+    },
+    "chars": 4096,
+    "kind": "oversize_batch",
+    "segments": 24
+  },
+  "sides": [
+    "aeb",
+    "ex"
+  ],
+  "trusted": {
+    "ex_session": "ex-session-0007",
+    "robot_id": "robot-aeb-01",
+    "route_refs": [
+      "route-astrbotex-default"
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "case_id": "result_reject_model_supplied_identity",
+  "expected_accept": false,
+  "expected_error": "invalid_result",
+  "kind": "result",
+  "note": "The model may not supply plan_id, peer or robot identity.",
+  "payload": {
+    "plan_id": "plan-from-model",
+    "public_text": "收到。",
+    "segments": [
+      {
+        "text": "第一步。"
+      }
+    ],
+    "send_count": 1
+  },
+  "route": "speech_and_action",
+  "sides": [
+    "aeb"
+  ]
+}

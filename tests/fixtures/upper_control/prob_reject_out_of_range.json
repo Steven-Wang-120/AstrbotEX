@@ -1,0 +1,15 @@
+{
+  "case_id": "prob_reject_out_of_range",
+  "expected_accept": false,
+  "expected_error": "invalid_probabilities",
+  "kind": "probabilities",
+  "note": "Sum is exactly 1.0 but a value leaves [0, 1].",
+  "payload": {
+    "action_only": -0.1,
+    "speech_and_action": -0.1,
+    "speech_only": 1.2
+  },
+  "sides": [
+    "aeb"
+  ]
+}

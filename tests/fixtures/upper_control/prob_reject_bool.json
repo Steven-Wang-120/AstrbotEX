@@ -1,0 +1,15 @@
+{
+  "case_id": "prob_reject_bool",
+  "expected_accept": false,
+  "expected_error": "invalid_probabilities",
+  "kind": "probabilities",
+  "note": "A bool must never stand in for a probability.",
+  "payload": {
+    "action_only": 0.1,
+    "speech_and_action": 0.1,
+    "speech_only": true
+  },
+  "sides": [
+    "aeb"
+  ]
+}
