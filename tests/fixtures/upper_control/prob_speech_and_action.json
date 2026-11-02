@@ -1,0 +1,16 @@
+{
+  "case_id": "prob_speech_and_action",
+  "expected_accept": true,
+  "expected_error": null,
+  "expected_route": "speech_and_action",
+  "kind": "probabilities",
+  "note": "Speak and execute; argmax must pick speech_and_action.",
+  "payload": {
+    "action_only": 0.12,
+    "speech_and_action": 0.79,
+    "speech_only": 0.09
+  },
+  "sides": [
+    "aeb"
+  ]
+}

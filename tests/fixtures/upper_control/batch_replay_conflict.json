@@ -1,0 +1,58 @@
+{
+  "case_id": "batch_replay_conflict",
+  "expected_accept": false,
+  "expected_error": "id_conflict",
+  "kind": "batch",
+  "note": "Same ids with different text is an id conflict, not a new request.",
+  "payload": {
+    "batch_id": "batch-20261102-0001",
+    "catalog_version": "catalog-3f9a1c",
+    "ex_session": "ex-session-0007",
+    "plan_id": "plan-20261102-0001",
+    "plan_revision": 1,
+    "prompt_version": "prompt-77b02e",
+    "request_id": "req-20261102-0001",
+    "robot_id": "robot-aeb-01",
+    "route_ref": "route-astrbotex-default",
+    "schema": "aeb.upper_steps.v1",
+    "segments": [
+      {
+        "ordinal": 0,
+        "segment_id": "seg-0001",
+        "text": "寻找蓝色杯子。"
+      }
+    ],
+    "visibility": "decision_only"
+  },
+  "previous": {
+    "batch_id": "batch-20261102-0001",
+    "catalog_version": "catalog-3f9a1c",
+    "ex_session": "ex-session-0007",
+    "plan_id": "plan-20261102-0001",
+    "plan_revision": 1,
+    "prompt_version": "prompt-77b02e",
+    "request_id": "req-20261102-0001",
+    "robot_id": "robot-aeb-01",
+    "route_ref": "route-astrbotex-default",
+    "schema": "aeb.upper_steps.v1",
+    "segments": [
+      {
+        "ordinal": 0,
+        "segment_id": "seg-0001",
+        "text": "寻找红色杯子。"
+      }
+    ],
+    "visibility": "decision_only"
+  },
+  "sides": [
+    "aeb",
+    "ex"
+  ],
+  "trusted": {
+    "ex_session": "ex-session-0007",
+    "robot_id": "robot-aeb-01",
+    "route_refs": [
+      "route-astrbotex-default"
+    ]
+  }
+}
