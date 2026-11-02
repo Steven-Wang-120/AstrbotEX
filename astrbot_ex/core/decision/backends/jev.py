@@ -34,6 +34,19 @@ INSTRUCTIONS = (
     "or request_replan when the supplied information is ambiguous."
 )
 
+#: Upper-step input uses the same choice envelope with a receipt-only question.
+#: The batch is data to read; it is not an action candidate and not a report.
+INSTRUCTION_ACK_OWNER = "instruction_input"
+INSTRUCTION_ACK_ACCEPT = "I read the whole batch in order; no action is chosen."
+INSTRUCTION_ACK_REJECT = "The batch was not read; no action is chosen."
+INSTRUCTION_ACK_INSTRUCTIONS = (
+    "You are receiving an ordered batch of natural-language steps from the trusted "
+    "upper controller in state.instruction_input. Do not choose an action, do not "
+    "invent parameters, do not treat the steps as executed and do not reply with "
+    "plan text. Answer only whether you read the batch: choose 'accept' when the "
+    "segments were received in order, otherwise 'reject'."
+)
+
 
 class JevBackendError(RuntimeError):
     """Bounded public error: never incorporates transport/body/secret text."""
@@ -116,6 +129,19 @@ class DecisionRecord:
 
 
 Transport = Callable[[bytes, Mapping[str, str], float, threading.Event, int], HTTPReply]
+
+
+@dataclass(frozen=True, slots=True)
+class InstructionRecord:
+    """Diagnostic record for one instruction-input round; never a decision."""
+
+    model: str
+    input_sha256: str
+    elapsed_ms: float
+    reject_code: str | None
+    attempts: int
+    input_tokens: int | None = None
+    output_tokens: int | None = None
 
 
 def _probability(value):
@@ -230,6 +256,7 @@ class JevBackend:
         self._last_started = float("-inf")
         self._last_http_started = float("-inf")
         self._record: DecisionRecord | None = None
+        self._instruction_record: InstructionRecord | None = None
 
     @property
     def execution_allowed(self) -> bool:
@@ -418,6 +445,9 @@ class JevBackend:
         deadline = started + config.deadline_ms / 1000
         input_hash = ""
         attempts = 0
+        # The counter outlives a failed exchange so error records still carry
+        # the real number of HTTP attempts that were spent.
+        counter = [0]
         usage = None
         overrides = 0
         code = None
@@ -426,95 +456,8 @@ class JevBackend:
             input_hash = hashlib.sha256(body).hexdigest()
             with self._lock:
                 self._check_locked(epoch, cancel, deadline)
-            result = queue.Queue(maxsize=1)
-
-            def invoke():
-                try:
-                    _remaining(deadline, cancel)
-                    if self._secret_provider is not None:
-                        secret = self._secret_provider()
-                    elif config.secret_env is not None:
-                        secret = os.environ.get(config.secret_env)
-                    else:
-                        secret = None
-                    if (not isinstance(secret, str) or not secret or len(secret) > 4096 or
-                        any(ord(c) < 33 or ord(c) > 126 for c in secret)):
-                        raise JevBackendError("missing_or_invalid_secret")
-                    _remaining(deadline, cancel)
-                    with self._lock:
-                        self._check_locked(epoch, cancel, deadline)
-                        rate_delay = max(0.0, self._last_http_started + config.min_interval_ms / 1000 - time.monotonic())
-                    if rate_delay:
-                        if rate_delay >= _remaining(deadline, cancel):
-                            raise JevBackendError("deadline_exceeded")
-                        cancel.wait(rate_delay)
-                    with self._lock:
-                        self._check_locked(epoch, cancel, deadline)
-                        self._last_http_started = time.monotonic()
-                    headers = {"Authorization": "Bearer " + secret,
-                               "Content-Type": "application/json", "Accept": "application/json"}
-                    if self._injected_transport:
-                        value = self._transport(body, headers, deadline, cancel, config.max_response_bytes)
-                    else:
-                        value = _http_transport(body, headers, deadline, cancel, config.max_response_bytes,
-                                                base_url=config.base_url)
-                    if (not isinstance(value, HTTPReply) or type(value.status) is not int or
-                        not 100 <= value.status <= 599 or not isinstance(value.body, bytes)):
-                        raise JevBackendError("invalid_transport_reply")
-                    if len(value.body) > config.max_response_bytes:
-                        raise JevBackendError("response_too_large")
-                    result.put(value)
-                except JevBackendError as exc:
-                    # Only locally-known fixed codes may cross the worker boundary.
-                    result.put(JevBackendError(exc.code if exc.code in {
-                        "canceled", "deadline_exceeded", "response_too_large", "incomplete_response",
-                        "missing_or_invalid_secret", "invalid_transport_reply",
-                    } else "transport_failure"))
-                except ssl.SSLError:
-                    result.put(JevBackendError("tls_failure"))
-                except TimeoutError:
-                    result.put(JevBackendError("deadline_exceeded"))
-                except Exception:
-                    result.put(JevBackendError("transport_failure"))
-
-            while True:
-                # Rate-limit actual attempts as well as decision starts; retries
-                # must not bypass the configured two-per-second envelope.
-                with self._lock:
-                    self._check_locked(epoch, cancel, deadline)
-                    rate_delay = max(0.0, self._last_http_started + config.min_interval_ms / 1000 - time.monotonic())
-                if rate_delay:
-                    if rate_delay >= _remaining(deadline, cancel):
-                        raise JevBackendError("retry_exceeds_deadline")
-                    cancel.wait(rate_delay)
-                with self._lock:
-                    self._check_locked(epoch, cancel, deadline)
-                    worker = threading.Thread(target=invoke, name="jev-http", daemon=True)
-                    self._worker = worker
-                    attempts += 1
-                    worker.start()
-                while True:
-                    with self._lock:
-                        self._check_locked(epoch, cancel, deadline)
-                    try:
-                        reply = result.get(timeout=min(0.01, _remaining(deadline, cancel)))
-                        break
-                    except queue.Empty:
-                        continue
-                # The slot remains held until invoke really exits (also for retries).
-                worker.join(timeout=_remaining(deadline, cancel))
-                with self._lock:
-                    self._check_locked(epoch, cancel, deadline)
-                if isinstance(reply, JevBackendError):
-                    raise reply
-                if reply.status != 429:
-                    break
-                if attempts > config.max_retries:
-                    raise JevBackendError("http_429")
-                delay = _retry_seconds(reply.retry_after)
-                if delay >= _remaining(deadline, cancel):
-                    raise JevBackendError("retry_exceeds_deadline")
-                cancel.wait(delay)
+            reply = self._exchange(body, config, epoch, cancel, deadline, counter)
+            attempts = counter[0]
             if reply.status != 200:
                 raise JevBackendError("http_redirect" if 300 <= reply.status < 400 else
                                       "http_" + str(reply.status) if reply.status in (401, 403, 422, 529) else "http_error")
@@ -538,9 +481,274 @@ class JevBackend:
             raise JevBackendError(code) from None
         finally:
             with self._lock:
+                attempts = counter[0]
                 if code is not None:
                     self._record = DecisionRecord(config.model, input_hash,
                         (time.monotonic() - started) * 1000, code, attempts)
+                if self._active is cancel:
+                    cancel.set()
+                    self._active = None
+
+    # -- bounded exchange shared by decide() and consume_instruction() -----
+
+    def _exchange(self, body, config, epoch, cancel, deadline, counter):
+        """One bounded POST with the shared retry, rate and worker envelope.
+
+        ``counter`` is a one-element list so the caller keeps the attempt count
+        even when the exchange raises.
+        """
+        result = queue.Queue(maxsize=1)
+
+        def invoke():
+            try:
+                _remaining(deadline, cancel)
+                if self._secret_provider is not None:
+                    secret = self._secret_provider()
+                elif config.secret_env is not None:
+                    secret = os.environ.get(config.secret_env)
+                else:
+                    secret = None
+                if (not isinstance(secret, str) or not secret or len(secret) > 4096 or
+                    any(ord(c) < 33 or ord(c) > 126 for c in secret)):
+                    raise JevBackendError("missing_or_invalid_secret")
+                _remaining(deadline, cancel)
+                with self._lock:
+                    self._check_locked(epoch, cancel, deadline)
+                    rate_delay = max(0.0, self._last_http_started + config.min_interval_ms / 1000 - time.monotonic())
+                if rate_delay:
+                    if rate_delay >= _remaining(deadline, cancel):
+                        raise JevBackendError("deadline_exceeded")
+                    cancel.wait(rate_delay)
+                with self._lock:
+                    self._check_locked(epoch, cancel, deadline)
+                    self._last_http_started = time.monotonic()
+                headers = {"Authorization": "Bearer " + secret,
+                           "Content-Type": "application/json", "Accept": "application/json"}
+                if self._injected_transport:
+                    value = self._transport(body, headers, deadline, cancel, config.max_response_bytes)
+                else:
+                    value = _http_transport(body, headers, deadline, cancel, config.max_response_bytes,
+                                            base_url=config.base_url)
+                if (not isinstance(value, HTTPReply) or type(value.status) is not int or
+                    not 100 <= value.status <= 599 or not isinstance(value.body, bytes)):
+                    raise JevBackendError("invalid_transport_reply")
+                if len(value.body) > config.max_response_bytes:
+                    raise JevBackendError("response_too_large")
+                result.put(value)
+            except JevBackendError as exc:
+                # Only locally-known fixed codes may cross the worker boundary.
+                result.put(JevBackendError(exc.code if exc.code in {
+                    "canceled", "deadline_exceeded", "response_too_large", "incomplete_response",
+                    "missing_or_invalid_secret", "invalid_transport_reply",
+                } else "transport_failure"))
+            except ssl.SSLError:
+                result.put(JevBackendError("tls_failure"))
+            except TimeoutError:
+                result.put(JevBackendError("deadline_exceeded"))
+            except Exception:
+                result.put(JevBackendError("transport_failure"))
+
+        while True:
+            # Rate-limit actual attempts as well as decision starts; retries
+            # must not bypass the configured two-per-second envelope.
+            with self._lock:
+                self._check_locked(epoch, cancel, deadline)
+                rate_delay = max(0.0, self._last_http_started + config.min_interval_ms / 1000 - time.monotonic())
+            if rate_delay:
+                if rate_delay >= _remaining(deadline, cancel):
+                    raise JevBackendError("retry_exceeds_deadline")
+                cancel.wait(rate_delay)
+            with self._lock:
+                self._check_locked(epoch, cancel, deadline)
+                worker = threading.Thread(target=invoke, name="jev-http", daemon=True)
+                self._worker = worker
+                counter[0] += 1
+                worker.start()
+            while True:
+                with self._lock:
+                    self._check_locked(epoch, cancel, deadline)
+                try:
+                    reply = result.get(timeout=min(0.01, _remaining(deadline, cancel)))
+                    break
+                except queue.Empty:
+                    continue
+            # The slot remains held until invoke really exits (also for retries).
+            worker.join(timeout=_remaining(deadline, cancel))
+            with self._lock:
+                self._check_locked(epoch, cancel, deadline)
+            if isinstance(reply, JevBackendError):
+                raise reply
+            if reply.status != 429:
+                return reply
+            if counter[0] > config.max_retries:
+                raise JevBackendError("http_429")
+            delay = _retry_seconds(reply.retry_after)
+            if delay >= _remaining(deadline, cancel):
+                raise JevBackendError("retry_exceeds_deadline")
+            cancel.wait(delay)
+
+    # -- upper-step instruction input --------------------------------------
+
+    def supports_instruction_input(self) -> bool:
+        with self._lock:
+            return not self._closed
+
+    @property
+    def last_instruction_record(self):
+        with self._lock:
+            return self._instruction_record
+
+    def _instruction_request(self, batch, config):
+        """Build a receipt-only choice request; no Goal and no snapshot."""
+
+        try:
+            wire = batch.to_wire()
+        except Exception:
+            raise JevBackendError("invalid_batch") from None
+        if not isinstance(wire, dict):
+            raise JevBackendError("invalid_batch")
+        if wire.get("schema") != "aeb.upper_steps.v1" or wire.get("visibility") != "decision_only":
+            raise JevBackendError("invalid_batch")
+        for name in ("batch_id", "request_id", "plan_id", "robot_id", "route_ref", "ex_session"):
+            value = wire.get(name)
+            if not isinstance(value, str) or not value or len(value) > 128:
+                raise JevBackendError("invalid_batch")
+        revision = wire.get("plan_revision")
+        if type(revision) is not int or revision < 1:
+            raise JevBackendError("invalid_batch")
+        segments = wire.get("segments")
+        if not isinstance(segments, list) or not 1 <= len(segments) <= 64:
+            raise JevBackendError("invalid_batch")
+        total_chars = 0
+        for index, segment in enumerate(segments):
+            if not isinstance(segment, dict) or set(segment) != {"segment_id", "ordinal", "text"}:
+                raise JevBackendError("invalid_batch")
+            if type(segment["ordinal"]) is not int or segment["ordinal"] != index:
+                raise JevBackendError("invalid_batch")
+            if not isinstance(segment["segment_id"], str) or not segment["segment_id"]:
+                raise JevBackendError("invalid_batch")
+            text = segment["text"]
+            if not isinstance(text, str) or not text.strip() or len(text) > 4096:
+                raise JevBackendError("invalid_batch")
+            total_chars += len(text)
+        if total_chars > 65536:
+            raise JevBackendError("invalid_batch")
+        request = {
+            "model": config.model,
+            "state": {
+                "decision_id": "upper-input-" + wire["batch_id"],
+                "instruction_input": wire,
+                "context_note": (
+                    "Ordered natural-language steps from the trusted upper controller. "
+                    "They are data to read, not an execution report and not an authorization."
+                ),
+            },
+            "questions": {
+                INSTRUCTION_ACK_OWNER: {
+                    "type": "choice",
+                    "instructions": INSTRUCTION_ACK_INSTRUCTIONS,
+                    "criteria": {"accept": INSTRUCTION_ACK_ACCEPT, "reject": INSTRUCTION_ACK_REJECT},
+                }
+            },
+        }
+        try:
+            body = _json_bytes(request)
+        except (ValueError, UnicodeError, RecursionError):
+            raise JevBackendError("invalid_batch") from None
+        if len(body) > config.max_request_bytes:
+            raise JevBackendError("request_too_large")
+        return body
+
+    def _instruction_response(self, reply, config):
+        raw = _strict_json(reply.body)
+        if not isinstance(raw, dict) or set(raw) != {"model", "answers", "usage"}:
+            raise JevBackendError("response_shape")
+        if raw["model"] != config.model:
+            raise JevBackendError("model_mismatch")
+        answers = raw["answers"]
+        if not isinstance(answers, dict) or set(answers) != {INSTRUCTION_ACK_OWNER}:
+            raise JevBackendError("owner_mismatch")
+        answer = answers[INSTRUCTION_ACK_OWNER]
+        if not isinstance(answer, dict) or set(answer) - {"type", "choice", "confidence", "probabilities"}:
+            raise JevBackendError("answer_shape")
+        if answer.get("type") != "choice":
+            raise JevBackendError("answer_shape")
+        choice = answer.get("choice")
+        if choice not in ("accept", "reject"):
+            raise JevBackendError("unknown_option")
+        if "confidence" in answer and not _probability(answer["confidence"]):
+            raise JevBackendError("invalid_confidence")
+        probabilities = answer.get("probabilities")
+        if probabilities is not None:
+            if (not isinstance(probabilities, dict) or set(probabilities) != {"accept", "reject"} or
+                    not all(_probability(v) for v in probabilities.values()) or
+                    not math.isclose(math.fsum(probabilities.values()), 1, rel_tol=0, abs_tol=1e-9)):
+                raise JevBackendError("invalid_probabilities")
+        usage = raw["usage"]
+        if (not isinstance(usage, dict) or set(usage) != {"input_tokens", "output_tokens"} or
+                any(type(v) is not int or not 0 <= v <= 2 ** 53 - 1 for v in usage.values())):
+            raise JevBackendError("invalid_usage")
+        return choice == "accept", usage
+
+    def consume_instruction(self, batch):
+        """Submit one batch at the model input boundary; never applies anything."""
+
+        started = time.monotonic()
+        with self._lock:
+            if self._closed:
+                raise JevBackendError("closed")
+            config, epoch = self._config, self._epoch
+            if config.mode == "disabled":
+                raise JevBackendError("disabled")
+            if not self._injected_transport and not config.allow_live_http:
+                raise JevBackendError("live_http_not_authorized")
+            if self._active is not None or (self._worker is not None and self._worker.is_alive()):
+                raise JevBackendError("busy")
+            if started - self._last_started < config.min_interval_ms / 1000:
+                raise JevBackendError("rate_limited")
+            cancel = threading.Event()
+            self._active = cancel
+            self._last_started = started
+        deadline = started + config.deadline_ms / 1000
+        input_hash = ""
+        attempts = 0
+        counter = [0]
+        code = None
+        try:
+            body = self._instruction_request(batch, config)
+            input_hash = hashlib.sha256(body).hexdigest()
+            with self._lock:
+                self._check_locked(epoch, cancel, deadline)
+            reply = self._exchange(body, config, epoch, cancel, deadline, counter)
+            attempts = counter[0]
+            if reply.status != 200:
+                raise JevBackendError("http_redirect" if 300 <= reply.status < 400 else
+                                      "http_" + str(reply.status) if reply.status in (401, 403, 422, 529) else "http_error")
+            accepted, usage = self._instruction_response(reply, config)
+            elapsed = (time.monotonic() - started) * 1000
+            with self._lock:
+                self._check_locked(epoch, cancel, deadline)
+                self._instruction_record = InstructionRecord(
+                    config.model, input_hash, elapsed, None, attempts,
+                    usage["input_tokens"], usage["output_tokens"])
+            return {"accepted": bool(accepted), "model": config.model,
+                    "detail": "accepted" if accepted else "declined",
+                    "input_sha256": input_hash}
+        except JevBackendError as exc:
+            with self._lock:
+                code = "closed" if self._closed else "config_changed" if self._epoch != epoch else exc.code
+            if code != exc.code:
+                raise JevBackendError(code) from None
+            raise
+        except Exception:
+            code = "invalid_backend_data"
+            raise JevBackendError(code) from None
+        finally:
+            with self._lock:
+                attempts = counter[0]
+                if code is not None:
+                    self._instruction_record = InstructionRecord(
+                        config.model, input_hash, (time.monotonic() - started) * 1000, code, attempts)
                 if self._active is cancel:
                     cancel.set()
                     self._active = None

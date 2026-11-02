@@ -213,5 +213,142 @@ class ConnectionManagerWebSocketTest(unittest.TestCase):
                 manager.close()
 
 
+class ControlChannelTest(unittest.TestCase):
+    """B09 regressions: the control channel and ``upper.*`` dispatch."""
+
+    def setUp(self) -> None:
+        self._temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._temp.cleanup)
+        self.manager = ConnectionManager(
+            Path(self._temp.name) / "connections.json",
+            event_bus=EventBus(),
+            topic_bus=TopicBus(),
+        )
+        self.addCleanup(self.manager.close)
+        self.business: list[tuple] = []
+        self.manager.set_business_handler(
+            lambda *args: (self.business.append(args), {"ok": True, "source": "interaction"})[1])
+
+    def _control(self, *, enabled: bool = True, **config):
+        payload = {
+            "id": "control", "name": "Upper control", "type": "zmq_client", "enabled": enabled,
+            "config": {
+                "endpoint": "tcp://127.0.0.1:8766", "identity": "ex-control",
+                "protocol_profile": "astrbotex", "channel": "control",
+                "upper_robot_id": "robot-a", "upper_route_refs": "route-1,route-2",
+                "upper_ex_session": "pinned-session",
+            },
+        }
+        payload["config"].update(config)
+        return self.manager.create(payload)
+
+    def test_control_is_an_allowed_channel(self) -> None:
+        record = self._control()
+        self.assertEqual(record["config"]["channel"], "control")
+        self.assertEqual(record["config"]["upper_robot_id"], "robot-a")
+
+    def test_existing_channels_still_work_and_default_to_text(self) -> None:
+        record = self.manager.create({
+            "id": "text", "name": "Text", "type": "zmq_client", "enabled": False,
+            "config": {"endpoint": "tcp://127.0.0.1:8766"},
+        })
+        self.assertEqual(record["config"]["channel"], "text")
+        # Old records are never migrated to control.
+        self.assertEqual(record["config"]["upper_robot_id"], "")
+
+    def test_invalid_upper_identity_fields_are_rejected(self) -> None:
+        for key, value in (("upper_robot_id", "has space"),
+                           ("upper_robot_id", "r" * 129),
+                           ("upper_ex_session", "tab\there"),
+                           ("upper_route_refs", 42)):
+            with self.subTest(key=key):
+                with self.assertRaises(ValueError):
+                    self._control(**{key: value})
+
+    def test_control_is_unique_per_channel(self) -> None:
+        self._control()
+        with self.assertRaises(ValueError):
+            self.manager.create({
+                "id": "control-2", "name": "Second", "type": "zmq_client", "enabled": True,
+                "config": {"endpoint": "tcp://127.0.0.1:8766", "protocol_profile": "astrbotex",
+                           "channel": "control", "upper_robot_id": "robot-b"},
+            })
+
+    def test_decision_route_stays_text_only(self) -> None:
+        self._control()
+        with self.assertRaises(RuntimeError):
+            self.manager.decision_connection_id()
+        self.manager.create({
+            "id": "text", "name": "Text", "type": "zmq_client", "enabled": True,
+            "config": {"endpoint": "tcp://127.0.0.1:8766", "protocol_profile": "astrbotex", "channel": "text"},
+        })
+        self.assertEqual(self.manager.decision_connection_id(), "text")
+        self.assertEqual(self.manager.control_connection_ids(), ["control"])
+
+    def test_upper_methods_need_the_control_channel_and_never_fall_back(self) -> None:
+        self._control()
+        self.manager.create({
+            "id": "text", "name": "Text", "type": "zmq_client", "enabled": False,
+            "config": {"endpoint": "tcp://127.0.0.1:8766", "protocol_profile": "astrbotex", "channel": "text"},
+        })
+        self.manager.set_step_input_handler(
+            lambda connection_id, method, payload, binary: ({"ok": True, "handled": method}, None))
+
+        result, _ = self.manager._handle_business_request(
+            "text", "upper.steps.inject", {}, None, connection_id="text")
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["error"]["code"], "route_mismatch")
+        self.assertEqual(self.business, [])
+
+        result, _ = self.manager._handle_business_request(
+            "control", "upper.steps.inject", {}, None, connection_id="control")
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["handled"], "upper.steps.inject")
+        self.assertEqual(self.business, [])
+
+    def test_unknown_method_on_control_is_rejected(self) -> None:
+        self._control()
+        self.manager.set_step_input_handler(
+            lambda connection_id, method, payload, binary: ({"ok": True}, None))
+        for method in ("interaction.message", "decision.status", "runtime.status"):
+            with self.subTest(method=method):
+                result, _ = self.manager._handle_business_request(
+                    "control", method, {}, None, connection_id="control")
+                self.assertFalse(result["ok"])
+                self.assertEqual(result["error"]["code"], "unsupported_method")
+        self.assertEqual(self.business, [])
+
+    def test_upper_methods_report_unavailable_handler(self) -> None:
+        self._control()
+        self.manager.set_step_input_handler(None)
+        result, _ = self.manager._handle_business_request(
+            "control", "upper.capabilities.get", {}, None, connection_id="control")
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["error"]["code"], "backend_unsupported")
+
+    def test_trusted_context_comes_from_the_record_not_the_wire(self) -> None:
+        self._control()
+        self.manager.create({
+            "id": "text", "name": "Text", "type": "zmq_client", "enabled": True,
+            "config": {"endpoint": "tcp://127.0.0.1:8766", "protocol_profile": "astrbotex", "channel": "text"},
+        })
+        context = self.manager.control_trusted_context("control")
+        self.assertEqual(context.robot_id, "robot-a")
+        self.assertEqual(context.route_refs, ("route-1", "route-2"))
+        self.assertEqual(context.ex_session, "pinned-session")
+        self.assertTrue(context.ready)
+        self.assertIsNone(self.manager.control_trusted_context("text"))
+        self.assertIsNone(self.manager.control_trusted_context("missing"))
+
+    def test_runtime_session_provider_overrides_the_recorded_value(self) -> None:
+        self._control()
+        self.manager.set_control_session_provider(lambda: "live-session")
+        self.assertEqual(self.manager.control_trusted_context("control").ex_session, "live-session")
+        self.manager.set_control_session_provider(lambda: "")
+        self.assertEqual(self.manager.control_trusted_context("control").ex_session, "pinned-session")
+        self.manager.set_control_session_provider(None)
+        self.assertEqual(self.manager.control_trusted_context("control").ex_session, "pinned-session")
+
+
 if __name__ == "__main__":
     unittest.main()

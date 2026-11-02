@@ -29,6 +29,8 @@ from astrbot_ex.core.decision.management import DecisionManagement, ManagementSe
 from astrbot_ex.core.decision.config import ManagementError
 from astrbot_ex.core.decision.controller import DecisionController
 from astrbot_ex.core.decision.public_delivery import TaskPublicDelivery
+from astrbot_ex.core.decision.instruction_input import DecisionInstructionInput
+from astrbot_ex.core.step_input import StepInputIngress, StepInputLog
 from astrbot_ex.core.backup import SnapshotError, SnapshotService
 from astrbot_ex.core.connection_manager import ConnectionManager
 from astrbot_ex.core.environments import (
@@ -1153,9 +1155,33 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
     environment_manager: EnvironmentManager
     action_service: ActionService
     decision_management: DecisionManagement
+    step_input_ingress: "StepInputIngress | None"
+
+    def _close_step_input(self, errors: list) -> None:
+        """Stop accepting upper steps before anything else is torn down.
+
+        Order matters: detach the route so no new request can arrive, then drain
+        and join the worker so no late phase update can land after the receipt
+        log is considered final.
+        """
+
+        ingress = getattr(self, "step_input_ingress", None)
+        self.step_input_ingress = None
+        try:
+            if hasattr(self, "connections"):
+                self.connections.set_step_input_handler(None)
+                self.connections.set_control_session_provider(None)
+        except Exception as exc:
+            errors.append(exc)
+        if ingress is not None:
+            try:
+                ingress.close()
+            except Exception as exc:
+                errors.append(exc)
 
     def server_close(self) -> None:
         errors = []
+        self._close_step_input(errors)
         if hasattr(self, "decision_management"):
             try:
                 self.decision_management.close()
@@ -1205,6 +1231,47 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
             raise errors[0]
         if errors:
             raise ShutdownErrors("API server shutdown failed", errors)
+
+
+def _build_step_input(decision_service: DecisionService, connections: ConnectionManager,
+                      data_root: Path) -> StepInputIngress:
+    """Wire the upper-step ingress.
+
+    Built after the decision service (it needs the existing backend slot) and
+    before ``connections.start_enabled()``, so the first inbound control request
+    always finds a live handler.
+    """
+
+    log = StepInputLog(data_root / "execution" / "upper_step_input.jsonl")
+    adapter = DecisionInstructionInput(decision_service)
+
+    def catalog_summary() -> dict:
+        # Read-only visibility only: an action description is never an
+        # execution grant.
+        snapshot = decision_service.catalog.snapshot()
+        actions = []
+        for entry in snapshot.entries:
+            manifest = entry.get("manifest") or {}
+            for action in manifest.get("actions") or ():
+                actions.append({
+                    "owner": entry.get("owner"),
+                    "action_id": action.get("action_id"),
+                    "description": str(action.get("description") or "")[:200],
+                    "available": bool(entry.get("available")),
+                })
+        return {"catalog_version": str(snapshot.revision), "actions": actions[:128]}
+
+    ingress = StepInputIngress(
+        log=log,
+        adapter=adapter,
+        trusted_context=connections.control_trusted_context,
+        catalog_summary=catalog_summary,
+    )
+    # The session is a runtime value; a reloaded record cannot pin it.
+    connections.set_control_session_provider(lambda: decision_service.goals.ex_session)
+    connections.set_step_input_handler(ingress.handle)
+    ingress.start()
+    return ingress
 
 
 def build_server(host: str, port: int, tick_hz: float, *,
@@ -1424,6 +1491,7 @@ def build_server(host: str, port: int, tick_hz: float, *,
             public_handler=server.task_public_delivery.enqueue)
         connections.set_task_turn_handler(server.decision_controller.turn)
         interaction_core.task_authority_invalidator = server.decision_controller.invalidate_local
+        server.step_input_ingress = _build_step_input(decision_service, connections, data_root)
     except BaseException:
         server.server_close()
         raise
