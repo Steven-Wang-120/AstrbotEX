@@ -508,5 +508,50 @@ class IngressTest(unittest.TestCase):
         self.assertEqual(service.calls, [])
 
 
+class ReplyShapeTest(unittest.TestCase):
+    """The upper controller reads receipt fields straight off the reply."""
+
+    def setUp(self) -> None:
+        self._temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._temp.cleanup)
+        self.trusted = TrustedControlContext(
+            robot_id="trusted-config-robot",
+            route_refs=("framework-route",),
+            ex_session="current-ex-session",
+        )
+        self.ingress = StepInputIngress(
+            log=StepInputLog(Path(self._temp.name) / "log.jsonl"),
+            adapter=DecisionInstructionInput(FakeService()),
+            trusted_context=lambda connection_id: self.trusted,
+            request_budget_sec=1.0,
+        )
+        self.ingress.start()
+        self.addCleanup(self.ingress.close)
+
+    def test_success_mirrors_receipt_fields_at_the_top_level(self) -> None:
+        result, _ = self.ingress.handle("c1", METHOD_INJECT, make_payload())
+        for key in ("batch_id", "request_id", "payload_hash", "phase", "ex_session"):
+            self.assertIn(key, result, f"{key} must be readable without unwrapping")
+        self.assertEqual(result["batch_id"], "framework-batch")
+        self.assertEqual(result["phase"], "injected")
+        self.assertEqual(result["ex_session"], "current-ex-session")
+        # The nested copy stays available and must agree.
+        self.assertEqual(result["receipt"]["payload_hash"], result["payload_hash"])
+        self.assertEqual(result["receipt"]["phase"], result["phase"])
+
+    def test_error_carries_a_top_level_error_code(self) -> None:
+        result, _ = self.ingress.handle("c1", METHOD_INJECT, make_payload(robot_id="intruder"))
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["error_code"], "session_mismatch")
+        self.assertEqual(result["phase"], "rejected")
+        self.assertEqual(result["error"]["code"], result["error_code"])
+
+    def test_capabilities_expose_flat_limit_aliases(self) -> None:
+        result, _ = self.ingress.handle("c1", METHOD_CAPABILITIES, {})
+        self.assertEqual(result["max_bytes"], 256 * 1024)
+        self.assertEqual(result["max_segments"], 64)
+        self.assertEqual(result["limits"]["max_payload_bytes"], result["max_bytes"])
+
+
 if __name__ == "__main__":
     unittest.main()

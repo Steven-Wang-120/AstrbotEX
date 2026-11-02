@@ -72,7 +72,26 @@ class StepInputError(Exception):
 
 
 def _error_response(code: str, detail: str = "") -> dict[str, Any]:
-    return {"ok": False, "error": {"code": code, "message": detail or code}}
+    # ``error_code`` is mirrored at the top level because B06 reads it there;
+    # the nested ``error`` object keeps the shape used by the rest of EX.
+    return {
+        "ok": False,
+        "error": {"code": code, "message": detail or code},
+        "error_code": code,
+        "phase": "rejected",
+    }
+
+
+def _success_response(receipt: "StepReceipt", duplicate: bool) -> dict[str, Any]:
+    """Flat receipt fields plus the nested copy.
+
+    The upper controller reads ``batch_id``/``request_id``/``payload_hash``/
+    ``phase``/``ex_session`` straight off the reply, so they are mirrored at the
+    top level; ``receipt`` keeps one object for callers that prefer it.
+    """
+
+    body = receipt.public()
+    return {"ok": True, **body, "receipt": body, "duplicate": duplicate}
 
 
 def _trust_reason(trusted: "TrustedControlContext | None") -> str:
@@ -531,6 +550,10 @@ class StepInputIngress:
                 "max_payload_bytes": MAX_PAYLOAD_BYTES,
                 "queue_capacity": self._queue.maxsize,
             },
+            # Flat aliases so an upper controller that reads the limits directly
+            # off the reply does not have to know the nested shape.
+            "max_segments": MAX_SEGMENTS,
+            "max_bytes": MAX_PAYLOAD_BYTES,
             "catalog_version": summary.get("catalog_version"),
             "actions": list(summary.get("actions") or []),
         }
@@ -587,8 +610,7 @@ class StepInputIngress:
             if not created:
                 # A repeat of the same content is answered from the ledger; the
                 # model is not shown the text twice.
-                response = {"ok": True, "receipt": receipt.public(), "duplicate": True}
-                return response
+                return _success_response(receipt, True)
 
             try:
                 self._queue.put_nowait(batch)
@@ -597,7 +619,7 @@ class StepInputIngress:
                 return _error_response("input_busy", "输入队列已满")
 
         receipt.event.wait(self.request_budget_sec)
-        return {"ok": True, "receipt": receipt.public(), "duplicate": False}
+        return _success_response(receipt, False)
 
     # -- worker -----------------------------------------------------------
 
