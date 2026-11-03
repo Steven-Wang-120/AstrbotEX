@@ -1,7 +1,29 @@
 const API_BASE = window.ASTRBOTEX_API_BASE || window.location.origin;
 let managementCredential = "";
 let managementCredentialEpoch = 0;
-const MAX_TRACE_EVENTS = 200;
+let lastEventId = null;
+let eventLogSeeded = false;
+const seenEventIds = new Set();
+const seenEventOrder = [];
+function validEventId(value) {
+  return typeof value === 'string' && value.length <= 128 && /^[A-Za-z0-9_.:-]{1,120}:[1-9][0-9]*$/.test(value);
+}
+function rememberEventId(id) {
+  if (!id) return false;
+  if (seenEventIds.has(id)) return true;
+  seenEventIds.add(id); seenEventOrder.push(id);
+  while (seenEventOrder.length > 2000) seenEventIds.delete(seenEventOrder.shift());
+  return false;
+}
+function resetEventLogState() {
+  lastEventId = null; eventLogSeeded = false;
+  seenEventIds.clear(); seenEventOrder.length = 0;
+  window.EXLogs?.destroy(); window.EXLogs?.mount();
+  if (typeof envView !== 'undefined') {
+    clearTimeout(envView.timer); envView.timer = null;
+    envView.diagnosticsSeq += 1;
+  }
+}
 const PLUGIN_CATEGORIES = ["vision", "perception", "control", "decision", "special", "interaction"];
 
 const CATEGORY_LABELS = {
@@ -29,7 +51,6 @@ const CONNECTION_FIELDS = {
 };
 
 const state = {
-  events: [],
   eventSource: null,
   plugins: [],
   publishers: [],
@@ -39,7 +60,6 @@ const state = {
   activePluginCategory: null,
   activePluginTab: "all",
   toastTimer: null,
-  logAutoscroll: true,
   configDirty: false,
   pubsubDirty: false,
   uninstallArmed: false,
@@ -150,6 +170,7 @@ async function managementFetch(path, options = {}) {
   if (response.status === 401) {
     managementCredential = "";
     managementCredentialEpoch += 1;
+    resetEventLogState();
     window.DecisionPage?.credentialChanged();
     if (state.eventSource) state.eventSource.close();
     setText("managementCredentialStatus", "凭据无效或已失效，请重新输入。");
@@ -175,6 +196,7 @@ async function applyManagementCredential() {
   if (!value) throw new Error("请输入管理凭据。");
   managementCredential = value;
   managementCredentialEpoch += 1;
+  resetEventLogState();
   const epoch = managementCredentialEpoch;
   window.DecisionPage?.credentialChanged();
   input.value = "";
@@ -711,8 +733,13 @@ function renderStatus(status) {
 
   renderRuntimeToggleButton();
 
-  if (Array.isArray(status.recent_events) && state.events.length === 0) {
-    status.recent_events.forEach(pushEvent);
+  if (Array.isArray(status.recent_events) && !eventLogSeeded) {
+    window.EXLogs?.seed(status.recent_events);
+    for (const event of status.recent_events) {
+      const id = event?.data?.log?.event_id || event?.event_id;
+      if (validEventId(id)) rememberEventId(id);
+    }
+    eventLogSeeded = true;
   }
 }
 
@@ -757,120 +784,102 @@ function setEventConnection(ok, label) {
   window.DecisionPage?.connectionChanged(ok);
   setText("eventStatus", label);
   setText("stripSse", ok ? "LIVE" : "RETRY");
-  const pill = $("logConnectionPill");
-  if (!pill) return;
-  pill.classList.toggle("offline", !ok);
-  const labelEl = pill.querySelector("[data-label]");
-  if (labelEl) labelEl.textContent = label;
+  window.EXLogs?.setConnection(ok, label);
 }
 
 /* ============ EVENTS / LOGS ============ */
 
-function eventLevel(event) {
-  if (event.type === "fault" || event.type === "rule_rejected") return "ERROR";
-  if (event.type === "runtime_state" || event.type === "plugin") return "INFO";
-  return "DEBUG";
-}
-
-function pushEvent(event) {
-  state.events.push(event);
-  state.events = state.events.slice(-MAX_TRACE_EVENTS);
-  renderEvents();
-}
-
-function renderEvents() {
-  const consoleEl = $("logConsole");
-  if (!consoleEl) return;
-  consoleEl.innerHTML = "";
-  if (state.events.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "log-empty";
-    empty.textContent = "等待运行时事件";
-    consoleEl.appendChild(empty);
-    return;
-  }
-  state.events.forEach((event) => {
-    const detail = event.data && Object.keys(event.data).length > 0 ? ` ${JSON.stringify(event.data)}` : "";
-    const row = document.createElement("div");
-    row.className = "log-line";
-    row.innerHTML = `
-      <span class="log-time">${escapeHtml(formatTime(event.timestamp))}</span>
-      <span class="log-level log-level-${eventLevel(event).toLowerCase()}">[${escapeHtml(eventLevel(event))}]</span>
-      <span class="log-type">${escapeHtml(event.type || "event")}</span>
-      <span class="log-message">${escapeHtml(`${event.message || ""}${detail}`)}</span>
-    `;
-    consoleEl.appendChild(row);
-  });
-  if (state.logAutoscroll) {
-    consoleEl.scrollTop = consoleEl.scrollHeight;
-  }
-}
+function pushEvent(event, meta = {}) { window.EXLogs?.push(event, meta); }
+function renderEvents() { /* EXLogs owns its bounded cache and DOM. */ }
+function toggleLogAutoscroll() { window.EXLogs?.toggleAutoscroll(); }
+function clearLogs() { window.EXLogs?.clear(); }
 
 function connectEvents() {
   if (state.eventSource) state.eventSource.close();
-  if (!managementCredential) { setEventConnection(false, "等待凭据"); return; }
+  if (!managementCredential) { setEventConnection(false, '等待凭据'); return; }
   const controller = new AbortController();
   const epoch = managementCredentialEpoch;
   let retryTimer = null;
-  state.eventSource = { close: () => { controller.abort(); clearTimeout(retryTimer); } };
-  const receive = (name, lines) => {
-    if (name !== "event" || !lines.length) return;
-    try {
-      const event = JSON.parse(lines.join("\n"));
-      pushEvent(event);
-      if (event.type === "decision_changed") window.DecisionPage?.notify();
-      if (["environment", "environment_changed", "ros_graph_changed", "ros_endpoints_changed"].includes(event.type)) scheduleEnvironmentRefresh();
-    } catch { /* Ignore malformed events, as the old EventSource client did. */ }
+  const source = {
+    readyState: 0,
+    close: () => { source.readyState = 2; controller.abort(); clearTimeout(retryTimer); },
   };
+  state.eventSource = source;
+  function receive(name, lines, id) {
+    if (epoch !== managementCredentialEpoch || controller.signal.aborted || !lines.length) return;
+    const payload = JSON.parse(lines.join('\n'));
+    if (name === 'log_control') {
+      if (payload.kind === 'reset') {
+        lastEventId = null; // Stream IDs provide identity; retain bounded dedup across a cursor reset.
+      }
+      window.EXLogs?.control(payload);
+      return;
+    }
+    if (name !== 'event') return;
+    if (id && !validEventId(id)) throw new Error('SSE 游标无效');
+    if (!payload || typeof payload !== 'object') throw new Error('SSE 事件无效');
+    const duplicate = id && seenEventIds.has(id);
+    if (!duplicate) {
+      pushEvent(payload, id ? {eventId: id} : {});
+      rememberEventId(id);
+      if (payload.type === 'decision_changed') window.DecisionPage?.notify();
+      if (['environment', 'environment_changed', 'ros_graph_changed', 'ros_endpoints_changed', 'ros_diagnostic'].includes(payload.type)) scheduleEnvironmentRefresh();
+    }
+    // Advance only after successful parsing and dispatch. Duplicate old history
+    // must not move the cursor backwards after /status seeded a newer event.
+    if (id) {
+      const split = id.lastIndexOf(':');
+      const oldSplit = lastEventId ? lastEventId.lastIndexOf(':') : -1;
+      if (!lastEventId || id.slice(0, split) !== lastEventId.slice(0, oldSplit) ||
+          BigInt(id.slice(split + 1)) > BigInt(lastEventId.slice(oldSplit + 1))) lastEventId = id;
+    }
+  }
   async function readEvents() {
     let reader = null;
+    let retry = false;
     try {
-      const response = await managementFetch("/api/events", {
-        signal: controller.signal, headers: { Accept: "text/event-stream" },
-      });
+      source.readyState = 0;
+      const headers = {Accept: 'text/event-stream'};
+      if (lastEventId) headers['Last-Event-ID'] = lastEventId;
+      const response = await managementFetch('/api/events', {signal: controller.signal, headers});
       if (!response.ok || !response.body) throw new Error(`SSE ${response.status}`);
-      setEventConnection(true, "SSE 已连接");
+      if (controller.signal.aborted || epoch !== managementCredentialEpoch) return;
+      source.readyState = 1;
+      setEventConnection(true, 'SSE 已连接');
       scheduleEnvironmentRefresh();
       reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = "", name = "message", lines = [];
+      let buffer = '', name = 'message', lines = [], id = null, frameSize = 0;
       while (!controller.signal.aborted && epoch === managementCredentialEpoch) {
         const chunk = await reader.read();
-        if (chunk.done) throw new Error("SSE 已断开");
-        buffer += decoder.decode(chunk.value, { stream: true });
-        if (buffer.length > 131072) throw new Error("SSE 消息超出展示上限");
+        if (chunk.done) throw new Error('SSE 已断开');
+        buffer += decoder.decode(chunk.value, {stream: true});
         let end;
-        while ((end = buffer.indexOf("\n")) >= 0) {
-          const line = buffer.slice(0, end).replace(/\r$/, "");
+        while ((end = buffer.indexOf('\n')) >= 0) {
+          const line = buffer.slice(0, end).replace(/\r$/, '');
           buffer = buffer.slice(end + 1);
-          if (!line) { receive(name, lines); name = "message"; lines = []; }
-          else if (line.startsWith("event:")) name = line.slice(6).trimStart();
-          else if (line.startsWith("data:")) lines.push(line.slice(5).replace(/^ /, ""));
+          frameSize += line.length + 1;
+          if (frameSize > 131072) throw new Error('SSE 消息超出展示上限');
+          if (!line) {
+            receive(name, lines, id);
+            name = 'message'; lines = []; id = null; frameSize = 0;
+          } else if (line.startsWith('event:')) name = line.slice(6).trimStart();
+          else if (line.startsWith('data:')) lines.push(line.slice(5).replace(/^ /, ''));
+          else if (line.startsWith('id:')) id = line.slice(3).replace(/^ /, '');
         }
+        if (buffer.length + frameSize > 131072) throw new Error('SSE 消息超出展示上限');
       }
     } catch {
       if (controller.signal.aborted || epoch !== managementCredentialEpoch || !managementCredential) return;
-      setEventConnection(false, "SSE 重连中");
-      retryTimer = setTimeout(readEvents, 1000);
+      source.readyState = 0; setEventConnection(false, 'SSE 重连中'); retry = true;
     } finally {
       if (reader) await reader.cancel().catch(() => {});
+      if (retry && !controller.signal.aborted && epoch === managementCredentialEpoch && managementCredential) {
+        retryTimer = setTimeout(readEvents, 1000);
+      }
     }
   }
   readEvents();
-}
-
-function toggleLogAutoscroll() {
-  state.logAutoscroll = !state.logAutoscroll;
-  setText("logAutoscrollButton", `自动滚动: ${state.logAutoscroll ? "开" : "关"}`);
-  if (state.logAutoscroll) {
-    const consoleEl = $("logConsole");
-    if (consoleEl) consoleEl.scrollTop = consoleEl.scrollHeight;
-  }
-}
-
-function clearLogs() {
-  state.events = [];
-  renderEvents();
 }
 
 /* ============ RUNTIME TOGGLE ============ */
@@ -1719,8 +1728,6 @@ function bindActions() {
   });
   $("subscriptionAddButton").addEventListener("click", addSubscription);
 
-  $("logAutoscrollButton").addEventListener("click", toggleLogAutoscroll);
-  $("logClearButton").addEventListener("click", clearLogs);
 
   const voiceRefreshButton = $("voiceRefreshButton");
   if (voiceRefreshButton) {
@@ -1959,6 +1966,7 @@ async function testStt() {
 /* ============ BOOT ============ */
 
 async function boot() {
+  window.EXLogs?.mount();
   bindActions();
   renderEvents();
   renderRuntimeToggleButton();

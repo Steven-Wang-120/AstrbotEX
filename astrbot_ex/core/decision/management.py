@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import copy
 import hmac
+import ipaddress
 import json
 import math
 import os
@@ -31,6 +32,24 @@ from .owned_laya import Deployment, OwnedLayaService
 PREFIX = "/api/v1/ex/decision"
 
 
+def management_public_address(origin):
+    """Validate an explicit deployment origin; never take this value from HTTP."""
+    if origin is None:
+        return None
+    try:
+        parsed = urlparse(origin)
+        address = ipaddress.IPv4Address(parsed.hostname)
+        port = parsed.port
+        valid = (parsed.scheme == "http" and not address.is_unspecified and not address.is_multicast
+                 and isinstance(port, int) and 1 <= port <= 65535
+                 and origin == f"http://{address}:{port}")
+    except (ValueError, TypeError, AttributeError):
+        valid = False
+    if not valid:
+        raise ValueError("management origin must be an exact http://IPv4:port address; wildcard bindings are not allowed")
+    return str(address), port
+
+
 @dataclass(frozen=True)
 class ManagementSettings:
     # Trusted composition only. None of these fields is accepted over HTTP.
@@ -41,6 +60,7 @@ class ManagementSettings:
     laya_transport_factory: object = None
     operation_timeout_s: float = 15
     max_active_operations: int = 8
+    public_origin: str | None = None
 
 
 class ManagedLayaBackend:
@@ -89,6 +109,7 @@ class DecisionManagement:
         self.settings = settings or ManagementSettings()
         if not isinstance(self.settings, ManagementSettings):
             raise ManagementError("invalid_management_settings", 500)
+        self._public_address = management_public_address(self.settings.public_origin)
         if self.settings.allow_test_execution and (not self.settings.test_isolation or
                 not self.data_root.is_relative_to(Path(tempfile.gettempdir()).resolve()) or
                 (self.data_root / "plugins").exists() and any((self.data_root / "plugins").rglob("plugin.json"))):
@@ -208,7 +229,10 @@ class DecisionManagement:
         host = handler.headers.get("Host", "")
         try:
             parsed = urlparse("http://" + host)
-            valid_host = (parsed.hostname in {"127.0.0.1", "localhost"} and not parsed.username and
+            local_host = parsed.hostname in {"127.0.0.1", "localhost"}
+            public_host = (self._public_address is not None and
+                           host == f"{self._public_address[0]}:{self._public_address[1]}")
+            valid_host = ((local_host or public_host) and not parsed.username and
                           not parsed.password and not parsed.path and not parsed.query and not parsed.fragment and
                           parsed.port is not None and 1 <= parsed.port <= 65535)
         except ValueError:
@@ -216,7 +240,7 @@ class DecisionManagement:
         origin = handler.headers.get("Origin")
         valid_origin = origin is None or origin == "http://" + host
         if not valid_host or not valid_origin:
-            handler._send_json({"ok": False, "code": "invalid_host_or_origin", "message": "local same-origin access required"}, 403)
+            handler._send_json({"ok": False, "code": "invalid_host_or_origin", "message": "configured same-origin access required"}, 403)
             return False
         if handler._path().startswith("/api/") and not self.store.secrets.authorized(handler.headers.get("Authorization")):
             handler._send_json({"ok": False, "code": "unauthorized", "message": "management credential required"}, 401)

@@ -65,7 +65,12 @@ class DecisionManagementRequestBoundaryTests(http_fixture.ManagementHTTPFixture,
         events = self.server.controller.runtime.event_bus.recent()
         notice = [event for event in events if event.type == 'decision_changed']
         self.assertEqual(len(notice), 1)
-        self.assertEqual(set(notice[0].data), {'request_id', 'snapshot_id', 'sequence', 'kind'})
+        # C01 §7 reserves data.log on every retained event; the business payload stays
+        # exactly the four id fields, and the reserved block carries no business data.
+        business = {key: value for key, value in notice[0].data.items() if key != 'log'}
+        self.assertEqual(set(business), {'request_id', 'snapshot_id', 'sequence', 'kind'})
+        self.assertEqual(set(notice[0].data['log']),
+                         {'level', 'source', 'stream_id', 'sequence', 'event_id'})
         self.assertEqual(notice[0].data['snapshot_id'], 'boundary')
         self.assertNotIn(marker, json.dumps(notice[0].data))
         self.assertEqual(history.latest()['snapshot']['value']['goal']['goal_text_en'], marker)

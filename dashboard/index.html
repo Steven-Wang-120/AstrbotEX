@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ASTRBOTEX · CONTROL PANEL</title>
     <link rel="stylesheet" href="./styles.css?v=20261006-c07" />
+    <link rel="stylesheet" href="/dashboard/environment-diagnostics.css?v=20261101" />
+    <link rel="stylesheet" href="/dashboard/logs.css?v=20261101" />
   </head>
   <body>
     <div class="app-shell">
@@ -247,6 +249,14 @@
                 <h2>事件流</h2>
                 <span class="panel-meta" id="eventStatus">SSE 未连接</span>
               </div>
+              <div class="log-toolbar">
+                <div id="logLevelFilters" aria-label="日志等级筛选"></div>
+                <select id="logSourceFilter" aria-label="日志来源"><option value="">全部来源</option></select>
+                <input id="logSearchInput" type="search" placeholder="搜索日志" aria-label="搜索日志" />
+                <button id="logExportButton" class="btn btn-ghost btn-sm">导出可见日志</button>
+                <span id="logUnreadCount" aria-live="polite"></span>
+              </div>
+              <div id="logGapNotice" class="log-gap-notice" hidden role="status"></div>
               <div class="log-console" id="logConsole"></div>
             </section>
           </section>
@@ -856,8 +866,9 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <input id="pluginZipInput" type="file" accept=".zip,application/zip" hidden />
     <input id="archiveZipInput" type="file" accept=".zip,application/zip" hidden />
-    <script src="./environments.js?v=20260923"></script>
+    <script src="./environments.js?v=20261101"></script>
     <script src="/dashboard/decision.js?v=20261006-c07"></script>
-    <script src="./app.js?v=20261006-c07"></script>
+    <script src="/dashboard/logs.js?v=20261101"></script>
+    <script src="./app.js?v=20261101"></script>
   </body>
 </html>

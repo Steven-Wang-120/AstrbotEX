@@ -1069,13 +1069,15 @@ class DispatcherTests(unittest.TestCase):
         self.assertEqual(caught.exception.code, ErrorCode.DUPLICATE_REQUEST_ID_CONFLICT)
 
     def test_a03_actor_queue_full_and_oversize(self):
-        plugin = self.owner(queue_count=2)
-        self.enabled("arm")
+        # Keep queued commands alive while a slow host validates the deliberately
+        # oversized payload. Deadline behavior has separate watchdog tests.
+        plugin = self.owner(queue_count=2, max_duration=5000)
+        self.enabled("arm", ttl=15000)
         self.assertTrue(self.actors["arm"].cast("block_legacy"))
         self.assertTrue(plugin.entered.wait(2))
-        self.dispatcher.start(command("arm", "first")).result(3)
-        self.dispatcher.start(command("arm", "second")).result(3)
-        self.assertEqual(self.dispatcher.start(command("arm", "third")).result(3).status, ActionStatus.REJECTED)
+        self.dispatcher.start(command("arm", "first", lease=4500)).result(3)
+        self.dispatcher.start(command("arm", "second", lease=4500)).result(3)
+        self.assertEqual(self.dispatcher.start(command("arm", "third", lease=4500)).result(3).status, ActionStatus.REJECTED)
         self.assertEqual(self.dispatcher.query("third").result(2).reason_code, "actor_busy")
         huge = command("arm", "huge")
         huge["params"]["payload"] = "x" * 1_100_000

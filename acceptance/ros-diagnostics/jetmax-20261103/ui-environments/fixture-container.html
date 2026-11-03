@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>EX environment diagnostics fixture (B06)</title>
+<link rel="stylesheet" href="../../../../dashboard/styles.css" />
+<link rel="stylesheet" href="../../../../dashboard/environment-diagnostics.css" />
+</head>
+<body>
+<main>
+<section class="page active" id="page-environments">
+  <header class="page-head">
+    <div class="page-head-num">06</div>
+    <div class="page-head-text">
+      <h1>环境适配</h1>
+      <p>切换运行环境，保留内部 TopicBus 并按需接入 ROS 2</p>
+    </div>
+    <div class="page-head-actions">
+      <button class="btn btn-ghost btn-sm" id="environmentRefreshButton">刷新</button>
+    </div>
+  </header>
+
+  <section class="tab-rail environment-modes" id="environmentModeGrid" aria-label="运行环境"></section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <span class="panel-num">06.A</span>
+      <h2>当前环境</h2>
+      <span class="panel-meta" id="environmentOperation">--</span>
+    </div>
+    <div class="environment-status-grid">
+      <div class="kv"><span class="kv-label">模式</span><span class="kv-dots"></span><b class="kv-value" id="environmentActiveMode">--</b></div>
+      <div class="kv"><span class="kv-label">阶段</span><span class="kv-dots"></span><b class="kv-value" id="environmentPhase">--</b></div>
+      <div class="kv"><span class="kv-label">健康</span><span class="kv-dots"></span><b class="kv-value" id="environmentHealth">--</b></div>
+      <div class="kv"><span class="kv-label">代次</span><span class="kv-dots"></span><b class="kv-value" id="environmentGeneration">--</b></div>
+      <div class="kv"><span class="kv-label">内部 TopicBus</span><span class="kv-dots"></span><b class="kv-value state-ok" id="environmentTopicBus">--</b></div>
+      <div class="kv"><span class="kv-label">ROS 节点</span><span class="kv-dots"></span><b class="kv-value" id="environmentRosNode">--</b></div>
+    </div>
+    <div class="environment-error" id="environmentError" hidden></div>
+  </section>
+
+  <section class="panel" id="environmentDiagnostics">
+    <div class="panel-head"><span class="panel-num">06.A.1</span><h2>诊断</h2>
+      <span class="panel-meta" id="environmentDiagnosticsMeta">--</span>
+      <button class="btn btn-ghost btn-sm" id="environmentDiagnosticsRefreshButton" type="button">重新检查</button>
+    </div>
+    <div class="env-diag-status" id="environmentDiagnosticsStatus"></div>
+    <div class="env-diag-summary" id="environmentDiagnosticsSummary"></div>
+    <div class="environment-list" id="environmentDiagnosticsIssues"></div>
+    <p class="pubsub-help" id="environmentDiagnosticsNote"></p>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <span class="panel-num">06.B</span>
+      <h2>ROS 2 配置</h2>
+      <span class="panel-meta">保存后切回普通环境，再启用 ROS 2 生效</span>
+    </div>
+    <div class="environment-config-grid" id="ros2ConfigForm">
+      <label class="connection-field"><span>Domain ID</span><input class="config-input" id="ros2DomainId" type="number" min="0" max="232" /></label>
+      <label class="connection-field"><span>Namespace</span><input class="config-input" id="ros2Namespace" type="text" placeholder="/astrbotex" /></label>
+      <label class="connection-field"><span>节点名</span><input class="config-input" id="ros2NodeName" type="text" placeholder="environment" /></label>
+      <label class="connection-field"><span>发现间隔（秒）</span><input class="config-input" id="ros2DiscoveryInterval" type="number" min="0.2" max="60" step="0.1" /></label>
+      <label class="connection-field"><span>显示内部 Topic</span><input id="ros2IncludeHidden" type="checkbox" /></label>
+    </div>
+    <div class="environment-actions">
+      <button class="btn btn-ghost btn-sm" id="ros2ConfigSaveButton">保存配置</button>
+      <button class="btn btn-primary btn-sm" id="ros2ConfigResetButton">放弃草稿</button>
+      <span class="panel-meta" id="environmentConfigNote"></span>
+    </div>
+    <p class="pubsub-help" id="environmentEffectiveConfig"></p>
+  </section>
+
+  <section class="environment-two-column">
+    <section class="panel">
+      <div class="panel-head"><span class="panel-num">06.C</span><h2>ROS 图</h2><span class="panel-meta" id="environmentGraphMeta">--</span></div>
+      <div class="environment-list" id="environmentGraphList"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><span class="panel-num">06.D</span><h2>节点</h2><span class="panel-meta" id="environmentNodeMeta">--</span></div>
+      <div class="environment-list" id="environmentNodeList"></div>
+    </section>
+  </section>
+
+  <section class="environment-two-column">
+    <section class="panel">
+      <div class="panel-head"><span class="panel-num">06.E</span><h2>EX 接收 Topic</h2><span class="panel-meta" id="environmentReceivedMeta">--</span></div>
+      <div class="environment-list" id="environmentReceivedList"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><span class="panel-num">06.F</span><h2>EX 发送 Topic</h2><span class="panel-meta" id="environmentSentMeta">--</span></div>
+      <div class="environment-list" id="environmentSentList"></div>
+    </section>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span class="panel-num">06.G</span><h2>消息接口检查</h2></div>
+    <div class="environment-actions">
+      <input class="config-input" id="rosInterfaceType" placeholder="my_robot_interfaces/msg/Target" aria-label="ROS 消息类型" />
+      <button class="btn btn-ghost btn-sm" id="rosInterfaceCheckButton">检查类型支持</button>
+    </div>
+    <p class="pubsub-help">自定义类型需要在容器中预装完整接口包和依赖，更新后重启容器。</p>
+    <div class="environment-list" id="rosInterfaceResult"></div>
+    <p class="pubsub-help" id="rosInterfaceMissing"></p>
+    <div class="environment-list" id="rosInterfacePackages"></div>
+  </section>
+</section>
+
+<section class="page" id="page-logs">
+  <header class="page-head"><div class="page-head-num">03</div>
+    <div class="page-head-text"><h1>日志</h1><p>事件流</p></div></header>
+  <div class="log-console" id="logConsole"></div>
+</section>
+</main>
+
+<section class="panel" id="pluginRosPanel" hidden>
+  <div class="panel-head"><span class="panel-num">ROS</span><h2>ROS 2 端口</h2>
+    <button class="btn btn-primary btn-sm" id="pluginRosSaveButton">保存 ROS 配置</button>
+    <button class="btn btn-ghost btn-sm" id="pluginRosResetButton">放弃草稿</button>
+  </div>
+  <p class="pubsub-help" id="pluginRosNotice">ROS 配置与内部发布订阅相互独立。</p>
+  <div id="pluginRosFields"></div><datalist id="rosTopicSuggestions"></datalist>
+</section>
+<div id="pluginDashboardBody"></div>
+
+<script>
+/* ---- fixture harness: only the globals environments.js expects from app.js ---- */
+window.state = {environment: null, activePage: "environments", plugins: [], activePluginId: null, eventSource: null};
+window.__requests = [];
+window.__toasts = [];
+window.__pageSwitches = [];
+window.__pwned = undefined;
+
+function $(id) { return document.getElementById(id); }
+function setText(id, value) {
+  const el = $(id);
+  if (el) el.textContent = value === null || value === undefined ? "" : String(value);
+}
+function escapeHtml(value) {
+  return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+}
+function formatTime(ts) { if (!ts) return "--"; return new Date(Number(ts) * 1000).toLocaleTimeString(); }
+function showToast(message, kind) { window.__toasts.push({message: String(message), kind: kind || "ok"}); }
+async function runAction(button, pendingLabel, action) {
+  if (button) button.disabled = true;
+  try { return await action(); } finally { if (button) button.disabled = false; }
+}
+function switchPage(page) {
+  window.__pageSwitches.push(page);
+  state.activePage = page;
+  document.querySelectorAll(".page").forEach(el => el.classList.toggle("active", el.id === "page-" + page));
+}
+
+window.EXLogs = {
+  __entries: [{type: "ros_diagnostic", message: "历史日志：ROS_RX_NO_PEER"}],
+  __filters: [], __cleared: 0,
+  push(event) { this.__entries.push(event); },
+  setFilter(patch) { this.__filters.push(patch); },
+  clear() { this.__cleared += 1; this.__entries = []; },
+};
+
+window.__mock = {
+  env: null, graph: null, endpoints: null, interfaces: null, diagnostics: null, pluginRos: null,
+  diagnosticsFail: 0, graphFail: 0, diagnosticsDelayMs: 0,
+  refreshStatus: 202, refreshMessage: "", refreshBody: null
+};
+
+function route(path, options) {
+  const method = (options && options.method) || "GET";
+  const body = options && options.body ? String(options.body) : "";
+  window.__requests.push({method: method, path: path, body: body});
+  const mock = window.__mock;
+  if (method === "POST") {
+    if (path === "/api/v1/ex/environments/diagnostics/refresh") {
+      mock.refreshBody = body;
+      const status = Number(mock.refreshStatus || 202);
+      if (status === 202) {
+        return [202, {ok: true, accepted: true, refresh_id: "rf-0009", environment: mock.env.environment}];
+      }
+      return [status, {ok: false, message: mock.refreshMessage || "rejected"}];
+    }
+    return [404, {ok: false, message: "unexpected POST " + path}];
+  }
+  if (path === "/api/v1/ex/environments") return [200, mock.env];
+  if (path.endsWith("/ros2/graph")) {
+    if (mock.graphFail) return [Number(mock.graphFail), {ok: false, message: "graph unavailable"}];
+    return [200, mock.graph];
+  }
+  if (path.endsWith("/ros2/endpoints")) return [200, mock.endpoints];
+  if (path.endsWith("/ros2/interfaces")) return [200, mock.interfaces];
+  if (path.endsWith("/diagnostics")) {
+    if (mock.diagnosticsFail) return [Number(mock.diagnosticsFail), {ok: false, message: "diagnostics unavailable"}];
+    return [200, mock.diagnostics];
+  }
+  if (path.indexOf("/api/v1/ex/plugins/") === 0) return [200, {ok: true, ros2: mock.pluginRos}];
+  return [404, {ok: false, message: "unknown GET " + path}];
+}
+
+async function managementFetch(path, options = {}) {
+  const mock = window.__mock;
+  const delay = path.indexOf("/diagnostics") >= 0 ? Number(mock.diagnosticsDelayMs || 0) : 0;
+  const [status, data] = route(path, options);
+  if (delay) await new Promise(resolve => setTimeout(resolve, delay));
+  return new Response(JSON.stringify(data), {status: status, headers: {"Content-Type": "application/json"}});
+}
+
+async function apiJson(path, options = {}) {
+  const headers = new Headers(options.headers || {});
+  headers.set("Content-Type", "application/json");
+  const response = await managementFetch(path, Object.assign({}, options, {headers: headers}));
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.message || data.error || (response.status + " error"));
+  }
+  return data;
+}
+</script>
+<script src="../../../../dashboard/environments.js"></script>
+</body>
+</html>

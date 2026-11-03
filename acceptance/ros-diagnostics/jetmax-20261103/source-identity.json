@@ -1,0 +1,11 @@
+{
+  "tested_code_commit": "3060ef90d5433299555c44c9e075ed5cec53a4f0",
+  "base_commit": "86ce3916e9dd93dd8d85e435e138eb64c2d13be1",
+  "source_sha256": {
+    "scripts/verify_ros2_diagnostics.py": "4ad6a402570b4b4e8491c6b115704df9efdbe5e64ca5f249733d7bbe9ec0b85d",
+    "tests/test_action_dispatcher.py": "08cb9d36872698f9b21bb279c22c9df0a5d52479bafb132bb7a34fda8a0598e2",
+    "tests/test_ros2_diagnostics_verifier.py": "a81d203796c955c44e75d1f5d325f02e7df5138e58d640c925df4130f3bdca86"
+  },
+  "explanation": "The complete suites started before the fix commit was recorded; the three patched files were unchanged throughout both runs. Their hashes match this commit. Other tracked files match the 86ce391 archive.",
+  "archive_sha256": "a9ca1a5ea63d989a7c57a3620ef8d3e22ab1b781fc3fe83d083da6e5bf874899"
+}
