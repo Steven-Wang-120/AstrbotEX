@@ -1,0 +1,259 @@
+{
+  "result": "PASS",
+  "tested_code_commit": "3060ef90d5433299555c44c9e075ed5cec53a4f0",
+  "windows": {
+    "tests": 968,
+    "passed": 967,
+    "skipped": 1
+  },
+  "jetmax": {
+    "tests": 968,
+    "passed": 968,
+    "skipped": 0,
+    "unit_temp_directory": "/dev/shm"
+  },
+  "yolo_unit": {
+    "passed": 48,
+    "commit": "d803bb4"
+  },
+  "ui": {
+    "ui-logs": {
+      "result": "PASS",
+      "checks": 40
+    },
+    "ui-environments": {
+      "result": "PASS",
+      "checks": 64
+    },
+    "ui-integrated": {
+      "result": "PASS",
+      "checks": 23
+    },
+    "ui-device": {
+      "result": "PASS",
+      "checks": 13
+    }
+  },
+  "scenarios": {
+    "synthetic-final": {
+      "result": "PASS",
+      "rounds": [
+        {
+          "round": 1,
+          "checks": {
+            "no_data_with_peer": true,
+            "receiving": true,
+            "stale": true,
+            "recovered": true,
+            "duration": true,
+            "new_rx": true,
+            "new_consumption": true,
+            "input_count": true,
+            "round_exit_idle_gate_closed": true
+          },
+          "started_at": "2026-11-03T12:35:37Z",
+          "elapsed_sec": 30.115217396999924,
+          "input_count": 117,
+          "rx_delta": 117,
+          "consume_delta": 117,
+          "binding": {
+            "endpoint_id": "600380e479d44619bb32ee532050c4ac:image",
+            "owner_generation": "600380e479d44619bb32ee532050c4ac",
+            "environment_generation": 2,
+            "binding_generation": 5
+          },
+          "finished_at": "2026-11-03T12:36:07Z"
+        },
+        {
+          "round": 2,
+          "checks": {
+            "no_data_with_peer": true,
+            "receiving": true,
+            "stale": true,
+            "recovered": true,
+            "duration": true,
+            "new_rx": true,
+            "new_consumption": true,
+            "input_count": true,
+            "round_exit_idle_gate_closed": true
+          },
+          "started_at": "2026-11-03T12:36:08Z",
+          "elapsed_sec": 30.182510943000125,
+          "input_count": 117,
+          "rx_delta": 117,
+          "consume_delta": 117,
+          "binding": {
+            "endpoint_id": "600380e479d44619bb32ee532050c4ac:image",
+            "owner_generation": "600380e479d44619bb32ee532050c4ac",
+            "environment_generation": 4,
+            "binding_generation": 11
+          },
+          "finished_at": "2026-11-03T12:36:38Z"
+        }
+      ],
+      "sse_frames": 286,
+      "recovery_events": 4,
+      "vision_ready_events": 0,
+      "cleanup": {
+        "runtime_stop": true,
+        "mode_normal": true,
+        "bindings": true,
+        "config": true,
+        "plugin_enabled_restored": true,
+        "idle_gate_closed": true
+      }
+    },
+    "synthetic-observer-final": {
+      "result": "PASS",
+      "rounds": [
+        {
+          "round": 1,
+          "checks": {
+            "no_data_with_peer": true,
+            "receiving": true,
+            "stale": true,
+            "recovered": true,
+            "duration": true,
+            "new_rx": true,
+            "new_consumption": true,
+            "input_count": true,
+            "round_exit_idle_gate_closed": true
+          },
+          "started_at": "2026-11-03T12:36:41Z",
+          "elapsed_sec": 30.071527021999827,
+          "input_count": 114,
+          "rx_delta": 114,
+          "consume_delta": 114,
+          "binding": {
+            "endpoint_id": "600380e479d44619bb32ee532050c4ac:image",
+            "owner_generation": "600380e479d44619bb32ee532050c4ac",
+            "environment_generation": 6,
+            "binding_generation": 20
+          },
+          "finished_at": "2026-11-03T12:37:11Z"
+        },
+        {
+          "round": 2,
+          "checks": {
+            "no_data_with_peer": true,
+            "receiving": true,
+            "stale": true,
+            "recovered": true,
+            "duration": true,
+            "new_rx": true,
+            "new_consumption": true,
+            "input_count": true,
+            "round_exit_idle_gate_closed": true
+          },
+          "started_at": "2026-11-03T12:37:12Z",
+          "elapsed_sec": 30.20234821599979,
+          "input_count": 115,
+          "rx_delta": 115,
+          "consume_delta": 115,
+          "binding": {
+            "endpoint_id": "600380e479d44619bb32ee532050c4ac:image",
+            "owner_generation": "600380e479d44619bb32ee532050c4ac",
+            "environment_generation": 8,
+            "binding_generation": 26
+          },
+          "finished_at": "2026-11-03T12:37:43Z"
+        }
+      ],
+      "sse_frames": 328,
+      "recovery_events": 4,
+      "vision_ready_events": 0,
+      "cleanup": {
+        "runtime_stop": true,
+        "mode_normal": true,
+        "bindings": true,
+        "config": true,
+        "plugin_enabled_restored": true,
+        "idle_gate_closed": true
+      }
+    },
+    "entry-final": {
+      "result": "PASS",
+      "rounds": [
+        {
+          "round": 1,
+          "checks": {
+            "owned_process_group_cleaned": true,
+            "duration": true,
+            "new_rx": true,
+            "new_consumption": true,
+            "entry_exit_zero": true,
+            "round_exit_idle_gate_closed": true
+          },
+          "peak": {
+            "rx_received": 84,
+            "rx_consumed": 84
+          },
+          "entry_pid": 28364,
+          "elapsed_sec": 30.48360858299975,
+          "exit_code": 0,
+          "rx_delta": 26,
+          "consume_delta": 26,
+          "entry_log": "entry-1.log"
+        },
+        {
+          "round": 2,
+          "checks": {
+            "owned_process_group_cleaned": true,
+            "duration": true,
+            "new_rx": true,
+            "new_consumption": true,
+            "entry_exit_zero": true,
+            "round_exit_idle_gate_closed": true
+          },
+          "peak": {
+            "rx_received": 113,
+            "rx_consumed": 113
+          },
+          "entry_pid": 30067,
+          "elapsed_sec": 30.489534883000033,
+          "exit_code": 0,
+          "rx_delta": 26,
+          "consume_delta": 26,
+          "entry_log": "entry-2.log"
+        }
+      ],
+      "sse_frames": 286,
+      "recovery_events": 0,
+      "vision_ready_events": 2,
+      "cleanup": {
+        "runtime_stop": true,
+        "mode_normal": true,
+        "bindings": true,
+        "config": true,
+        "plugin_enabled_restored": true,
+        "idle_gate_closed": true
+      }
+    }
+  },
+  "real_camera_topology": {
+    "samples": 110,
+    "publishers": 1,
+    "subscribers": 1
+  },
+  "restoration": {
+    "at": 1793709563.539813,
+    "runtime": "idle",
+    "gate_open": false,
+    "mode": "ros2",
+    "enabled": [
+      "yolo"
+    ],
+    "checks": {
+      "runtime_idle": true,
+      "gate_closed": true,
+      "mode_restored": true,
+      "ros_config_restored": true,
+      "enabled_restored": true,
+      "camera_stopped": true,
+      "private_ex_stopped": true,
+      "original_service_pid_unchanged": true
+    },
+    "service_pid": "3542",
+    "result": "PASS"
+  }
+}

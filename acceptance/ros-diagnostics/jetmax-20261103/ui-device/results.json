@@ -1,0 +1,571 @@
+{
+  "result": "PASS",
+  "scope": "REAL_JETMAX_EX_OVER_SSH",
+  "checks": [
+    "unauthenticated status rejected",
+    "unauthenticated events rejected",
+    "unauthenticated environments/diagnostics rejected",
+    "authenticated diagnostic cache accessible",
+    "real Dashboard login and authenticated SSE connected",
+    "at least ten real camera callbacks and consumed frames",
+    "environment diagnostics visible with real camera input",
+    "real YOLO inference-ready event appears through SSE",
+    "black terminal",
+    "credential absent from rendered text",
+    "SSE reconnects against real EX",
+    "browser issued no environment-select or runtime-start request",
+    "no JavaScript errors"
+  ],
+  "page_errors": [],
+  "requests": [
+    {
+      "path": "/",
+      "method": "GET"
+    },
+    {
+      "path": "/styles.css?v=20261006-c07",
+      "method": "GET"
+    },
+    {
+      "path": "/dashboard/environment-diagnostics.css?v=20261101",
+      "method": "GET"
+    },
+    {
+      "path": "/dashboard/logs.css?v=20261101",
+      "method": "GET"
+    },
+    {
+      "path": "/environments.js?v=20261101",
+      "method": "GET"
+    },
+    {
+      "path": "/dashboard/decision.js?v=20261006-c07",
+      "method": "GET"
+    },
+    {
+      "path": "/dashboard/logs.js?v=20261101",
+      "method": "GET"
+    },
+    {
+      "path": "/app.js?v=20261101",
+      "method": "GET"
+    },
+    {
+      "path": "/api/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/plugins",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/pubsub/publishers",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/interfaces",
+      "method": "GET"
+    },
+    {
+      "path": "/api/events",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/interfaces",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics/refresh",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/events",
+      "method": "GET"
+    },
+    {
+      "path": "/api/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    }
+  ],
+  "image_endpoint": {
+    "endpoint_id": "07fd6bb8b50546f998d56cd224414b55:image",
+    "owner_generation": "07fd6bb8b50546f998d56cd224414b55",
+    "plugin_id": "yolo",
+    "port_id": "image",
+    "direction": "subscribe",
+    "environment_generation": 10,
+    "binding_generation": 2,
+    "requested_topic": "/camera/color/image_raw/compressed",
+    "resolved_topic": "/camera/color/image_raw/compressed",
+    "topic": "/camera/color/image_raw/compressed",
+    "message_type": "sensor_msgs/msg/CompressedImage",
+    "desired_enabled": true,
+    "resource_created": true,
+    "state": "ready",
+    "status": "ready",
+    "message": null,
+    "reason_code": null,
+    "effective_qos": {
+      "preset": "sensor_data",
+      "reliability": "best_effort",
+      "durability": "volatile",
+      "history": "keep_last",
+      "depth": 5
+    },
+    "local_queue_policy": {
+      "capacity": 1,
+      "overflow": "keep_latest",
+      "max_age_ms": 2000,
+      "max_message_bytes": 8388608,
+      "max_bytes": 16777216
+    },
+    "matched_peer_count": null,
+    "queue_depth": 0,
+    "graph_peer_count": 1,
+    "qos_compatibility": [
+      {
+        "node": "astrex_usb_camera",
+        "state": "compatible",
+        "reason": ""
+      }
+    ],
+    "queue_bytes": 0,
+    "rate_hz": 1.97,
+    "in_flight": 0,
+    "last_message_at": 1793708595.779405,
+    "rx_received": 10,
+    "rx_consumed": 10,
+    "tx_queued": 0,
+    "tx_published": 0,
+    "queue_dropped": 0,
+    "expired": 0,
+    "rejected": 0,
+    "error_count": 0,
+    "oversized": 0,
+    "queue_peak_bytes": 27795,
+    "data_health": "receiving",
+    "diagnostics": {
+      "policy": {
+        "mode": "periodic",
+        "startup_grace_sec": 10.0,
+        "stale_after_sec": 5.0
+      },
+      "monitoring_active": true,
+      "monitoring_epoch": 1,
+      "binding_received": 10,
+      "receive_age_sec": 0.430247498,
+      "consume_age_sec": 0.429796334,
+      "monitoring_age_sec": 11.189333513,
+      "reason_code": null
+    }
+  },
+  "passed": 13
+}

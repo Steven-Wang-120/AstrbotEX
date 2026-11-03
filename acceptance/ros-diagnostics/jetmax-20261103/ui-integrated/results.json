@@ -1,0 +1,258 @@
+{
+  "status": "PASS",
+  "checks": [
+    "memory-only credential bootstrap and authenticated SSE",
+    "INFO body color in actual page",
+    "WARNING body color in actual page",
+    "ERROR body color in actual page",
+    "black terminal in actual page",
+    "diagnostic scope and suggestion in visible summary",
+    "clear preserves replay cursor",
+    "clear does not replay old history after reconnect",
+    "reconnect uses Last-Event-ID header",
+    "UTF-8 split at each byte, CRLF and multiline data parsed",
+    "HTML injection is plain text",
+    "replay and same-stream reset notify business once",
+    "filtering does not suppress business notification",
+    "reset visibly explains lost continuity",
+    "oversized frame does not advance cursor",
+    "oversized frame reconnects from last processed cursor",
+    "one active streaming reader",
+    "credential epoch resets cursor and component dedup cache",
+    "401 waits for credentials instead of retry storm",
+    "refresh only requests diagnostics",
+    "runtime stays idle with action gate closed",
+    "no browser page errors",
+    "existing environment UI script including drafts and offline reconnect"
+  ],
+  "requests": [
+    {
+      "path": "/",
+      "method": "GET"
+    },
+    {
+      "path": "/styles.css",
+      "method": "GET"
+    },
+    {
+      "path": "/dashboard/environment-diagnostics.css",
+      "method": "GET"
+    },
+    {
+      "path": "/dashboard/logs.css",
+      "method": "GET"
+    },
+    {
+      "path": "/environments.js",
+      "method": "GET"
+    },
+    {
+      "path": "/dashboard/logs.js",
+      "method": "GET"
+    },
+    {
+      "path": "/dashboard/decision.js",
+      "method": "GET"
+    },
+    {
+      "path": "/app.js",
+      "method": "GET"
+    },
+    {
+      "path": "/api/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/plugins",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/pubsub/publishers",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/events",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/events",
+      "method": "GET",
+      "last_event_id": "6861e71456044afba943fe88129396a9:3"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/plugins",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/pubsub/publishers",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/events",
+      "method": "GET"
+    },
+    {
+      "path": "/api/events",
+      "method": "GET",
+      "last_event_id": "6861e71456044afba943fe88129396a9:3"
+    },
+    {
+      "path": "/api/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/plugins",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/pubsub/publishers",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/events",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics/refresh",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v1/ex/environments",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/graph",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/ros2/endpoints",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/ex/environments/diagnostics",
+      "method": "GET"
+    }
+  ],
+  "page_errors": [],
+  "passed": 23
+}
