@@ -148,12 +148,12 @@ class ParserTest(unittest.TestCase):
                 with self.assertRaises(StepInputError):
                     parse_injection_batch(make_payload(plan_revision=value))
 
-    def test_ordinals_must_be_contiguous_from_zero(self) -> None:
+    def test_ordinals_must_be_contiguous(self) -> None:
         payload = make_payload()
         payload["segments"][1]["ordinal"] = 2
         with self.assertRaises(StepInputError) as caught:
             parse_injection_batch(payload)
-        self.assertIn("连续", caught.exception.detail)
+        self.assertIn("ordinals must increase contiguously", caught.exception.detail)
 
     def test_ordinal_rejects_bool(self) -> None:
         payload = make_payload()
@@ -331,6 +331,29 @@ class IngressTest(unittest.TestCase):
         ingress.start()
         self.addCleanup(ingress.close)
         return ingress, log, service
+
+    def test_valid_suffix_ordinals_reach_actual_ingress(self):
+        ingress, _, service = self._ingress()
+        payload = make_payload()
+        for segment in payload["segments"]:
+            segment["ordinal"] += 2
+        response, _ = ingress.handle("c1", METHOD_INJECT, payload)
+        self.assertTrue(response["ok"], response)
+        self.assertEqual([segment.ordinal for segment in service.calls[0].segments], [2, 3, 4])
+
+    def test_duplicate_or_invalid_segment_ids_never_reach_backend(self):
+        ingress, _, service = self._ingress()
+        for case, code in [("duplicate", "id_conflict"), ("path", "invalid_batch")]:
+            with self.subTest(case=case):
+                payload = make_payload(batch_id="batch-" + case)
+                if case == "duplicate":
+                    payload["segments"][1]["segment_id"] = payload["segments"][0]["segment_id"]
+                else:
+                    payload["segments"][0]["segment_id"] = "../forbidden"
+                response, _ = ingress.handle("c1", METHOD_INJECT, payload)
+                self.assertFalse(response["ok"])
+                self.assertEqual(response["error"]["code"], code)
+        self.assertEqual(service.calls, [])
 
     def test_capabilities_report_schema_methods_and_limits(self) -> None:
         ingress, _, _ = self._ingress()
@@ -551,6 +574,23 @@ class ReplyShapeTest(unittest.TestCase):
         self.assertEqual(result["max_bytes"], 256 * 1024)
         self.assertEqual(result["max_segments"], 64)
         self.assertEqual(result["limits"]["max_payload_bytes"], result["max_bytes"])
+
+
+class ActualIngressFixtureParityTests(unittest.TestCase):
+    def test_shared_wire_cases_use_exactly_the_b00_parser(self):
+        from tests.test_step_input_contracts import materialise, shared_cases
+        from astrbot_ex.core.step_input_contracts import InjectionBatch, UpperContractError
+        for case in shared_cases():
+            with self.subTest(case=case["case_id"]):
+                payload = materialise(case)
+                try:
+                    expected = InjectionBatch.parse(payload)
+                except UpperContractError as error:
+                    with self.assertRaises(StepInputError) as caught:
+                        parse_injection_batch(payload)
+                    self.assertEqual(caught.exception.code, error.code)
+                else:
+                    self.assertEqual(parse_injection_batch(payload).to_wire(), expected.to_dict())
 
 
 if __name__ == "__main__":

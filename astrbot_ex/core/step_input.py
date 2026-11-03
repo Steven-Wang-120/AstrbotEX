@@ -24,6 +24,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
+from astrbot_ex.core.step_input_contracts import InjectionBatch, UpperContractError
+
 from astrbot_ex.core.decision.instruction_input import (
     MAX_ID_CHARS,
     MAX_PAYLOAD_BYTES,
@@ -129,84 +131,20 @@ def _optional_id(value: Any, name: str) -> str:
 
 
 def parse_injection_batch(payload: Any) -> InstructionBatch:
-    """Strict C01 parser.  Rejects unknown keys instead of dropping them."""
-
-    if not isinstance(payload, Mapping):
-        raise StepInputError("invalid_batch", "payload 必须是对象")
-    unknown = set(payload) - _BATCH_KEYS
-    if unknown:
-        raise StepInputError("invalid_batch", "不接受的字段: " + ", ".join(sorted(unknown)))
-    missing = _BATCH_KEYS - set(payload)
-    # catalog_version / prompt_version are optional; everything else is required.
-    missing -= {"catalog_version", "prompt_version"}
-    if missing:
-        raise StepInputError("invalid_batch", "缺少字段: " + ", ".join(sorted(missing)))
-
-    if payload.get("schema") != SCHEMA:
-        raise StepInputError("invalid_batch", f"schema 必须是 {SCHEMA}")
-    if payload.get("visibility") != VISIBILITY:
-        raise StepInputError("invalid_batch", f"visibility 必须是 {VISIBILITY}")
-
-    revision = payload.get("plan_revision")
-    if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
-        raise StepInputError("invalid_batch", "plan_revision 必须是 >=1 的整数")
-
-    raw_segments = payload.get("segments")
-    if not isinstance(raw_segments, list) or not raw_segments:
-        raise StepInputError("invalid_batch", "segments 必须是非空列表")
-    if len(raw_segments) > MAX_SEGMENTS:
-        raise StepInputError("invalid_batch", f"segments 最多 {MAX_SEGMENTS} 段")
-
-    segments: list[StepSegment] = []
-    for index, item in enumerate(raw_segments):
-        if not isinstance(item, Mapping):
-            raise StepInputError("invalid_batch", f"segments[{index}] 必须是对象")
-        extra = set(item) - _SEGMENT_KEYS
-        if extra:
-            raise StepInputError(
-                "invalid_batch",
-                f"segments[{index}] 不接受字段: " + ", ".join(sorted(extra)),
-            )
-        if set(item) != _SEGMENT_KEYS:
-            raise StepInputError("invalid_batch", f"segments[{index}] 缺少必需字段")
-        ordinal = item.get("ordinal")
-        if isinstance(ordinal, bool) or not isinstance(ordinal, int):
-            raise StepInputError("invalid_batch", f"segments[{index}].ordinal 必须是整数")
-        if ordinal != index:
-            raise StepInputError(
-                "invalid_batch", f"segments[{index}].ordinal 必须是连续的，从 0 开始"
-            )
-        text = item.get("text")
-        if not isinstance(text, str) or not text.strip():
-            raise StepInputError("invalid_batch", f"segments[{index}].text 不能为空")
-        if len(text) > MAX_SEGMENT_CHARS:
-            raise StepInputError(
-                "invalid_batch", f"segments[{index}].text 超过 {MAX_SEGMENT_CHARS} 字符"
-            )
-        segments.append(
-            StepSegment(
-                segment_id=_restricted_id(item.get("segment_id"), f"segments[{index}].segment_id"),
-                ordinal=ordinal,
-                text=text,
-            )
-        )
-
-    batch = InstructionBatch(
-        schema=SCHEMA,
-        batch_id=_restricted_id(payload.get("batch_id"), "batch_id"),
-        request_id=_restricted_id(payload.get("request_id"), "request_id"),
-        plan_id=_restricted_id(payload.get("plan_id"), "plan_id"),
-        plan_revision=revision,
-        robot_id=_restricted_id(payload.get("robot_id"), "robot_id"),
-        route_ref=_restricted_id(payload.get("route_ref"), "route_ref"),
-        ex_session=_restricted_id(payload.get("ex_session"), "ex_session"),
-        catalog_version=_optional_id(payload.get("catalog_version"), "catalog_version"),
-        prompt_version=_optional_id(payload.get("prompt_version"), "prompt_version"),
-        segments=tuple(segments),
+    """Use the shared B00 wire contract, then adapt to the backend input type."""
+    try:
+        batch = InjectionBatch.parse(payload)
+    except UpperContractError as exc:
+        error = exc.error
+        raise StepInputError(exc.code, f"{error.path}: {error.message}") from exc
+    return InstructionBatch(
+        schema=batch.schema, request_id=batch.request_id, plan_id=batch.plan_id,
+        plan_revision=batch.plan_revision, batch_id=batch.batch_id,
+        robot_id=batch.robot_id, route_ref=batch.route_ref, ex_session=batch.ex_session,
+        catalog_version=batch.catalog_version, prompt_version=batch.prompt_version,
+        segments=tuple(StepSegment(segment_id=item.segment_id, ordinal=item.ordinal,
+                                   text=item.text) for item in batch.segments),
     )
-    if measure_bytes(batch.to_wire()) > MAX_PAYLOAD_BYTES:
-        raise StepInputError("payload_too_large", f"payload 超过 {MAX_PAYLOAD_BYTES} 字节")
-    return batch
 
 
 # --------------------------------------------------------------------------
