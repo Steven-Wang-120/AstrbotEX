@@ -378,16 +378,18 @@ class Recorder:
             encoding="utf-8", newline="\n")
 
 
-def find_port(diagnostics: dict, port_id: str) -> dict:
+def find_port(diagnostics: dict, port_id: str, *, plugin_id: str | None = None) -> dict:
     """Pick one port out of a snapshot without assuming nesting beyond the contract."""
     for row in (diagnostics.get("ports") or diagnostics.get('received', []) + diagnostics.get('sent', [])):
+        if plugin_id is not None and row.get("plugin_id") != plugin_id:
+            continue
         if row.get("port_id") == port_id or row.get("id") == port_id:
             return row
     return {}
 
 
-def port_health(diagnostics: dict, port_id: str) -> str:
-    row = find_port(diagnostics, port_id)
+def port_health(diagnostics: dict, port_id: str, *, plugin_id: str | None = None) -> str:
+    row = find_port(diagnostics, port_id, plugin_id=plugin_id)
     return (row.get("data_health") or (row.get("diagnostics") or {}).get("data_health")
             or "unknown")
 
@@ -476,12 +478,12 @@ def run_synthetic(api: Api, args, recorder: Recorder) -> dict:
 def _synthetic_round(api: Api, args, recorder: Recorder, publisher, index: int) -> dict:
     started = time.monotonic()
     result = {'round': index, 'checks': {}, 'started_at': utc_now()}
-    before = find_port(api.get('environments/ros2/endpoints'), 'image')
+    before = find_port(api.get('environments/ros2/endpoints'), 'image', plugin_id='diag_image_probe')
     grace = _policy_seconds(api, 'image', 'startup_grace_sec', 2)
     stale = _policy_seconds(api, 'image', 'stale_after_sec', 2)
     def phase(health, code=None):
         value = api.get('environments/diagnostics')
-        matched = port_health(value, 'image') == health
+        matched = port_health(value, 'image', plugin_id='diag_image_probe') == health
         if code: matched = matched and any(issue.get('code') == code for issue in value.get('active_issues', []))
         elif health == 'receiving':
             matched = matched and not any(issue.get('code') in ('ROS_RX_NO_PEER', 'ROS_RX_NO_DATA_WITH_PEER', 'ROS_RX_STALE')
@@ -500,7 +502,7 @@ def _synthetic_round(api: Api, args, recorder: Recorder, publisher, index: int) 
     result['checks']['recovered'], _ = wait_for(lambda: phase('receiving'), 10)
     while time.monotonic() - started < args.duration:
         publisher.publish(); time.sleep(FRAME_INTERVAL_SEC)
-    after = find_port(api.get('environments/ros2/endpoints'), 'image')
+    after = find_port(api.get('environments/ros2/endpoints'), 'image', plugin_id='diag_image_probe')
     result['elapsed_sec'] = time.monotonic() - started
     result['input_count'] = publisher.sent
     result['rx_delta'] = after.get('rx_received', 0) - before.get('rx_received', 0)
@@ -516,7 +518,7 @@ def _synthetic_round(api: Api, args, recorder: Recorder, publisher, index: int) 
 
 def _policy_seconds(api: Api, port_id: str, key: str, fallback: float) -> float:
     try:
-        policy = find_port(api.get("environments/diagnostics"), port_id).get("diagnostics") or {}
+        policy = find_port(api.get("environments/diagnostics"), port_id, plugin_id="diag_image_probe").get("diagnostics") or {}
         value = (policy.get("policy") or {}).get(key, policy.get(key))
         return float(value) if value is not None else fallback
     except (AcceptanceError, TypeError, ValueError):
@@ -555,7 +557,7 @@ def run_entry(api: Api, args, recorder: Recorder) -> dict:
     try:
         sse.start()
         for index in range(args.repeat):
-            before = find_port(api.get('environments/ros2/endpoints'), 'image')
+            before = find_port(api.get('environments/ros2/endpoints'), 'image', plugin_id='yolo')
             baseline_rx, baseline_consume = before.get('rx_received', 0), before.get('rx_consumed', 0)
             result = {'round': index + 1, 'checks': {}, 'peak': {'rx_received': 0, 'rx_consumed': 0}}
             log_path = recorder.output / f'entry-{index + 1}.log'
@@ -568,7 +570,7 @@ def run_entry(api: Api, args, recorder: Recorder) -> dict:
                     while time.monotonic() - started < args.duration:
                         # Counters are endpoint facts, not part of the diagnostic
                         # service's projected port view.
-                        row = find_port(api.get('environments/ros2/endpoints'), 'image')
+                        row = find_port(api.get('environments/ros2/endpoints'), 'image', plugin_id='yolo')
                         for key in result['peak']:
                             result['peak'][key] = max(result['peak'][key], row.get(key) or 0)
                         if process.poll() is not None: break

@@ -52,7 +52,9 @@ class NativeVerifierTests(unittest.TestCase):
         def get(path):
             if path == 'plugins/yolo/ros2': return {'ros2': {'bindings': {}}}
             count.value += 1
-            return {'received': [{'port_id': 'image', 'rx_received': count.value, 'rx_consumed': count.value}]}
+            return {'received': [
+                {'plugin_id': 'diag_image_probe', 'port_id': 'image', 'rx_received': 10000, 'rx_consumed': 10000},
+                {'plugin_id': 'yolo', 'port_id': 'image', 'rx_received': count.value, 'rx_consumed': count.value}]}
         api = Mock(); api.get.side_effect = get
         processes = [Mock(pid=111), Mock(pid=222)]
         for process in processes: process.poll.return_value = None; process.wait.return_value = 0
@@ -73,6 +75,14 @@ class NativeVerifierTests(unittest.TestCase):
         self.assertEqual([row['entry_pid'] for row in result['rounds']], [111, 222])
         self.assertTrue(all(call.kwargs['start_new_session'] for call in popen.call_args_list))
         self.assertTrue(verifier.report_passes(result, repeat=2, duration=30))
+
+    def test_same_named_ports_are_scoped_to_the_requested_plugin(self):
+        snapshot = {'ports': [
+            {'plugin_id': 'diag_image_probe', 'port_id': 'image', 'data_health': 'paused', 'rx_received': 455},
+            {'plugin_id': 'yolo', 'port_id': 'image', 'data_health': 'receiving', 'rx_received': 29}]}
+        self.assertEqual(verifier.find_port(snapshot, 'image', plugin_id='yolo')['rx_received'], 29)
+        self.assertEqual(verifier.port_health(snapshot, 'image', plugin_id='yolo'), 'receiving')
+        self.assertEqual(verifier.find_port(snapshot, 'image', plugin_id='missing'), {})
 
     def test_dry_run_never_reads_token_or_imports_ros(self):
         import sys
