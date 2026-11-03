@@ -192,11 +192,14 @@ class _Adapter:
         raise NotImplementedError
 
     def _run_guarded(self) -> None:
-        with self._lock:
-            self._state = "running"
-            self._started_at = _now()
-        self.manager._emit("connection started", connection=self.record.id, transport=self.record.type)
         try:
+            self._initialize()
+            with self._lock:
+                if self.stop_event.is_set():
+                    return
+                self._state = "running"
+                self._started_at = _now()
+            self.manager._emit("connection started", connection=self.record.id, transport=self.record.type)
             self._run()
         except Exception as exc:  # noqa: BLE001
             if not self.stop_event.is_set():
@@ -228,6 +231,9 @@ class _Adapter:
             self._bytes_sent += item["bytes"]
             self._recent.append(item)
 
+    def _initialize(self) -> None:
+        """Prepare transport resources before publishing the running state."""
+
     def _run(self) -> None:
         raise NotImplementedError
 
@@ -239,6 +245,7 @@ class _ZmqAdapter(_Adapter):
     def __init__(self, manager: "ConnectionManager", record: ConnectionRecord) -> None:
         super().__init__(manager, record)
         self._socket: Any | None = None
+        self._poller: Any | None = None
         self._socket_lock = threading.RLock()
         self._latest_peer: bytes | None = None
         self._peers: dict[bytes, float] = {}
@@ -270,12 +277,14 @@ class _ZmqAdapter(_Adapter):
                 return frames[0]
         return {"frames": frames, "frame_count": len(frames)}
 
-    def _run(self) -> None:
+    def _initialize(self) -> None:
         if zmq is None:
             raise RuntimeError("pyzmq is not installed")
         context = zmq.Context.instance()
         kind = zmq.ROUTER if self.record.type == "zmq_server" else zmq.DEALER
         socket = context.socket(kind)
+        with self._socket_lock:
+            self._socket = socket
         socket.setsockopt(zmq.LINGER, 0)
         socket.setsockopt(zmq.RCVHWM, 100)
         socket.setsockopt(zmq.SNDHWM, 100)
@@ -288,13 +297,16 @@ class _ZmqAdapter(_Adapter):
             identity = str(self.record.config.get("identity") or self.record.id).encode("utf-8")
             socket.setsockopt(zmq.IDENTITY, identity)
             socket.connect(self._endpoint())
-        with self._socket_lock:
-            self._socket = socket
         if kind == zmq.DEALER and self.record.config.get("protocol_profile") == "astrbotex":
             channel = str(self.record.config.get("channel") or "text")
             self._send_now(socket, self._envelope("request", "system.hello", {"client": "AstrBotEX", "instance_id": self.record.id}), peer=None)
-        poller = zmq.Poller()
-        poller.register(socket, zmq.POLLIN)
+        self._poller = zmq.Poller()
+        self._poller.register(socket, zmq.POLLIN)
+
+    def _run(self) -> None:
+        socket, poller = self._socket, self._poller
+        kind = zmq.ROUTER if self.record.type == "zmq_server" else zmq.DEALER
+        message_limit = MAX_ASTRBOTEX_MESSAGE_BYTES if self.record.config.get("protocol_profile") == "astrbotex" else MAX_MESSAGE_BYTES
         while not self.stop_event.is_set():
             self._flush_outbound(socket)
             events = dict(poller.poll(50))

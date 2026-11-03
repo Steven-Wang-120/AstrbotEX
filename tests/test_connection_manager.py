@@ -8,8 +8,9 @@ import time
 import uuid
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from astrbot_ex.core.connection_manager import ConnectionManager, websocket_connect, websocket_serve, zmq
+from astrbot_ex.core.connection_manager import _ZmqAdapter, ConnectionManager, websocket_connect, websocket_serve, zmq
 from astrbot_ex.core.event_bus import EventBus
 from astrbot_ex.core.topic_bus import TopicBus
 
@@ -71,6 +72,61 @@ class ConnectionManagerPersistenceTest(unittest.TestCase):
 
 @unittest.skipIf(zmq is None, "pyzmq is not installed")
 class ConnectionManagerZeroMQTest(unittest.TestCase):
+    def test_running_waits_for_socket_initialization(self) -> None:
+        for delayed_id in ("router", "dealer"):
+            with self.subTest(delayed_id=delayed_id), tempfile.TemporaryDirectory() as temp_dir:
+                manager = ConnectionManager(Path(temp_dir) / "connections.json", event_bus=EventBus(), topic_bus=TopicBus())
+                port = free_tcp_port()
+                manager.create({"id": "router", "type": "zmq_server", "enabled": False,
+                                "config": {"host": "127.0.0.1", "port": port}})
+                manager.create({"id": "dealer", "type": "zmq_client", "enabled": False,
+                                "config": {"endpoint": f"tcp://127.0.0.1:{port}"}})
+                entered = threading.Event()
+                release = threading.Event()
+                original_endpoint = _ZmqAdapter._endpoint
+
+                def delayed_endpoint(adapter):
+                    if adapter.record.id == delayed_id:
+                        entered.set()
+                        if not release.wait(3):
+                            raise RuntimeError("test initialization gate timed out")
+                    return original_endpoint(adapter)
+
+                try:
+                    with patch.object(_ZmqAdapter, "_endpoint", delayed_endpoint):
+                        manager.start("router")
+                        manager.start("dealer")
+                        self.assertTrue(entered.wait(2), "initialization did not enter gate")
+                        runtime = manager.get(delayed_id)["runtime"]
+                        self.assertEqual(runtime["state"], "starting")
+                        self.assertIsNone(runtime["started_at"])
+                        release.set()
+                        for connection_id in ("router", "dealer"):
+                            wait_until(lambda: manager.get(connection_id)["runtime"]["state"] == "running")
+                        manager.send("dealer", {"kind": "ping"})
+                        wait_until(lambda: manager.get("router")["runtime"]["received"] == 1)
+                        manager.send("router", {"kind": "pong"})
+                        wait_until(lambda: manager.get("dealer")["runtime"]["received"] == 1)
+                finally:
+                    release.set()
+                    manager.close()
+
+    def test_initialization_failure_does_not_publish_running(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = ConnectionManager(Path(temp_dir) / "connections.json", event_bus=EventBus(), topic_bus=TopicBus())
+            manager.create({"id": "dealer", "type": "zmq_client", "enabled": False,
+                            "config": {"endpoint": "tcp://127.0.0.1:65534"}})
+            try:
+                with patch.object(_ZmqAdapter, "_endpoint", side_effect=ValueError("initialization failed")):
+                    manager.start("dealer")
+                    wait_until(lambda: manager.get("dealer")["runtime"]["state"] == "error"
+                               and manager._adapters["dealer"]._socket is None)
+                runtime = manager.get("dealer")["runtime"]
+                self.assertIsNone(runtime["started_at"])
+                self.assertEqual(runtime["error"], "initialization failed")
+            finally:
+                manager.close()
+
     def test_router_and_dealer_exchange_messages(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             topic_bus = TopicBus()
