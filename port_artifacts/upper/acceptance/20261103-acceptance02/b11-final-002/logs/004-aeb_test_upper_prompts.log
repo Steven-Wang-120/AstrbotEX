@@ -1,0 +1,41 @@
+test_a_disabled_entry_is_not_published_as_a_usable_action (test_upper_prompts.AvailabilityTests.test_a_disabled_entry_is_not_published_as_a_usable_action) ... ok
+test_described_only_is_shown_as_described_only (test_upper_prompts.AvailabilityTests.test_described_only_is_shown_as_described_only) ... ok
+test_the_prompt_states_that_unknown_is_not_worth_trying (test_upper_prompts.AvailabilityTests.test_the_prompt_states_that_unknown_is_not_worth_trying) ... ok
+test_unknown_is_shown_as_unknown_not_as_available (test_upper_prompts.AvailabilityTests.test_unknown_is_shown_as_unknown_not_as_available) ... ok
+test_a_byte_budget_is_enforced_too (test_upper_prompts.BudgetTests.test_a_byte_budget_is_enforced_too) ... ok
+test_an_over_budget_prompt_fails_instead_of_truncating (test_upper_prompts.BudgetTests.test_an_over_budget_prompt_fails_instead_of_truncating) ... ok
+test_the_routing_budget_is_separate (test_upper_prompts.BudgetTests.test_the_routing_budget_is_separate) ... ok
+test_a_paragraph_is_not_an_atomic_action (test_upper_prompts.ContractContentTests.test_a_paragraph_is_not_an_atomic_action) ... ok
+test_a_user_value_cannot_be_quietly_reduced (test_upper_prompts.ContractContentTests.test_a_user_value_cannot_be_quietly_reduced) ... ok
+test_no_hidden_completion_feedback_rule_is_smuggled_in (test_upper_prompts.ContractContentTests.test_no_hidden_completion_feedback_rule_is_smuggled_in) ... ok
+test_public_text_must_not_claim_completion (test_upper_prompts.ContractContentTests.test_public_text_must_not_claim_completion) ... ok
+test_the_basic_action_boundaries_are_stated (test_upper_prompts.ContractContentTests.test_the_basic_action_boundaries_are_stated) ... ok
+test_the_model_is_told_not_to_fill_low_level_json (test_upper_prompts.ContractContentTests.test_the_model_is_told_not_to_fill_low_level_json) ... ok
+test_the_output_contract_matches_c01 (test_upper_prompts.ContractContentTests.test_the_output_contract_matches_c01) ... ok
+test_the_routing_prompt_asks_only_for_three_probabilities (test_upper_prompts.ContractContentTests.test_the_routing_prompt_asks_only_for_three_probabilities) ... ok
+test_the_six_example_shapes_are_present (test_upper_prompts.ContractContentTests.test_the_six_example_shapes_are_present) ... ok
+test_a_changed_action_only_moves_the_next_snapshot (test_upper_prompts.DeterminismTests.test_a_changed_action_only_moves_the_next_snapshot) ... ok
+test_entry_order_does_not_change_the_prompt (test_upper_prompts.DeterminismTests.test_entry_order_does_not_change_the_prompt) ... ok
+test_the_same_input_produces_the_same_hash (test_upper_prompts.DeterminismTests.test_the_same_input_produces_the_same_hash) ... ok
+test_the_assembler_never_sends_or_updates_anything (test_upper_prompts.IsolationTests.test_the_assembler_never_sends_or_updates_anything) ... ok
+test_meta_dict_matches_the_b00_prompt_snapshot_meta_fields (test_upper_prompts.MetaTests.test_meta_dict_matches_the_b00_prompt_snapshot_meta_fields) ... ok
+test_per_action_hashes_are_published (test_upper_prompts.MetaTests.test_per_action_hashes_are_published) ... ok
+test_a_missing_builtin_file_fails_explicitly (test_upper_prompts.MissingSourceTests.test_a_missing_builtin_file_fails_explicitly) ... ok
+test_a_non_utf8_file_fails_explicitly (test_upper_prompts.MissingSourceTests.test_a_non_utf8_file_fails_explicitly) ... ok
+test_an_empty_override_uses_the_builtin_file (test_upper_prompts.OverrideTests.test_an_empty_override_uses_the_builtin_file) ... ok
+test_an_override_cannot_forge_a_block_boundary (test_upper_prompts.OverrideTests.test_an_override_cannot_forge_a_block_boundary) ... ok
+test_an_override_cannot_remove_the_route_requirement (test_upper_prompts.OverrideTests.test_an_override_cannot_remove_the_route_requirement) ... ok
+test_an_override_replaces_only_its_own_layer (test_upper_prompts.OverrideTests.test_an_override_replaces_only_its_own_layer) ... ok
+test_restoring_the_default_is_predictable (test_upper_prompts.OverrideTests.test_restoring_the_default_is_predictable) ... ok
+test_an_unknown_template_level_is_refused (test_upper_prompts.PreviewTests.test_an_unknown_template_level_is_refused) ... ok
+test_preview_reports_an_override (test_upper_prompts.PreviewTests.test_preview_reports_an_override) ... ok
+test_preview_reports_the_effective_source_without_building (test_upper_prompts.PreviewTests.test_preview_reports_the_effective_source_without_building) ... ok
+test_templates_are_available_for_the_editor (test_upper_prompts.PreviewTests.test_templates_are_available_for_the_editor) ... ok
+test_an_unknown_route_is_refused (test_upper_prompts.RouteContractTests.test_an_unknown_route_is_refused) ... ok
+test_each_route_gets_its_own_requirement (test_upper_prompts.RouteContractTests.test_each_route_gets_its_own_requirement) ... ok
+test_route_specialisation_changes_the_hash (test_upper_prompts.RouteContractTests.test_route_specialisation_changes_the_hash) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 0.279s
+
+OK

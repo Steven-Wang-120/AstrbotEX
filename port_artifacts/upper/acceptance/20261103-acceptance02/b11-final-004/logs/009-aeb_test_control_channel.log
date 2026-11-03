@@ -1,0 +1,25 @@
+test_b00_injection_batch_object_is_accepted (test_control_channel.ControlChannelTests.test_b00_injection_batch_object_is_accepted)
+B00's InjectionBatch is a dataclass with to_dict()/payload_hash(). ... ok
+test_capabilities_are_cached_and_refreshed (test_control_channel.ControlChannelTests.test_capabilities_are_cached_and_refreshed) ... ok
+test_capabilities_reject_unsupported_backend (test_control_channel.ControlChannelTests.test_capabilities_reject_unsupported_backend) ... ok
+test_capabilities_without_peer_fail_explicitly (test_control_channel.ControlChannelTests.test_capabilities_without_peer_fail_explicitly) ... ok
+test_close_releases_the_port_and_pending_waits (test_control_channel.ControlChannelTests.test_close_releases_the_port_and_pending_waits) ... ok
+test_control_congestion_does_not_block_the_text_channel (test_control_channel.ControlChannelTests.test_control_congestion_does_not_block_the_text_channel) ... ok
+test_duplicate_with_different_hash_is_a_conflict (test_control_channel.ControlChannelTests.test_duplicate_with_different_hash_is_a_conflict) ... ok
+test_input_not_ready_is_input_busy (test_control_channel.ControlChannelTests.test_input_not_ready_is_input_busy) ... ok
+test_outcome_serialises_without_leaking_payload (test_control_channel.ControlChannelTests.test_outcome_serialises_without_leaking_payload) ... ok
+test_receipt_phase_rejected_is_reported_as_rejected (test_control_channel.ControlChannelTests.test_receipt_phase_rejected_is_reported_as_rejected) ... ok
+test_remote_rejection_is_definite_and_not_retried (test_control_channel.ControlChannelTests.test_remote_rejection_is_definite_and_not_retried) ... ok
+test_same_batch_is_never_injected_twice (test_control_channel.ControlChannelTests.test_same_batch_is_never_injected_twice) ... ok
+test_session_mismatch_is_refused_and_invalidates_the_cache (test_control_channel.ControlChannelTests.test_session_mismatch_is_refused_and_invalidates_the_cache) ... ok
+test_single_and_multi_segment_payload_arrive_intact_and_ordered (test_control_channel.ControlChannelTests.test_single_and_multi_segment_payload_arrive_intact_and_ordered) ... ok
+test_tampered_payload_is_refused_before_any_io (test_control_channel.ControlChannelTests.test_tampered_payload_is_refused_before_any_io) ... ok
+test_timeout_marks_unknown_and_never_sends_a_second_time (test_control_channel.ControlChannelTests.test_timeout_marks_unknown_and_never_sends_a_second_time) ... ok
+test_unknown_remote_error_is_not_treated_as_a_refusal (test_control_channel.ControlChannelTests.test_unknown_remote_error_is_not_treated_as_a_refusal) ... ok
+test_wrong_peer_and_missing_peer_are_refused_without_sending (test_control_channel.ControlChannelTests.test_wrong_peer_and_missing_peer_are_refused_without_sending) ... ok
+test_wrong_receipt_fields_are_unknown_not_success (test_control_channel.ControlChannelTests.test_wrong_receipt_fields_are_unknown_not_success) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 4.315s
+
+OK

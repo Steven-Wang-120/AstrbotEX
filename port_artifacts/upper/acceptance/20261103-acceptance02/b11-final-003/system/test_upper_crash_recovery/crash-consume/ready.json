@@ -1,0 +1,27 @@
+{
+  "mode": "consume",
+  "log": "/tmp/tmpg5mo8r27/execution/upper_step_input.jsonl",
+  "before": "{\"batch_id\": \"c5a2e19068f1445ab7cd128cfd26c3f1\", \"request_id\": \"request-c5a2e19068f1445ab7cd128cfd26c3f1\", \"payload_hash\": \"cdc26b9c6ce483a7536ea6baaebfe07781e989948ad73e622a18aa9db00a8460\", \"phase\": \"received\", \"connection_id\": \"control\", \"route_ref\": \"route-e2e\", \"ex_session\": \"ex-session-b11e2e\", \"robot_id\": \"robot-e2e\", \"segment_ids\": [\"s0\"], \"segment_count\": 1, \"received_at\": 1793714211.5367742, \"reason\": \"\", \"settled_at\": null}\n",
+  "payload": {
+    "schema": "aeb.upper_steps.v1",
+    "request_id": "request-c5a2e19068f1445ab7cd128cfd26c3f1",
+    "plan_id": "plan-c5a2e19068f1445ab7cd128cfd26c3f1",
+    "plan_revision": 1,
+    "batch_id": "c5a2e19068f1445ab7cd128cfd26c3f1",
+    "robot_id": "robot-e2e",
+    "route_ref": "route-e2e",
+    "ex_session": "ex-session-b11e2e",
+    "catalog_version": "catalog-hash",
+    "prompt_version": "prompt-hash",
+    "visibility": "decision_only",
+    "segments": [
+      {
+        "segment_id": "s0",
+        "ordinal": 0,
+        "text": "UPPER_EXEC_SENTINEL_consume_0"
+      }
+    ]
+  },
+  "model_calls": 1,
+  "gate_time": 1793714211.5400527
+}

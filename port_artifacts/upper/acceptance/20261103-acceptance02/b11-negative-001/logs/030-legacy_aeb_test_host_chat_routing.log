@@ -1,0 +1,155 @@
+[32m[13:27:42.987][0m [Core] [1m[INFO][0m [result_decorate.stage:185]: [1moffline-interaction - guard_host_task_reply stopped event propagation.[0m
+[32m[13:27:42.987][0m [Core] [1m[INFO][0m [respond.stage:206]: [1mPrepare to send - offline admin/member-a: AstrBotEX task: duplicate_request_id_conflict [0m
+[32m[13:27:42.988][0m [Core] [1m[INFO][0m [result_decorate.stage:185]: [1moffline-interaction - guard_host_task_reply stopped event propagation.[0m
+[32m[13:27:43.196][0m [Core] [1m[INFO][0m [respond.stage:206]: [1mPrepare to send - offline admin/member-a: first attempted reply [0m
+[32m[13:27:43.196][0m [Core] [31m[1m[ERRO][0m [v4.26.7] [respond.stage:315]: [31m[1mFailed to send the message chain: chain = MessageChain(chain=[Plain(type=<ComponentType.Plain: 'Plain'>, text='first attempted reply')], use_t2i_=None, use_markdown_=None, type=None), error = offline send failure[0m
+[33m[1mTraceback (most recent call last):[0m
+
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/usr/local/lib/python3.12/unittest/__main__.py", line 18, in <module>
+    main(module=None)
+    └ <class 'unittest.main.TestProgram'>
+  File "/usr/local/lib/python3.12/unittest/main.py", line 105, in __init__
+    self.runTests()
+    │    └ <function TestProgram.runTests at 0x7f2b2a28e7a0>
+    └ <unittest.main.TestProgram object at 0x7f2b2a3f3bf0>
+  File "/usr/local/lib/python3.12/unittest/main.py", line 281, in runTests
+    self.result = testRunner.run(self.test)
+    │             │          │   │    └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[None, None, None, <test_ho...
+    │             │          │   └ <unittest.main.TestProgram object at 0x7f2b2a3f3bf0>
+    │             │          └ <function TextTestRunner.run at 0x7f2b2a28e020>
+    │             └ <unittest.runner.TextTestRunner object at 0x7f2b2a430080>
+    └ <unittest.main.TestProgram object at 0x7f2b2a3f3bf0>
+  File "/usr/local/lib/python3.12/unittest/runner.py", line 240, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=4 errors=0 failures=0>
+    └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[None, None, None, <test_ho...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=4 errors=0 failures=0>,)
+           │    └ <function TestSuite.run at 0x7f2b2a236840>
+           └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[None, None, None, <test_ho...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 122, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=4 errors=0 failures=0>
+    └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[None, None, None, <test_host_chat_routing.HostChatRoutingTe...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=4 errors=0 failures=0>,)
+           │    └ <function TestSuite.run at 0x7f2b2a236840>
+           └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[None, None, None, <test_host_chat_routing.HostChatRoutingTe...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 122, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=4 errors=0 failures=0>
+    └ <unittest.suite.TestSuite tests=[None, None, None, <test_host_chat_routing.HostChatRoutingTests testMethod=test_empty_result_...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=4 errors=0 failures=0>,)
+           │    └ <function TestSuite.run at 0x7f2b2a236840>
+           └ <unittest.suite.TestSuite tests=[None, None, None, <test_host_chat_routing.HostChatRoutingTests testMethod=test_empty_result_...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 122, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=4 errors=0 failures=0>
+    └ <test_host_chat_routing.HostChatRoutingTests testMethod=test_empty_result_and_lost_send_do_not_allow_retry>
+  File "/usr/local/lib/python3.12/unittest/case.py", line 690, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=4 errors=0 failures=0>,)
+           │    └ <function IsolatedAsyncioTestCase.run at 0x7f2b1590c400>
+           └ <test_host_chat_routing.HostChatRoutingTests testMethod=test_empty_result_and_lost_send_do_not_allow_retry>
+  File "/usr/local/lib/python3.12/unittest/async_case.py", line 132, in run
+    return super().run(result)
+                       └ <unittest.runner.TextTestResult run=4 errors=0 failures=0>
+  File "/usr/local/lib/python3.12/unittest/case.py", line 634, in run
+    self._callTestMethod(testMethod)
+    │    │               └ <bound method HostChatRoutingTests.test_empty_result_and_lost_send_do_not_allow_retry of <test_host_chat_routing.HostChatRout...
+    │    └ <function IsolatedAsyncioTestCase._callTestMethod at 0x7f2b158fbf60>
+    └ <test_host_chat_routing.HostChatRoutingTests testMethod=test_empty_result_and_lost_send_do_not_allow_retry>
+  File "/usr/local/lib/python3.12/unittest/async_case.py", line 91, in _callTestMethod
+    if self._callMaybeAsync(method) is not None:
+       │    │               └ <bound method HostChatRoutingTests.test_empty_result_and_lost_send_do_not_allow_retry of <test_host_chat_routing.HostChatRout...
+       │    └ <function IsolatedAsyncioTestCase._callMaybeAsync at 0x7f2b1590c220>
+       └ <test_host_chat_routing.HostChatRoutingTests testMethod=test_empty_result_and_lost_send_do_not_allow_retry>
+  File "/usr/local/lib/python3.12/unittest/async_case.py", line 113, in _callMaybeAsync
+    return self._asyncioRunner.run(
+           │    │              └ <function Runner.run at 0x7f2b295604a0>
+           │    └ <asyncio.runners.Runner object at 0x7f2b1d42eb70>
+           └ <test_host_chat_routing.HostChatRoutingTests testMethod=test_empty_result_and_lost_send_do_not_allow_retry>
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-21' coro=<HostChatRoutingTests.test_empty_result_and_lost_send_do_not_allow_retry() running at /aeb-...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x7f2b2957a020>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=True>
+           └ <asyncio.runners.Runner object at 0x7f2b1d42eb70>
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 678, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x7f2b29579f80>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=True>
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 645, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x7f2b2957bd80>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=True>
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 1991, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x7f2b29f82520>
+    └ <Handle Task.task_wakeup(<_GatheringFu.../tasks.py:712>) created at /usr/local/lib/python3.12/asyncio/tasks.py:820>
+  File "/usr/local/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup(<_GatheringFu.../tasks.py:712>) created at /usr/local/lib/python3.12/asyncio/tasks.py:820>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup(<_GatheringFu.../tasks.py:712>) created at /usr/local/lib/python3.12/asyncio/tasks.py:820>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup(<_GatheringFu.../tasks.py:712>) created at /usr/local/lib/python3.12/asyncio/tasks.py:820>
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/tests/[0m[32m[1mtest_host_chat_routing.py[0m", line [33m395[0m, in [35mtest_empty_result_and_lost_send_do_not_allow_retry[0m
+    [35m[1mawait[0m [1mself[0m[35m[1m.[0m[1mdeliver[0m[1m([0m[1mitem[0m[1m,[0m [36m"first attempted reply"[0m[1m)[0m
+    [36m      │    │       └ [0m[36m[1m<astrbot.core.platform.astr_message_event.AstrMessageEvent object at 0x7f2b1c0ede50>[0m
+    [36m      │    └ [0m[36m[1m<function HostChatRoutingTests.deliver at 0x7f2b15918220>[0m
+    [36m      └ [0m[36m[1m<test_host_chat_routing.HostChatRoutingTests testMethod=test_empty_result_and_lost_send_do_not_allow_retry>[0m
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/tests/[0m[32m[1mtest_host_chat_routing.py[0m", line [33m73[0m, in [35mdeliver[0m
+    [35m[1mawait[0m [1mrespond[0m[35m[1m.[0m[1mprocess[0m[1m([0m[1mitem[0m[1m)[0m
+    [36m      │       │       └ [0m[36m[1m<astrbot.core.platform.astr_message_event.AstrMessageEvent object at 0x7f2b1c0ede50>[0m
+    [36m      │       └ [0m[36m[1m<function RespondStage.process at 0x7f2b153ce840>[0m
+    [36m      └ [0m[36m[1m<astrbot.core.pipeline.respond.stage.RespondStage object at 0x7f2b1c1312e0>[0m
+
+> File "[32m/AstrBot/astrbot/core/pipeline/respond/[0m[32m[1mstage.py[0m", line [33m313[0m, in [35mprocess[0m
+    [35m[1mawait[0m [1mevent[0m[35m[1m.[0m[1msend[0m[1m([0m[1mchain[0m[1m)[0m
+    [36m      │     │    └ [0m[36m[1mMessageChain(chain=[Plain(type=<ComponentType.Plain: 'Plain'>, text='first attempted reply')], use_t2i_=None, use_markdown_=N...[0m
+    [36m      │     └ [0m[36m[1m<AsyncMock id='139823131051216'>[0m
+    [36m      └ [0m[36m[1m<astrbot.core.platform.astr_message_event.AstrMessageEvent object at 0x7f2b1c0ede50>[0m
+
+  File "/usr/local/lib/python3.12/unittest/mock.py", line 2291, in _execute_mock_call
+    raise effect
+          └ RuntimeError('offline send failure')
+
+[31m[1mRuntimeError[0m:[1m offline send failure[0m
+[32m[13:27:43.242][0m [Core] [1m[INFO][0m [respond.stage:206]: [1mPrepare to send - offline admin/member-a: hello back [0m
+[32m[13:27:43.242][0m [Core] [1m[INFO][0m [respond.stage:206]: [1mPrepare to send - offline admin/member-a: hello back [0m
+[32m[13:27:43.385][0m [Core] [1m[INFO][0m [respond.stage:206]: [1mPrepare to send - offline admin/member-a: one ordinary reply [0m
+[32m[13:27:43.395][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task pending name='Task-33' coro=<HostChatRoutingTests.test_installed_internal_Host_selects_buffered_before_tool_admission() running at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_host_chat_routing.py:440> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /usr/local/lib/python3.12/asyncio/tasks.py:712> cb=[_run_until_complete_cb() at /usr/local/lib/python3.12/asyncio/base_events.py:181] created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.129 seconds[0m
+[32m[13:27:43.689][0m [Core] [1m[INFO][0m [respond.stage:206]: [1mPrepare to send - offline admin/member-a: first reply [0m
+[32m[13:27:44.398][0m [Core] [1m[INFO][0m [pipeline.context_utils:106]: [1moffline-interaction - inject_ex_context stopped event propagation.[0m
+[32m[13:27:44.398][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task finished name='Task-48' coro=<HostChatRoutingTests.test_real_internal_request_fallback_prevents_replay_agent_tools_and_status() done, defined at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_host_chat_routing.py:206> result=None created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.711 seconds[0m
+[32m[13:27:44.464][0m [Core] [1m[INFO][0m [respond.stage:206]: [1mPrepare to send - offline admin/member-a: normal final reply [0m
+[32m[13:27:44.622][0m [Core] [1m[INFO][0m [respond.stage:206]: [1mPrepare to send - offline admin/member-a: I will work on that. [0m
+[32m[13:27:44.726][0m [Core] [1m[INFO][0m [respond.stage:206]: [1mPrepare to send - offline admin/member-a: first reply [0m
+[32m[13:27:44.743][0m [Core] [1m[INFO][0m [respond.stage:206]: [1mPrepare to send - offline admin/member-a: normal final reply [0m
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+  re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+  re_skip_default = re.compile("(\r\n|\s)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/finalseg/__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+  re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+......./usr/local/lib/python3.12/site-packages/dashscope/__init__.py:63: DeprecationWarning: The Assistants API (dashscope.assistants) is deprecated and will be removed in a future release. Please migrate to the Responses API. See https://help.aliyun.com/zh/model-studio/synchronous-call-api-reference for migration details.
+  from dashscope.assistants import Assistant, AssistantList, Assistants
+......
+----------------------------------------------------------------------
+Ran 13 tests in 2.109s
+
+OK

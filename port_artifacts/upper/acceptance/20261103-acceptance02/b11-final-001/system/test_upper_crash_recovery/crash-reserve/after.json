@@ -1,0 +1,96 @@
+{
+  "database": {
+    "upper_inputs": [
+      {
+        "input_key": "upper-2af7f7ccea062c4b749aa150e15ceac76e66942abbc72368ff8255b484caecdf",
+        "platform": "",
+        "origin": "offline-1:FriendMessage:session-e2e",
+        "source_message_id": "",
+        "robot_id": "robot-e2e",
+        "user_id": "user-e2e",
+        "session_id": "offline-1:FriendMessage:session-e2e",
+        "generation": 1,
+        "status": "planned",
+        "plan_id": "fd53420d99dc40f78a2ca7f5f0e38400",
+        "error_code": null,
+        "created_at": 1793712554.6072764,
+        "updated_at": 1793712554.6187062
+      }
+    ],
+    "upper_plans": [
+      {
+        "plan_id": "fd53420d99dc40f78a2ca7f5f0e38400",
+        "input_key": "upper-2af7f7ccea062c4b749aa150e15ceac76e66942abbc72368ff8255b484caecdf",
+        "request_id": "10756174411f4b7a91bd86fedec0862b",
+        "route": "action_only",
+        "probabilities": "{\"action_only\":0.9,\"speech_and_action\":0.05,\"speech_only\":0.05}",
+        "public_text": null,
+        "send_count": 2,
+        "segment_count": 3,
+        "result_hash": "0e0f67dd9d517f3580a916bb23ed0e30f63b879b4311f6b524c687e0a48f495e",
+        "settings_hash": "917b87484a7b1854fd2dfe5239467d35b8efe7014d63b6798de8d2e519cdd2e7",
+        "catalog_hash": "9415ae303a5c16d57075c344b5ee01987b5f31a6e99e79fd27306215144c7302",
+        "prompt_hash": "6bf3e6e00553219db817772e520f07a674a750c4b7ca37e9984050ca24b36f62",
+        "settings_snapshot": "{\"apply_scope\":\"next_input\",\"fingerprint\":\"917b87484a7b1854fd2dfe5239467d35b8efe7014d63b6798de8d2e519cdd2e7\",\"revision\":1,\"settings\":{\"control_bind_host\":\"127.0.0.1\",\"control_enabled\":true,\"control_peer_id\":\"ex-control-b11\",\"control_port\":38041,\"generation_provider_id\":\"\",\"model_timeout_s\":5.0,\"planning_prompt\":\"\",\"robot_id\":\"robot-e2e\",\"routing_prompt\":\"\",\"routing_provider_id\":\"\",\"upper_enabled\":true}}",
+        "catalog_snapshot": "{\"capability_version\":\"\",\"entries\":[{\"availability\":\"unknown\",\"reason\":\"no capability snapshot\",\"record\":{\"action_id\":\"ex.pick\",\"action_ref\":\"pick_cup\",\"description\":\"拿起目标杯子\",\"enabled\":true,\"level\":\"basic\",\"name\":\"拿杯子\",\"parameters\":[],\"revision\":1,\"skill_markdown\":\"## 拿杯子\\n靠近并抓取目标杯子。\",\"usage_stages\":[]}}],\"revision\":1,\"settings_hash\":\"\",\"version\":\"9415ae303a5c16d57075c344b5ee01987b5f31a6e99e79fd27306215144c7302\"}",
+        "prompt_snapshot": "{\"catalog_version\":\"9415ae303a5c16d57075c344b5ee01987b5f31a6e99e79fd27306215144c7302\",\"content_hash\":\"6bf3e6e00553219db817772e520f07a674a750c4b7ca37e9984050ca24b36f62\",\"content_hashes\":{\"action.pick_cup\":\"0729dc534eb18af9b8342ebd80548858ef3d724a465a7d53a659a940a585e6ee\",\"planning\":\"10d7ba8d0dd7ac14590ca52bcc57a36350cccbd3c2620e8b27317d3a39457874\",\"routing\":\"9bdb682d492cb9b45cc89f64529098bce491e0d0ca9b292d19c26ae314e0eee5\",\"source.body_planning\":\"d84ab80244bbccef878dee071616ea06fc131da3f805a1c735007dde137416c3\",\"source.intent_routing\":\"5946a0f31d7f3c2abce749b7a1b4f2840bc60b9ae1add46551ac71067c80f729\"},\"planning_prompt\":\"<<<UPPER_SPEC_BEGIN>>>\\n\\n# 上位身体编排规范\\r\\n\\r\\n这份规范说明\\\"什么时候用身体、怎么把要做的事写成执行段落\\\"。它不解释任何底层参数，也不教你怎么算角度。\\r\\n\\r\\n## 1 什么时候使用身体\\r\\n\\r\\n只有确实需要机器人产生物理动作时，才写执行段落。\\r\\n\\r\\n- 只是回答、解释、确认、反问 → 不写执行段落。\\r\\n- 需要移动、转向、伸手、抓取、放下、调整姿态 → 写执行段落。\\r\\n- 用户只是描述状态、抱怨、闲聊 → 不写执行段落。\\r\\n\\r\\n不确定时，宁可只说话，不要凭空编一个动作。\\r\\n\\r\\n## 2 动作从哪里来\\r\\n\\r\\n从本次输入附带的动作目录里选。目录里没有的动作，不要自己起名字，也不要按常识拼一个看起来合理的名字。\\r\\n\\r\\n目录中每一项都带有可用性标记：\\r\\n\\r\\n| 标记 | 含义 | 能不能写进执行段落 |\\r\\n|---|---|---|\\r\\n| `available` | 当前可执行 | 可以 |\\r\\n| `described_only` | 只有说明，当前没有可执行实现 | 不要写进执行段落，可以在 `public_text` 里说明暂不支持 |\\r\\n| `unknown` | 当前无法确认 | 不要当作可执行；需要时在 `public_text` 里说明状态未知 |\\r\\n| `unavailable` | 明确不可用 | 不要写 |\\r\\n\\r\\n`described_only` 和 `unknown` 不等于\\\"可以试试\\\"。不要把不可用的动作写进段落再让下层去失败。\\r\\n\\r\\n## 3 一段执行文字要写清什么\\r\\n\\r\\n按这个顺序检查，缺什么就补什么；补不出来就明说缺什么，不要猜：\\r\\n\\r\\n1. **对象**：对什么东西做。用用户的说法描述，例如\\\"桌上的红杯子\\\"\\\"刚才那个目标\\\"。\\r\\n2. **意图**：要达成什么，例如\\\"抓起来\\\"\\\"放到左边\\\"\\\"往前挪一点\\\"。\\r\\n3. **数值与单位**：用户给了就原样保留，包括单位。用户说\\\"20 厘米\\\"就写 20 厘米，不要换算成米，也不要因为觉得不合理就改小。\\r\\n4. **绝对还是相对**：是\\\"移动到某个位置\\\"还是\\\"在当前基础上再挪一点\\\"，要写清楚。\\r\\n5. **顺序**：多个动作按时间先后写，不要写成并列。\\r\\n\\r\\n## 4 目标指代\\r\\n\\r\\n- 同一个目标在后续段落里要用一致的指代，例如\\\"刚才那个目标\\\"\\\"同一个杯子\\\"。\\r\\n- 不要在两段里用不同说法指向同一个物体，也不要假设下层能自己记住你没写出来的目标。\\r\\n- 需要重新指定目标时，明确说\\\"重新找\\\"或\\\"换成另一个\\\"。\\r\\n\\r\\n## 5 提交粒度\\r\\n\\r\\n段落是\\\"一次说给下层听的一段自然语言\\\"，不是原子动作。\\r\\n\\r\\n- 一段可以包含多个连续动作，例如\\\"寻找红色杯子，接近并对齐，然后抓取\\\"。\\r\\n- 也可以拆成三段：寻找、接近对齐、抓取。\\r\\n- 拆成多段**不代表并行**，也不代表可以乱序执行。段落按顺序依次进入同一次模型输入。\\r\\n- 具体拆几段由你按任务判断，没有\\\"一次只能一条\\\"的限制。\\r\\n\\r\\n`send_count` 决定这次实际发出去几段：\\r\\n\\r\\n- `send_count` 等于段落总数 → 全部这次发。\\r\\n- `send_count` 小于段落总数 → 只发前面连续的 `send_count` 段，剩下的留在上位，等下一次再发。\\r\\n\\r\\n用户明确说\\\"先做第一步\\\"这类要求时，用 `send_count` 表达，不要删掉后面的段落。\\r\\n\\r\\n## 6 不要做的事\\r\\n\\r\\n- 不要输出底层控制 JSON、关节角度、速度、力矩、坐标系矩阵。这些由下位程序和 JEV 负责。\\r\\n- 不要请求任意 shell 命令、文件读写、网络访问。\\r\\n- 不要写参数依赖图、变量、计算式、\\\"先算 A 再代入 B\\\"这类内容。绑定和计算不在你这里。\\r\\n- 不要自己生成 `plan_id`、`batch_id`、`robot_id`、收件人、权限字段。这些由框架填写。\\r\\n- 不要为了凑格式而编造范围、能力、精度或时间估计。\\r\\n\\r\\n## 7 信息不足时怎么办\\r\\n\\r\\n- 缺动作能力 → 在 `public_text` 里说明当前做不到，不要编一个近似动作。\\r\\n- 缺目标 → 先写\\\"寻找并确认目标\\\"这一步，不要假设目标已经在手边。\\r\\n- 缺数值 → 用定性描述（\\\"慢慢靠近\\\"），并在 `public_text` 里问清具体数值；不要自己填一个数字。\\r\\n- 缺运行状态（例如不知道当前姿态）→ 直接说明需要先确认，不要让下层去猜。\\r\\n\\r\\n不要为了\\\"看起来完整\\\"而先补一份执行参数。缺什么就说什么。\\r\\n\\r\\n## 8 public_text 与执行段落的关系\\r\\n\\r\\n- `public_text` 是**正常回复**，说给人听。\\r\\n- 执行段落是给下层模型看的自然语言，不直接展示给人。\\r\\n- `public_text` 里不能提前宣称动作已经完成。可以说\\\"我来处理\\\"\\\"我先找一下\\\"，不能说\\\"已经拿到了\\\"\\\"抓好了\\\"。\\r\\n- 不要把工具调用原文、概率数值、内部推理写进 `public_text`。\\r\\n- 路由是 `action_only` 时，`public_text` 必须是 `null`，不要写\\\"收到\\\"来凑。\\r\\n\\r\\n## 9 基础动作的边界\\r\\n\\r\\n写段落时保持基础动作的语义边界，不要把两件事写成一件：\\r\\n\\r\\n- **接近并对齐**：包含移动到合适位置和视觉对齐。对齐是这一步的一部分，不是抓取的一部分。\\r\\n- **抓取**：只表示闭合夹爪并抬起。夹爪闭合、机械上抬，都**不等于**已经稳稳持物。\\r\\n- 不要把\\\"抬起来\\\"写成\\\"拿稳了\\\"。\\r\\n- 不要在下层还没回报结果时，用 `public_text` 描述动作结果。\\r\\n\\r\\n## 10 例子\\r\\n\\r\\n**只说话**\\r\\n\\r\\n```\\r\\npublic_text: \\\"红色杯子在你左手边大概三十厘米的位置。\\\"\\r\\nsegments: []\\r\\nsend_count: 0\\r\\n```\\r\\n\\r\\n**只执行**\\r\\n\\r\\n```\\r\\npublic_text: null\\r\\nsegments: [\\\"寻找桌上的红色杯子。\\\"]\\r\\nsend_count: 1\\r\\n```\\r\\n\\r\\n**说话并执行，一段**\\r\\n\\r\\n```\\r\\npublic_text: \\\"我来拿那个红杯子。\\\"\\r\\nsegments: [\\\"寻找桌上的红色杯子，接近并对齐，然后抓取同一个目标。\\\"]\\r\\nsend_count: 1\\r\\n```\\r\\n\\r\\n**说话并执行，三段全发**\\r\\n\\r\\n```\\r\\npublic_text: \\\"分三步做：先找，再对齐，最后抓。\\\"\\r\\nsegments: [\\r\\n  \\\"寻找桌上的红色杯子，并保留目标引用。\\\",\\r\\n  \\\"接近并对齐刚才的同一个目标。\\\",\\r\\n  \\\"按已配置方案抓取同一个目标。\\\"\\r\\n]\\r\\nsend_count: 3\\r\\n```\\r\\n\\r\\n**说话并执行，三段只发第一段**\\r\\n\\r\\n```\\r\\npublic_text: \\\"先找一下，找到了我再继续。\\\"\\r\\nsegments: [\\r\\n  \\\"寻找桌上的红色杯子，并保留目标引用。\\\",\\r\\n  \\\"接近并对齐刚才的同一个目标。\\\",\\r\\n  \\\"按已配置方案抓取同一个目标。\\\"\\r\\n]\\r\\nsend_count: 1\\r\\n```\\r\\n\\r\\n**用户给了具体数值**\\r\\n\\r\\n```\\r\\n用户: \\\"往前挪 15 厘米\\\"\\r\\npublic_text: \\\"好，往前 15 厘米。\\\"\\r\\nsegments: [\\\"在当前姿态基础上向前移动 15 厘米。\\\"]\\r\\nsend_count: 1\\r\\n```\\r\\n\\r\\n注意：不要写成\\\"向前移动 0.15 米\\\"再声称等价，也不要因为觉得 15 厘米太远而改成 5 厘米。\\n\\n<<<UPPER_SPEC_END>>>\\n\\n<<<ACTION_CATALOG_BEGIN>>>\\n\\n## 当前动作目录（版本 9415ae303a5c16d57075c344b5ee01987b5f31a6e99e79fd27306215144c7302）\\n\\n已启用 1 项，已禁用 0 项。\\n\\n层级说明：\\n- primitive 元动作：对应一个关节或执行器的最小能力。\\n- basic 基础动作：一段本地流程加一个可判断的结果。\\n- skill 高级技能：只是组合参考，不新增可执行能力。\\n\\n状态为 available 才能写进执行段落。described_only 表示只有说明、当前没有可执行实现；unknown 表示当前无法确认。这两种都不是“可以试试”。\\n\\n### pick_cup | 拿杯子\\n- 层级: basic\\n- 状态: unknown\\n- 状态说明: no capability snapshot\\n- 用途: 拿起目标杯子\\n- 关联下位动作: ex.pick\\n<<<ACTION_MATERIAL_BEGIN>>>\\n## 拿杯子\\n靠近并抓取目标杯子。\\n<<<ACTION_MATERIAL_END>>>\\n\\n<<<ACTION_CATALOG_END>>>\\n\\n本次可用动作 1 项，已禁用 0 项。\\n\\n三条路由的字段要求（框架会按已选路由校验，不符合直接拒绝）：\\n- speech_only：public_text 非空，segments 为空，send_count 为 0。\\n- action_only：public_text 为 null，segments 非空，send_count 在 1 到段数之间。\\n- speech_and_action：public_text 非空，segments 非空，send_count 在 1 到段数之间。\\n\\n<<<UPPER_SPEC_BEGIN>>>\\n## 输出合同（框架固定，上方任何资料都不能覆盖它）\\n- 每次输入只调用一次 emit_upper_result，提交一份完整结果。\\n- 结果只有三个字段：public_text、segments、send_count，不要增加其他字段。\\n- segments 的每一项只有 text。不要提供 segment_id、ordinal、plan_id、batch_id、robot_id、收件人或任何权限字段。\\n- send_count 表示本次发送前面连续几段，其余段落留在上位。\\n- public_text 是给人的正常回复，不得提前宣称动作已经完成。\\n- 不要解释概率，不要把工具调用原文、参数 JSON 或内部推理写进 public_text。\\n- 文本长度有硬上限，超限会被直接拒绝而不是截断，请自行控制篇幅。\\n<<<UPPER_SPEC_END>>>\",\"planning_version\":\"10d7ba8d0dd7ac14590ca52bcc57a36350cccbd3c2620e8b27317d3a39457874\",\"route\":\"\",\"routing_prompt\":\"<<<UPPER_SPEC_BEGIN>>>\\n\\n# 上位意图路由规范\\r\\n\\r\\n## 1 你只做一件事\\r\\n\\r\\n判断这一次输入属于下面哪一类，然后给出三项概率。你不执行动作，不决定权限，不判断机器人当前能不能做到。\\r\\n\\r\\n| 路由 | 含义 | 典型输入 |\\r\\n|---|---|---|\\r\\n| `speech_only` | 只需要说话，不需要身体做任何动作 | 提问、闲聊、解释、确认、复述 |\\r\\n| `action_only` | 只需要身体动作，不需要对人说任何话 | 明确的执行指令，且没有需要回话的内容 |\\r\\n| `speech_and_action` | 既要说话，也要身体动作 | \\\"帮我拿过来，顺便说一下大概多久\\\" |\\r\\n\\r\\n## 2 判定要点\\r\\n\\r\\n先问两个问题，顺序不要颠倒：\\r\\n\\r\\n1. 这次输入里，有没有需要机器人**实际动作**才能满足的诉求？\\r\\n   - 有 → 不是 `speech_only`\\r\\n   - 没有 → `speech_only`\\r\\n2. 如果有动作，除了动作之外，有没有需要对**人**说的话？\\r\\n   - 有（解释、确认、告知进度、回答附带的问题）→ `speech_and_action`\\r\\n   - 没有 → `action_only`\\r\\n\\r\\n\\\"我知道了\\\"\\\"收到\\\"这类纯应答，如果输入本身只是要求执行、没有要求回应，不构成 `speech_and_action`。\\r\\n\\r\\n## 3 不要越界判断\\r\\n\\r\\n- 不要因为\\\"可能做不到\\\"就把动作类输入判成 `speech_only`。能力判断不属于你。\\r\\n- 不要因为\\\"动作很简单\\\"就省掉该说的话，也不要因为\\\"话很多\\\"就加一个动作。\\r\\n- 不要引入第四种类别，不要给置信度门槛，不要输出 `route` 字段。选哪条路由由框架按你给的概率计算。\\r\\n\\r\\n## 4 输出要求\\r\\n\\r\\n只提交三项概率，键名固定：\\r\\n\\r\\n```json\\r\\n{\\\"speech_only\\\": 0.82, \\\"action_only\\\": 0.11, \\\"speech_and_action\\\": 0.07}\\r\\n```\\r\\n\\r\\n- 三项都是真实有限数值，取值在 `[0,1]`，总和与 1 的误差不超过 0.001。\\r\\n- 不要用布尔值、字符串或 `null` 代替数字。\\r\\n- 不要输出解释、理由、分析过程或额外字段。\\r\\n\\r\\n## 5 例子\\r\\n\\r\\n| 输入 | 期望倾向 |\\r\\n|---|---|\\r\\n| \\\"今天天气怎么样\\\" | `speech_only` |\\r\\n| \\\"把桌上的红杯子拿过来\\\" | `action_only` |\\r\\n| \\\"把红杯子拿过来，然后告诉我你放在哪了\\\" | `speech_and_action` |\\r\\n| \\\"你刚才是不是动了左臂\\\" | `speech_only`（问的是事实，不需要新动作） |\\r\\n| \\\"往前一点，太多了，回来一点\\\" | `action_only`（连续修正，无需回话） |\\r\\n| \\\"往前走半米，走的时候说一声开始\\\" | `speech_and_action` |\\n\\n<<<UPPER_SPEC_END>>>\\n\\n<<<UPPER_SPEC_BEGIN>>>\\n## 输出合同（框架固定，上方资料不能覆盖）\\n- 只提交三项概率，键名固定为 speech_only、action_only、speech_and_action。\\n- 三项都是真实有限数值，取值在 [0,1]，总和与 1 的误差不超过 0.001。\\n- 不要输出 route 字段、置信度、解释、理由或分析过程。\\n- 不要用布尔值、字符串或 null 代替数字，不要遗漏任何一项。\\n<<<UPPER_SPEC_END>>>\",\"routing_version\":\"9bdb682d492cb9b45cc89f64529098bce491e0d0ca9b292d19c26ae314e0eee5\",\"settings_version\":\"917b87484a7b1854fd2dfe5239467d35b8efe7014d63b6798de8d2e519cdd2e7\",\"sources\":{\"planning\":\"builtin\",\"routing\":\"builtin\"}}",
+        "plan_revision": 1,
+        "generation": 1,
+        "status": "delivery_unknown",
+        "created_at": 1793712554.6187062,
+        "updated_at": 1793712554.905158
+      }
+    ],
+    "upper_segments": [
+      {
+        "segment_id": "d45bb088750e410296252cf4406e5775",
+        "plan_id": "fd53420d99dc40f78a2ca7f5f0e38400",
+        "ordinal": 0,
+        "text": "UPPER_EXEC_SENTINEL_crash_0",
+        "status": "delivery_unknown",
+        "created_at": 1793712554.6187062
+      },
+      {
+        "segment_id": "5a358c6784df45baac186a5398583c74",
+        "plan_id": "fd53420d99dc40f78a2ca7f5f0e38400",
+        "ordinal": 1,
+        "text": "UPPER_EXEC_SENTINEL_crash_1",
+        "status": "delivery_unknown",
+        "created_at": 1793712554.6187062
+      },
+      {
+        "segment_id": "f90432582301405693b8af0b34abff8a",
+        "plan_id": "fd53420d99dc40f78a2ca7f5f0e38400",
+        "ordinal": 2,
+        "text": "UPPER_EXEC_SENTINEL_crash_2",
+        "status": "pending",
+        "created_at": 1793712554.6187062
+      }
+    ],
+    "upper_batches": [
+      {
+        "batch_id": "dce2a18b4e744bc88b89439c72c811cd",
+        "plan_id": "fd53420d99dc40f78a2ca7f5f0e38400",
+        "request_id": "10756174411f4b7a91bd86fedec0862b",
+        "payload": "{\"batch_id\":\"dce2a18b4e744bc88b89439c72c811cd\",\"catalog_version\":\"9415ae303a5c16d57075c344b5ee01987b5f31a6e99e79fd27306215144c7302\",\"ex_session\":\"ex-session-b11\",\"plan_id\":\"fd53420d99dc40f78a2ca7f5f0e38400\",\"plan_revision\":1,\"prompt_version\":\"6bf3e6e00553219db817772e520f07a674a750c4b7ca37e9984050ca24b36f62\",\"request_id\":\"10756174411f4b7a91bd86fedec0862b\",\"robot_id\":\"robot-e2e\",\"route_ref\":\"upper-control\",\"schema\":\"aeb.upper_steps.v1\",\"segments\":[{\"ordinal\":0,\"segment_id\":\"d45bb088750e410296252cf4406e5775\",\"text\":\"UPPER_EXEC_SENTINEL_crash_0\"},{\"ordinal\":1,\"segment_id\":\"5a358c6784df45baac186a5398583c74\",\"text\":\"UPPER_EXEC_SENTINEL_crash_1\"}],\"visibility\":\"decision_only\"}",
+        "payload_hash": "52c5d670e64f33b628834981143d7f7449d4a9349c8ccda11cd3b2cfffcb2d4e",
+        "peer": "65782d636f6e74726f6c2d623131",
+        "ex_session": "ex-session-b11",
+        "robot_id": "robot-e2e",
+        "route_ref": "upper-control",
+        "first_ordinal": 0,
+        "last_ordinal": 1,
+        "segment_ids": "[\"d45bb088750e410296252cf4406e5775\",\"5a358c6784df45baac186a5398583c74\"]",
+        "status": "delivery_unknown",
+        "phase": "delivery_unknown",
+        "error_code": "restart_unresolved",
+        "fence": 1,
+        "created_at": 1793712554.6208827,
+        "updated_at": 1793712554.905158
+      }
+    ],
+    "upper_public_replies": []
+  },
+  "new_io": 0,
+  "replay_claimed": false
+}

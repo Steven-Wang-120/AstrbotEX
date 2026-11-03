@@ -1,0 +1,224 @@
+[
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "providers",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "plans?limit=20",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions/save",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"record\":{\"action_ref\":null,\"action_id\":null,\"level\":\"skill\",\"name\":\"Host offline persistence 1793715296903\",\"description\":\"按已配置方案执行，用于界面回归测试。\",\"parameters\":[],\"usage_stages\":[],\"skill_markdown\":\"# Host fixture\\n仅验证目录，不执行。\",\"enabled\":true},\"expected_revision\":41}"
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "providers",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "plans?limit=20",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "settings/save",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"settings\":{\"model_timeout_s\":31},\"expected_revision\":1}"
+  },
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "providers",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "plans?limit=20",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts/save",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"kind\":\"routing\",\"content\":\"真实 Host 提示词持久化 1793715299274\",\"expected_revision\":2}"
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "plans?limit=20",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "providers",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions/save",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"record\":{\"action_ref\":null,\"action_id\":null,\"level\":\"skill\",\"name\":\"Host offline persistence 1793715296903 first\",\"description\":\"按已配置方案执行，用于界面回归测试。\",\"parameters\":[],\"usage_stages\":[],\"skill_markdown\":\"# 独立 Skill\\n按阶段描述即可。\",\"enabled\":true},\"expected_revision\":42}"
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions/save",
+    "status": 503,
+    "method": "POST",
+    "body": "{\"record\":{\"action_ref\":null,\"action_id\":null,\"level\":\"skill\",\"name\":\"Host offline persistence 1793715296903 preserved\",\"description\":\"按已配置方案执行，用于界面回归测试。\",\"parameters\":[],\"usage_stages\":[],\"skill_markdown\":\"# 独立 Skill\\n按阶段描述即可。\",\"enabled\":true},\"expected_revision\":43}"
+  },
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "providers",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "plans?limit=20",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions/save",
+    "status": 409,
+    "method": "POST",
+    "body": "{\"record\":{\"action_ref\":null,\"action_id\":null,\"level\":\"skill\",\"name\":\"Host offline persistence 1793715296903 stale\",\"description\":\"按已配置方案执行，用于界面回归测试。\",\"parameters\":[],\"usage_stages\":[],\"skill_markdown\":\"# 独立 Skill\\n按阶段描述即可。\",\"enabled\":true},\"expected_revision\":42}"
+  }
+]

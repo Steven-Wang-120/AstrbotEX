@@ -1,0 +1,28 @@
+test_b00_trusted_input_shape_is_accepted (test_upper_pipeline.PipelineTests.test_b00_trusted_input_shape_is_accepted)
+B00's TrustedUpperInput carries input_key/_marker/ex_session, no platform. ... ok
+test_busy_old_task_refuses_the_action_but_still_speaks (test_upper_pipeline.PipelineTests.test_busy_old_task_refuses_the_action_but_still_speaks) ... ok
+test_config_failure_happens_before_the_model (test_upper_pipeline.PipelineTests.test_config_failure_happens_before_the_model) ... ok
+test_control_failure_still_sends_the_public_text_once (test_upper_pipeline.PipelineTests.test_control_failure_still_sends_the_public_text_once) ... ok
+test_control_payload_never_contains_public_text (test_upper_pipeline.PipelineTests.test_control_payload_never_contains_public_text) ... ok
+test_control_unavailable_does_not_retry_and_keeps_pending (test_upper_pipeline.PipelineTests.test_control_unavailable_does_not_retry_and_keeps_pending) ... ok
+test_dead_plugin_before_the_turn_sends_nothing (test_upper_pipeline.PipelineTests.test_dead_plugin_before_the_turn_sends_nothing) ... ok
+test_decision_failure_sends_nothing (test_upper_pipeline.PipelineTests.test_decision_failure_sends_nothing) ... ok
+test_duplicate_host_hook_never_generates_or_sends_twice (test_upper_pipeline.PipelineTests.test_duplicate_host_hook_never_generates_or_sends_twice) ... ok
+test_ex_voice_source_uses_the_same_single_public_exit (test_upper_pipeline.PipelineTests.test_ex_voice_source_uses_the_same_single_public_exit) ... ok
+test_generation_failure_sends_nothing (test_upper_pipeline.PipelineTests.test_generation_failure_sends_nothing) ... ok
+test_hand_built_b00_input_without_marker_is_refused (test_upper_pipeline.PipelineTests.test_hand_built_b00_input_without_marker_is_refused) ... ok
+test_invalid_probabilities_send_nothing (test_upper_pipeline.PipelineTests.test_invalid_probabilities_send_nothing) ... ok
+test_model_supplied_route_is_ignored (test_upper_pipeline.PipelineTests.test_model_supplied_route_is_ignored) ... ok
+test_prompt_and_catalog_hashes_are_frozen_into_the_plan (test_upper_pipeline.PipelineTests.test_prompt_and_catalog_hashes_are_frozen_into_the_plan) ... ok
+test_public_failure_never_retries_the_control_batch (test_upper_pipeline.PipelineTests.test_public_failure_never_retries_the_control_batch) ... ok
+test_route_mismatch_from_the_model_sends_nothing (test_upper_pipeline.PipelineTests.test_route_mismatch_from_the_model_sends_nothing) ... ok
+test_send_count_two_of_three_leaves_the_suffix_pending (test_upper_pipeline.PipelineTests.test_send_count_two_of_three_leaves_the_suffix_pending) ... ok
+test_stale_generation_blocks_late_sends (test_upper_pipeline.PipelineTests.test_stale_generation_blocks_late_sends) ... ok
+test_three_routes_produce_the_documented_exit_counts (test_upper_pipeline.PipelineTests.test_three_routes_produce_the_documented_exit_counts) ... ok
+test_tie_break_follows_c01_order (test_upper_pipeline.PipelineTests.test_tie_break_follows_c01_order) ... ok
+test_untrusted_identity_is_refused_before_any_io (test_upper_pipeline.PipelineTests.test_untrusted_identity_is_refused_before_any_io) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.638s
+
+OK

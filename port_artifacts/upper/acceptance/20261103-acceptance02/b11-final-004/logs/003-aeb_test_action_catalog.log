@@ -1,0 +1,40 @@
+test_a_bound_action_is_available_only_when_ex_reports_it (test_action_catalog.AvailabilityTests.test_a_bound_action_is_available_only_when_ex_reports_it) ... ok
+test_a_disabled_entry_is_never_available (test_action_catalog.AvailabilityTests.test_a_disabled_entry_is_never_available) ... ok
+test_a_new_action_without_ex_capability_cannot_be_available (test_action_catalog.AvailabilityTests.test_a_new_action_without_ex_capability_cannot_be_available) ... ok
+test_a_skill_without_an_ex_action_is_described_only (test_action_catalog.AvailabilityTests.test_a_skill_without_an_ex_action_is_described_only) ... ok
+test_an_action_ex_does_not_report_is_only_described (test_action_catalog.AvailabilityTests.test_an_action_ex_does_not_report_is_only_described) ... ok
+test_an_unavailable_ex_action_is_unavailable (test_action_catalog.AvailabilityTests.test_an_unavailable_ex_action_is_unavailable) ... ok
+test_no_capability_snapshot_is_unknown (test_action_catalog.AvailabilityTests.test_no_capability_snapshot_is_unknown) ... ok
+test_offline_is_unknown_never_available (test_action_catalog.AvailabilityTests.test_offline_is_unknown_never_available) ... ok
+test_delete_does_not_touch_an_ex_action (test_action_catalog.DeleteTests.test_delete_does_not_touch_an_ex_action) ... ok
+test_delete_removes_the_entry_but_keeps_the_old_version (test_action_catalog.DeleteTests.test_delete_removes_the_entry_but_keeps_the_old_version) ... ok
+test_deleting_an_unknown_entry_is_reported (test_action_catalog.DeleteTests.test_deleting_an_unknown_entry_is_reported) ... ok
+test_a_fresh_catalog_is_empty_not_broken (test_action_catalog.EmptyCatalogTests.test_a_fresh_catalog_is_empty_not_broken) ... ok
+test_the_data_root_is_derived_from_the_plugin_data_dir (test_action_catalog.EmptyCatalogTests.test_the_data_root_is_derived_from_the_plugin_data_dir) ... ok
+test_a_missing_skill_file_is_a_configuration_error (test_action_catalog.ExternalEditTests.test_a_missing_skill_file_is_a_configuration_error) ... ok
+test_a_valid_external_edit_is_republished_as_a_new_version (test_action_catalog.ExternalEditTests.test_a_valid_external_edit_is_republished_as_a_new_version) ... ok
+test_the_catalog_never_calls_a_model_or_a_socket (test_action_catalog.IsolationTests.test_the_catalog_never_calls_a_model_or_a_socket) ... ok
+test_a_traversal_action_ref_is_refused (test_action_catalog.PathSafetyTests.test_a_traversal_action_ref_is_refused) ... ok
+test_an_html_name_is_display_text_not_a_path (test_action_catalog.PathSafetyTests.test_an_html_name_is_display_text_not_a_path) ... ok
+test_nothing_is_written_outside_the_data_root (test_action_catalog.PathSafetyTests.test_nothing_is_written_outside_the_data_root) ... ok
+test_there_is_no_path_parameter_anywhere (test_action_catalog.PathSafetyTests.test_there_is_no_path_parameter_anywhere) ... ok
+test_a_stale_revision_cannot_publish (test_action_catalog.PublishTests.test_a_stale_revision_cannot_publish) ... ok
+test_an_update_bumps_the_entry_revision (test_action_catalog.PublishTests.test_an_update_bumps_the_entry_revision) ... ok
+test_restart_reads_the_published_catalog (test_action_catalog.PublishTests.test_restart_reads_the_published_catalog) ... ok
+test_save_writes_the_documented_layout (test_action_catalog.PublishTests.test_save_writes_the_documented_layout) ... ok
+test_the_same_content_publishes_the_same_version (test_action_catalog.PublishTests.test_the_same_content_publishes_the_same_version) ... ok
+test_a_snapshot_pins_settings_and_capability_versions (test_action_catalog.SnapshotPinningTests.test_a_snapshot_pins_settings_and_capability_versions) ... ok
+test_content_hash_changes_with_the_text (test_action_catalog.SnapshotPinningTests.test_content_hash_changes_with_the_text) ... ok
+test_a_parameter_cannot_declare_a_driver_range (test_action_catalog.ValidationTests.test_a_parameter_cannot_declare_a_driver_range) ... ok
+test_a_primitive_may_carry_an_action_id (test_action_catalog.ValidationTests.test_a_primitive_may_carry_an_action_id) ... ok
+test_a_skill_must_not_carry_an_action_id (test_action_catalog.ValidationTests.test_a_skill_must_not_carry_an_action_id) ... ok
+test_an_unknown_level_is_refused (test_action_catalog.ValidationTests.test_an_unknown_level_is_refused) ... ok
+test_duplicate_parameter_names_are_refused (test_action_catalog.ValidationTests.test_duplicate_parameter_names_are_refused) ... ok
+test_unknown_fields_are_refused (test_action_catalog.ValidationTests.test_unknown_fields_are_refused) ... ok
+test_a_failed_publish_leaves_the_pointer_untouched (test_action_catalog.WriteFailureTests.test_a_failed_publish_leaves_the_pointer_untouched) ... ok
+test_a_scratch_directory_is_not_left_referenced (test_action_catalog.WriteFailureTests.test_a_scratch_directory_is_not_left_referenced) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 0.044s
+
+OK

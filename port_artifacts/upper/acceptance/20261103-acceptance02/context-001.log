@@ -1,0 +1,36 @@
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+  re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+  re_skip_default = re.compile("(\r\n|\s)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/finalseg/__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+  re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+[32m[13:08:26.398][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:08:26.591][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:08:26.591][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:08:26.591][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=34419, audio=37093, vision=45677[0m
+[32m[13:08:26.591][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task finished name='Task-1' coro=<SystemAcceptanceTests.asyncSetUp() done, defined at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_acceptance.py:66> result=None created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.263 seconds[0m
+[32m[13:08:26.988][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task pending name='Task-8' coro=<SystemAcceptanceTests.test_ten_routes_real_onebot_voice_tts_and_http_no_leaks() running at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_acceptance.py:171> wait_for=<Future pending cb=[Task.task_wakeup()] created at /usr/local/lib/python3.12/asyncio/base_events.py:448> cb=[_run_until_complete_cb() at /usr/local/lib/python3.12/asyncio/base_events.py:181] created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.388 seconds[0m
+[32m[13:08:27.461][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task pending name='Task-8' coro=<SystemAcceptanceTests.test_ten_routes_real_onebot_voice_tts_and_http_no_leaks() running at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_acceptance.py:196> wait_for=<Future pending cb=[Task.task_wakeup()] created at /usr/local/lib/python3.12/asyncio/base_events.py:448> cb=[_run_until_complete_cb() at /usr/local/lib/python3.12/asyncio/base_events.py:181] created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.413 seconds[0m
+[32m[13:08:28.402][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:37189"
+}[0m
+[32m[13:08:28.441][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_ten_routes_real_onebot_voice_tts_and_http_no_leaks (astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.test_ten_routes_real_onebot_voice_tts_and_http_no_leaks) ... ok
+test_all_scope_rejects_an_incomplete_matrix (astrbot_plugin_astrbotex_interaction.tests.test_upper_verify_runner.AcceptanceRunnerTests.test_all_scope_rejects_an_incomplete_matrix) ... ok
+test_complete_matrix_passes (astrbot_plugin_astrbotex_interaction.tests.test_upper_verify_runner.AcceptanceRunnerTests.test_complete_matrix_passes) ... ok
+test_default_windows_executable_keeps_backslashes_and_spaces (astrbot_plugin_astrbotex_interaction.tests.test_upper_verify_runner.AcceptanceRunnerTests.test_default_windows_executable_keeps_backslashes_and_spaces) ... ok
+test_docker_keeps_source_read_only_and_data_outside_source (astrbot_plugin_astrbotex_interaction.tests.test_upper_verify_runner.AcceptanceRunnerTests.test_docker_keeps_source_read_only_and_data_outside_source) ... ok
+test_explicit_interpreter_file_with_spaces_is_one_argument (astrbot_plugin_astrbotex_interaction.tests.test_upper_verify_runner.AcceptanceRunnerTests.test_explicit_interpreter_file_with_spaces_is_one_argument) ... ok
+test_failed_git_probe_is_unavailable (astrbot_plugin_astrbotex_interaction.tests.test_upper_verify_runner.AcceptanceRunnerTests.test_failed_git_probe_is_unavailable) ... ok
+test_failure_and_error_counts_are_independent (astrbot_plugin_astrbotex_interaction.tests.test_upper_verify_runner.AcceptanceRunnerTests.test_failure_and_error_counts_are_independent) ... ok
+test_fake_page_cannot_replace_real_host_in_all_scope (astrbot_plugin_astrbotex_interaction.tests.test_upper_verify_runner.AcceptanceRunnerTests.test_fake_page_cannot_replace_real_host_in_all_scope) ... ok
+test_missing_page_prevents_complete_acceptance (astrbot_plugin_astrbotex_interaction.tests.test_upper_verify_runner.AcceptanceRunnerTests.test_missing_page_prevents_complete_acceptance) ... ok
+test_page_failure_is_required_even_if_marked_non_gating (astrbot_plugin_astrbotex_interaction.tests.test_upper_verify_runner.AcceptanceRunnerTests.test_page_failure_is_required_even_if_marked_non_gating) ... ok
+test_real_host_url_is_required_before_browser_probe (astrbot_plugin_astrbotex_interaction.tests.test_upper_verify_runner.AcceptanceRunnerTests.test_real_host_url_is_required_before_browser_probe) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 2.131s
+
+OK

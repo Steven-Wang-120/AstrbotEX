@@ -1,0 +1,17 @@
+test_real_transport_posts_the_batch_to_the_capture (tests.test_upper_control_e2e.BackendTransportCaptureTests.test_real_transport_posts_the_batch_to_the_capture) ... ok
+test_capabilities_reports_schema_readiness_and_limits (tests.test_upper_control_e2e.UpperControlCrossEndTests.test_capabilities_reports_schema_readiness_and_limits) ... ok
+test_declining_ack_is_never_reported_as_injected (tests.test_upper_control_e2e.UpperControlCrossEndTests.test_declining_ack_is_never_reported_as_injected) ... ok
+test_duplicate_batch_is_not_consumed_twice (tests.test_upper_control_e2e.UpperControlCrossEndTests.test_duplicate_batch_is_not_consumed_twice) ... ok
+test_inflight_batch_recovers_as_unknown_after_restart (tests.test_upper_control_e2e.UpperControlCrossEndTests.test_inflight_batch_recovers_as_unknown_after_restart) ... ok
+test_malformed_and_untrusted_payloads_never_reach_the_model (tests.test_upper_control_e2e.UpperControlCrossEndTests.test_malformed_and_untrusted_payloads_never_reach_the_model) ... ok
+test_receipt_is_durable_and_replays_without_re_injection (tests.test_upper_control_e2e.UpperControlCrossEndTests.test_receipt_is_durable_and_replays_without_re_injection) ... ok
+test_same_batch_id_with_new_content_is_a_conflict (tests.test_upper_control_e2e.UpperControlCrossEndTests.test_same_batch_id_with_new_content_is_a_conflict) ... ok
+test_single_segment_is_not_split_or_rewritten (tests.test_upper_control_e2e.UpperControlCrossEndTests.test_single_segment_is_not_split_or_rewritten) ... ok
+test_three_segments_reach_the_real_backend_request_in_order (tests.test_upper_control_e2e.UpperControlCrossEndTests.test_three_segments_reach_the_real_backend_request_in_order) ... ok
+test_unknown_method_on_control_does_not_fall_back (tests.test_upper_control_e2e.UpperControlCrossEndTests.test_unknown_method_on_control_does_not_fall_back) ... ok
+test_upper_methods_are_refused_off_the_control_channel (tests.test_upper_control_e2e.UpperControlCrossEndTests.test_upper_methods_are_refused_off_the_control_channel) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 2.301s
+
+OK

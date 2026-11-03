@@ -1,0 +1,194 @@
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+  re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+  re_skip_default = re.compile("(\r\n|\s)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/finalseg/__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+  re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+[32m[13:23:02.762][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:23:02.941][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:23:02.941][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:23:02.942][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=53873, audio=59093, vision=47223[0m
+[32m[13:23:02.942][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task finished name='Task-1' coro=<SystemAcceptanceTests.asyncSetUp() done, defined at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_acceptance.py:66> result=None created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.246 seconds[0m
+[32m[13:23:03.315][0m [Core] [33m[1m[WARN][0m [v4.26.7] [astrbot_plugin_astrbotex_interaction.main:1498]: [33m[1mAstrBotEX upper public reply failed.[0m
+[33m[1mTraceback (most recent call last):[0m
+
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/usr/local/lib/python3.12/unittest/__main__.py", line 18, in <module>
+    main(module=None)
+    └ <class 'unittest.main.TestProgram'>
+  File "/usr/local/lib/python3.12/unittest/main.py", line 105, in __init__
+    self.runTests()
+    │    └ <function TestProgram.runTests at 0x75bcebaa27a0>
+    └ <unittest.main.TestProgram object at 0x75bcebbffe30>
+  File "/usr/local/lib/python3.12/unittest/main.py", line 281, in runTests
+    self.result = testRunner.run(self.test)
+    │             │          │   │    └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[<astrbot_plugin_astrbotex_interaction.tests.test_upper_acce...
+    │             │          │   └ <unittest.main.TestProgram object at 0x75bcebbffe30>
+    │             │          └ <function TextTestRunner.run at 0x75bcebaa2020>
+    │             └ <unittest.runner.TextTestRunner object at 0x75bcded50980>
+    └ <unittest.main.TestProgram object at 0x75bcebbffe30>
+  File "/usr/local/lib/python3.12/unittest/runner.py", line 240, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=1 errors=0 failures=0>
+    └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[<astrbot_plugin_astrbotex_interaction.tests.test_upper_acce...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=1 errors=0 failures=0>,)
+           │    └ <function TestSuite.run at 0x75bceba4e840>
+           └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[<astrbot_plugin_astrbotex_interaction.tests.test_upper_acce...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 122, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=1 errors=0 failures=0>
+    └ <unittest.suite.TestSuite tests=[<astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests test...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=1 errors=0 failures=0>,)
+           │    └ <function TestSuite.run at 0x75bceba4e840>
+           └ <unittest.suite.TestSuite tests=[<astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests test...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 122, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=1 errors=0 failures=0>
+    └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests testMethod=test_onebot_send_failure_i...
+  File "/usr/local/lib/python3.12/unittest/case.py", line 690, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=1 errors=0 failures=0>,)
+           │    └ <function IsolatedAsyncioTestCase.run at 0x75bc9ac30860>
+           └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests testMethod=test_onebot_send_failure_i...
+  File "/usr/local/lib/python3.12/unittest/async_case.py", line 132, in run
+    return super().run(result)
+                       └ <unittest.runner.TextTestResult run=1 errors=0 failures=0>
+  File "/usr/local/lib/python3.12/unittest/case.py", line 634, in run
+    self._callTestMethod(testMethod)
+    │    │               └ <bound method SystemAcceptanceTests.test_onebot_send_failure_is_unknown_and_never_repeated of <astrbot_plugin_astrbotex_inter...
+    │    └ <function IsolatedAsyncioTestCase._callTestMethod at 0x75bc9ac30400>
+    └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests testMethod=test_onebot_send_failure_i...
+  File "/usr/local/lib/python3.12/unittest/async_case.py", line 91, in _callTestMethod
+    if self._callMaybeAsync(method) is not None:
+       │    │               └ <bound method SystemAcceptanceTests.test_onebot_send_failure_is_unknown_and_never_repeated of <astrbot_plugin_astrbotex_inter...
+       │    └ <function IsolatedAsyncioTestCase._callMaybeAsync at 0x75bc9ac30680>
+       └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests testMethod=test_onebot_send_failure_i...
+  File "/usr/local/lib/python3.12/unittest/async_case.py", line 113, in _callMaybeAsync
+    return self._asyncioRunner.run(
+           │    │              └ <function Runner.run at 0x75bceadabec0>
+           │    └ <asyncio.runners.Runner object at 0x75bcdda2f590>
+           └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests testMethod=test_onebot_send_failure_i...
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-8' coro=<SystemAcceptanceTests.test_onebot_send_failure_is_unknown_and_never_repeated() running at /...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x75bceada9a80>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=True>
+           └ <asyncio.runners.Runner object at 0x75bcdda2f590>
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 678, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x75bceada99e0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=True>
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 645, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x75bceadab7e0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=True>
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 1991, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x75bceb799f80>
+    └ <Handle <_asyncio.TaskStepMethWrapper object at 0x75bcdda134c0>() created at /usr/local/lib/python3.12/asyncio/base_events.py...
+  File "/usr/local/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle <_asyncio.TaskStepMethWrapper object at 0x75bcdda134c0>() created at /usr/local/lib/python3.12/asyncio/base_events.py...
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle <_asyncio.TaskStepMethWrapper object at 0x75bcdda134c0>() created at /usr/local/lib/python3.12/asyncio/base_events.py...
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle <_asyncio.TaskStepMethWrapper object at 0x75bcdda134c0>() created at /usr/local/lib/python3.12/asyncio/base_events.py...
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/tests/[0m[32m[1mtest_upper_acceptance.py[0m", line [33m402[0m, in [35mtest_onebot_send_failure_is_unknown_and_never_repeated[0m
+    [35m[1mawait[0m [1mself[0m[35m[1m.[0m[1maeb[0m[35m[1m.[0m[1mplugin[0m[35m[1m.[0m[1mtake_over_upper_input[0m[1m([0m[1mevent[0m[1m)[0m
+    [36m      │    │   │      │                     └ [0m[36m[1m<astrbot.core.platform.sources.aiocqhttp.aiocqhttp_message_event.AiocqhttpMessageEvent object at 0x75bc9a2fc6e0>[0m
+    [36m      │    │   │      └ [0m[36m[1m<function AstrBotEXInteractionPlugin.take_over_upper_input at 0x75bc9abfc860>[0m
+    [36m      │    │   └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.main.AstrBotEXInteractionPlugin object at 0x75bcdda3f0e0>[0m
+    [36m      │    └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.tests.test_upper_e2e.UpperStackAcceptanceTests testMethod=test_speech_only_sends_public...[0m
+    [36m      └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests testMethod=test_onebot_send_failure_i...[0m
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/[0m[32m[1mmain.py[0m", line [33m1853[0m, in [35mtake_over_upper_input[0m
+    [1mresult[0m [35m[1m=[0m [35m[1mawait[0m [1mself[0m[35m[1m.[0m[1m_upper[0m[35m[1m.[0m[1mpipeline[0m[35m[1m.[0m[1mprocess[0m[1m([0m
+    [36m               │    │      │        └ [0m[36m[1m<function UpperPipeline.process at 0x75bc9ad260c0>[0m
+    [36m               │    │      └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.upper_pipeline.UpperPipeline object at 0x75bcdda4cfb0>[0m
+    [36m               │    └ [0m[36m[1mUpperComponents(settings=UpperSettings(enabled=True, control_enabled=True, control_bind_host='127.0.0.1', control_port=46599,...[0m
+    [36m               └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.main.AstrBotEXInteractionPlugin object at 0x75bcdda3f0e0>[0m
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/[0m[32m[1mupper_pipeline.py[0m", line [33m358[0m, in [35mprocess[0m
+    [1memitted[0m [35m[1m=[0m [35m[1mawait[0m [1mself[0m[35m[1m.[0m[1mrouter[0m[35m[1m.[0m[1memit_public[0m[1m([0m[1mplan_id[0m[1m,[0m [1mpublic_sender[0m[1m)[0m
+    [36m                │    │      │           │        └ [0m[36m[1m<function AstrBotEXInteractionPlugin.upper_public_sender_for.<locals>.send_public at 0x75bcddbf3c40>[0m
+    [36m                │    │      │           └ [0m[36m[1m'ed7c9e7a0b4847988362dbfcabed0e7e'[0m
+    [36m                │    │      └ [0m[36m[1m<function UpperOutputRouter.emit_public at 0x75bc9a1fec00>[0m
+    [36m                │    └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.output_router.UpperOutputRouter object at 0x75bcdda4cf20>[0m
+    [36m                └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.upper_pipeline.UpperPipeline object at 0x75bcdda4cfb0>[0m
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/[0m[32m[1moutput_router.py[0m", line [33m138[0m, in [35memit_public[0m
+    [1mresult[0m [35m[1m=[0m [35m[1mawait[0m [1msender[0m[1m([0m[1mreply[0m[1m[[0m[36m"text"[0m[1m][0m[1m)[0m
+    [36m               │      └ [0m[36m[1m{'reply_id': '6877759374de414bb166e24725b633f9', 'plan_id': 'ed7c9e7a0b4847988362dbfcabed0e7e', 'input_key': 'upper-cbee67e7d...[0m
+    [36m               └ [0m[36m[1m<function AstrBotEXInteractionPlugin.upper_public_sender_for.<locals>.send_public at 0x75bcddbf3c40>[0m
+
+> File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/[0m[32m[1mmain.py[0m", line [33m1496[0m, in [35msend_public[0m
+    [35m[1mawait[0m [1mevent[0m[35m[1m.[0m[1msend[0m[1m([0m[1mMessageChain[0m[1m([0m[1m)[0m[35m[1m.[0m[1mmessage[0m[1m([0m[1mbody[0m[1m)[0m[1m)[0m
+    [36m      │     │    │                      └ [0m[36m[1m'UPPER_PUBLIC_failed_platform'[0m
+    [36m      │     │    └ [0m[36m[1m<class 'astrbot.core.message.message_event_result.MessageChain'>[0m
+    [36m      │     └ [0m[36m[1m<function AiocqhttpMessageEvent.send at 0x75bc9a8ec900>[0m
+    [36m      └ [0m[36m[1m<astrbot.core.platform.sources.aiocqhttp.aiocqhttp_message_event.AiocqhttpMessageEvent object at 0x75bc9a2fc6e0>[0m
+
+  File "[32m/AstrBot/astrbot/core/platform/sources/aiocqhttp/[0m[32m[1maiocqhttp_message_event.py[0m", line [33m190[0m, in [35msend[0m
+    [35m[1mawait[0m [1mself[0m[35m[1m.[0m[1msend_message[0m[1m([0m
+    [36m      │    └ [0m[36m[1m<classmethod(<function AiocqhttpMessageEvent.send_message at 0x75bc9a8ec860>)>[0m
+    [36m      └ [0m[36m[1m<astrbot.core.platform.sources.aiocqhttp.aiocqhttp_message_event.AiocqhttpMessageEvent object at 0x75bc9a2fc6e0>[0m
+
+  File "[32m/AstrBot/astrbot/core/platform/sources/aiocqhttp/[0m[32m[1maiocqhttp_message_event.py[0m", line [33m152[0m, in [35msend_message[0m
+    [35m[1mawait[0m [1mcls[0m[35m[1m.[0m[1m_dispatch_send[0m[1m([0m[1mbot[0m[1m,[0m [1mevent[0m[1m,[0m [1mis_group[0m[1m,[0m [1msession_id[0m[1m,[0m [1mret[0m[1m)[0m
+    [36m      │   │              │    │      │         │           └ [0m[36m[1m[{'type': 'text', 'data': {'text': 'UPPER_PUBLIC_failed_platform'}}][0m
+    [36m      │   │              │    │      │         └ [0m[36m[1m'700001'[0m
+    [36m      │   │              │    │      └ [0m[36m[1mFalse[0m
+    [36m      │   │              │    └ [0m[36m[1mNone[0m
+    [36m      │   │              └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.onebot_event.<locals>.Bot object at 0...[0m
+    [36m      │   └ [0m[36m[1m<classmethod(<function AiocqhttpMessageEvent._dispatch_send at 0x75bc9a8ec7c0>)>[0m
+    [36m      └ [0m[36m[1m<class 'astrbot.core.platform.sources.aiocqhttp.aiocqhttp_message_event.AiocqhttpMessageEvent'>[0m
+
+  File "[32m/AstrBot/astrbot/core/platform/sources/aiocqhttp/[0m[32m[1maiocqhttp_message_event.py[0m", line [33m113[0m, in [35m_dispatch_send[0m
+    [35m[1mawait[0m [1mbot[0m[35m[1m.[0m[1msend_private_msg[0m[1m([0m
+    [36m      │   └ [0m[36m[1m<function SystemAcceptanceTests.test_onebot_send_failure_is_unknown_and_never_repeated.<locals>.fail at 0x75bcd691d1c0>[0m
+    [36m      └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.onebot_event.<locals>.Bot object at 0...[0m
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/tests/[0m[32m[1mtest_upper_acceptance.py[0m", line [33m397[0m, in [35mfail[0m
+    [35m[1mraise[0m [1mConnectionError[0m[1m([0m[36m"local OneBot fixture disconnected"[0m[1m)[0m
+
+[31m[1mConnectionError[0m:[1m local OneBot fixture disconnected[0m
+[32m[13:23:03.322][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task finished name='Task-8' coro=<SystemAcceptanceTests.test_onebot_send_failure_is_unknown_and_never_repeated() done, defined at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_acceptance.py:392> result=None created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.371 seconds[0m
+[32m[13:23:03.336][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:46599"
+}[0m
+[32m[13:23:03.367][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_onebot_send_failure_is_unknown_and_never_repeated (astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.test_onebot_send_failure_is_unknown_and_never_repeated) ... ok
+test_O02_message_identity_and_dedup (astrbot_plugin_astrbotex_interaction.tests.test_public_output_router.PublicRouterTests.test_O02_message_identity_and_dedup) ... ok
+test_O06_TTS_failure_does_not_retry_goal (astrbot_plugin_astrbotex_interaction.tests.test_public_output_router.PublicRouterTests.test_O06_TTS_failure_does_not_retry_goal) ... ok
+test_O07_two_session_routes (astrbot_plugin_astrbotex_interaction.tests.test_public_output_router.PublicRouterTests.test_O07_two_session_routes) ... ok
+test_O08_old_generation_and_unverified_completed (astrbot_plugin_astrbotex_interaction.tests.test_public_output_router.PublicRouterTests.test_O08_old_generation_and_unverified_completed) ... ok
+test_automatic_output_gate_preserves_public_chat (astrbot_plugin_astrbotex_interaction.tests.test_public_output_router.PublicRouterTests.test_automatic_output_gate_preserves_public_chat) ... ok
+test_busy_old_task_still_never_leaks_a_segment (astrbot_plugin_astrbotex_interaction.tests.test_upper_output_isolation.OutputIsolationTests.test_busy_old_task_still_never_leaks_a_segment) ... ok
+test_duplicate_callback_speaks_once (astrbot_plugin_astrbotex_interaction.tests.test_upper_output_isolation.OutputIsolationTests.test_duplicate_callback_speaks_once) ... ok
+test_late_result_after_plugin_close_sends_nothing (astrbot_plugin_astrbotex_interaction.tests.test_upper_output_isolation.OutputIsolationTests.test_late_result_after_plugin_close_sends_nothing) ... ok
+test_no_route_leaks_a_segment_to_a_public_surface (astrbot_plugin_astrbotex_interaction.tests.test_upper_output_isolation.OutputIsolationTests.test_no_route_leaks_a_segment_to_a_public_surface) ... ok
+test_public_timeout_is_recorded_once_and_never_re_sent (astrbot_plugin_astrbotex_interaction.tests.test_upper_output_isolation.OutputIsolationTests.test_public_timeout_is_recorded_once_and_never_re_sent) ... ok
+test_segments_reach_the_control_payload_verbatim_and_ordered (astrbot_plugin_astrbotex_interaction.tests.test_upper_output_isolation.OutputIsolationTests.test_segments_reach_the_control_payload_verbatim_and_ordered) ... ok
+test_stale_session_is_rejected_without_a_retry (astrbot_plugin_astrbotex_interaction.tests.test_upper_output_isolation.OutputIsolationTests.test_stale_session_is_rejected_without_a_retry) ... ok
+test_automatic_output_is_suppressed_for_every_upper_source (astrbot_plugin_astrbotex_interaction.tests.test_upper_output_isolation.UpperOutputRouterTests.test_automatic_output_is_suppressed_for_every_upper_source) ... ok
+test_claim_is_idempotent_per_plan (astrbot_plugin_astrbotex_interaction.tests.test_upper_output_isolation.UpperOutputRouterTests.test_claim_is_idempotent_per_plan) ... ok
+test_legacy_public_router_behaviour_is_unchanged (astrbot_plugin_astrbotex_interaction.tests.test_upper_output_isolation.UpperOutputRouterTests.test_legacy_public_router_behaviour_is_unchanged) ... ok
+test_non_public_sources_are_refused_loudly (astrbot_plugin_astrbotex_interaction.tests.test_upper_output_isolation.UpperOutputRouterTests.test_non_public_sources_are_refused_loudly) ... ok
+test_only_upper_public_is_permitted (astrbot_plugin_astrbotex_interaction.tests.test_upper_output_isolation.UpperOutputRouterTests.test_only_upper_public_is_permitted) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 1.142s
+
+OK
