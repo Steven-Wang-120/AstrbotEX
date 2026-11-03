@@ -1,0 +1,88 @@
+TAP version 13
+# Subtest: late initial reads keep editing locked until every draft is loaded
+ok 1 - late initial reads keep editing locked until every draft is loaded
+  ---
+  duration_ms: 668.1086
+  type: 'test'
+  ...
+# Subtest: boots with four areas and the runtime status chips
+ok 2 - boots with four areas and the runtime status chips
+  ---
+  duration_ms: 121.6752
+  type: 'test'
+  ...
+# Subtest: creates an action, saves it, and it survives a reload
+ok 3 - creates an action, saves it, and it survives a reload
+  ---
+  duration_ms: 407.3738
+  type: 'test'
+  ...
+# Subtest: edits, disables and deletes an entry
+ok 4 - edits, disables and deletes an entry
+  ---
+  duration_ms: 399.6356
+  type: 'test'
+  ...
+# Subtest: skill level hides the executable id and previews text safely
+ok 5 - skill level hides the executable id and previews text safely
+  ---
+  duration_ms: 207.6355
+  type: 'test'
+  ...
+# Subtest: prompts save independently and report their source
+ok 6 - prompts save independently and report their source
+  ---
+  duration_ms: 227.7611
+  type: 'test'
+  ...
+# Subtest: provider and channel saves flag the fields that need a reload
+ok 7 - provider and channel saves flag the fields that need a reload
+  ---
+  duration_ms: 238.5051
+  type: 'test'
+  ...
+# Subtest: revision conflict keeps the draft and offers reload or copy
+ok 8 - revision conflict keeps the draft and offers reload or copy
+  ---
+  duration_ms: 406.576
+  type: 'test'
+  ...
+# Subtest: 503 and network failures keep every input
+ok 9 - 503 and network failures keep every input
+  ---
+  duration_ms: 211.8466
+  type: 'test'
+  ...
+# Subtest: records show delivery phases without claiming execution
+ok 10 - records show delivery phases without claiming execution
+  ---
+  duration_ms: 231.1036
+  type: 'test'
+  ...
+# Subtest: layout holds at 1280px and 390px, in both themes
+ok 11 - layout holds at 1280px and 390px, in both themes
+  ---
+  duration_ms: 353.5935
+  type: 'test'
+  ...
+# Subtest: unsaved changes are guarded before switching areas
+ok 12 - unsaved changes are guarded before switching areas
+  ---
+  duration_ms: 342.3002
+  type: 'test'
+  ...
+# Subtest: captures the operator walkthrough with its API assertions
+ok 13 - captures the operator walkthrough with its API assertions
+  ---
+  duration_ms: 1797.4468
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5902.0291

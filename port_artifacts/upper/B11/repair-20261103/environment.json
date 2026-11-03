@@ -1,0 +1,43 @@
+{
+  "schema": "upper_control.verify.v1",
+  "started_at": "2026-11-03T20:25:58+0800",
+  "os": "Windows 11 AMD64",
+  "runner_python": "Python 3.12.10",
+  "host_python": null,
+  "host_image": "local/astrbot:4.26.7-isolated",
+  "host_source": "local_image",
+  "host_version": "4.26.7",
+  "scope": "all",
+  "aeb": {
+    "root": "D:\\Code\\A.E.B-work\\upper-b10-b11",
+    "available": true,
+    "head": "274e1df404437b986c0906852e545a9d5d4399d3",
+    "branch": "upper/B10-B11",
+    "dirty": true,
+    "dirty_fingerprint": "65e300545ecbe9cbd1806a770a7aa485feaf409ba9cf4514604a915916a747d7",
+    "dirty_entries": 24
+  },
+  "ex": {
+    "root": "D:\\Code\\AstrBotEX-work\\upper-b10-b11",
+    "available": true,
+    "head": "ebd4947abca6d68e0880aa3b9a2922a542f1fb28",
+    "branch": "upper/B10-B11",
+    "dirty": false,
+    "dirty_fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dirty_entries": 0
+  },
+  "host": {
+    "root": "D:\\Code\\AstrBot-latest",
+    "available": true,
+    "head": "d6738a03f394cb98cdef6e1efb883ac6be171beb",
+    "branch": "master",
+    "dirty": true,
+    "dirty_fingerprint": "a7184f113431602a2c1e763b48f53d7968d82f62cae64891481e4132acd5b776",
+    "dirty_entries": 1495
+  },
+  "upper_schema": "aeb.upper_steps.v1",
+  "isolation": {
+    "temp_root": "C:\\Users\\17088\\AppData\\Local\\Temp\\upper-b11-zha2vpi6",
+    "network": "none (no downloads, no image pulls, no remote model)"
+  }
+}
