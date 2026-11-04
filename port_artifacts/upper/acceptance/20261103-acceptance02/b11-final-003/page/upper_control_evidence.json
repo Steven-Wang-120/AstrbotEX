@@ -1,0 +1,33 @@
+{
+  "mode": "real_host",
+  "generated_at": "2026-11-03T13:57:25.672Z",
+  "page_root": "D:\\Code\\A.E.B-work\\upper-b10-b11\\astrbot_plugin_astrbotex_interaction\\pages\\upper-control",
+  "entries": [
+    {
+      "file": "real-host.png",
+      "area": "real_host",
+      "note": "feature-off persistence, conflicts, anonymous refusal and failed draft retention",
+      "assertion": "Page→bridge→API→store"
+    },
+    {
+      "file": "real-host-1280-light.png",
+      "area": "real_host",
+      "assertion": "real CRUD/reload, reachable save and no horizontal overflow"
+    },
+    {
+      "file": "real-host-1280-dark.png",
+      "area": "real_host",
+      "assertion": "real CRUD/reload, reachable save and no horizontal overflow"
+    },
+    {
+      "file": "real-host-390-light.png",
+      "area": "real_host",
+      "assertion": "real CRUD/reload, reachable save and no horizontal overflow"
+    },
+    {
+      "file": "real-host-390-dark.png",
+      "area": "real_host",
+      "assertion": "real CRUD/reload, reachable save and no horizontal overflow"
+    }
+  ]
+}

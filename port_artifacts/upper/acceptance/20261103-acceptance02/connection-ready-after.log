@@ -1,0 +1,22 @@
+test_crud_and_shutdown_preserve_enabled_setting (tests.test_connection_manager.ConnectionManagerPersistenceTest.test_crud_and_shutdown_preserve_enabled_setting) ... ok
+test_only_one_enabled_astrbotex_client_per_feature (tests.test_connection_manager.ConnectionManagerPersistenceTest.test_only_one_enabled_astrbotex_client_per_feature) ... ok
+test_server_and_client_exchange_messages (tests.test_connection_manager.ConnectionManagerWebSocketTest.test_server_and_client_exchange_messages) ... ok
+test_astrbotex_profile_matches_response_and_binary_frames (tests.test_connection_manager.ConnectionManagerZeroMQTest.test_astrbotex_profile_matches_response_and_binary_frames) ... ok
+test_initialization_failure_does_not_publish_running (tests.test_connection_manager.ConnectionManagerZeroMQTest.test_initialization_failure_does_not_publish_running) ... ok
+test_router_and_dealer_exchange_messages (tests.test_connection_manager.ConnectionManagerZeroMQTest.test_router_and_dealer_exchange_messages) ... ok
+test_running_waits_for_socket_initialization (tests.test_connection_manager.ConnectionManagerZeroMQTest.test_running_waits_for_socket_initialization) ... ok
+test_control_is_an_allowed_channel (tests.test_connection_manager.ControlChannelTest.test_control_is_an_allowed_channel) ... ok
+test_control_is_unique_per_channel (tests.test_connection_manager.ControlChannelTest.test_control_is_unique_per_channel) ... ok
+test_decision_route_stays_text_only (tests.test_connection_manager.ControlChannelTest.test_decision_route_stays_text_only) ... ok
+test_existing_channels_still_work_and_default_to_text (tests.test_connection_manager.ControlChannelTest.test_existing_channels_still_work_and_default_to_text) ... ok
+test_invalid_upper_identity_fields_are_rejected (tests.test_connection_manager.ControlChannelTest.test_invalid_upper_identity_fields_are_rejected) ... ok
+test_runtime_session_provider_overrides_the_recorded_value (tests.test_connection_manager.ControlChannelTest.test_runtime_session_provider_overrides_the_recorded_value) ... ok
+test_trusted_context_comes_from_the_record_not_the_wire (tests.test_connection_manager.ControlChannelTest.test_trusted_context_comes_from_the_record_not_the_wire) ... ok
+test_unknown_method_on_control_is_rejected (tests.test_connection_manager.ControlChannelTest.test_unknown_method_on_control_is_rejected) ... ok
+test_upper_methods_need_the_control_channel_and_never_fall_back (tests.test_connection_manager.ControlChannelTest.test_upper_methods_need_the_control_channel_and_never_fall_back) ... ok
+test_upper_methods_report_unavailable_handler (tests.test_connection_manager.ControlChannelTest.test_upper_methods_report_unavailable_handler) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 1.962s
+
+OK

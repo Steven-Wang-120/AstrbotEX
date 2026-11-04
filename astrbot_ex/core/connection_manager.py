@@ -34,7 +34,10 @@ MAX_ASTRBOTEX_MESSAGE_BYTES = 64 * 1024 * 1024
 MAX_RECENT_MESSAGES = 40
 ASTRBOTEX_PROTOCOL = "astrbotex-zmq"
 ASTRBOTEX_PROTOCOL_VERSION = 1
-ASTRBOTEX_CHANNELS = frozenset({"text", "audio", "vision"})
+ASTRBOTEX_CHANNELS = frozenset({"text", "audio", "vision", "control"})
+#: The upper-step channel is the only one allowed to carry ``upper.*`` methods.
+CONTROL_CHANNEL = "control"
+_LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 _VALID_ID = re.compile(r"^[a-z][a-z0-9_-]{0,63}$")
 
 CONNECTION_TYPES: dict[str, dict[str, Any]] = {
@@ -49,8 +52,10 @@ CONNECTION_TYPES: dict[str, dict[str, Any]] = {
         "label": "ZeroMQ 客户端",
         "description": "DEALER 端，连接 ROUTER 服务并支持双向消息。",
         "protocol": "ZeroMQ",
-        "fields": ["endpoint", "identity", "protocol_profile", "channel"],
-        "defaults": {"endpoint": "tcp://127.0.0.1:8766", "identity": "astrbotex-main", "channel": "text", "protocol_profile": "raw"},
+        "fields": ["endpoint", "identity", "protocol_profile", "channel",
+                   "upper_robot_id", "upper_route_refs", "upper_ex_session"],
+        "defaults": {"endpoint": "tcp://127.0.0.1:8766", "identity": "astrbotex-main", "channel": "text", "protocol_profile": "raw",
+                     "upper_robot_id": "", "upper_route_refs": "", "upper_ex_session": ""},
     },
     "websocket_server": {
         "label": "WebSocket 服务器",
@@ -187,11 +192,14 @@ class _Adapter:
         raise NotImplementedError
 
     def _run_guarded(self) -> None:
-        with self._lock:
-            self._state = "running"
-            self._started_at = _now()
-        self.manager._emit("connection started", connection=self.record.id, transport=self.record.type)
         try:
+            self._initialize()
+            with self._lock:
+                if self.stop_event.is_set():
+                    return
+                self._state = "running"
+                self._started_at = _now()
+            self.manager._emit("connection started", connection=self.record.id, transport=self.record.type)
             self._run()
         except Exception as exc:  # noqa: BLE001
             if not self.stop_event.is_set():
@@ -223,6 +231,9 @@ class _Adapter:
             self._bytes_sent += item["bytes"]
             self._recent.append(item)
 
+    def _initialize(self) -> None:
+        """Prepare transport resources before publishing the running state."""
+
     def _run(self) -> None:
         raise NotImplementedError
 
@@ -234,6 +245,7 @@ class _ZmqAdapter(_Adapter):
     def __init__(self, manager: "ConnectionManager", record: ConnectionRecord) -> None:
         super().__init__(manager, record)
         self._socket: Any | None = None
+        self._poller: Any | None = None
         self._socket_lock = threading.RLock()
         self._latest_peer: bytes | None = None
         self._peers: dict[bytes, float] = {}
@@ -265,12 +277,14 @@ class _ZmqAdapter(_Adapter):
                 return frames[0]
         return {"frames": frames, "frame_count": len(frames)}
 
-    def _run(self) -> None:
+    def _initialize(self) -> None:
         if zmq is None:
             raise RuntimeError("pyzmq is not installed")
         context = zmq.Context.instance()
         kind = zmq.ROUTER if self.record.type == "zmq_server" else zmq.DEALER
         socket = context.socket(kind)
+        with self._socket_lock:
+            self._socket = socket
         socket.setsockopt(zmq.LINGER, 0)
         socket.setsockopt(zmq.RCVHWM, 100)
         socket.setsockopt(zmq.SNDHWM, 100)
@@ -283,13 +297,16 @@ class _ZmqAdapter(_Adapter):
             identity = str(self.record.config.get("identity") or self.record.id).encode("utf-8")
             socket.setsockopt(zmq.IDENTITY, identity)
             socket.connect(self._endpoint())
-        with self._socket_lock:
-            self._socket = socket
         if kind == zmq.DEALER and self.record.config.get("protocol_profile") == "astrbotex":
             channel = str(self.record.config.get("channel") or "text")
             self._send_now(socket, self._envelope("request", "system.hello", {"client": "AstrBotEX", "instance_id": self.record.id}), peer=None)
-        poller = zmq.Poller()
-        poller.register(socket, zmq.POLLIN)
+        self._poller = zmq.Poller()
+        self._poller.register(socket, zmq.POLLIN)
+
+    def _run(self) -> None:
+        socket, poller = self._socket, self._poller
+        kind = zmq.ROUTER if self.record.type == "zmq_server" else zmq.DEALER
+        message_limit = MAX_ASTRBOTEX_MESSAGE_BYTES if self.record.config.get("protocol_profile") == "astrbotex" else MAX_MESSAGE_BYTES
         while not self.stop_event.is_set():
             self._flush_outbound(socket)
             events = dict(poller.poll(50))
@@ -622,6 +639,11 @@ class ConnectionManager:
         self._task_public_handler = None
         self._task_turn_handler = None
         self._business_handler: Callable[[str, str, dict[str, Any], bytes | None], tuple[dict[str, Any], bytes | None]] | None = None
+        #: ``upper.*`` dispatch.  Deliberately a separate slot from
+        #: ``_business_handler`` so an upper-step request can never fall through
+        #: to InteractionCore.
+        self._step_input_handler: Callable[[str, str, dict[str, Any], bytes | None], tuple[dict[str, Any], bytes | None]] | None = None
+        self._control_session_provider: Callable[[], str] | None = None
         self._load()
 
     @staticmethod
@@ -797,7 +819,37 @@ class ConnectionManager:
         if str(config.get("protocol_profile") or "raw") not in {"raw", "astrbotex"}:
             raise ValueError("protocol_profile must be raw or astrbotex")
         if record.type == "zmq_client" and config.get("protocol_profile") == "astrbotex" and str(config.get("channel") or "") not in ASTRBOTEX_CHANNELS:
-            raise ValueError("AstrBotEX business feature must be text, audio, or vision")
+            raise ValueError("AstrBotEX business feature must be text, audio, vision, or control")
+        if record.type == "zmq_client" and str(config.get("channel") or "") == CONTROL_CHANNEL:
+            self._validate_control(config)
+
+    def _validate_control(self, config: dict[str, Any]) -> None:
+        """Upper-step identity is local configuration, never wire input.
+
+        The values below are the *trust anchors* the ingress compares a payload
+        against, so they must be well formed before the connection can start.
+        """
+
+        for key in ("upper_robot_id", "upper_ex_session"):
+            value = config.get(key, "")
+            if value in (None, ""):
+                continue
+            if not isinstance(value, str):
+                raise ValueError(f"{key} must be a string")
+            text = value.strip()
+            if not text or len(text) > 128 or any(ch.isspace() or ord(ch) < 32 for ch in text):
+                raise ValueError(f"{key} must be 1..128 characters without whitespace")
+        refs = config.get("upper_route_refs", "")
+        if refs not in (None, ""):
+            if isinstance(refs, (list, tuple)):
+                items = [str(item).strip() for item in refs]
+            elif isinstance(refs, str):
+                items = [item.strip() for item in refs.split(",")]
+            else:
+                raise ValueError("upper_route_refs must be a comma-separated string or a list")
+            for item in items:
+                if item and (len(item) > 128 or any(ch.isspace() or ord(ch) < 32 for ch in item)):
+                    raise ValueError("upper_route_refs entries must be 1..128 characters without whitespace")
 
     def _ensure_feature_available_locked(self, record: ConnectionRecord, *, excluding: str | None = None) -> None:
         if not record.enabled or record.type != "zmq_client" or record.config.get("protocol_profile") != "astrbotex":
@@ -839,6 +891,53 @@ class ConnectionManager:
     def set_task_turn_handler(self, handler: Callable) -> None:
         self._task_turn_handler = handler
 
+    def set_step_input_handler(self, handler: Callable | None) -> None:
+        """Install the ``upper.*`` handler; ``None`` detaches it on shutdown."""
+        self._step_input_handler = handler
+
+    def set_control_session_provider(self, provider: Callable[[], str] | None) -> None:
+        """Supply the *current* EX session for control identity checks.
+
+        The session is a runtime value, so a reloaded record cannot pin it.
+        When no provider is installed the configured ``upper_ex_session`` is
+        used instead, which keeps tests and pinned deployments working.
+        """
+        self._control_session_provider = provider
+
+    def control_trusted_context(self, connection_id: str):
+        """Local trust anchors for one control connection.
+
+        Read from the persisted record, never from the wire, so a payload
+        cannot promote itself by declaring its own robot id.
+        """
+        from astrbot_ex.core.step_input import build_trusted_context
+        with self._lock:
+            record = self._records.get(connection_id)
+            if (record is None or not record.enabled or record.type != "zmq_client"
+                    or record.config.get("protocol_profile") != "astrbotex"
+                    or record.config.get("channel") != CONTROL_CHANNEL):
+                return None
+            config = record.config
+            session = ""
+            if self._control_session_provider is not None:
+                try:
+                    session = str(self._control_session_provider() or "")
+                except Exception:
+                    session = ""
+            if not session:
+                session = str(config.get("upper_ex_session") or "")
+            return build_trusted_context(
+                robot_id=config.get("upper_robot_id"),
+                route_refs=config.get("upper_route_refs"),
+                ex_session=session,
+            )
+
+    def control_connection_ids(self) -> list[str]:
+        with self._lock:
+            return [record.id for record in self._records.values() if record.enabled
+                    and record.type == "zmq_client" and record.config.get("protocol_profile") == "astrbotex"
+                    and record.config.get("channel") == CONTROL_CHANNEL]
+
     def set_decision_handler(self, handler: Callable, *, public_validator: Callable | None = None,
                              public_handler: Callable | None = None) -> None:
         from astrbot_ex.core.decision_transport import DecisionTransport
@@ -847,6 +946,22 @@ class ConnectionManager:
 
     def _handle_business_request(self, feature: str, method: str, payload: dict[str, Any], binary: bytes | None,
                                  *, connection_id: str = "") -> tuple[dict[str, Any], bytes | None]:
+        if method.startswith("upper."):
+            # Upper-step input has its own handler and must never fall back to
+            # InteractionCore, the public task handler, or the generic business
+            # handler: those can text/TTS broadcast or claim delivery.
+            if feature != CONTROL_CHANNEL:
+                return {"ok": False, "error": {"code": "route_mismatch",
+                                               "message": "upper.* 只允许在 control 通道"}}, None
+            if self._step_input_handler is None:
+                return {"ok": False, "error": {"code": "backend_unsupported",
+                                               "message": "upper step input unavailable"}}, None
+            return self._step_input_handler(connection_id, method, payload, binary)
+        if feature == CONTROL_CHANNEL:
+            # A control connection carries nothing else.  Rejecting here keeps a
+            # typo'd method from silently reaching the interaction pipeline.
+            return {"ok": False, "error": {"code": "unsupported_method",
+                                           "message": f"control 通道不支持 {method}"}}, None
         if method == "interaction.task.turn":
             if self._task_turn_handler is None:
                 return {"ok": False, "error": "task_turn_unavailable"}, None

@@ -1,0 +1,18 @@
+....E..........
+======================================================================
+ERROR: test_router_and_dealer_exchange_messages (tests.test_connection_manager.ConnectionManagerZeroMQTest.test_router_and_dealer_exchange_messages)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Code\AstrBotEX-work\upper-b10-b11\tests\test_connection_manager.py", line 107, in test_router_and_dealer_exchange_messages
+    manager.send("dealer", {"kind": "ping", "value": 1})
+  File "D:\Code\AstrBotEX-work\upper-b10-b11\astrbot_ex\core\connection_manager.py", line 736, in send
+    return adapter.send(data, peer=peer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Code\AstrBotEX-work\upper-b10-b11\astrbot_ex\core\connection_manager.py", line 327, in send
+    raise RuntimeError("connection is not running")
+RuntimeError: connection is not running
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.862s
+
+FAILED (errors=1)

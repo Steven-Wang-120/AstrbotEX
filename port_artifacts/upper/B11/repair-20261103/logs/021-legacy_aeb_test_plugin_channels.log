@@ -1,0 +1,26 @@
+[32m[12:27:05.655][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[12:27:05.655][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=43241, audio=57781, vision=41817[0m
+[32m[12:27:05.686][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[12:27:05.701][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[12:27:05.701][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=39719, audio=49887, vision=34773[0m
+[32m[12:27:05.728][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[12:27:05.744][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[12:27:05.744][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=46407, audio=50717, vision=56743[0m
+[32m[12:27:05.824][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[12:27:05.838][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[12:27:05.838][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=32851, audio=37653, vision=33851[0m
+[32m[12:27:05.862][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[12:27:05.875][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[12:27:05.875][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=39165, audio=50369, vision=47309[0m
+[32m[12:27:05.931][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+  re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+  re_skip_default = re.compile("(\r\n|\s)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/finalseg/__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+  re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.296s
+
+OK

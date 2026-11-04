@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: real Host page: configure offline, persist, conflict and preserve failed drafts
+ok 1 - real Host page: configure offline, persist, conflict and preserve failed drafts
+  ---
+  duration_ms: 7754.0474
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8017.8312

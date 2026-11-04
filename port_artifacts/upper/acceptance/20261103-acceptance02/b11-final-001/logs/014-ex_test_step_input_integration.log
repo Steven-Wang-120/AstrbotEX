@@ -1,0 +1,26 @@
+test_declining_model_ack_is_not_a_delivery (tests.test_step_input_integration.BackendRequestCaptureTest.test_declining_model_ack_is_not_a_delivery) ... ok
+test_malformed_batch_never_reaches_transport (tests.test_step_input_integration.BackendRequestCaptureTest.test_malformed_batch_never_reaches_transport) ... ok
+test_model_is_never_substituted (tests.test_step_input_integration.BackendRequestCaptureTest.test_model_is_never_substituted) ... ok
+test_record_never_leaks_secret_or_text (tests.test_step_input_integration.BackendRequestCaptureTest.test_record_never_leaks_secret_or_text) ... ok
+test_reply_model_mismatch_is_rejected (tests.test_step_input_integration.BackendRequestCaptureTest.test_reply_model_mismatch_is_rejected) ... ok
+test_single_segment_is_passed_through_unchanged (tests.test_step_input_integration.BackendRequestCaptureTest.test_single_segment_is_passed_through_unchanged) ... ok
+test_three_segments_reach_the_model_verbatim (tests.test_step_input_integration.BackendRequestCaptureTest.test_three_segments_reach_the_model_verbatim) ... ok
+test_capabilities_over_the_real_socket (tests.test_step_input_integration.ControlLoopbackTest.test_capabilities_over_the_real_socket) ... ok
+test_duplicate_is_not_consumed_twice (tests.test_step_input_integration.ControlLoopbackTest.test_duplicate_is_not_consumed_twice) ... ok
+test_restart_does_not_reinject_a_consumed_batch (tests.test_step_input_integration.ControlLoopbackTest.test_restart_does_not_reinject_a_consumed_batch) ... ok
+test_same_id_different_content_conflicts (tests.test_step_input_integration.ControlLoopbackTest.test_same_id_different_content_conflicts) ... ok
+test_three_segments_arrive_verbatim_in_order (tests.test_step_input_integration.ControlLoopbackTest.test_three_segments_arrive_verbatim_in_order) ... ok
+test_unknown_field_binary_and_identity_mismatches_are_rejected (tests.test_step_input_integration.ControlLoopbackTest.test_unknown_field_binary_and_identity_mismatches_are_rejected) ... ok
+test_unknown_method_on_control_is_rejected_without_fallback (tests.test_step_input_integration.ControlLoopbackTest.test_unknown_method_on_control_is_rejected_without_fallback) ... ok
+test_upper_methods_are_refused_off_the_control_channel (tests.test_step_input_integration.ControlLoopbackTest.test_upper_methods_are_refused_off_the_control_channel) ... ok
+test_active_goal_is_never_preempted (tests.test_step_input_integration.ServiceInstructionInputTest.test_active_goal_is_never_preempted) ... ok
+test_backend_without_capability_reports_not_ready (tests.test_step_input_integration.ServiceInstructionInputTest.test_backend_without_capability_reports_not_ready) ... ok
+test_close_resolves_a_pending_round_as_unknown (tests.test_step_input_integration.ServiceInstructionInputTest.test_close_resolves_a_pending_round_as_unknown) ... ok
+test_concurrent_submit_is_refused_while_one_round_is_pending (tests.test_step_input_integration.ServiceInstructionInputTest.test_concurrent_submit_is_refused_while_one_round_is_pending) ... ok
+test_idle_service_accepts_input_without_creating_a_goal (tests.test_step_input_integration.ServiceInstructionInputTest.test_idle_service_accepts_input_without_creating_a_goal) ... ok
+test_unknown_backend_failure_is_not_reported_as_injected (tests.test_step_input_integration.ServiceInstructionInputTest.test_unknown_backend_failure_is_not_reported_as_injected) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 1.670s
+
+OK

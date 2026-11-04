@@ -41,14 +41,20 @@ const CONNECTION_FIELDS = {
   port: { label: "端口", type: "number", min: 1, max: 65535 },
   endpoint: { label: "连接地址", type: "text", placeholder: "tcp://127.0.0.1:8766" },
   identity: { label: "Identity", type: "text", placeholder: "astrbotex-main" },
-  channel: { label: "功能选择", type: "select", options: [["text", "文本"], ["audio", "语音"], ["vision", "视觉"]] },
+  channel: { label: "功能选择", type: "select", options: [["text", "文本"], ["audio", "语音"], ["vision", "视觉"], ["control", "上位步骤"]] },
   protocol_profile: { label: "协议配置", type: "select", options: [["raw", "原始消息"], ["astrbotex", "AstrBotEX ZMQ"]] },
   path: { label: "握手路径", type: "text", placeholder: "/" },
   url: { label: "服务地址", type: "text", placeholder: "ws://127.0.0.1:8780/" },
   token: { label: "访问令牌", type: "password", placeholder: "可选" },
   ping_interval_sec: { label: "心跳间隔（秒）", type: "number", min: 1, max: 3600 },
   reconnect_interval_sec: { label: "重连间隔（秒）", type: "number", min: 0.2, max: 3600, step: 0.1 },
+  upper_robot_id: { label: "绑定机器人 ID", type: "text", placeholder: "本地可信值，不采信对端声明" },
+  upper_route_refs: { label: "可信来源 route_ref", type: "text", placeholder: "逗号分隔，例如 route-1,route-2" },
+  upper_ex_session: { label: "固定会话（可选）", type: "text", placeholder: "留空则使用当前 ex_session" },
 };
+
+//: Identity anchors for the upper-step channel; only meaningful on control.
+const UPPER_FIELDS = new Set(["upper_robot_id", "upper_route_refs", "upper_ex_session"]);
 
 const state = {
   eventSource: null,
@@ -507,10 +513,17 @@ function renderConnectionConfig(connection) {
   if (!form) return;
   const meta = connectionTypeMeta(connection.type);
   const allFields = Array.isArray(meta.fields) ? meta.fields : Object.keys(connection.config || {});
-  const fields = allFields.filter((key) => key !== "channel" || (
-    connection.type === "zmq_client" &&
-    String(connection.config?.protocol_profile ?? meta.defaults?.protocol_profile ?? "raw") === "astrbotex"
-  ));
+  const channel = String(connection.config?.channel ?? meta.defaults?.channel ?? "text");
+  const fields = allFields.filter((key) => {
+    if (key === "channel") {
+      return connection.type === "zmq_client" &&
+        String(connection.config?.protocol_profile ?? meta.defaults?.protocol_profile ?? "raw") === "astrbotex";
+    }
+    // The upper-step identity fields are local trust anchors; showing them on a
+    // text/audio/vision connection would suggest they do something there.
+    if (UPPER_FIELDS.has(key)) return channel === "control";
+    return true;
+  });
   form.dataset.connectionId = connection.id;
   form.innerHTML = fields.map((key) => {
     const field = CONNECTION_FIELDS[key] || { label: key, type: "text" };
@@ -526,8 +539,10 @@ function renderConnectionConfig(connection) {
   }).join("");
   form.querySelectorAll("input, select").forEach((input) => input.addEventListener("input", (event) => {
     markConnectionDirty();
-    if (event.currentTarget.dataset.connectionConfig === "protocol_profile") {
-      connection.config = { ...connection.config, ...collectConnectionConfig(), protocol_profile: event.currentTarget.value };
+    const changed = event.currentTarget.dataset.connectionConfig;
+    if (changed === "protocol_profile" || changed === "channel") {
+      // Both change which fields are relevant, so rebuild the form in place.
+      connection.config = { ...connection.config, ...collectConnectionConfig(), [changed]: event.currentTarget.value };
       renderConnectionConfig(connection);
     }
   }));

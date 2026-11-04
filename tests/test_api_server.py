@@ -82,6 +82,36 @@ class FakeResponse:
 
 
 class ApiServerBuildTest(unittest.TestCase):
+    def test_shutdown_closes_upper_ingress_and_diagnostics_before_runtime(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with unittest.mock.patch.dict(os.environ, {"ASTRBOTEX_DATA_DIR": temp_dir}):
+                server = build_server("127.0.0.1", 0, 20)
+            ingress = server.step_input_ingress
+            events = []
+            close_ingress = ingress.close
+            close_diagnostics = server.environment_manager.close_diagnostics
+            stop_runtime = server.controller.stop
+
+            def close_upper():
+                self.assertIsNone(server.connections._step_input_handler)
+                self.assertIsNone(server.connections._control_session_provider)
+                close_ingress()
+                events.append("upper_closed")
+
+            def close_ros_diagnostics():
+                close_diagnostics()
+                events.append("diagnostics_closed")
+
+            def stop(reason):
+                self.assertEqual(events, ["upper_closed", "diagnostics_closed"])
+                stop_runtime(reason)
+
+            with unittest.mock.patch.object(ingress, "close", side_effect=close_upper), \
+                 unittest.mock.patch.object(server.environment_manager, "close_diagnostics", side_effect=close_ros_diagnostics), \
+                 unittest.mock.patch.object(server.controller, "stop", side_effect=stop):
+                server.server_close()
+            self.assertIsNone(server.step_input_ingress)
+
     def test_build_server_wires_interaction_core_after_server_creation(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             environment = {

@@ -1,0 +1,270 @@
+run_id=20261102T074928Z
+task_id=B09
+worktree=D:\Code\AstrBotEX-work\upper-b09
+python=3.13.14 (C:\Users\17088\.workbuddy-ai\binaries\python\versions\3.13.12\python.exe)
+os=Windows-11-10.0.26200-SP0
+generated_at=2026-11-02T07:55:03Z
+
+$ (cwd=D:\Code\AstrBotEX-work\upper-b09) C:\Users\17088\.workbuddy-ai\binaries\python\versions\3.13.12\python.exe -B -m unittest discover -s tests -p test_step_input.py -v
+exit_code=0  duration_s=2.0
+test_backend_unsupported_rejects_before_recording (test_step_input.IngressTest.test_backend_unsupported_rejects_before_recording) ... ok
+test_binary_frame_is_rejected (test_step_input.IngressTest.test_binary_frame_is_rejected) ... ok
+test_busy_backend_is_reported_as_input_busy (test_step_input.IngressTest.test_busy_backend_is_reported_as_input_busy) ... ok
+test_capabilities_report_backend_unsupported_without_fallback (test_step_input.IngressTest.test_capabilities_report_backend_unsupported_without_fallback) ... ok
+test_capabilities_report_missing_local_identity (test_step_input.IngressTest.test_capabilities_report_missing_local_identity) ... ok
+test_capabilities_report_schema_methods_and_limits (test_step_input.IngressTest.test_capabilities_report_schema_methods_and_limits) ... ok
+test_close_rejects_queued_work_instead_of_consuming_it (test_step_input.IngressTest.test_close_rejects_queued_work_instead_of_consuming_it) ... ok
+test_closed_ingress_refuses_new_batches (test_step_input.IngressTest.test_closed_ingress_refuses_new_batches) ... ok
+test_conflicting_reuse_of_batch_id_is_rejected (test_step_input.IngressTest.test_conflicting_reuse_of_batch_id_is_rejected) ... ok
+test_duplicate_is_answered_from_the_ledger_without_second_consumption (test_step_input.IngressTest.test_duplicate_is_answered_from_the_ledger_without_second_consumption) ... ok
+test_full_queue_returns_input_busy (test_step_input.IngressTest.test_full_queue_returns_input_busy) ... ok
+test_happy_path_reports_injected_and_passes_text_verbatim (test_step_input.IngressTest.test_happy_path_reports_injected_and_passes_text_verbatim) ... ok
+test_missing_trusted_context_is_rejected (test_step_input.IngressTest.test_missing_trusted_context_is_rejected) ... ok
+test_queued_batch_reports_received_then_settles_later (test_step_input.IngressTest.test_queued_batch_reports_received_then_settles_later) ... ok
+test_robot_mismatch_is_rejected (test_step_input.IngressTest.test_robot_mismatch_is_rejected) ... ok
+test_stale_session_is_rejected (test_step_input.IngressTest.test_stale_session_is_rejected) ... ok
+test_unknown_method_is_rejected (test_step_input.IngressTest.test_unknown_method_is_rejected) ... ok
+test_unknown_outcome_is_recorded_as_unknown (test_step_input.IngressTest.test_unknown_outcome_is_recorded_as_unknown) ... ok
+test_unregistered_route_ref_is_rejected (test_step_input.IngressTest.test_unregistered_route_ref_is_rejected) ... ok
+test_wrong_channel_is_rejected (test_step_input.IngressTest.test_wrong_channel_is_rejected) ... ok
+test_empty_and_oversized_text_are_rejected (test_step_input.ParserTest.test_empty_and_oversized_text_are_rejected) ... ok
+test_ids_reject_whitespace_and_overlong_values (test_step_input.ParserTest.test_ids_reject_whitespace_and_overlong_values) ... ok
+test_missing_required_field_is_rejected (test_step_input.ParserTest.test_missing_required_field_is_rejected) ... ok
+test_non_mapping_payload_is_rejected (test_step_input.ParserTest.test_non_mapping_payload_is_rejected) ... ok
+test_ordinal_rejects_bool (test_step_input.ParserTest.test_ordinal_rejects_bool) ... ok
+test_ordinals_must_be_contiguous_from_zero (test_step_input.ParserTest.test_ordinals_must_be_contiguous_from_zero) ... ok
+test_payload_hash_is_stable_and_content_sensitive (test_step_input.ParserTest.test_payload_hash_is_stable_and_content_sensitive) ... ok
+test_plan_revision_must_be_a_real_positive_integer (test_step_input.ParserTest.test_plan_revision_must_be_a_real_positive_integer) ... ok
+test_schema_and_visibility_are_pinned (test_step_input.ParserTest.test_schema_and_visibility_are_pinned) ... ok
+test_single_segment_is_allowed (test_step_input.ParserTest.test_single_segment_is_allowed) ... ok
+test_three_segments_keep_order_and_exact_text (test_step_input.ParserTest.test_three_segments_keep_order_and_exact_text) ... ok
+test_too_many_segments_are_rejected (test_step_input.ParserTest.test_too_many_segments_are_rejected) ... ok
+test_unknown_segment_field_is_rejected (test_step_input.ParserTest.test_unknown_segment_field_is_rejected) ... ok
+test_unknown_top_level_field_is_rejected (test_step_input.ParserTest.test_unknown_top_level_field_is_rejected) ... ok
+test_public_receipt_never_leaks_payload_text (test_step_input.ReceiptLogTest.test_public_receipt_never_leaks_payload_text) ... ok
+test_receipts_survive_reopen (test_step_input.ReceiptLogTest.test_receipts_survive_reopen) ... ok
+test_register_is_idempotent_for_identical_content (test_step_input.ReceiptLogTest.test_register_is_idempotent_for_identical_content) ... ok
+test_restart_turns_in_flight_receipts_into_unknown (test_step_input.ReceiptLogTest.test_restart_turns_in_flight_receipts_into_unknown) ... ok
+test_same_id_different_content_is_a_conflict (test_step_input.ReceiptLogTest.test_same_id_different_content_is_a_conflict) ... ok
+test_same_id_from_another_session_is_a_conflict (test_step_input.ReceiptLogTest.test_same_id_from_another_session_is_a_conflict) ... ok
+test_torn_line_is_ignored_not_replayed (test_step_input.ReceiptLogTest.test_torn_line_is_ignored_not_replayed) ... ok
+test_trim_keeps_the_newest_entries (test_step_input.ReceiptLogTest.test_trim_keeps_the_newest_entries) ... ok
+test_unknown_phase_in_file_becomes_unknown (test_step_input.ReceiptLogTest.test_unknown_phase_in_file_becomes_unknown) ... ok
+test_missing_pieces_are_not_ready (test_step_input.TrustedContextTest.test_missing_pieces_are_not_ready) ... ok
+test_route_refs_accept_comma_string_and_list (test_step_input.TrustedContextTest.test_route_refs_accept_comma_string_and_list) ... ok
+
+----------------------------------------------------------------------
+Ran 45 tests in 1.576s
+
+OK
+------------------------------------------------------------------------
+$ (cwd=D:\Code\AstrBotEX-work\upper-b09) C:\Users\17088\.workbuddy-ai\binaries\python\versions\3.13.12\python.exe -B -m unittest discover -s tests -p test_step_input_integration.py -v
+exit_code=0  duration_s=2.5
+test_declining_model_ack_is_not_a_delivery (test_step_input_integration.BackendRequestCaptureTest.test_declining_model_ack_is_not_a_delivery) ... ok
+test_malformed_batch_never_reaches_transport (test_step_input_integration.BackendRequestCaptureTest.test_malformed_batch_never_reaches_transport) ... ok
+test_model_is_never_substituted (test_step_input_integration.BackendRequestCaptureTest.test_model_is_never_substituted) ... ok
+test_record_never_leaks_secret_or_text (test_step_input_integration.BackendRequestCaptureTest.test_record_never_leaks_secret_or_text) ... ok
+test_reply_model_mismatch_is_rejected (test_step_input_integration.BackendRequestCaptureTest.test_reply_model_mismatch_is_rejected) ... ok
+test_single_segment_is_passed_through_unchanged (test_step_input_integration.BackendRequestCaptureTest.test_single_segment_is_passed_through_unchanged) ... ok
+test_three_segments_reach_the_model_verbatim (test_step_input_integration.BackendRequestCaptureTest.test_three_segments_reach_the_model_verbatim) ... ok
+test_capabilities_over_the_real_socket (test_step_input_integration.ControlLoopbackTest.test_capabilities_over_the_real_socket) ... ok
+test_duplicate_is_not_consumed_twice (test_step_input_integration.ControlLoopbackTest.test_duplicate_is_not_consumed_twice) ... ok
+test_restart_does_not_reinject_a_consumed_batch (test_step_input_integration.ControlLoopbackTest.test_restart_does_not_reinject_a_consumed_batch) ... ok
+test_same_id_different_content_conflicts (test_step_input_integration.ControlLoopbackTest.test_same_id_different_content_conflicts) ... ok
+test_three_segments_arrive_verbatim_in_order (test_step_input_integration.ControlLoopbackTest.test_three_segments_arrive_verbatim_in_order) ... ok
+test_unknown_field_binary_and_identity_mismatches_are_rejected (test_step_input_integration.ControlLoopbackTest.test_unknown_field_binary_and_identity_mismatches_are_rejected) ... ok
+test_unknown_method_on_control_is_rejected_without_fallback (test_step_input_integration.ControlLoopbackTest.test_unknown_method_on_control_is_rejected_without_fallback) ... ok
+test_upper_methods_are_refused_off_the_control_channel (test_step_input_integration.ControlLoopbackTest.test_upper_methods_are_refused_off_the_control_channel) ... ok
+test_active_goal_is_never_preempted (test_step_input_integration.ServiceInstructionInputTest.test_active_goal_is_never_preempted) ... ok
+test_backend_without_capability_reports_not_ready (test_step_input_integration.ServiceInstructionInputTest.test_backend_without_capability_reports_not_ready) ... ok
+test_close_resolves_a_pending_round_as_unknown (test_step_input_integration.ServiceInstructionInputTest.test_close_resolves_a_pending_round_as_unknown) ... ok
+test_concurrent_submit_is_refused_while_one_round_is_pending (test_step_input_integration.ServiceInstructionInputTest.test_concurrent_submit_is_refused_while_one_round_is_pending) ... ok
+test_idle_service_accepts_input_without_creating_a_goal (test_step_input_integration.ServiceInstructionInputTest.test_idle_service_accepts_input_without_creating_a_goal) ... ok
+test_unknown_backend_failure_is_not_reported_as_injected (test_step_input_integration.ServiceInstructionInputTest.test_unknown_backend_failure_is_not_reported_as_injected) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 1.670s
+
+OK
+------------------------------------------------------------------------
+$ (cwd=D:\Code\AstrBotEX-work\upper-b09) C:\Users\17088\.workbuddy-ai\binaries\python\versions\3.13.12\python.exe -B -m unittest discover -s tests -p test_connection_manager.py -v
+exit_code=0  duration_s=1.5
+test_crud_and_shutdown_preserve_enabled_setting (test_connection_manager.ConnectionManagerPersistenceTest.test_crud_and_shutdown_preserve_enabled_setting) ... ok
+test_only_one_enabled_astrbotex_client_per_feature (test_connection_manager.ConnectionManagerPersistenceTest.test_only_one_enabled_astrbotex_client_per_feature) ... ok
+test_server_and_client_exchange_messages (test_connection_manager.ConnectionManagerWebSocketTest.test_server_and_client_exchange_messages) ... skipped 'websockets is not installed'
+test_astrbotex_profile_matches_response_and_binary_frames (test_connection_manager.ConnectionManagerZeroMQTest.test_astrbotex_profile_matches_response_and_binary_frames) ... ok
+test_router_and_dealer_exchange_messages (test_connection_manager.ConnectionManagerZeroMQTest.test_router_and_dealer_exchange_messages) ... ok
+test_control_is_an_allowed_channel (test_connection_manager.ControlChannelTest.test_control_is_an_allowed_channel) ... ok
+test_control_is_unique_per_channel (test_connection_manager.ControlChannelTest.test_control_is_unique_per_channel) ... ok
+test_decision_route_stays_text_only (test_connection_manager.ControlChannelTest.test_decision_route_stays_text_only) ... ok
+test_existing_channels_still_work_and_default_to_text (test_connection_manager.ControlChannelTest.test_existing_channels_still_work_and_default_to_text) ... ok
+test_invalid_upper_identity_fields_are_rejected (test_connection_manager.ControlChannelTest.test_invalid_upper_identity_fields_are_rejected) ... ok
+test_runtime_session_provider_overrides_the_recorded_value (test_connection_manager.ControlChannelTest.test_runtime_session_provider_overrides_the_recorded_value) ... ok
+test_trusted_context_comes_from_the_record_not_the_wire (test_connection_manager.ControlChannelTest.test_trusted_context_comes_from_the_record_not_the_wire) ... ok
+test_unknown_method_on_control_is_rejected (test_connection_manager.ControlChannelTest.test_unknown_method_on_control_is_rejected) ... ok
+test_upper_methods_need_the_control_channel_and_never_fall_back (test_connection_manager.ControlChannelTest.test_upper_methods_need_the_control_channel_and_never_fall_back) ... ok
+test_upper_methods_report_unavailable_handler (test_connection_manager.ControlChannelTest.test_upper_methods_report_unavailable_handler) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.948s
+
+OK (skipped=1)
+------------------------------------------------------------------------
+$ (cwd=D:\Code\AstrBotEX-work\upper-b09) C:\Users\17088\.workbuddy-ai\binaries\python\versions\3.13.12\python.exe -B -m unittest discover -s tests -p test_jev_backend.py -v
+exit_code=0  duration_s=1.8
+test_chunked_and_connection_close_complete_json_remain_supported (test_jev_backend.HTTPBoundaryTests.test_chunked_and_connection_close_complete_json_remain_supported) ... ok
+test_content_length_premature_eof_rejects_even_complete_json (test_jev_backend.HTTPBoundaryTests.test_content_length_premature_eof_rejects_even_complete_json) ... ok
+test_invalid_content_length_fails_closed_without_retry (test_jev_backend.HTTPBoundaryTests.test_invalid_content_length_fails_closed_without_retry) ... ok
+test_real_body_size_limit_with_and_without_content_length (test_jev_backend.HTTPBoundaryTests.test_real_body_size_limit_with_and_without_content_length) ... ok
+test_real_http_request_and_body (test_jev_backend.HTTPBoundaryTests.test_real_http_request_and_body) ... ok
+test_redirect_not_followed_no_auth_to_target (test_jev_backend.HTTPBoundaryTests.test_redirect_not_followed_no_auth_to_target) ... ok
+test_slow_body_trickle_cannot_extend_total_deadline (test_jev_backend.HTTPBoundaryTests.test_slow_body_trickle_cannot_extend_total_deadline) ... ok
+test_slow_header_trickle_cannot_extend_total_deadline (test_jev_backend.HTTPBoundaryTests.test_slow_header_trickle_cannot_extend_total_deadline) ... ok
+test_truncated_chunked_complete_json_fails_closed_without_retry (test_jev_backend.HTTPBoundaryTests.test_truncated_chunked_complete_json_fails_closed_without_retry) ... ok
+test_429_beyond_the_budget_rejects_with_a_tracked_attempt_count (test_jev_backend.InstructionInputBackendTests.test_429_beyond_the_budget_rejects_with_a_tracked_attempt_count) ... ok
+test_429_is_retried_within_the_configured_envelope (test_jev_backend.InstructionInputBackendTests.test_429_is_retried_within_the_configured_envelope) ... ok
+test_accepted_round_keeps_model_and_reports_attempts (test_jev_backend.InstructionInputBackendTests.test_accepted_round_keeps_model_and_reports_attempts) ... ok
+test_bad_reply_shapes_are_bounded_codes (test_jev_backend.InstructionInputBackendTests.test_bad_reply_shapes_are_bounded_codes) ... ok
+test_disabled_and_closed_backends_refuse_input (test_jev_backend.InstructionInputBackendTests.test_disabled_and_closed_backends_refuse_input) ... ok
+test_error_body_never_leaks_segment_text (test_jev_backend.InstructionInputBackendTests.test_error_body_never_leaks_segment_text) ... ok
+test_instruction_round_does_not_touch_the_decision_record (test_jev_backend.InstructionInputBackendTests.test_instruction_round_does_not_touch_the_decision_record) ... ok
+test_live_http_is_never_enabled_implicitly (test_jev_backend.InstructionInputBackendTests.test_live_http_is_never_enabled_implicitly) ... ok
+test_transport_failure_records_the_attempt (test_jev_backend.InstructionInputBackendTests.test_transport_failure_records_the_attempt) ... ok
+test_429_retry_after_inside_total_budget_and_no_retry_past_deadline (test_jev_backend.JevBackendTests.test_429_retry_after_inside_total_budget_and_no_retry_past_deadline) ... ok
+test_all_local_input_limits_reject_before_secret_or_http (test_jev_backend.JevBackendTests.test_all_local_input_limits_reject_before_secret_or_http) ... ok
+test_allwait (test_jev_backend.JevBackendTests.test_allwait) ... ok
+test_blocked_secret_provider_obeys_total_deadline_without_transport (test_jev_backend.JevBackendTests.test_blocked_secret_provider_obeys_total_deadline_without_transport) ... ok
+test_cancel_close_connection_and_config_change_drop_late_response (test_jev_backend.JevBackendTests.test_cancel_close_connection_and_config_change_drop_late_response) ... ok
+test_concurrent_busy_and_cancel_during_retry_delay (test_jev_backend.JevBackendTests.test_concurrent_busy_and_cancel_during_retry_delay) ... ok
+test_disabled_shadow_live_optin_and_explicit_secrets_only (test_jev_backend.JevBackendTests.test_disabled_shadow_live_optin_and_explicit_secrets_only) ... ok
+test_distribution_exact_keys_sum_argmax_bool_range_and_nan (test_jev_backend.JevBackendTests.test_distribution_exact_keys_sum_argmax_bool_range_and_nan) ... ok
+test_duplicate_json_keys_invalid_utf8_nonfinite_exponent (test_jev_backend.JevBackendTests.test_duplicate_json_keys_invalid_utf8_nonfinite_exponent) ... ok
+test_exact_255_candidate_boundary_including_wait (test_jev_backend.JevBackendTests.test_exact_255_candidate_boundary_including_wait) ... ok
+test_guide_change_after_response_parse_cannot_publish_old_selection (test_jev_backend.JevBackendTests.test_guide_change_after_response_parse_cannot_publish_old_selection) ... ok
+test_http_errors_no_first_candidate_fallback_or_automatic_retry (test_jev_backend.JevBackendTests.test_http_errors_no_first_candidate_fallback_or_automatic_retry) ... ok
+test_input_injection_is_data_not_instruction (test_jev_backend.JevBackendTests.test_input_injection_is_data_not_instruction) ... ok
+test_invalid_transport_reply_and_secret_are_redacted_without_retry (test_jev_backend.JevBackendTests.test_invalid_transport_reply_and_secret_are_redacted_without_retry) ... ok
+test_low_confidence_preserves_original_option_and_scores (test_jev_backend.JevBackendTests.test_low_confidence_preserves_original_option_and_scores) ... ok
+test_missing_extra_owner_unknown_crossowner_and_ineligible_option (test_jev_backend.JevBackendTests.test_missing_extra_owner_unknown_crossowner_and_ineligible_option) ... ok
+test_mutating_caller_during_transport_does_not_change_decision (test_jev_backend.JevBackendTests.test_mutating_caller_during_transport_does_not_change_decision) ... ok
+test_no_conservative_candidate_rejected_before_transport (test_jev_backend.JevBackendTests.test_no_conservative_candidate_rejected_before_transport) ... ok
+test_noncooperative_timeout_and_single_worker_quarantine (test_jev_backend.JevBackendTests.test_noncooperative_timeout_and_single_worker_quarantine) ... ok
+test_normal_input_original_json_guides_params_status_and_hash (test_jev_backend.JevBackendTests.test_normal_input_original_json_guides_params_status_and_hash) ... ok
+test_owner_limit_request_response_sizes_no_truncation (test_jev_backend.JevBackendTests.test_owner_limit_request_response_sizes_no_truncation) ... ok
+test_reject_mutated_invalid_snapshot_without_calling_transport (test_jev_backend.JevBackendTests.test_reject_mutated_invalid_snapshot_without_calling_transport) ... ok
+test_request_build_and_response_parse_time_are_in_total_deadline (test_jev_backend.JevBackendTests.test_request_build_and_response_parse_time_are_in_total_deadline) ... ok
+test_request_response_byte_limits_are_inclusive (test_jev_backend.JevBackendTests.test_request_response_byte_limits_are_inclusive) ... ok
+test_retry_attempts_share_configured_rate_limit (test_jev_backend.JevBackendTests.test_retry_attempts_share_configured_rate_limit) ... ok
+test_retry_exhaustion_has_exact_attempt_count_and_no_background_retry (test_jev_backend.JevBackendTests.test_retry_exhaustion_has_exact_attempt_count_and_no_background_retry) ... ok
+test_retry_wait_config_change_drops_old_request_and_does_not_retry (test_jev_backend.JevBackendTests.test_retry_wait_config_change_drops_old_request_and_does_not_retry) ... ok
+test_single_live_rate_limit_close_and_invalid_configs (test_jev_backend.JevBackendTests.test_single_live_rate_limit_close_and_invalid_configs) ... ok
+test_transport_failure_secret_provider_failure_and_exception_redaction (test_jev_backend.JevBackendTests.test_transport_failure_secret_provider_failure_and_exception_redaction) ... ok
+
+----------------------------------------------------------------------
+Ran 47 tests in 0.951s
+
+OK
+------------------------------------------------------------------------
+$ (cwd=D:\Code\AstrBotEX-work\upper-b09) C:\Users\17088\.workbuddy-ai\binaries\python\versions\3.13.12\python.exe -B -m unittest discover -s tests -p test_decision_service.py -v
+exit_code=0  duration_s=9.1
+G04 event-latch gate+status n=20 p95_ms=0.039 max_ms=0.072; single_live_calls=1
+test_G02_100_replacements_blocked_backend_late_result_is_discarded (test_decision_service.DecisionServiceTests.test_G02_100_replacements_blocked_backend_late_result_is_discarded) ... ok
+test_G03_cancel_without_committed_evidence_blocks_new_start (test_decision_service.DecisionServiceTests.test_G03_cancel_without_committed_evidence_blocks_new_start) ... ok
+test_G04_sqlite_latch_does_not_hold_stop_status_runtime_lock (test_decision_service.DecisionServiceTests.test_G04_sqlite_latch_does_not_hold_stop_status_runtime_lock) ... ok
+test_G04_timeout_keeps_single_live_request_and_stop_status_are_prompt (test_decision_service.DecisionServiceTests.test_G04_timeout_keeps_single_live_request_and_stop_status_are_prompt) ... ok
+test_G05_observation_ages_during_backend_call_no_physical_start (test_decision_service.DecisionServiceTests.test_G05_observation_ages_during_backend_call_no_physical_start) ... ok
+test_G05_source_restarts_during_backend_request_result_is_discarded (test_decision_service.DecisionServiceTests.test_G05_source_restarts_during_backend_request_result_is_discarded) ... ok
+test_G06_independent_choices_share_resource_zero_double_start (test_decision_service.DecisionServiceTests.test_G06_independent_choices_share_resource_zero_double_start) ... ok
+test_G07_catalog_plugin_generation_change_rejects_late_start (test_decision_service.DecisionServiceTests.test_G07_catalog_plugin_generation_change_rejects_late_start) ... ok
+test_G07_config_change_discards_bound_response (test_decision_service.DecisionServiceTests.test_G07_config_change_discards_bound_response) ... ok
+test_G07_environment_generation_change_rejects_late_start (test_decision_service.DecisionServiceTests.test_G07_environment_generation_change_rejects_late_start) ... ok
+test_G08_offline_lease_expires_and_restart_does_not_authorize (test_decision_service.DecisionServiceTests.test_G08_offline_lease_expires_and_restart_does_not_authorize) ... ok
+test_G10_late_owner_rejection_rolls_back_started_peer (test_decision_service.DecisionServiceTests.test_G10_late_owner_rejection_rolls_back_started_peer) ... ok
+test_backend_failure_backoff_and_close_reclaims_blocked_workers (test_decision_service.DecisionServiceTests.test_backend_failure_backoff_and_close_reclaims_blocked_workers) ... ok
+test_backend_invented_option_cannot_dispatch (test_decision_service.DecisionServiceTests.test_backend_invented_option_cannot_dispatch) ... ok
+test_backend_replace_checks_fresh_ledger_despite_empty_observation_cache (test_decision_service.DecisionServiceTests.test_backend_replace_checks_fresh_ledger_despite_empty_observation_cache) ... ok
+test_backend_replace_factory_and_retired_close_do_not_hold_state_lock (test_decision_service.DecisionServiceTests.test_backend_replace_factory_and_retired_close_do_not_hold_state_lock) ... ok
+test_backend_replace_factory_failures_preserve_identity_and_revision (test_decision_service.DecisionServiceTests.test_backend_replace_factory_failures_preserve_identity_and_revision) ... ok
+test_backend_replace_laya_protocol_stub_uses_formal_decide_and_rejects_old_result (test_decision_service.DecisionServiceTests.test_backend_replace_laya_protocol_stub_uses_formal_decide_and_rejects_old_result) ... ok
+test_backend_replace_loading_is_superseded_by_explicit_stop (test_decision_service.DecisionServiceTests.test_backend_replace_loading_is_superseded_by_explicit_stop) ... ok
+test_backend_replace_rejects_response_application_window (test_decision_service.DecisionServiceTests.test_backend_replace_rejects_response_application_window) ... ok
+test_backend_replace_requires_disabled_and_finished_provider_request (test_decision_service.DecisionServiceTests.test_backend_replace_requires_disabled_and_finished_provider_request) ... ok
+test_backend_replace_retired_close_failure_reports_applied_new_identity (test_decision_service.DecisionServiceTests.test_backend_replace_retired_close_failure_reports_applied_new_identity) ... ok
+test_closed_service_rejects_stop_and_cancel_without_replacing_proven_receipt (test_decision_service.DecisionServiceTests.test_closed_service_rejects_stop_and_cancel_without_replacing_proven_receipt) ... ok
+test_completed_synchronous_stop_is_not_replayed_against_new_sdk_context (test_decision_service.DecisionServiceTests.test_completed_synchronous_stop_is_not_replayed_against_new_sdk_context) ... ok
+test_completed_synchronous_stop_then_poll_failure_remains_passive (test_decision_service.DecisionServiceTests.test_completed_synchronous_stop_then_poll_failure_remains_passive) ... ok
+test_disabled_explicit_stop_and_mode_change_still_revoke_sdk_context (test_decision_service.DecisionServiceTests.test_disabled_explicit_stop_and_mode_change_still_revoke_sdk_context) ... ok
+test_disabled_pending_goal_still_blocks_on_uncertain_actions (test_decision_service.DecisionServiceTests.test_disabled_pending_goal_still_blocks_on_uncertain_actions) ... ok
+test_disabled_startup_recovery_remains_blocked_until_explicit_review (test_decision_service.DecisionServiceTests.test_disabled_startup_recovery_remains_blocked_until_explicit_review) ... ok
+test_disabled_unowned_ledger_error_does_not_revoke_sdk_context (test_decision_service.DecisionServiceTests.test_disabled_unowned_ledger_error_does_not_revoke_sdk_context) ... ok
+test_disabled_unowned_uncertainty_does_not_revoke_sdk_context (test_decision_service.DecisionServiceTests.test_disabled_unowned_uncertainty_does_not_revoke_sdk_context) ... ok
+test_disabling_active_goal_still_cancels_before_releasing_authorization (test_decision_service.DecisionServiceTests.test_disabling_active_goal_still_cancels_before_releasing_authorization) ... ok
+test_explicit_review_clears_block_but_discards_pending_authorization (test_decision_service.DecisionServiceTests.test_explicit_review_clears_block_but_discards_pending_authorization) ... ok
+test_goal_cancel_cannot_reuse_prior_stop_proof_for_new_sdk_action (test_decision_service.DecisionServiceTests.test_goal_cancel_cannot_reuse_prior_stop_proof_for_new_sdk_action) ... ok
+test_keep_does_not_repeat_start_and_completion_awaits_committed_success (test_decision_service.DecisionServiceTests.test_keep_does_not_repeat_start_and_completion_awaits_committed_success) ... ok
+test_observation_pagination_uses_one_total_budget_before_next_submission (test_decision_service.DecisionServiceTests.test_observation_pagination_uses_one_total_budget_before_next_submission) ... ok
+test_old_activation_review_failure_cannot_block_new_stop (test_decision_service.DecisionServiceTests.test_old_activation_review_failure_cannot_block_new_stop) ... ok
+test_old_review_failure_cannot_overwrite_new_stop (test_decision_service.DecisionServiceTests.test_old_review_failure_cannot_overwrite_new_stop) ... ok
+test_old_review_success_cannot_complete_new_stop (test_decision_service.DecisionServiceTests.test_old_review_success_cannot_complete_new_stop) ... ok
+test_old_stop_failure_cannot_overwrite_new_request (test_decision_service.DecisionServiceTests.test_old_stop_failure_cannot_overwrite_new_request) ... ok
+test_persistent_poll_and_ledger_failure_keeps_resources_and_bounds_stop_attempts (test_decision_service.DecisionServiceTests.test_persistent_poll_and_ledger_failure_keeps_resources_and_bounds_stop_attempts) ... ok
+test_persistent_poll_failure_cancels_real_running_owner_without_proof (test_decision_service.DecisionServiceTests.test_persistent_poll_failure_cancels_real_running_owner_without_proof) ... ok
+test_persistent_poll_failure_does_not_wait_for_live_provider_to_stop (test_decision_service.DecisionServiceTests.test_persistent_poll_failure_does_not_wait_for_live_provider_to_stop) ... ok
+test_persistent_poll_failure_preserves_pending_replacement_and_responds_to_review (test_decision_service.DecisionServiceTests.test_persistent_poll_failure_preserves_pending_replacement_and_responds_to_review) ... ok
+test_persistent_unowned_poll_failure_never_revokes_or_cancels_sdk_context (test_decision_service.DecisionServiceTests.test_persistent_unowned_poll_failure_never_revokes_or_cancels_sdk_context) ... ok
+test_proof_retries_keep_same_gate_epoch_and_do_not_clear_blocked_goal (test_decision_service.DecisionServiceTests.test_proof_retries_keep_same_gate_epoch_and_do_not_clear_blocked_goal) ... ok
+test_python310_shutdown_aggregate_preserves_all_errors_and_cleanup (test_decision_service.DecisionServiceTests.test_python310_shutdown_aggregate_preserves_all_errors_and_cleanup) ... ok
+test_review_cancel_before_worker_claim_has_no_review_side_effect (test_decision_service.DecisionServiceTests.test_review_cancel_before_worker_claim_has_no_review_side_effect) ... ok
+test_review_cancel_during_execution_is_false_and_completion_truthful (test_decision_service.DecisionServiceTests.test_review_cancel_during_execution_is_false_and_completion_truthful) ... ok
+test_review_cancelled_review_consumed_without_worker_fault (test_decision_service.DecisionServiceTests.test_review_cancelled_review_consumed_without_worker_fault) ... ok
+test_review_old_observation_cannot_borrow_latest_frame_freshness (test_decision_service.DecisionServiceTests.test_review_old_observation_cannot_borrow_latest_frame_freshness) ... ok
+test_review_request_observation_guard_keeps_original_fields_and_age (test_decision_service.DecisionServiceTests.test_review_request_observation_guard_keeps_original_fields_and_age) ... ok
+test_review_target_ref_apply_rejects_mismatch_without_notify (test_decision_service.DecisionServiceTests.test_review_target_ref_apply_rejects_mismatch_without_notify) ... ok
+test_review_target_ref_rechecked_before_actor_queued_start (test_decision_service.DecisionServiceTests.test_review_target_ref_rechecked_before_actor_queued_start) ... ok
+test_shadow_replan_has_no_goal_or_dispatch_side_effect (test_decision_service.DecisionServiceTests.test_shadow_replan_has_no_goal_or_dispatch_side_effect) ... ok
+test_stop_receipt_distinguishes_requested_running_and_proven (test_decision_service.DecisionServiceTests.test_stop_receipt_distinguishes_requested_running_and_proven) ... ok
+test_stop_request_exception_has_bounded_backoff_without_poll_dependency (test_decision_service.DecisionServiceTests.test_stop_request_exception_has_bounded_backoff_without_poll_dependency) ... ok
+test_worker_io_failure_with_active_goal_still_revokes_and_requests_stop (test_decision_service.DecisionServiceTests.test_worker_io_failure_with_active_goal_still_revokes_and_requests_stop) ... ok
+
+----------------------------------------------------------------------
+Ran 57 tests in 8.189s
+
+OK
+------------------------------------------------------------------------
+$ (cwd=D:\Code\AstrBotEX-work\upper-b09) C:\Users\17088\.workbuddy-ai\binaries\python\versions\3.13.12\python.exe -B -m unittest discover -s tests -p test_decision_backend_contract.py -v
+exit_code=0  duration_s=0.7
+test_every_trusted_version_changed_must_fail_before_external_dispatch (test_decision_backend_contract.BackendContractTests.test_every_trusted_version_changed_must_fail_before_external_dispatch) ... ok
+test_reconfigure_immutable_config_cannot_mutate_without_epoch (test_decision_backend_contract.BackendContractTests.test_reconfigure_immutable_config_cannot_mutate_without_epoch) ... ok
+test_static_registry_no_dynamic_import_or_plugin_lookup (test_decision_backend_contract.BackendContractTests.test_static_registry_no_dynamic_import_or_plugin_lookup) ... ok
+test_synchronous_duck_interface_and_no_execution_side_effects (test_decision_backend_contract.BackendContractTests.test_synchronous_duck_interface_and_no_execution_side_effects) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.014s
+
+OK
+------------------------------------------------------------------------
+$ (cwd=D:\Code\AstrBotEX-work\upper-b09) C:\Users\17088\.workbuddy-ai\binaries\python\versions\3.13.12\python.exe -B -m unittest discover -s tests -p test_decision_management_interleaving.py -v
+exit_code=0  duration_s=2.7
+test_duplicate_start_reuses_intent_and_stop_revokes_latched_warmup (test_decision_management_interleaving.DecisionManagementInterleavingTests.test_duplicate_start_reuses_intent_and_stop_revokes_latched_warmup) ... ok
+test_new_stop_wins_over_backend_apply_latched_before_trusted_replacement (test_decision_management_interleaving.DecisionManagementInterleavingTests.test_new_stop_wins_over_backend_apply_latched_before_trusted_replacement) ... ok
+test_post_timeout_quarantine_crosses_instances_and_http_recovery_requires_new_goal (test_decision_management_interleaving.DecisionManagementInterleavingTests.test_post_timeout_quarantine_crosses_instances_and_http_recovery_requires_new_goal) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.359s
+
+OK
+------------------------------------------------------------------------
+$ (cwd=D:\Code\AstrBotEX-work\upper-b09) C:\Users\17088\.workbuddy-ai\binaries\python\versions\3.13.12\python.exe -B -m unittest discover -s tests
+exit_code=0  duration_s=313.9
+SDK journal compatibility disabled {'starts': 1, 'cancels': [], 'epoch_before': 3, 'epoch_after': 3, 'gate': True, 'held_resources': ['shared'], 'stop_calls': 0}
+SDK journal compatibility shadow {'starts': 1, 'cancels': [], 'epoch_before': 5, 'epoch_after': 5, 'gate': True, 'held_resources': ['shared'], 'stop_calls': 0}
+blocked-subscriber tts {'stop': 0.042, 'voice': 0.016}
+blocked-subscriber text {'stop': 0.056, 'voice': 0.035}
+G04 event-latch gate+status n=20 p95_ms=0.039 max_ms=0.075; single_live_calls=1
+real symlink unavailable in test environment: [WinError 1314] 客户端没有所需的特权。: 'C:\\Users\\17088\\AppData\\Local\\Temp\\tmp3vwzy01e\\outside.txt' -> 'C:\\Users\\17088\\AppData\\Local\\Temp\\tmp3vwzy01e\\plugins\\special\\test_plugin\\linked.txt'
+...........................................................................................................................................................s.....................................................................................................................................................................................................................................................................................................................................................................................................................................................................s..................................................................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 836 tests in 312.276s
+
+OK (skipped=2)
+------------------------------------------------------------------------

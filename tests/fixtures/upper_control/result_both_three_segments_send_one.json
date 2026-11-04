@@ -1,0 +1,36 @@
+{
+  "case_id": "result_both_three_segments_send_one",
+  "expected_accept": true,
+  "expected_deferred": [
+    "接近并对齐刚才的同一个目标。",
+    "按已配置方案抓取同一个目标。"
+  ],
+  "expected_error": null,
+  "expected_send_count": 1,
+  "expected_texts": [
+    "寻找红色杯子，并保留目标引用。",
+    "接近并对齐刚才的同一个目标。",
+    "按已配置方案抓取同一个目标。"
+  ],
+  "kind": "result",
+  "note": "Three segments but send_count 1: only the prefix goes now.",
+  "payload": {
+    "public_text": "收到，先做第一步。",
+    "segments": [
+      {
+        "text": "寻找红色杯子，并保留目标引用。"
+      },
+      {
+        "text": "接近并对齐刚才的同一个目标。"
+      },
+      {
+        "text": "按已配置方案抓取同一个目标。"
+      }
+    ],
+    "send_count": 1
+  },
+  "route": "speech_and_action",
+  "sides": [
+    "aeb"
+  ]
+}

@@ -1,0 +1,44 @@
+TAP version 13
+# Subtest: real Host page: configure offline, persist, conflict and preserve failed drafts
+not ok 1 - real Host page: configure offline, persist, conflict and preserve failed drafts
+  ---
+  duration_ms: 562.5661
+  type: 'test'
+  location: 'D:\\Code\\A.E.B-work\\upper-b10-b11\\astrbot_plugin_astrbotex_interaction\\tests\\ui\\upper_control.spec.mjs:1260:27'
+  failureType: 'testCodeFailure'
+  error: |-
+    page.goto: net::ERR_UNSAFE_PORT at http://127.0.0.1:1/#/plugin-page/astrbot_plugin_astrbotex_interaction/upper-control
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:1/#/plugin-page/astrbot_plugin_astrbotex_interaction/upper-control", waiting until "domcontentloaded"[22m
+    
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    openRealHostPage (D:\Code\A.E.B-work\upper-b10-b11\astrbot_plugin_astrbotex_interaction\tests\ui\upper_control.spec.mjs:577:14)
+    async TestContext.<anonymous> (D:\Code\A.E.B-work\upper-b10-b11\astrbot_plugin_astrbotex_interaction\tests\ui\upper_control.spec.mjs:1262:17)
+  ...
+# Subtest: real Host CRUD, prompts, reload and four viewport/theme combinations
+not ok 2 - real Host CRUD, prompts, reload and four viewport/theme combinations
+  ---
+  duration_ms: 98.6797
+  type: 'test'
+  location: 'D:\\Code\\A.E.B-work\\upper-b10-b11\\astrbot_plugin_astrbotex_interaction\\tests\\ui\\upper_control.spec.mjs:1369:27'
+  failureType: 'testCodeFailure'
+  error: |-
+    page.goto: net::ERR_UNSAFE_PORT at http://127.0.0.1:1/#/plugin-page/astrbot_plugin_astrbotex_interaction/upper-control
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:1/#/plugin-page/astrbot_plugin_astrbotex_interaction/upper-control", waiting until "domcontentloaded"[22m
+    
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    openRealHostPage (D:\Code\A.E.B-work\upper-b10-b11\astrbot_plugin_astrbotex_interaction\tests\ui\upper_control.spec.mjs:577:14)
+    async TestContext.<anonymous> (D:\Code\A.E.B-work\upper-b10-b11\astrbot_plugin_astrbotex_interaction\tests\ui\upper_control.spec.mjs:1371:19)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 890.9333

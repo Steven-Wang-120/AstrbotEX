@@ -1,0 +1,39 @@
+{
+  "task_id": "B11",
+  "run_id": "20261103-acceptance02",
+  "code_revision": {
+    "aeb": "3624cd0d6d6fc8a9acba50683c92ea809e110407",
+    "ex": "42ffa9d1566dfbef2e49d589f1a1e62ff7a9952e"
+  },
+  "status": "PASS",
+  "merge_performed": false,
+  "scope": [
+    "unit_fake",
+    "real_zmq_loopback",
+    "host_python_integration",
+    "real_host",
+    "backend_request_capture",
+    "forced_process_recovery"
+  ],
+  "tests": {
+    "unit_aeb": 285,
+    "unit_ex": 96,
+    "loopback_aeb": 19,
+    "loopback_ex": 12,
+    "host": 99,
+    "page_spec": 2,
+    "legacy_regression": 194
+  },
+  "report": "验收补齐报告.md",
+  "source_manifest": "source-manifest.json",
+  "results": "acceptance-results.json",
+  "consumers_to_retest": [
+    "B04",
+    "B05",
+    "B07",
+    "B08",
+    "B10",
+    "B11"
+  ],
+  "user_instruction": "Pause merge while another branch is merging; final candidates only."
+}

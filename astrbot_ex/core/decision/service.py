@@ -16,6 +16,7 @@ from ..actions.ledger import LedgerBusy, LedgerClosed, LedgerFault, OwnerBinding
 from ..actions.models import ActionCommand, ActionStatus, ContractError, TERMINAL_STATUSES, validate_params
 from .backends import MockBackend
 from .goal_manager import GoalManager
+from .instruction_input import InstructionInputError
 from .models import BackendDecision, DecisionSnapshot, VersionSet, validate_backend_selection
 from .observations import ObservationStore
 
@@ -73,6 +74,13 @@ class DecisionService:
         self._review_future = None
         self._backend_input = None
         self._backend_result = None
+        # Upper-step input rounds share the single backend thread with decide().
+        # They never touch Goal state, the dispatcher or ActionService.
+        self._instruction_input = None
+        self._instruction_running = None
+        self._instruction_result = None
+        self._instruction_rounds = 0
+        self._last_instruction = None
         self._live_snapshot = None
         self._timed_out = False
         self._next_request_ns = 0
@@ -793,12 +801,26 @@ class DecisionService:
     def _backend_loop(self) -> None:
         while True:
             with self._condition:
-                self._condition.wait_for(lambda: self._closed or self._backend_input is not None)
+                self._condition.wait_for(lambda: self._closed or self._backend_input is not None
+                                         or self._instruction_input is not None)
                 if self._closed:
+                    self._settle_instruction_locked("unknown", "closed")
                     return
                 snapshot = self._backend_input
-                self._backend_input = None
+                instruction = None
+                if snapshot is None:
+                    instruction = self._instruction_input
+                    self._instruction_input = None
+                    # Mark the slot busy in the same lock acquisition so a
+                    # second submit cannot slip in between pickup and start.
+                    self._instruction_running = instruction
+                else:
+                    self._backend_input = None
                 backend = self.backend
+            if instruction is not None:
+                # Serialized with decide(): one non-thread-safe client, one thread.
+                self._run_instruction_round(backend, instruction)
+                continue
             self._trace("prepared", snapshot, snapshot=snapshot.to_dict(),
                         backend=self._backend_name, backend_type=type(backend).__name__,
                         service_generation=getattr(backend, "generation", None))
@@ -839,6 +861,127 @@ class DecisionService:
                     return
                 self._backend_result = (result, error)
                 self._condition.notify_all()
+
+    # -- upper-step input -------------------------------------------------
+
+    def instruction_ready(self) -> tuple[bool, str]:
+        """Explicit capability probe; never falls back to another backend."""
+
+        if self._closed:
+            return False, "closed"
+        backend = self.backend
+        if not callable(getattr(backend, "consume_instruction", None)):
+            return False, "backend_unsupported"
+        supports = getattr(backend, "supports_instruction_input", None)
+        if callable(supports):
+            try:
+                if not supports():
+                    return False, "backend_unsupported"
+            except Exception:
+                return False, "backend_unsupported"
+        return True, ""
+
+    def _instruction_busy_locked(self) -> str:
+        if self._instruction_input is not None or self._instruction_running is not None:
+            return "instruction_pending"
+        if self._backend_input is not None or self._backend_result is not None:
+            return "backend_busy"
+        if self.goals.active is not None:
+            # An existing goal keeps its authority; a new batch never preempts it.
+            return "active_goal"
+        return ""
+
+    def submit_instruction(self, batch, *, timeout_sec: float = 2.0, on_settled=None) -> dict:
+        """Queue one immutable batch and wait at most ``timeout_sec`` for it.
+
+        Returns ``{"phase": "injected"|"received"|"unknown"|"rejected"}``.  A
+        ``received`` answer means the batch is still queued; ``on_settled`` is
+        then called by the backend thread when the real outcome is known.
+        """
+
+        with self._condition:
+            if self._closed:
+                raise InstructionInputError("backend_unsupported", "closed")
+            ready, reason = self.instruction_ready()
+            if not ready:
+                raise InstructionInputError("backend_unsupported", reason)
+            busy = self._instruction_busy_locked()
+            if busy:
+                raise InstructionInputError("input_busy", busy)
+            self._instruction_input = (batch, self.config_revision, self._backend_name, on_settled)
+            self._instruction_result = None
+            self._condition.notify_all()
+            deadline = time.monotonic() + max(0.0, float(timeout_sec))
+            while self._instruction_result is None and not self._closed:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    break
+                self._condition.wait(remaining)
+            result = self._instruction_result
+            if result is None:
+                if self._closed:
+                    return {"phase": "unknown", "detail": "closed"}
+                return {"phase": "received", "detail": "queued"}
+            self._instruction_result = None
+            phase, detail = result
+            return {"phase": phase, "detail": detail}
+
+    def _settle_instruction_locked(self, phase: str, detail: str) -> None:
+        """Resolve a waiter that is still blocked during close()."""
+
+        pending = self._instruction_input
+        self._instruction_input = None
+        if pending is not None:
+            callback = pending[3] if len(pending) > 3 else None
+            if callable(callback):
+                try:
+                    callback(phase, detail)
+                except Exception:
+                    pass
+        if self._instruction_result is None:
+            self._instruction_result = (phase, detail)
+            self._condition.notify_all()
+
+    def _run_instruction_round(self, backend, instruction) -> None:
+        batch, epoch, backend_name, on_settled = instruction
+        phase, detail = "unknown", ""
+        if epoch != self.config_revision or backend_name != self._backend_name:
+            # A configuration switch invalidated this generation; the new
+            # session must not consume a batch prepared for the old one.
+            phase, detail = "rejected", "session_mismatch"
+        else:
+            consume = getattr(backend, "consume_instruction", None)
+            if not callable(consume):
+                phase, detail = "rejected", "backend_unsupported"
+            else:
+                try:
+                    outcome = consume(batch) or {}
+                    phase = "injected" if outcome.get("accepted") is True else "rejected"
+                    detail = str(outcome.get("detail") or outcome.get("model") or "")
+                except Exception as exc:  # noqa: BLE001
+                    code = getattr(exc, "code", None)
+                    if isinstance(code, str) and code:
+                        phase, detail = "rejected", code
+                    else:
+                        phase, detail = "unknown", type(exc).__name__
+        with self._lock:
+            self._instruction_rounds += 1
+            self._last_instruction = {
+                "batch_id": getattr(batch, "batch_id", ""),
+                "phase": phase,
+                "detail": detail,
+                "backend": backend_name,
+                "at": time.time(),
+            }
+        if callable(on_settled):
+            try:
+                on_settled(phase, detail)
+            except Exception:
+                pass
+        with self._condition:
+            self._instruction_running = None
+            self._instruction_result = (phase, detail)
+            self._condition.notify_all()
 
     def _finish_proven_completion(self, goal, epoch) -> None:
         """Post-stop hook; all refresh/journal I/O is outside safety locks."""
@@ -1195,6 +1338,12 @@ class DecisionService:
                     "config_revision": self.config_revision, "decisions": copy.deepcopy(list(self._decisions)),
                     "catalog_revision": self.catalog.snapshot().revision,
                     "environment_revision": self.actions._environment_revision,
+                    "instruction": {
+                        "ready": self.instruction_ready()[0],
+                        "reason": self.instruction_ready()[1],
+                        "rounds": self._instruction_rounds,
+                        "last": copy.deepcopy(self._last_instruction),
+                    },
                     "closed": self._closed}
 
     def snapshot(self) -> dict | None:
@@ -1208,6 +1357,8 @@ class DecisionService:
         receipt = self.request_stop("decision_service_close")
         with self._condition:
             self._closed = True
+            # Release any caller still waiting on a queued instruction round.
+            self._settle_instruction_locked("unknown", "closed")
             self._condition.notify_all()
         errors = []
         try:

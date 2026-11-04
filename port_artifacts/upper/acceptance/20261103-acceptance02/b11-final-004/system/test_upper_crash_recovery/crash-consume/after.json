@@ -1,0 +1,42 @@
+{
+  "log": [
+    {
+      "batch_id": "bc6c532d5f8b4af9a44d68f068dd421f",
+      "request_id": "request-bc6c532d5f8b4af9a44d68f068dd421f",
+      "payload_hash": "3091f4363f1b130d4dd663a04d5147528236d0baca097891a7ec089316e20fd1",
+      "phase": "unknown",
+      "connection_id": "control",
+      "route_ref": "route-e2e",
+      "ex_session": "ex-session-b11e2e",
+      "robot_id": "robot-e2e",
+      "segment_ids": [
+        "s0"
+      ],
+      "segment_count": 1,
+      "received_at": 1793715278.9292674,
+      "reason": "recovered_after_restart",
+      "settled_at": null
+    }
+  ],
+  "replay": {
+    "ok": true,
+    "batch_id": "bc6c532d5f8b4af9a44d68f068dd421f",
+    "request_id": "request-bc6c532d5f8b4af9a44d68f068dd421f",
+    "payload_hash": "3091f4363f1b130d4dd663a04d5147528236d0baca097891a7ec089316e20fd1",
+    "phase": "unknown",
+    "segment_count": 1,
+    "ex_session": "ex-session-b11e2e",
+    "reason": "recovered_after_restart",
+    "receipt": {
+      "batch_id": "bc6c532d5f8b4af9a44d68f068dd421f",
+      "request_id": "request-bc6c532d5f8b4af9a44d68f068dd421f",
+      "payload_hash": "3091f4363f1b130d4dd663a04d5147528236d0baca097891a7ec089316e20fd1",
+      "phase": "unknown",
+      "segment_count": 1,
+      "ex_session": "ex-session-b11e2e",
+      "reason": "recovered_after_restart"
+    },
+    "duplicate": true
+  },
+  "new_model_calls": 0
+}

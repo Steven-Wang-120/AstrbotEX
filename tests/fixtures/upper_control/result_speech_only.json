@@ -1,0 +1,18 @@
+{
+  "case_id": "result_speech_only",
+  "expected_accept": true,
+  "expected_error": null,
+  "expected_send_count": 0,
+  "expected_texts": [],
+  "kind": "result",
+  "note": "Speaking only: no segment, nothing to send.",
+  "payload": {
+    "public_text": "好的，我在听。",
+    "segments": [],
+    "send_count": 0
+  },
+  "route": "speech_only",
+  "sides": [
+    "aeb"
+  ]
+}

@@ -1,0 +1,4 @@
+# The upper_control fixtures are a cross-repository contract verified by
+# SHA-256. Git's end-of-line conversion must never rewrite them, or a fresh
+# clone on a different platform would fail the manifest check.
+* -text

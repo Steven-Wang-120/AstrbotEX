@@ -1,0 +1,633 @@
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+  re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+  re_skip_default = re.compile("(\r\n|\s)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/finalseg/__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+  re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+[32m[13:50:36.815][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:37.032][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:50:37.032][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:37.032][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=60631, audio=48101, vision=36613[0m
+[32m[13:50:37.032][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task finished name='Task-1' coro=<SystemAcceptanceTests.asyncSetUp() done, defined at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_acceptance.py:66> result=None created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.299 seconds[0m
+[32m[13:50:37.643][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task pending name='Task-8' coro=<SystemAcceptanceTests.test_S1_S2_S3_S4_real_http_wait_and_restart() running at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_acceptance.py:253> wait_for=<Future pending cb=[Task.task_wakeup()] created at /usr/local/lib/python3.12/asyncio/base_events.py:448> cb=[_run_until_complete_cb() at /usr/local/lib/python3.12/asyncio/base_events.py:181] created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.600 seconds[0m
+[32m[13:50:39.941][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1435]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:38331"
+}[0m
+[32m[13:50:39.972][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:50:40.007][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:40.020][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:50:40.020][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:40.020][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=60631, audio=48101, vision=36613[0m
+[32m[13:50:42.323][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1435]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:38331"
+}[0m
+[32m[13:50:42.353][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_S1_S2_S3_S4_real_http_wait_and_restart (astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.test_S1_S2_S3_S4_real_http_wait_and_restart) ... ok
+[32m[13:50:42.402][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:42.416][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:50:42.417][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:42.417][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=52045, audio=33221, vision=56899[0m
+[32m[13:50:42.829][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task pending name='Task-27' coro=<SystemAcceptanceTests.test_concurrent_twenty_replays_and_other_origin_not_muted() running at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_acceptance.py:244> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /usr/local/lib/python3.12/asyncio/tasks.py:712> cb=[_run_until_complete_cb() at /usr/local/lib/python3.12/asyncio/base_events.py:181] created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.369 seconds[0m
+[32m[13:50:42.942][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1435]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:59529"
+}[0m
+[32m[13:50:42.978][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_concurrent_twenty_replays_and_other_origin_not_muted (astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.test_concurrent_twenty_replays_and_other_origin_not_muted) ... ok
+[32m[13:50:43.037][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:43.054][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:50:43.055][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:43.055][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=60621, audio=46917, vision=37875[0m
+[32m[13:50:43.186][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1435]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:54831"
+}[0m
+[32m[13:50:43.217][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_external_skill_changes_only_future_frozen_plan (astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.test_external_skill_changes_only_future_frozen_plan) ... ok
+[32m[13:50:43.266][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:43.281][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:50:43.281][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:43.281][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=37809, audio=58263, vision=35983[0m
+[32m[13:50:43.302][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1435]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:56915"
+}[0m
+[32m[13:50:43.334][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:50:43.377][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:43.377][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=37809, audio=58263, vision=35983[0m
+[32m[13:50:43.412][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:50:43.451][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:43.451][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=37809, audio=58263, vision=35983[0m
+[32m[13:50:43.481][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:50:43.518][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:43.519][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=37809, audio=58263, vision=35983[0m
+[32m[13:50:43.549][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:50:43.549][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_feature_off_three_reloads_release_control_listener (astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.test_feature_off_three_reloads_release_control_listener) ... ok
+[32m[13:50:43.602][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:43.618][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:50:43.618][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:43.618][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=37039, audio=41869, vision=56369[0m
+[32m[13:50:43.647][0m [Core] [33m[1m[WARN][0m [v4.26.7] [astrbot_plugin_astrbotex_interaction.main:1527]: [33m[1mAstrBotEX upper public reply failed.[0m
+[33m[1mTraceback (most recent call last):[0m
+
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/usr/local/lib/python3.12/unittest/__main__.py", line 18, in <module>
+    main(module=None)
+    └ <class 'unittest.main.TestProgram'>
+  File "/usr/local/lib/python3.12/unittest/main.py", line 105, in __init__
+    self.runTests()
+    │    └ <function TestProgram.runTests at 0x75e5915767a0>
+    └ <unittest.main.TestProgram object at 0x75e5916d3e60>
+  File "/usr/local/lib/python3.12/unittest/main.py", line 281, in runTests
+    self.result = testRunner.run(self.test)
+    │             │          │   │    └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[None, None, None, None, <a...
+    │             │          │   └ <unittest.main.TestProgram object at 0x75e5916d3e60>
+    │             │          └ <function TextTestRunner.run at 0x75e591576020>
+    │             └ <unittest.runner.TextTestRunner object at 0x75e5888e1dc0>
+    └ <unittest.main.TestProgram object at 0x75e5916d3e60>
+  File "/usr/local/lib/python3.12/unittest/runner.py", line 240, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=5 errors=0 failures=0>
+    └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[None, None, None, None, <a...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=5 errors=0 failures=0>,)
+           │    └ <function TestSuite.run at 0x75e591522840>
+           └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[None, None, None, None, <a...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 122, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=5 errors=0 failures=0>
+    └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[None, None, None, None, <astrbot_plugin_astrbotex_interacti...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=5 errors=0 failures=0>,)
+           │    └ <function TestSuite.run at 0x75e591522840>
+           └ <unittest.suite.TestSuite tests=[<unittest.suite.TestSuite tests=[None, None, None, None, <astrbot_plugin_astrbotex_interacti...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 122, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=5 errors=0 failures=0>
+    └ <unittest.suite.TestSuite tests=[None, None, None, None, <astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.Sy...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=5 errors=0 failures=0>,)
+           │    └ <function TestSuite.run at 0x75e591522840>
+           └ <unittest.suite.TestSuite tests=[None, None, None, None, <astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.Sy...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 122, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=5 errors=0 failures=0>
+    └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests testMethod=test_onebot_send_failure_i...
+  File "/usr/local/lib/python3.12/unittest/case.py", line 690, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=5 errors=0 failures=0>,)
+           │    └ <function IsolatedAsyncioTestCase.run at 0x75e53fb6c860>
+           └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests testMethod=test_onebot_send_failure_i...
+  File "/usr/local/lib/python3.12/unittest/async_case.py", line 132, in run
+    return super().run(result)
+                       └ <unittest.runner.TextTestResult run=5 errors=0 failures=0>
+  File "/usr/local/lib/python3.12/unittest/case.py", line 634, in run
+    self._callTestMethod(testMethod)
+    │    │               └ <bound method SystemAcceptanceTests.test_onebot_send_failure_is_unknown_and_never_repeated of <astrbot_plugin_astrbotex_inter...
+    │    └ <function IsolatedAsyncioTestCase._callTestMethod at 0x75e53fb6c400>
+    └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests testMethod=test_onebot_send_failure_i...
+  File "/usr/local/lib/python3.12/unittest/async_case.py", line 91, in _callTestMethod
+    if self._callMaybeAsync(method) is not None:
+       │    │               └ <bound method SystemAcceptanceTests.test_onebot_send_failure_is_unknown_and_never_repeated of <astrbot_plugin_astrbotex_inter...
+       │    └ <function IsolatedAsyncioTestCase._callMaybeAsync at 0x75e53fb6c680>
+       └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests testMethod=test_onebot_send_failure_i...
+  File "/usr/local/lib/python3.12/unittest/async_case.py", line 113, in _callMaybeAsync
+    return self._asyncioRunner.run(
+           │    │              └ <function Runner.run at 0x75e590843e20>
+           │    └ <asyncio.runners.Runner object at 0x75e54049d7c0>
+           └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests testMethod=test_onebot_send_failure_i...
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-107' coro=<SystemAcceptanceTests.test_onebot_send_failure_is_unknown_and_never_repeated() running at...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x75e5908419e0>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=True>
+           └ <asyncio.runners.Runner object at 0x75e54049d7c0>
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 678, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x75e590841940>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=True>
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 645, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x75e590843740>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=True>
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 1991, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x75e591269ee0>
+    └ <Handle <_asyncio.TaskStepMethWrapper object at 0x75e540232410>() created at /usr/local/lib/python3.12/asyncio/base_events.py...
+  File "/usr/local/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle <_asyncio.TaskStepMethWrapper object at 0x75e540232410>() created at /usr/local/lib/python3.12/asyncio/base_events.py...
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle <_asyncio.TaskStepMethWrapper object at 0x75e540232410>() created at /usr/local/lib/python3.12/asyncio/base_events.py...
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle <_asyncio.TaskStepMethWrapper object at 0x75e540232410>() created at /usr/local/lib/python3.12/asyncio/base_events.py...
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/tests/[0m[32m[1mtest_upper_acceptance.py[0m", line [33m414[0m, in [35mtest_onebot_send_failure_is_unknown_and_never_repeated[0m
+    [35m[1mawait[0m [1mself[0m[35m[1m.[0m[1maeb[0m[35m[1m.[0m[1mplugin[0m[35m[1m.[0m[1mtake_over_upper_input[0m[1m([0m[1mevent[0m[1m)[0m
+    [36m      │    │   │      │                     └ [0m[36m[1m<astrbot.core.platform.sources.aiocqhttp.aiocqhttp_message_event.AiocqhttpMessageEvent object at 0x75e540231910>[0m
+    [36m      │    │   │      └ [0m[36m[1m<function AstrBotEXInteractionPlugin.take_over_upper_input at 0x75e53fb30900>[0m
+    [36m      │    │   └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.main.AstrBotEXInteractionPlugin object at 0x75e5404c2750>[0m
+    [36m      │    └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.tests.test_upper_e2e.UpperStackAcceptanceTests testMethod=test_speech_only_sends_public...[0m
+    [36m      └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests testMethod=test_onebot_send_failure_i...[0m
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/[0m[32m[1mmain.py[0m", line [33m1882[0m, in [35mtake_over_upper_input[0m
+    [1mresult[0m [35m[1m=[0m [35m[1mawait[0m [1mself[0m[35m[1m.[0m[1m_upper[0m[35m[1m.[0m[1mpipeline[0m[35m[1m.[0m[1mprocess[0m[1m([0m
+    [36m               │    │      │        └ [0m[36m[1m<function UpperPipeline.process at 0x75e540636f20>[0m
+    [36m               │    │      └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.upper_pipeline.UpperPipeline object at 0x75e54023ea50>[0m
+    [36m               │    └ [0m[36m[1mUpperComponents(settings=UpperSettings(enabled=True, control_enabled=True, control_bind_host='127.0.0.1', control_port=44423,...[0m
+    [36m               └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.main.AstrBotEXInteractionPlugin object at 0x75e5404c2750>[0m
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/[0m[32m[1mupper_pipeline.py[0m", line [33m358[0m, in [35mprocess[0m
+    [1memitted[0m [35m[1m=[0m [35m[1mawait[0m [1mself[0m[35m[1m.[0m[1mrouter[0m[35m[1m.[0m[1memit_public[0m[1m([0m[1mplan_id[0m[1m,[0m [1mpublic_sender[0m[1m)[0m
+    [36m                │    │      │           │        └ [0m[36m[1m<function AstrBotEXInteractionPlugin.upper_public_sender_for.<locals>.send_public at 0x75e54013ac00>[0m
+    [36m                │    │      │           └ [0m[36m[1m'8eb6df7590724a15a2978d7b4320e706'[0m
+    [36m                │    │      └ [0m[36m[1m<function UpperOutputRouter.emit_public at 0x75e53fc16c00>[0m
+    [36m                │    └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.output_router.UpperOutputRouter object at 0x75e540233380>[0m
+    [36m                └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.upper_pipeline.UpperPipeline object at 0x75e54023ea50>[0m
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/[0m[32m[1moutput_router.py[0m", line [33m138[0m, in [35memit_public[0m
+    [1mresult[0m [35m[1m=[0m [35m[1mawait[0m [1msender[0m[1m([0m[1mreply[0m[1m[[0m[36m"text"[0m[1m][0m[1m)[0m
+    [36m               │      └ [0m[36m[1m{'reply_id': '3e435f963deb4cdebaff07b821697308', 'plan_id': '8eb6df7590724a15a2978d7b4320e706', 'input_key': 'upper-cbee67e7d...[0m
+    [36m               └ [0m[36m[1m<function AstrBotEXInteractionPlugin.upper_public_sender_for.<locals>.send_public at 0x75e54013ac00>[0m
+
+> File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/[0m[32m[1mmain.py[0m", line [33m1525[0m, in [35msend_public[0m
+    [35m[1mawait[0m [1mevent[0m[35m[1m.[0m[1msend[0m[1m([0m[1mMessageChain[0m[1m([0m[1m)[0m[35m[1m.[0m[1mmessage[0m[1m([0m[1mbody[0m[1m)[0m[1m)[0m
+    [36m      │     │    │                      └ [0m[36m[1m'UPPER_PUBLIC_failed_platform'[0m
+    [36m      │     │    └ [0m[36m[1m<class 'astrbot.core.message.message_event_result.MessageChain'>[0m
+    [36m      │     └ [0m[36m[1m<function AiocqhttpMessageEvent.send at 0x75e5401394e0>[0m
+    [36m      └ [0m[36m[1m<astrbot.core.platform.sources.aiocqhttp.aiocqhttp_message_event.AiocqhttpMessageEvent object at 0x75e540231910>[0m
+
+  File "[32m/AstrBot/astrbot/core/platform/sources/aiocqhttp/[0m[32m[1maiocqhttp_message_event.py[0m", line [33m190[0m, in [35msend[0m
+    [35m[1mawait[0m [1mself[0m[35m[1m.[0m[1msend_message[0m[1m([0m
+    [36m      │    └ [0m[36m[1m<classmethod(<function AiocqhttpMessageEvent.send_message at 0x75e540139440>)>[0m
+    [36m      └ [0m[36m[1m<astrbot.core.platform.sources.aiocqhttp.aiocqhttp_message_event.AiocqhttpMessageEvent object at 0x75e540231910>[0m
+
+  File "[32m/AstrBot/astrbot/core/platform/sources/aiocqhttp/[0m[32m[1maiocqhttp_message_event.py[0m", line [33m152[0m, in [35msend_message[0m
+    [35m[1mawait[0m [1mcls[0m[35m[1m.[0m[1m_dispatch_send[0m[1m([0m[1mbot[0m[1m,[0m [1mevent[0m[1m,[0m [1mis_group[0m[1m,[0m [1msession_id[0m[1m,[0m [1mret[0m[1m)[0m
+    [36m      │   │              │    │      │         │           └ [0m[36m[1m[{'type': 'text', 'data': {'text': 'UPPER_PUBLIC_failed_platform'}}][0m
+    [36m      │   │              │    │      │         └ [0m[36m[1m'700001'[0m
+    [36m      │   │              │    │      └ [0m[36m[1mFalse[0m
+    [36m      │   │              │    └ [0m[36m[1mNone[0m
+    [36m      │   │              └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.onebot_event.<locals>.Bot object at 0...[0m
+    [36m      │   └ [0m[36m[1m<classmethod(<function AiocqhttpMessageEvent._dispatch_send at 0x75e5401393a0>)>[0m
+    [36m      └ [0m[36m[1m<class 'astrbot.core.platform.sources.aiocqhttp.aiocqhttp_message_event.AiocqhttpMessageEvent'>[0m
+
+  File "[32m/AstrBot/astrbot/core/platform/sources/aiocqhttp/[0m[32m[1maiocqhttp_message_event.py[0m", line [33m113[0m, in [35m_dispatch_send[0m
+    [35m[1mawait[0m [1mbot[0m[35m[1m.[0m[1msend_private_msg[0m[1m([0m
+    [36m      │   └ [0m[36m[1m<function SystemAcceptanceTests.test_onebot_send_failure_is_unknown_and_never_repeated.<locals>.fail at 0x75e54013aa20>[0m
+    [36m      └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.onebot_event.<locals>.Bot object at 0...[0m
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/tests/[0m[32m[1mtest_upper_acceptance.py[0m", line [33m409[0m, in [35mfail[0m
+    [35m[1mraise[0m [1mConnectionError[0m[1m([0m[36m"local OneBot fixture disconnected"[0m[1m)[0m
+
+[31m[1mConnectionError[0m:[1m local OneBot fixture disconnected[0m
+[32m[13:50:43.667][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1435]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:44423"
+}[0m
+[32m[13:50:43.700][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_onebot_send_failure_is_unknown_and_never_repeated (astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.test_onebot_send_failure_is_unknown_and_never_repeated) ... ok
+[32m[13:50:43.756][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:43.772][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:50:43.772][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:43.772][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=43113, audio=54919, vision=58731[0m
+[32m[13:50:45.939][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1435]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:53031"
+}[0m
+[32m[13:50:45.971][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_real_model_failures_and_epoch_change_emit_nothing (astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.test_real_model_failures_and_epoch_change_emit_nothing) ... ok
+[32m[13:50:46.024][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:46.042][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:50:46.042][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:46.042][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=53639, audio=36909, vision=58289[0m
+[32m[13:50:47.192][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1435]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:48659"
+}[0m
+[32m[13:50:47.228][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_ten_routes_real_onebot_voice_tts_and_http_no_leaks (astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.test_ten_routes_real_onebot_voice_tts_and_http_no_leaks) ... ok
+[32m[13:50:47.292][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:47.311][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:50:47.311][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:47.311][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=41131, audio=43529, vision=36769[0m
+[32m[13:50:47.340][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1435]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:59663"
+}[0m
+[32m[13:50:47.376][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_unreserved_plan_api_is_unsent_and_disk_errors_are_not_404 (astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.test_unreserved_plan_api_is_unsent_and_disk_errors_are_not_404) ... ok
+test_input_key_never_collides_across_identity (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperContractGuardTests.test_input_key_never_collides_across_identity) ... ok
+test_payload_hash_is_stable_and_identity_free (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperContractGuardTests.test_payload_hash_is_stable_and_identity_free) ... ok
+test_payload_too_large_is_refused_not_truncated (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperContractGuardTests.test_payload_too_large_is_refused_not_truncated) ... ok
+test_probabilities_are_strict (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperContractGuardTests.test_probabilities_are_strict) ... ok
+test_route_field_combinations (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperContractGuardTests.test_route_field_combinations) ... ok
+test_action_only_has_no_public_exit (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_action_only_has_no_public_exit) ... ok
+test_crash_between_reserve_and_receipt_is_unresolved_not_retried (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_crash_between_reserve_and_receipt_is_unresolved_not_retried) ... ok
+test_delivery_unknown_is_terminal_and_never_resent (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_delivery_unknown_is_terminal_and_never_resent) ... ok
+test_identical_text_from_distinct_messages_stays_distinct (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_identical_text_from_distinct_messages_stays_distinct) ... ok
+test_legacy_tables_are_untouched_by_the_extension (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_legacy_tables_are_untouched_by_the_extension) ... ok
+test_mismatched_receipt_is_refused_and_leaves_state_intact (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_mismatched_receipt_is_refused_and_leaves_state_intact) ... ok
+test_projection_hides_production_context (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_projection_hides_production_context) ... ok
+test_public_reply_claims_once (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_public_reply_claims_once) ... ok
+test_received_does_not_advance_the_suffix (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_received_does_not_advance_the_suffix) ... ok
+test_same_message_never_produces_a_second_plan (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_same_message_never_produces_a_second_plan) ... ok
+test_speech_only_reserves_nothing (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_speech_only_reserves_nothing) ... ok
+test_stale_generation_is_rejected (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_stale_generation_is_rejected) ... ok
+test_three_segments_send_two_survive_restart_byte_identical (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_three_segments_send_two_survive_restart_byte_identical) ... ok
+test_twenty_concurrent_duplicate_claims_yield_one_plan_and_one_reservation (astrbot_plugin_astrbotex_interaction.tests.test_upper_store.UpperStoreTests.test_twenty_concurrent_duplicate_claims_yield_one_plan_and_one_reservation) ... ok
+test_each_collaborator_gets_its_documented_arguments (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.CompositionContractTests.test_each_collaborator_gets_its_documented_arguments) ... ok
+test_incomplete_host_adapter_is_refused_before_construction (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.CompositionContractTests.test_incomplete_host_adapter_is_refused_before_construction) ... ok
+test_missing_api_module_is_a_partial_feature_not_a_failure (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.CompositionContractTests.test_missing_api_module_is_a_partial_feature_not_a_failure) ... ok
+test_missing_required_module_raises_a_named_gap (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.CompositionContractTests.test_missing_required_module_raises_a_named_gap) ... ok
+test_partial_assembly_closes_what_it_already_opened (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.CompositionContractTests.test_partial_assembly_closes_what_it_already_opened) ... ok
+test_pipeline_receives_the_published_keyword_contract (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.CompositionContractTests.test_pipeline_receives_the_published_keyword_contract) ... ok
+test_preflight_failures_name_the_missing_setting (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.CompositionContractTests.test_preflight_failures_name_the_missing_setting) ... ok
+test_router_wraps_the_upper_store (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.CompositionContractTests.test_router_wraps_the_upper_store) ... ok
+test_llm_generate_delegates_and_never_streams (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.HostAdapterTests.test_llm_generate_delegates_and_never_streams) ... ok
+test_missing_provider_is_a_named_failure (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.HostAdapterTests.test_missing_provider_is_a_named_failure) ... ok
+test_provider_id_is_resolved_synchronously (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.HostAdapterTests.test_provider_id_is_resolved_synchronously) ... ok
+test_unknown_provider_id_is_none_not_an_exception (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.HostAdapterTests.test_unknown_provider_id_is_none_not_an_exception) ... ok
+[32m[13:50:47.942][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:47.943][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:47.943][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:47.943][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=46499, audio=41199, vision=39623[0m
+[32m[13:50:47.958][0m [Core] [33m[1m[WARN][0m [v4.26.7] [astrbot_plugin_astrbotex_interaction.main:1857]: [33m[1mAstrBotEX upper input rejected (input_busy): a legacy control task owns this session.[0m
+[32m[13:50:47.985][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_active_legacy_task_refuses_upper_input (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_active_legacy_task_refuses_upper_input) ... ok
+[32m[13:50:48.021][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.022][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:48.022][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:48.022][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=48365, audio=53331, vision=56517[0m
+[32m[13:50:48.048][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_control_enabled_starts_fourth_channel_and_reports_it (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_control_enabled_starts_fourth_channel_and_reports_it) ... ok
+[32m[13:50:48.084][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.084][0m [Core] [33m[1m[WARN][0m [v4.26.7] [astrbot_plugin_astrbotex_interaction.main:1274]: [33m[1mAstrBotEX upper control channel did not start (bind failed); execution injection stays off.[0m
+[32m[13:50:48.084][0m [Core] [33m[1m[WARN][0m [v4.26.7] [astrbot_plugin_astrbotex_interaction.main:1289]: [33m[1mAstrBotEX upper control was requested but is unavailable; input takeover stays off.[0m
+[32m[13:50:48.084][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=48881, audio=45175, vision=39743[0m
+[32m[13:50:48.113][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_control_start_failure_keeps_takeover_off (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_control_start_failure_keeps_takeover_off) ... ok
+[32m[13:50:48.150][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.150][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:48.150][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=on[0m
+[32m[13:50:48.151][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=34923, audio=36457, vision=33947[0m
+[32m[13:50:48.178][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_enabled_composition_builds_in_dependency_order (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_enabled_composition_builds_in_dependency_order) ... ok
+[32m[13:50:48.216][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.216][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:48.216][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:48.217][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=58081, audio=53733, vision=38799[0m
+[32m[13:50:48.242][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_ex_voice_input_replies_on_text_peer_without_task_fields (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_ex_voice_input_replies_on_text_peer_without_task_fields) ... ok
+[32m[13:50:48.278][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.278][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=58797, audio=56125, vision=32801[0m
+[32m[13:50:48.304][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_feature_off_builds_nothing_and_keeps_legacy_channels (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_feature_off_builds_nothing_and_keeps_legacy_channels) ... ok
+[32m[13:50:48.342][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.342][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:48.342][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:48.342][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=44385, audio=55611, vision=50455[0m
+[32m[13:50:48.368][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_host_without_page_api_records_unavailable (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_host_without_page_api_records_unavailable) ... ok
+[32m[13:50:48.369][0m [Core] [33m[1m[WARN][0m [v4.26.7] [astrbot_plugin_astrbotex_interaction.main:1017]: [33m[1mAstrBotEX upper control settings rejected (invalid_upper_settings: control_port is not an integer); upper control stays disabled.[0m
+[32m[13:50:48.408][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.408][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=41779, audio=43931, vision=33069[0m
+[32m[13:50:48.432][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_invalid_settings_keep_legacy_and_record_reason (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_invalid_settings_keep_legacy_and_record_reason) ... ok
+[32m[13:50:48.469][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.469][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:48.469][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:48.469][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=60665, audio=53315, vision=47759[0m
+[32m[13:50:48.503][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:50:48.504][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_late_result_after_reload_produces_no_output (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_late_result_after_reload_produces_no_output) ... ok
+[32m[13:50:48.541][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.542][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:48.542][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:48.542][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=59997, audio=56659, vision=33019[0m
+[32m[13:50:48.570][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_management_command_keeps_priority (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_management_command_keeps_priority) ... ok
+[32m[13:50:48.609][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.609][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:48.609][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:48.609][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=46433, audio=48277, vision=50153[0m
+[32m[13:50:48.637][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_message_without_id_never_collides (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_message_without_id_never_collides) ... ok
+[32m[13:50:48.674][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.674][0m [Core] [33m[1m[WARN][0m [v4.26.7] [astrbot_plugin_astrbotex_interaction.main:1233]: [33m[1mAstrBotEX upper control unavailable (module_missing: upper_pipeline); legacy channels stay enabled.[0m
+[32m[13:50:48.674][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=47639, audio=35681, vision=43041[0m
+[32m[13:50:48.702][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:50:48.702][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_missing_modules_degrade_without_touching_legacy (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_missing_modules_degrade_without_touching_legacy) ... ok
+[32m[13:50:48.738][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.739][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:48.739][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=on[0m
+[32m[13:50:48.739][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=40105, audio=56237, vision=58139[0m
+test_page_api_registered_on_real_host_surface (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_page_api_registered_on_real_host_surface) ... ERROR
+[32m[13:50:48.767][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:50:48.804][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.804][0m [Core] [33m[1m[WARN][0m [v4.26.7] [astrbot_plugin_astrbotex_interaction.main:1264]: [33m[1mAstrBotEX upper management API registration failed.[0m
+[33m[1mTraceback (most recent call last):[0m
+
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/usr/local/lib/python3.12/unittest/__main__.py", line 18, in <module>
+    main(module=None)
+    └ <class 'unittest.main.TestProgram'>
+  File "/usr/local/lib/python3.12/unittest/main.py", line 105, in __init__
+    self.runTests()
+    │    └ <function TestProgram.runTests at 0x75e5915767a0>
+    └ <unittest.main.TestProgram object at 0x75e5916d3e60>
+  File "/usr/local/lib/python3.12/unittest/main.py", line 281, in runTests
+    self.result = testRunner.run(self.test)
+    │             │          │   │    └ <unittest.suite.TestSuite tests=[None, None, <unittest.suite.TestSuite tests=[None, None, <unittest.suite.TestSuite tests=[No...
+    │             │          │   └ <unittest.main.TestProgram object at 0x75e5916d3e60>
+    │             │          └ <function TextTestRunner.run at 0x75e591576020>
+    │             └ <unittest.runner.TextTestRunner object at 0x75e5888e1dc0>
+    └ <unittest.main.TestProgram object at 0x75e5916d3e60>
+  File "/usr/local/lib/python3.12/unittest/runner.py", line 240, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=53 errors=1 failures=0>
+    └ <unittest.suite.TestSuite tests=[None, None, <unittest.suite.TestSuite tests=[None, None, <unittest.suite.TestSuite tests=[No...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=53 errors=1 failures=0>,)
+           │    └ <function TestSuite.run at 0x75e591522840>
+           └ <unittest.suite.TestSuite tests=[None, None, <unittest.suite.TestSuite tests=[None, None, <unittest.suite.TestSuite tests=[No...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 122, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=53 errors=1 failures=0>
+    └ <unittest.suite.TestSuite tests=[None, None, <unittest.suite.TestSuite tests=[None, None, None, None, None, None, None, None,...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=53 errors=1 failures=0>,)
+           │    └ <function TestSuite.run at 0x75e591522840>
+           └ <unittest.suite.TestSuite tests=[None, None, <unittest.suite.TestSuite tests=[None, None, None, None, None, None, None, None,...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 122, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=53 errors=1 failures=0>
+    └ <unittest.suite.TestSuite tests=[None, None, None, None, None, None, None, None, None, None, None, None, None, <astrbot_plugi...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=53 errors=1 failures=0>,)
+           │    └ <function TestSuite.run at 0x75e591522840>
+           └ <unittest.suite.TestSuite tests=[None, None, None, None, None, None, None, None, None, None, None, None, None, <astrbot_plugi...
+  File "/usr/local/lib/python3.12/unittest/suite.py", line 122, in run
+    test(result)
+    │    └ <unittest.runner.TextTestResult run=53 errors=1 failures=0>
+    └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests testMethod=test_page_api_registratio...
+  File "/usr/local/lib/python3.12/unittest/case.py", line 690, in __call__
+    return self.run(*args, **kwds)
+           │    │    │       └ {}
+           │    │    └ (<unittest.runner.TextTestResult run=53 errors=1 failures=0>,)
+           │    └ <function IsolatedAsyncioTestCase.run at 0x75e53fb6c860>
+           └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests testMethod=test_page_api_registratio...
+  File "/usr/local/lib/python3.12/unittest/async_case.py", line 132, in run
+    return super().run(result)
+                       └ <unittest.runner.TextTestResult run=53 errors=1 failures=0>
+  File "/usr/local/lib/python3.12/unittest/case.py", line 634, in run
+    self._callTestMethod(testMethod)
+    │    │               └ <bound method UpperCompositionTests.test_page_api_registration_failure_does_not_block_input of <astrbot_plugin_astrbotex_inte...
+    │    └ <function IsolatedAsyncioTestCase._callTestMethod at 0x75e53fb6c400>
+    └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests testMethod=test_page_api_registratio...
+  File "/usr/local/lib/python3.12/unittest/async_case.py", line 91, in _callTestMethod
+    if self._callMaybeAsync(method) is not None:
+       │    │               └ <bound method UpperCompositionTests.test_page_api_registration_failure_does_not_block_input of <astrbot_plugin_astrbotex_inte...
+       │    └ <function IsolatedAsyncioTestCase._callMaybeAsync at 0x75e53fb6c680>
+       └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests testMethod=test_page_api_registratio...
+  File "/usr/local/lib/python3.12/unittest/async_case.py", line 113, in _callMaybeAsync
+    return self._asyncioRunner.run(
+           │    │              └ <function Runner.run at 0x75e590843e20>
+           │    └ <asyncio.runners.Runner object at 0x75e54019bdd0>
+           └ <astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests testMethod=test_page_api_registratio...
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-382' coro=<UpperCompositionTests.test_page_api_registration_failure_does_not_block_input() running a...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x75e5908419e0>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=True>
+           └ <asyncio.runners.Runner object at 0x75e54019bdd0>
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 678, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x75e590841940>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=True>
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 645, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x75e590843740>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=True>
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 1991, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x75e591269ee0>
+    └ <Handle <_asyncio.TaskStepMethWrapper object at 0x75e5401709a0>() created at /usr/local/lib/python3.12/asyncio/base_events.py...
+  File "/usr/local/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle <_asyncio.TaskStepMethWrapper object at 0x75e5401709a0>() created at /usr/local/lib/python3.12/asyncio/base_events.py...
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle <_asyncio.TaskStepMethWrapper object at 0x75e5401709a0>() created at /usr/local/lib/python3.12/asyncio/base_events.py...
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle <_asyncio.TaskStepMethWrapper object at 0x75e5401709a0>() created at /usr/local/lib/python3.12/asyncio/base_events.py...
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/tests/[0m[32m[1mtest_upper_composition.py[0m", line [33m443[0m, in [35mtest_page_api_registration_failure_does_not_block_input[0m
+    [35m[1mawait[0m [1mself[0m[35m[1m.[0m[1mstart[0m[1m([0m[1m)[0m
+    [36m      │    └ [0m[36m[1m<function UpperCompositionTests.start at 0x75e53fb6fec0>[0m
+    [36m      └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests testMethod=test_page_api_registratio...[0m
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/tests/[0m[32m[1mtest_upper_composition.py[0m", line [33m337[0m, in [35mstart[0m
+    [35m[1mawait[0m [1mself[0m[35m[1m.[0m[1mplugin[0m[35m[1m.[0m[1minitialize[0m[1m([0m[1m)[0m
+    [36m      │    │      └ [0m[36m[1m<function AstrBotEXInteractionPlugin.initialize at 0x75e53fb0ad40>[0m
+    [36m      │    └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.main.AstrBotEXInteractionPlugin object at 0x75e54016d7c0>[0m
+    [36m      └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests testMethod=test_page_api_registratio...[0m
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/[0m[32m[1mmain.py[0m", line [33m1110[0m, in [35minitialize[0m
+    [1mself[0m[35m[1m.[0m[1m_register_upper_api[0m[1m([0m[1m)[0m
+    [36m│    └ [0m[36m[1m<function AstrBotEXInteractionPlugin._register_upper_api at 0x75e53fb0b2e0>[0m
+    [36m└ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.main.AstrBotEXInteractionPlugin object at 0x75e54016d7c0>[0m
+
+> File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/[0m[32m[1mmain.py[0m", line [33m1259[0m, in [35m_register_upper_api[0m
+    [1mcomponents[0m[35m[1m.[0m[1mapi_registrar[0m[1m([0m[1mself[0m[35m[1m.[0m[1mcontext[0m[1m,[0m [1mcomponents[0m[35m[1m.[0m[1mapi_dependencies[0m[1m([0m[1mself[0m[1m)[0m[1m)[0m
+    [36m│          │             │    │        │          │                └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.main.AstrBotEXInteractionPlugin object at 0x75e54016d7c0>[0m
+    [36m│          │             │    │        │          └ [0m[36m[1m<function _UpperApiOwner.api_dependencies at 0x75e53fb09e40>[0m
+    [36m│          │             │    │        └ [0m[36m[1mUpperComponents(settings=UpperSettings(enabled=True, control_enabled=True, control_bind_host='127.0.0.1', control_port=34251,...[0m
+    [36m│          │             │    └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.RecordingContext object at 0x75e540171640>[0m
+    [36m│          │             └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.main.AstrBotEXInteractionPlugin object at 0x75e54016d7c0>[0m
+    [36m│          └ [0m[36m[1m<bound method FakeUpperFactory._register_api of <astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.FakeUpperF...[0m
+    [36m└ [0m[36m[1mUpperComponents(settings=UpperSettings(enabled=True, control_enabled=True, control_bind_host='127.0.0.1', control_port=34251,...[0m
+
+  File "[32m/aeb-src/astrbot_plugin_astrbotex_interaction/tests/[0m[32m[1mtest_upper_composition.py[0m", line [33m246[0m, in [35m_register_api[0m
+    [35m[1mraise[0m [1mself[0m[35m[1m.[0m[1mapi_error[0m
+    [36m      │    └ [0m[36m[1mRuntimeError('route taken')[0m
+    [36m      └ [0m[36m[1m<astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.FakeUpperFactory object at 0x75e54016e390>[0m
+
+[31m[1mRuntimeError[0m:[1m route taken[0m
+[32m[13:50:48.806][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:48.806][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:48.806][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=48113, audio=60425, vision=59791[0m
+[32m[13:50:48.835][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_page_api_registration_failure_does_not_block_input (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_page_api_registration_failure_does_not_block_input) ... ok
+[32m[13:50:48.872][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.872][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:48.872][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:48.872][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=51461, audio=58779, vision=58545[0m
+[32m[13:50:48.873][0m [Core] [33m[1m[WARN][0m [v4.26.7] [astrbot_plugin_astrbotex_interaction.main:1890]: [33m[1mAstrBotEX upper pipeline failed (decision_error); the default LLM reply stays suppressed.[0m
+[32m[13:50:48.900][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_pipeline_failure_still_suppresses_default_llm (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_pipeline_failure_still_suppresses_default_llm) ... ok
+[32m[13:50:48.938][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:48.938][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:48.938][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:48.938][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=34465, audio=52131, vision=59199[0m
+test_platform_input_passes_no_peer_override (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_platform_input_passes_no_peer_override) ... /usr/local/lib/python3.12/traceback.py:265: ResourceWarning: Unclosed socket <zmq.asyncio.Socket(zmq.ROUTER) at 0x75e53fe9b000>
+  def __init__(self, filename, lineno, name, *, lookup_line=True,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+[32m[13:50:48.968][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+ok
+[32m[13:50:49.007][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:49.007][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:49.007][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:49.007][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=41519, audio=46905, vision=39939[0m
+[32m[13:50:49.032][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_recorded_error_code_suppresses_default_llm (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_recorded_error_code_suppresses_default_llm) ... ok
+[32m[13:50:49.071][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:49.071][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:49.071][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:49.071][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=47031, audio=59551, vision=51395[0m
+[32m[13:50:49.108][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:50:49.132][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:49.132][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:49.132][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:49.132][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=47031, audio=59551, vision=51395[0m
+[32m[13:50:49.273][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task pending name='astrbotex-zmq-vision-receive' coro=<ZmqRouterChannel._receive_loop() running at /aeb-src/astrbot_plugin_astrbotex_interaction/zmq_transport.py:250> wait_for=<Future pending cb=[_AsyncSocket._remove_finished_future(event_list=deque([_FutureEvent(...re._NoTimer'>)]), event=_FutureEvent(...re._NoTimer'>))() at /usr/local/lib/python3.12/site-packages/zmq/_future.py:452, Task.task_wakeup()] created at /usr/local/lib/python3.12/site-packages/zmq/_future.py:479> created at /usr/local/lib/python3.12/asyncio/tasks.py:420> took 0.133 seconds[0m
+[32m[13:50:49.298][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:50:49.326][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:49.326][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:49.326][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:49.326][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=47031, audio=59551, vision=51395[0m
+[32m[13:50:49.361][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_reload_three_times_does_not_accumulate_resources (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_reload_three_times_does_not_accumulate_resources) ... ok
+[32m[13:50:49.404][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:49.404][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:49.404][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:49.404][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=54795, audio=58229, vision=59313[0m
+[32m[13:50:49.435][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_replayed_host_event_is_processed_once (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_replayed_host_event_is_processed_once) ... ok
+[32m[13:50:49.477][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:49.477][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:49.477][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:49.477][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=59307, audio=50189, vision=59717[0m
+[32m[13:50:49.505][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_replayed_message_id_yields_stable_input_key (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_replayed_message_id_yields_stable_input_key) ... ok
+[32m[13:50:49.542][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:49.542][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:49.542][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:49.542][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=34547, audio=40023, vision=52171[0m
+[32m[13:50:49.568][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_takeover_processes_input_once_and_suppresses_default_llm (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_takeover_processes_input_once_and_suppresses_default_llm) ... ok
+[32m[13:50:49.604][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:49.604][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:49.604][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:49.604][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=41935, audio=50359, vision=50877[0m
+test_terminate_stops_new_input_before_legacy_store (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_terminate_stops_new_input_before_legacy_store) ... ok
+[32m[13:50:49.637][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:50:49.677][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:49.677][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:49.677][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:49.677][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=38339, audio=51271, vision=56639[0m
+[32m[13:50:49.707][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_trusted_input_carries_only_framework_identity (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_trusted_input_carries_only_framework_identity) ... ok
+[32m[13:50:49.745][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:49.745][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1506]: [1mAstrBotEX upper capabilities unavailable at start ('FakeControl' object has no attribute 'capabilities').[0m
+[32m[13:50:49.745][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1295]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:50:49.745][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=34053, audio=51963, vision=45883[0m
+[32m[13:50:49.745][0m [Core] [33m[1m[WARN][0m [v4.26.7] [astrbot_plugin_astrbotex_interaction.main:1851]: [33m[1mAstrBotEX upper input rejected (untrusted_ex_event); legacy handling continues.[0m
+[32m[13:50:49.771][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_untrusted_ex_event_is_rejected (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_untrusted_ex_event_is_rejected) ... ok
+[32m[13:50:49.809][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1132]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:50:49.809][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1113]: [1mAstrBotEX ZeroMQ channels started: text=42783, audio=60205, vision=48335[0m
+[32m[13:50:49.835][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2633]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+test_upper_without_control_channel_is_refused (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_upper_without_control_channel_is_refused) ... ok
+
+======================================================================
+ERROR: test_page_api_registered_on_real_host_surface (astrbot_plugin_astrbotex_interaction.tests.test_upper_composition.UpperCompositionTests.test_page_api_registered_on_real_host_surface)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_composition.py", line 461, in test_page_api_registered_on_real_host_surface
+    self.assertEqual(dependencies.plans.get_plan("missing"), None)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/aeb-src/astrbot_plugin_astrbotex_interaction/main.py", line 639, in get_plan
+    raw = self._store.get_plan(plan_id)
+          ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FakeStore' object has no attribute 'get_plan'
+
+----------------------------------------------------------------------
+Ran 64 tests in 13.104s
+
+FAILED (errors=1)

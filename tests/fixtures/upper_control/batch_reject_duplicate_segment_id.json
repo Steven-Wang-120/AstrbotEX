@@ -1,0 +1,43 @@
+{
+  "case_id": "batch_reject_duplicate_segment_id",
+  "expected_accept": false,
+  "expected_error": "id_conflict",
+  "kind": "batch",
+  "note": "The same segment id twice in one batch is a conflict.",
+  "payload": {
+    "batch_id": "batch-20261102-0001",
+    "catalog_version": "catalog-3f9a1c",
+    "ex_session": "ex-session-0007",
+    "plan_id": "plan-20261102-0001",
+    "plan_revision": 1,
+    "prompt_version": "prompt-77b02e",
+    "request_id": "req-20261102-0001",
+    "robot_id": "robot-aeb-01",
+    "route_ref": "route-astrbotex-default",
+    "schema": "aeb.upper_steps.v1",
+    "segments": [
+      {
+        "ordinal": 0,
+        "segment_id": "seg-0001",
+        "text": "第一步。"
+      },
+      {
+        "ordinal": 1,
+        "segment_id": "seg-0001",
+        "text": "第二步。"
+      }
+    ],
+    "visibility": "decision_only"
+  },
+  "sides": [
+    "aeb",
+    "ex"
+  ],
+  "trusted": {
+    "ex_session": "ex-session-0007",
+    "robot_id": "robot-aeb-01",
+    "route_refs": [
+      "route-astrbotex-default"
+    ]
+  }
+}

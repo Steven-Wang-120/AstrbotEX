@@ -1,0 +1,10 @@
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+  re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+  re_skip_default = re.compile("(\r\n|\s)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/finalseg/__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+  re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+[32m[13:29:14.421][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:29:14.594][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:29:14.595][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:29:14.595][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=57235, audio=54747, vision=40489[0m

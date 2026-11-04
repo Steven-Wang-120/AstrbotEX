@@ -1,0 +1,13 @@
+{
+  "mode": "real_host",
+  "generated_at": "2026-11-03T12:26:55.905Z",
+  "page_root": "D:\\Code\\A.E.B-work\\upper-b10-b11\\astrbot_plugin_astrbotex_interaction\\pages\\upper-control",
+  "entries": [
+    {
+      "file": "real-host.png",
+      "area": "real_host",
+      "note": "feature-off persistence, conflicts, anonymous refusal and failed draft retention",
+      "assertion": "Page→bridge→API→store"
+    }
+  ]
+}

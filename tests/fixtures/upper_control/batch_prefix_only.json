@@ -1,0 +1,48 @@
+{
+  "case_id": "batch_prefix_only",
+  "expected_accept": true,
+  "expected_error": null,
+  "expected_hash": "933992f85dcc549920a9673adb888300f9cb47ba9658829eadc6d460358988d2",
+  "expected_texts": [
+    "寻找红色杯子，并保留目标引用。",
+    "接近并对齐刚才的同一个目标。"
+  ],
+  "kind": "batch",
+  "note": "Only the contiguous prefix is sent now; the suffix stays in AEB.",
+  "payload": {
+    "batch_id": "batch-20261102-0001",
+    "catalog_version": "catalog-3f9a1c",
+    "ex_session": "ex-session-0007",
+    "plan_id": "plan-20261102-0001",
+    "plan_revision": 1,
+    "prompt_version": "prompt-77b02e",
+    "request_id": "req-20261102-0001",
+    "robot_id": "robot-aeb-01",
+    "route_ref": "route-astrbotex-default",
+    "schema": "aeb.upper_steps.v1",
+    "segments": [
+      {
+        "ordinal": 0,
+        "segment_id": "seg-0001",
+        "text": "寻找红色杯子，并保留目标引用。"
+      },
+      {
+        "ordinal": 1,
+        "segment_id": "seg-0002",
+        "text": "接近并对齐刚才的同一个目标。"
+      }
+    ],
+    "visibility": "decision_only"
+  },
+  "sides": [
+    "aeb",
+    "ex"
+  ],
+  "trusted": {
+    "ex_session": "ex-session-0007",
+    "robot_id": "robot-aeb-01",
+    "route_refs": [
+      "route-astrbotex-default"
+    ]
+  }
+}

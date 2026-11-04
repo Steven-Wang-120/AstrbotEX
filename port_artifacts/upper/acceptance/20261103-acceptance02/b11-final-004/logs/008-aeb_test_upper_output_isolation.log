@@ -1,0 +1,17 @@
+test_busy_old_task_still_never_leaks_a_segment (test_upper_output_isolation.OutputIsolationTests.test_busy_old_task_still_never_leaks_a_segment) ... ok
+test_duplicate_callback_speaks_once (test_upper_output_isolation.OutputIsolationTests.test_duplicate_callback_speaks_once) ... ok
+test_late_result_after_plugin_close_sends_nothing (test_upper_output_isolation.OutputIsolationTests.test_late_result_after_plugin_close_sends_nothing) ... ok
+test_no_route_leaks_a_segment_to_a_public_surface (test_upper_output_isolation.OutputIsolationTests.test_no_route_leaks_a_segment_to_a_public_surface) ... ok
+test_public_timeout_is_recorded_once_and_never_re_sent (test_upper_output_isolation.OutputIsolationTests.test_public_timeout_is_recorded_once_and_never_re_sent) ... ok
+test_segments_reach_the_control_payload_verbatim_and_ordered (test_upper_output_isolation.OutputIsolationTests.test_segments_reach_the_control_payload_verbatim_and_ordered) ... ok
+test_stale_session_is_rejected_without_a_retry (test_upper_output_isolation.OutputIsolationTests.test_stale_session_is_rejected_without_a_retry) ... ok
+test_automatic_output_is_suppressed_for_every_upper_source (test_upper_output_isolation.UpperOutputRouterTests.test_automatic_output_is_suppressed_for_every_upper_source) ... ok
+test_claim_is_idempotent_per_plan (test_upper_output_isolation.UpperOutputRouterTests.test_claim_is_idempotent_per_plan) ... ok
+test_legacy_public_router_behaviour_is_unchanged (test_upper_output_isolation.UpperOutputRouterTests.test_legacy_public_router_behaviour_is_unchanged) ... ok
+test_non_public_sources_are_refused_loudly (test_upper_output_isolation.UpperOutputRouterTests.test_non_public_sources_are_refused_loudly) ... ok
+test_only_upper_public_is_permitted (test_upper_output_isolation.UpperOutputRouterTests.test_only_upper_public_is_permitted) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.369s
+
+OK

@@ -1,0 +1,224 @@
+[
+  {
+    "url": "actions/save",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"record\":{\"action_ref\":null,\"action_id\":\"ex.acceptance.description\",\"level\":\"primitive\",\"name\":\"真实基础动作 1793714237623\",\"description\":\"按已配置方案执行，用于界面回归测试。\",\"parameters\":[{\"name\":\"distance\",\"description\":\"目标距离\",\"unit\":\"m\",\"required\":true}],\"usage_stages\":[\"寻找、对齐、抓取\"],\"skill_markdown\":\"# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n\",\"enabled\":true},\"expected_revision\":36}"
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions/save",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"record\":{\"action_ref\":\"aeb-30113a4d7bd746409c57930e559d4bb4\",\"action_id\":\"ex.acceptance.description\",\"level\":\"primitive\",\"name\":\"真实基础动作 1793714237623\",\"description\":\"修改后的基础动作说明\",\"parameters\":[{\"name\":\"distance\",\"description\":\"目标距离\",\"unit\":\"m\",\"required\":true}],\"usage_stages\":[\"寻找、对齐、抓取\"],\"skill_markdown\":\"# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n# 独立说明\\n只用于目录验收。\\n\",\"enabled\":false,\"revision\":1},\"expected_revision\":37}"
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions/save",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"record\":{\"action_ref\":null,\"action_id\":null,\"level\":\"skill\",\"name\":\"真实基础动作 1793714237623 skill\",\"description\":\"按已配置方案执行，用于界面回归测试。\",\"parameters\":[],\"usage_stages\":[],\"skill_markdown\":\"# 单独 Skill\\n分阶段组织。\",\"enabled\":true},\"expected_revision\":38}"
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions/save",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"record\":{\"action_ref\":\"aeb-54a6b8c3a1e3435b9b6da3123ac324bb\",\"action_id\":null,\"level\":\"skill\",\"name\":\"真实基础动作 1793714237623 skill\",\"description\":\"按已配置方案执行，用于界面回归测试。\",\"parameters\":[],\"usage_stages\":[],\"skill_markdown\":\"# 已编辑 Skill\\n只描述，不执行。\",\"enabled\":true,\"revision\":1},\"expected_revision\":39}"
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions/delete",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"action_ref\":\"aeb-54a6b8c3a1e3435b9b6da3123ac324bb\",\"expected_revision\":40}"
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts/save",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"kind\":\"routing\",\"content\":\"# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n# routing 公共覆盖\\n长中文与 Markdown **验收**。\\n\",\"expected_revision\":3}"
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts/save",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"kind\":\"routing\",\"content\":\"\",\"expected_revision\":4}"
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts/save",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"kind\":\"planning\",\"content\":\"# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n# planning 公共覆盖\\n长中文与 Markdown **验收**。\\n\",\"expected_revision\":5}"
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts/save",
+    "status": 200,
+    "method": "POST",
+    "body": "{\"kind\":\"planning\",\"content\":\"\",\"expected_revision\":6}"
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "providers",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "settings",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "prompts",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "plans?limit=20",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "providers",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  },
+  {
+    "url": "actions",
+    "status": 200,
+    "method": "GET",
+    "body": null
+  }
+]

@@ -1,0 +1,164 @@
+{
+  "run_id": "20261102T074928Z",
+  "task_id": "B09",
+  "generated_at": "2026-11-02T07:55:03Z",
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_step_input.py",
+        "-v"
+      ],
+      "cwd": "D:\\Code\\AstrBotEX-work\\upper-b09",
+      "exit_code": 0,
+      "duration_s": 2.02,
+      "scope": "backend_request_capture",
+      "summary": "OK",
+      "not_run_reason": null
+    },
+    {
+      "command": [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_step_input_integration.py",
+        "-v"
+      ],
+      "cwd": "D:\\Code\\AstrBotEX-work\\upper-b09",
+      "exit_code": 0,
+      "duration_s": 2.51,
+      "scope": "backend_request_capture+real_zmq_loopback",
+      "summary": "OK",
+      "not_run_reason": null
+    },
+    {
+      "command": [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_connection_manager.py",
+        "-v"
+      ],
+      "cwd": "D:\\Code\\AstrBotEX-work\\upper-b09",
+      "exit_code": 0,
+      "duration_s": 1.49,
+      "scope": "backend_request_capture+real_zmq_loopback",
+      "summary": "OK (skipped=1)",
+      "not_run_reason": null
+    },
+    {
+      "command": [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_jev_backend.py",
+        "-v"
+      ],
+      "cwd": "D:\\Code\\AstrBotEX-work\\upper-b09",
+      "exit_code": 0,
+      "duration_s": 1.82,
+      "scope": "unit_fake",
+      "summary": "OK",
+      "not_run_reason": null
+    },
+    {
+      "command": [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_decision_service.py",
+        "-v"
+      ],
+      "cwd": "D:\\Code\\AstrBotEX-work\\upper-b09",
+      "exit_code": 0,
+      "duration_s": 9.07,
+      "scope": "unit_fake",
+      "summary": "OK",
+      "not_run_reason": null
+    },
+    {
+      "command": [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_decision_backend_contract.py",
+        "-v"
+      ],
+      "cwd": "D:\\Code\\AstrBotEX-work\\upper-b09",
+      "exit_code": 0,
+      "duration_s": 0.66,
+      "scope": "unit_fake",
+      "summary": "OK",
+      "not_run_reason": null
+    },
+    {
+      "command": [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_decision_management_interleaving.py",
+        "-v"
+      ],
+      "cwd": "D:\\Code\\AstrBotEX-work\\upper-b09",
+      "exit_code": 0,
+      "duration_s": 2.7,
+      "scope": "unit_fake",
+      "summary": "OK",
+      "not_run_reason": null
+    },
+    {
+      "command": [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ],
+      "cwd": "D:\\Code\\AstrBotEX-work\\upper-b09",
+      "exit_code": 0,
+      "duration_s": 313.94,
+      "scope": "unit_fake",
+      "summary": "OK (skipped=2)",
+      "not_run_reason": null
+    }
+  ]
+}

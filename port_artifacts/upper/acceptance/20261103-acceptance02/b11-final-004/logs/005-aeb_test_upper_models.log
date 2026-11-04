@@ -1,0 +1,53 @@
+[32m[14:13:39.413][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task finished name='Task-2' coro=<CallShapeTests.test_classify_is_private_and_non_streaming() done, defined at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_models.py:221> result=None created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 1.753 seconds[0m
+test_classify_is_private_and_non_streaming (test_upper_models.CallShapeTests.test_classify_is_private_and_non_streaming) ... /AstrBot/astrbot/core/utils/tencent_record_helper.py:4: DeprecationWarning: 'audioop' is deprecated and slated for removal in Python 3.13
+  import audioop
+ok
+test_generate_exposes_only_emit_upper_result (test_upper_models.CallShapeTests.test_generate_exposes_only_emit_upper_result) ... ok
+test_a_bad_sum_is_rejected (test_upper_models.DecisionRejectionTests.test_a_bad_sum_is_rejected) ... ok
+test_a_bare_json_object_is_accepted (test_upper_models.DecisionRejectionTests.test_a_bare_json_object_is_accepted) ... ok
+test_a_bool_probability_is_rejected (test_upper_models.DecisionRejectionTests.test_a_bool_probability_is_rejected) ... ok
+test_a_string_probability_is_rejected (test_upper_models.DecisionRejectionTests.test_a_string_probability_is_rejected) ... ok
+test_a_wrong_tool_name_is_rejected (test_upper_models.DecisionRejectionTests.test_a_wrong_tool_name_is_rejected) ... ok
+test_an_empty_routing_turn_is_rejected (test_upper_models.DecisionRejectionTests.test_an_empty_routing_turn_is_rejected) ... ok
+test_prose_instead_of_probabilities_is_rejected (test_upper_models.DecisionRejectionTests.test_prose_instead_of_probabilities_is_rejected) ... ok
+test_two_tool_calls_in_one_turn_are_rejected (test_upper_models.DecisionRejectionTests.test_two_tool_calls_in_one_turn_are_rejected) ... ok
+test_classification_evidence_carries_versions_and_hashes (test_upper_models.EvidenceTests.test_classification_evidence_carries_versions_and_hashes) ... ok
+test_evidence_is_not_part_of_the_result_payload (test_upper_models.EvidenceTests.test_evidence_is_not_part_of_the_result_payload) ... ok
+test_generation_evidence_does_not_carry_probabilities (test_upper_models.EvidenceTests.test_generation_evidence_does_not_carry_probabilities) ... ok
+test_bound_turn_shares_model_invalidation (test_upper_models.FrozenTurnSettingsTests.test_bound_turn_shares_model_invalidation) ... ok
+test_new_timeout_can_increase_without_changing_other_turns (test_upper_models.FrozenTurnSettingsTests.test_new_timeout_can_increase_without_changing_other_turns) ... ok
+test_a_repeated_tool_call_returns_the_first_result_once (test_upper_models.GenerationLoopTests.test_a_repeated_tool_call_returns_the_first_result_once) ... ok
+test_a_result_after_one_text_round_is_accepted (test_upper_models.GenerationLoopTests.test_a_result_after_one_text_round_is_accepted) ... ok
+test_a_text_only_round_is_retried_then_times_out_of_rounds (test_upper_models.GenerationLoopTests.test_a_text_only_round_is_retried_then_times_out_of_rounds) ... ok
+test_an_empty_response_does_not_produce_a_result (test_upper_models.GenerationLoopTests.test_an_empty_response_does_not_produce_a_result) ... ok
+test_a_failed_result_is_not_repaired_and_retried (test_upper_models.GenerationRejectionTests.test_a_failed_result_is_not_repaired_and_retried) ... ok
+test_a_result_may_not_supply_identity (test_upper_models.GenerationRejectionTests.test_a_result_may_not_supply_identity) ... ok
+test_a_send_count_beyond_the_segments_is_rejected (test_upper_models.GenerationRejectionTests.test_a_send_count_beyond_the_segments_is_rejected) ... ok
+test_an_action_only_result_may_not_carry_public_text (test_upper_models.GenerationRejectionTests.test_an_action_only_result_may_not_carry_public_text) ... ok
+test_an_unknown_tool_is_rejected (test_upper_models.GenerationRejectionTests.test_an_unknown_tool_is_rejected) ... ok
+test_action_only_multi_segment (test_upper_models.GenerationShapeTests.test_action_only_multi_segment) ... ok
+test_send_count_all (test_upper_models.GenerationShapeTests.test_send_count_all) ... ok
+test_send_count_one_defers_the_suffix (test_upper_models.GenerationShapeTests.test_send_count_one_defers_the_suffix) ... ok
+test_speech_only_has_no_segment (test_upper_models.GenerationShapeTests.test_speech_only_has_no_segment) ... ok
+test_the_contract_objects_come_from_b00 (test_upper_models.IsolationTests.test_the_contract_objects_come_from_b00) ... ok
+test_the_module_does_not_import_the_host_at_module_level (test_upper_models.IsolationTests.test_the_module_does_not_import_the_host_at_module_level) ... ok
+test_the_module_never_sends_a_message_or_opens_a_socket (test_upper_models.IsolationTests.test_the_module_never_sends_a_message_or_opens_a_socket) ... ok
+test_a_current_provider_lookup_failure_is_reported (test_upper_models.ProviderTests.test_a_current_provider_lookup_failure_is_reported) ... ok
+test_a_missing_current_provider_is_reported (test_upper_models.ProviderTests.test_a_missing_current_provider_is_reported) ... ok
+test_an_empty_id_uses_the_real_input_origin (test_upper_models.ProviderTests.test_an_empty_id_uses_the_real_input_origin) ... ok
+test_an_unknown_explicit_provider_is_reported_not_swapped (test_upper_models.ProviderTests.test_an_unknown_explicit_provider_is_reported_not_swapped) ... ok
+test_the_two_provider_ids_are_independent (test_upper_models.ProviderTests.test_the_two_provider_ids_are_independent) ... ok
+test_the_real_host_public_signature_is_not_claimed (test_upper_models.RealHostSmokeTests.test_the_real_host_public_signature_is_not_claimed) ... ok
+test_an_exact_tie_follows_the_c01_order (test_upper_models.RouteArgmaxTests.test_an_exact_tie_follows_the_c01_order) ... ok
+test_the_framework_picks_the_route_not_the_model (test_upper_models.RouteArgmaxTests.test_the_framework_picks_the_route_not_the_model) ... ok
+test_two_probability_sets_per_route (test_upper_models.RouteArgmaxTests.test_two_probability_sets_per_route) ... ok
+test_a_cancelled_turn_rejects_its_own_late_result (test_upper_models.TimeoutAndFenceTests.test_a_cancelled_turn_rejects_its_own_late_result) ... ok
+test_a_config_switch_invalidates_an_in_flight_classification (test_upper_models.TimeoutAndFenceTests.test_a_config_switch_invalidates_an_in_flight_classification) ... ok
+test_a_provider_exception_is_a_generation_error (test_upper_models.TimeoutAndFenceTests.test_a_provider_exception_is_a_generation_error) ... ok
+test_a_slow_provider_times_out_without_a_result (test_upper_models.TimeoutAndFenceTests.test_a_slow_provider_times_out_without_a_result) ... ok
+test_the_fence_is_monotonic (test_upper_models.TimeoutAndFenceTests.test_the_fence_is_monotonic) ... ok
+
+----------------------------------------------------------------------
+Ran 45 tests in 2.215s
+
+OK

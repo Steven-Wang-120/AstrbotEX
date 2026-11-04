@@ -1,0 +1,23 @@
+{
+  "case_id": "result_reject_send_count_exceeds_segments",
+  "expected_accept": false,
+  "expected_error": "invalid_result",
+  "kind": "result",
+  "note": "send_count 3 with 2 segments cannot be honoured.",
+  "payload": {
+    "public_text": "收到。",
+    "segments": [
+      {
+        "text": "第一步。"
+      },
+      {
+        "text": "第二步。"
+      }
+    ],
+    "send_count": 3
+  },
+  "route": "speech_and_action",
+  "sides": [
+    "aeb"
+  ]
+}

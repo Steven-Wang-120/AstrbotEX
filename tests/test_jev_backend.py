@@ -721,5 +721,123 @@ class HTTPBoundaryTests(unittest.TestCase):
                 self.assertEqual(caught.exception.code, "response_too_large")
 
 
+class InstructionInputBackendTests(unittest.TestCase):
+    """B09 regressions: ``consume_instruction`` reuses the decide() envelope."""
+
+    def setUp(self):
+        from astrbot_ex.core.decision.instruction_input import InstructionBatch, StepSegment
+        self.batch = InstructionBatch(
+            schema="aeb.upper_steps.v1", batch_id="b-1", request_id="r-1", plan_id="p-1",
+            plan_revision=1, robot_id="robot-a", route_ref="route-1", ex_session="s-1",
+            segments=(StepSegment("s0", 0, "寻找红色杯子。"), StepSegment("s1", 1, "接近并对齐。")),
+        )
+        self.captured = []
+        self.replies = []
+
+    def ack(self, model=None, choice="accept"):
+        body = {"model": model or jev.PINNED_MODEL,
+                "answers": {jev.INSTRUCTION_ACK_OWNER: {"type": "choice", "choice": choice}},
+                "usage": {"input_tokens": 7, "output_tokens": 1}}
+        return jev.HTTPReply(200, json.dumps(body).encode())
+
+    def backend(self, **kwargs):
+        def transport(body, headers, deadline, cancel, limit):
+            self.captured.append(body)
+            return self.replies.pop(0) if self.replies else self.ack()
+        backend = jev.JevBackend(config(**kwargs), transport=transport,
+                                 secret_provider=lambda: "test-only-not-a-live-key")
+        self.addCleanup(backend.close)
+        return backend
+
+    def test_accepted_round_keeps_model_and_reports_attempts(self):
+        backend = self.backend()
+        result = backend.consume_instruction(self.batch)
+        self.assertTrue(result["accepted"])
+        self.assertEqual(result["model"], jev.PINNED_MODEL)
+        self.assertEqual(json.loads(self.captured[0])["model"], jev.PINNED_MODEL)
+        self.assertEqual(backend.last_instruction_record.attempts, 1)
+        self.assertEqual(backend.last_instruction_record.input_tokens, 7)
+        self.assertIsNone(backend.last_instruction_record.reject_code)
+
+    def test_instruction_round_does_not_touch_the_decision_record(self):
+        backend = self.backend()
+        backend.consume_instruction(self.batch)
+        self.assertIsNone(backend.last_record)
+
+    def test_429_is_retried_within_the_configured_envelope(self):
+        self.replies.extend([jev.HTTPReply(429, b"", "0"), self.ack()])
+        backend = self.backend(max_retries=1, min_interval_ms=0)
+        result = backend.consume_instruction(self.batch)
+        self.assertTrue(result["accepted"])
+        self.assertEqual(backend.last_instruction_record.attempts, 2)
+
+    def test_429_beyond_the_budget_rejects_with_a_tracked_attempt_count(self):
+        self.replies.extend([jev.HTTPReply(429, b"", "0")] * 4)
+        backend = self.backend(max_retries=0, min_interval_ms=0)
+        with self.assertRaises(jev.JevBackendError) as caught:
+            backend.consume_instruction(self.batch)
+        self.assertEqual(caught.exception.code, "http_429")
+        self.assertEqual(backend.last_instruction_record.reject_code, "http_429")
+        self.assertEqual(backend.last_instruction_record.attempts, 1)
+
+    def test_transport_failure_records_the_attempt(self):
+        def boom(*args):
+            raise OSError("network down")
+        backend = jev.JevBackend(config(min_interval_ms=0), transport=boom,
+                                 secret_provider=lambda: "test-only-not-a-live-key")
+        self.addCleanup(backend.close)
+        with self.assertRaises(jev.JevBackendError) as caught:
+            backend.consume_instruction(self.batch)
+        self.assertEqual(caught.exception.code, "transport_failure")
+        self.assertEqual(backend.last_instruction_record.attempts, 1)
+
+    def test_disabled_and_closed_backends_refuse_input(self):
+        disabled = jev.JevBackend(jev.JevConfig(mode="disabled"), transport=lambda *a: self.ack(),
+                                  secret_provider=lambda: "test-only-not-a-live-key")
+        self.addCleanup(disabled.close)
+        with self.assertRaises(jev.JevBackendError) as caught:
+            disabled.consume_instruction(self.batch)
+        self.assertEqual(caught.exception.code, "disabled")
+        self.assertFalse(disabled.supports_instruction_input() is False)
+
+        backend = self.backend()
+        backend.close()
+        with self.assertRaises(jev.JevBackendError) as caught:
+            backend.consume_instruction(self.batch)
+        self.assertEqual(caught.exception.code, "closed")
+        self.assertFalse(backend.supports_instruction_input())
+
+    def test_live_http_is_never_enabled_implicitly(self):
+        backend = jev.JevBackend(config(), transport=None, secret_provider=lambda: "test-only-not-a-live-key")
+        self.addCleanup(backend.close)
+        with self.assertRaises(jev.JevBackendError) as caught:
+            backend.consume_instruction(self.batch)
+        self.assertEqual(caught.exception.code, "live_http_not_authorized")
+
+    def test_bad_reply_shapes_are_bounded_codes(self):
+        for raw, expected in (
+            (b"not json", "invalid_response_json"),
+            (json.dumps({"model": jev.PINNED_MODEL, "answers": {}, "usage": {}}).encode(), "owner_mismatch"),
+            (json.dumps({"model": jev.PINNED_MODEL,
+                         "answers": {jev.INSTRUCTION_ACK_OWNER: {"type": "choice", "choice": "maybe"}},
+                         "usage": {"input_tokens": 1, "output_tokens": 1}}).encode(), "unknown_option"),
+        ):
+            with self.subTest(expected=expected):
+                self.replies.append(jev.HTTPReply(200, raw))
+                backend = self.backend()
+                with self.assertRaises(jev.JevBackendError) as caught:
+                    backend.consume_instruction(self.batch)
+                self.assertEqual(caught.exception.code, expected)
+
+    def test_error_body_never_leaks_segment_text(self):
+        self.replies.append(jev.HTTPReply(500, b"{}"))
+        backend = self.backend()
+        with self.assertRaises(jev.JevBackendError) as caught:
+            backend.consume_instruction(self.batch)
+        rendered = repr(caught.exception) + repr(backend.last_instruction_record)
+        self.assertNotIn("寻找红色杯子", rendered)
+        self.assertNotIn("test-only", rendered)
+
+
 if __name__ == "__main__":
     unittest.main()
