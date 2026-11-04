@@ -1,0 +1,112 @@
+{
+  "id": "astrbotex_voice_jev",
+  "name": "Voice STT/TTS with contextual decision gate",
+  "version": "0.7.1",
+  "entry": "main.py",
+  "provides": [
+    "trace_plugin"
+  ],
+  "enabled_default": false,
+  "config_schema": "config.schema.json",
+  "description": "Provider-neutral URL decision interfaces, context-only addressing and continuous streamed voice.",
+  "publishes": [
+    {
+      "topic": "astrbotex_voice_jev.candidate",
+      "schema": "json"
+    },
+    {
+      "topic": "astrbotex_voice_jev.partial",
+      "schema": "json"
+    },
+    {
+      "topic": "astrbotex_voice_jev.status",
+      "schema": "json"
+    },
+    {
+      "topic": "astrbotex_voice_jev.reply",
+      "schema": "json"
+    },
+    {
+      "topic": "astrbotex_voice_jev.error",
+      "schema": "json"
+    },
+    {
+      "topic": "astrbotex_voice_jev.gate_result",
+      "schema": "json"
+    },
+    {
+      "topic": "astrbotex_voice_jev.audio_devices",
+      "schema": "json"
+    }
+  ],
+  "subscribes": [
+    {
+      "topic": "astrbotex_voice_jev.control",
+      "schema": "control"
+    },
+    {
+      "topic": "voice.decision",
+      "schema": "decision"
+    }
+  ],
+  "actions": [
+    {
+      "action_id": "set_streaming",
+      "topic": "astrbotex_voice_jev.control",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "const": "set_streaming"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "action",
+          "enabled"
+        ]
+      },
+      "requires_runtime_state": [
+        "running"
+      ]
+    },
+    {
+      "action_id": "refresh_audio_devices",
+      "topic": "astrbotex_voice_jev.control",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "const": "refresh_audio_devices"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "requires_runtime_state": [
+        "running"
+      ]
+    },
+    {
+      "action_id": "check_audio_devices",
+      "topic": "astrbotex_voice_jev.control",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "const": "check_audio_devices"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "requires_runtime_state": [
+        "running"
+      ]
+    }
+  ]
+}

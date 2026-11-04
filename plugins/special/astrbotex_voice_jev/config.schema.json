@@ -1,0 +1,198 @@
+{
+  "type": "object",
+  "properties": {
+    "python_executable": {
+      "type": "string",
+      "default": ""
+    },
+    "vosk_model_path": {
+      "type": "string",
+      "default": ""
+    },
+    "speech_config_path": {
+      "type": "string",
+      "default": ""
+    },
+    "chat_config_path": {
+      "type": "string",
+      "default": ""
+    },
+    "provider_id": {
+      "type": "string",
+      "default": "deepseek/deepseek-flash"
+    },
+    "streaming_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "decision_timeout": {
+      "type": "number",
+      "minimum": 0.2,
+      "maximum": 30,
+      "default": 3
+    },
+    "input_device": {
+      "title": "录音设备",
+      "description": "系统默认(null)、设备API返回的id或{id,name,host_api}描述符；数字索引只作兼容，可能随插拔改变",
+      "default": null,
+      "format": "audio-device",
+      "x-audio-direction": "input",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "host_api": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "output_device": {
+      "title": "播放设备",
+      "description": "系统默认(null)、设备API返回的id或{id,name,host_api}描述符；数字索引只作兼容，可能随插拔改变",
+      "default": null,
+      "format": "audio-device",
+      "x-audio-direction": "output",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "host_api": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "gate_config_path": {
+      "type": "string",
+      "default": ""
+    },
+    "decision_mode": {
+      "type": "string",
+      "enum": [
+        "http",
+        "topic"
+      ],
+      "default": "http"
+    },
+    "decision_type": {
+      "type": "string",
+      "enum": [
+        "systemone",
+        "laya",
+        "cloudflare",
+        "http_json",
+        "openai"
+      ],
+      "default": "systemone",
+      "description": "决策接口协议，Laya使用System One兼容接口"
+    },
+    "decision_url": {
+      "type": "string",
+      "default": "",
+      "description": "填写决策服务URL；System One/Laya和OpenAI兼容类型可只填根URL，自动补齐常用路径"
+    },
+    "decision_model": {
+      "type": "string",
+      "default": "",
+      "description": "可选模型；Laya默认multilingual，OpenAI兼容类型必须指定"
+    },
+    "decision_token_env": {
+      "type": "string",
+      "default": "DECISION_API_KEY",
+      "description": "可选Bearer密钥的环境变量名"
+    },
+    "decision_api_key": {
+      "type": "string",
+      "default": "",
+      "title": "决策 API Key",
+      "description": "直连决策服务时使用的Bearer密钥；留空则回退到token_env指定的环境变量或本地gate配置文件中的密钥"
+    },
+    "decision_source": {
+      "type": "string",
+      "default": "decision"
+    },
+    "decision_topic": {
+      "type": "string",
+      "default": "voice.decision"
+    },
+    "decision_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.4,
+      "title": "对话判定阈值",
+      "description": "0～1，越低越容易回应；当前默认0.4，独立于收音音量灵敏度"
+    },
+    "forward_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.4,
+      "title": "需要回应阈值",
+      "description": "0～1，越低越容易回应；当前默认0.4，独立于收音音量灵敏度"
+    },
+    "decision_json_mode": {
+      "type": "boolean",
+      "default": true,
+      "description": "OpenAI兼容服务的JSON输出模式，不支持时可关闭"
+    },
+    "quiet_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.85,
+      "description": "静默/停止播报的独立置信门槛，不随对话阈值降低"
+    },
+    "decision_stage": {
+      "type": "string",
+      "enum": [
+        "final",
+        "local_first"
+      ],
+      "default": "final",
+      "description": "正常对话默认先最终识别后决策；local_first兼容旧的本地字幕先裁决模式"
+    }
+  },
+  "additionalProperties": false
+}

@@ -51,6 +51,7 @@ from astrbot_ex.core.scene_fusion import SceneFusion
 from astrbot_ex.core.serialization import to_jsonable
 from astrbot_ex.core.topic_bus import TopicBus
 from astrbot_ex.core.vision_sources import VisionSourceManager
+from astrbot_ex.core.voice_dashboard import VoiceDashboard
 
 
 class RuntimeController:
@@ -179,6 +180,8 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         if self.server.decision_management.handle_http(self):
             return
         path = self._path()
+        if self._voice_api(path, 'GET'):
+            return
         backup_filename = self._match_backup_filename(path)
         if backup_filename is not None:
             self._send_backup_download(backup_filename)
@@ -368,6 +371,35 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": False, "code": "invalid_environment_request", "message": str(exc), "error": str(exc), "details": {}}, HTTPStatus.BAD_REQUEST)
         return True
 
+    def _voice_api(self, path: str, method: str) -> bool:
+        prefix = '/api/v1/ex/voice/'
+        if not path.startswith(prefix):
+            return False
+        action = path[len(prefix):]
+        try:
+            voice = self.server.voice_dashboard
+            if method == 'GET' and action == 'status':
+                result = voice.status()
+            elif method == 'GET' and action == 'devices':
+                result = voice.devices({'action': 'list'})
+            elif method == 'POST' and action in ('config', 'streaming', 'devices/check'):
+                payload = self._read_json()
+                if not isinstance(payload, dict):
+                    raise ValueError('请求必须为 JSON 对象')
+                if action == 'config':
+                    result = voice.configure(payload.get('config'))
+                elif action == 'streaming':
+                    result = voice.streaming(payload.get('enabled'))
+                else:
+                    result = voice.devices({**payload, 'action': 'validate'})
+            else:
+                self._send_json({'ok': False, 'error': 'not found'}, HTTPStatus.NOT_FOUND)
+                return True
+            self._send_json(result)
+        except (ValueError, KeyError, OSError, RuntimeError, TimeoutError) as exc:
+            self._send_json({'ok': False, 'error': str(exc)}, HTTPStatus.BAD_REQUEST)
+        return True
+
     def do_POST(self) -> None:
         if not self._authorize_http():
             return
@@ -375,6 +407,8 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             return
         self.server.decision_management.invalidate("legacy_write")
         path = self._path()
+        if self._voice_api(path, 'POST'):
+            return
         if path == "/api/v1/ex/backups":
             self._create_backup()
             return
@@ -1195,6 +1229,7 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
     bridge: AstrBotBridge
     interaction_core: InteractionCore
     connections: ConnectionManager
+    voice_dashboard: VoiceDashboard
     snapshot_service: SnapshotService
     environment_manager: EnvironmentManager
     action_service: ActionService
@@ -1467,6 +1502,8 @@ def build_server(host: str, port: int, tick_hz: float, *,
     server.local_plugins.discover()
     server.local_plugins.load_enabled()
     action_service.update_versions()
+
+    server.voice_dashboard = VoiceDashboard(server.local_plugins, controller)
     server.bridge = AstrBotBridge(
         controller=controller,
         local_plugins=server.local_plugins,
