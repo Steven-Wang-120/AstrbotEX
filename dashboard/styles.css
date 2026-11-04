@@ -1764,3 +1764,192 @@ body {
 #page-decision button:disabled { opacity: .5; cursor: not-allowed; }
 #page-decision [hidden] { display: none !important; }
 @media (max-width: 680px) { .decision-layout, .decision-providers { grid-template-columns: minmax(0,1fr); } .decision-modal { padding: 18px; } .decision-modal-safety { bottom: -18px; } }
+
+.voice-live-panel { padding: 24px; margin: 20px 0; }
+.voice-live-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 16px 0; }
+.voice-live-fields label { display: flex; flex-direction: column; gap: 6px; }
+#voiceLiveEvents { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; }
+
+/* ============ 04.A 连续语音（重排版） ============ */
+.voice-live-panel #voiceLiveState,
+.voice-live-panel #voiceLiveModels {
+  margin: 0 0 2px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+.voice-live-panel #voiceLiveModels {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+
+.voice-live-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+
+.voice-inline-result {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.voice-inline-result.ok { color: var(--ok); }
+.voice-inline-result.err { color: var(--err); }
+
+.voice-key {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.voice-key .config-input { flex: 1 1 auto; min-width: 0; }
+.voice-key .btn { flex: none; }
+
+.voice-hint {
+  margin: 8px 0 10px;
+  padding: 6px 8px;
+  background: var(--bg-sunk);
+  border-left: 2px solid var(--accent);
+  color: var(--ink-2);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.voice-advanced {
+  margin-top: 12px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 10px;
+}
+.voice-advanced > summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  user-select: none;
+  list-style: none;
+}
+.voice-advanced > summary::-webkit-details-marker { display: none; }
+.voice-advanced > summary::before { content: "▸ "; }
+.voice-advanced[open] > summary::before { content: "▾ "; }
+.voice-advanced[open] > summary { margin-bottom: 10px; }
+
+.voice-chat-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 16px 0 8px;
+}
+.voice-chat-head h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  letter-spacing: 0.04em;
+}
+.voice-chat-tools {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+.voice-chat-tools .btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #FFFFFF;
+}
+
+.voice-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 380px;
+  overflow-y: auto;
+  padding: 10px;
+  background: #FBFDFC;
+  border: 1px solid var(--line-soft);
+}
+.voice-chat-empty {
+  margin: auto;
+  color: var(--ink-3);
+  font-size: 12px;
+  text-align: center;
+  padding: 0 16px;
+}
+.voice-msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 78%;
+}
+.voice-msg.user { align-self: flex-end; align-items: flex-end; }
+.voice-msg.ai { align-self: flex-start; align-items: flex-start; }
+.voice-bubble {
+  padding: 8px 11px;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+.voice-msg.user .voice-bubble {
+  background: var(--accent-soft);
+  border-color: #CFE5D8;
+  border-radius: 10px 10px 2px 10px;
+}
+.voice-msg.ai .voice-bubble {
+  background: var(--bg-raise);
+  border-radius: 10px 10px 10px 2px;
+}
+.voice-bubble.copied { outline: 1px solid var(--accent); }
+.voice-meta {
+  margin-top: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-3);
+}
+
+.voice-raw {
+  margin: 0;
+  height: 380px;
+  overflow: auto;
+  padding: 10px;
+  background: #FBFDFC;
+  border: 1px solid var(--line-soft);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* hidden 属性要压过 display:flex */
+.voice-chat[hidden],
+.voice-raw[hidden],
+#voiceLiveRuntime[hidden] { display: none !important; }
+
+
+/* 旧链路（兼容代理）自检：折叠区 */
+.voice-legacy {
+  margin-top: 16px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 10px;
+}
+.voice-legacy > summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+  list-style: none;
+  user-select: none;
+}
+.voice-legacy > summary::-webkit-details-marker { display: none; }
+.voice-legacy > summary::before { content: "▸ "; color: var(--accent); }
+.voice-legacy[open] > summary::before { content: "▾ "; }
+.voice-legacy[open] > summary { margin-bottom: 12px; }
