@@ -1,0 +1,5 @@
+numpy>=1.26,<3
+pyzmq>=26
+ultralytics==8.3.203
+# Install a torch/torchvision pair appropriate for the host CPU/CUDA first.
+# The supplied ROS image installs torch 2.7.0 and torchvision 0.22.0 CPU.

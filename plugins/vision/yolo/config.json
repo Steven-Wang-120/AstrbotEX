@@ -1,0 +1,53 @@
+{
+  "python": "python3",
+  "model": "models/yolov8n-seg.pt",
+  "device": "cpu",
+  "conf": 0.35,
+  "imgsz": 640,
+  "max_det": 50,
+  "max_age": 2,
+  "worker_timeout": 60,
+  "state_path": "data/state.sqlite3",
+  "pubsub": {
+    "publish_enabled": false,
+    "enabled_topics": [
+      "yolo.json",
+      "yolo.jpg"
+    ],
+    "subscriptions": [
+      {
+        "plugin_id": "aeb",
+        "topic": "aeb.mark"
+      }
+    ]
+  },
+  "ros2": {
+    "bindings": {
+      "image": {
+        "enabled": false,
+        "topic": "/camera/color/image_raw/compressed",
+        "message_type": "sensor_msgs/msg/CompressedImage"
+      },
+      "mark": {
+        "enabled": false,
+        "topic": "/yolo/mark",
+        "message_type": "std_msgs/msg/String"
+      },
+      "json": {
+        "enabled": false,
+        "topic": "/yolo/json",
+        "message_type": "std_msgs/msg/String"
+      },
+      "jpg": {
+        "enabled": false,
+        "topic": "/yolo/jpg",
+        "message_type": "sensor_msgs/msg/CompressedImage"
+      }
+    }
+  },
+  "aeb": {
+    "enabled": false,
+    "text_endpoint": "tcp://127.0.0.1:8766",
+    "vision_endpoint": "tcp://127.0.0.1:8768"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "id": "yolo",
+  "name": "YOLOv8 Seg + persistent marks",
+  "version": "0.2.0",
+  "description": "ROS segmentation with JSON/JPEG topics and durable per-object LLM marks",
+  "entry": "main.py",
+  "provides": [
+    "vision_provider"
+  ],
+  "enabled_default": false,
+  "config_schema": "config.schema.json",
+  "publishes": [
+    {
+      "topic": "yolo.json",
+      "schema": "detections",
+      "label": "Detection JSON"
+    },
+    {
+      "topic": "yolo.jpg",
+      "schema": "jpeg",
+      "label": "Annotated JPEG"
+    }
+  ],
+  "subscribes": [
+    {
+      "topic": "aeb.mark",
+      "schema": "vision_mark",
+      "label": "Explicit object mark command"
+    }
+  ],
+  "ros2": {
+    "schema_version": 1,
+    "ports": [
+      {
+        "id": "image",
+        "direction": "subscribe",
+        "message_types": [
+          "sensor_msgs/msg/CompressedImage"
+        ],
+        "default_topic": "/camera/color/image_raw/compressed",
+        "qos_preset": "sensor_data",
+        "queue": {
+          "capacity": 1,
+          "overflow": "keep_latest",
+          "max_age_ms": 2000,
+          "max_message_bytes": 8388608,
+          "max_bytes": 16777216
+        }
+      },
+      {
+        "id": "mark",
+        "direction": "subscribe",
+        "message_types": [
+          "std_msgs/msg/String"
+        ],
+        "default_topic": "/yolo/mark",
+        "qos_preset": "reliable_volatile",
+        "queue": {
+          "capacity": 32,
+          "overflow": "reject_new",
+          "max_age_ms": 5000,
+          "max_message_bytes": 8388608,
+          "max_bytes": 16777216
+        }
+      },
+      {
+        "id": "json",
+        "direction": "publish",
+        "message_types": [
+          "std_msgs/msg/String"
+        ],
+        "default_topic": "/yolo/json",
+        "qos_preset": "sensor_data",
+        "queue": {
+          "capacity": 1,
+          "overflow": "keep_latest",
+          "max_age_ms": 2000,
+          "max_message_bytes": 8388608,
+          "max_bytes": 16777216
+        }
+      },
+      {
+        "id": "jpg",
+        "direction": "publish",
+        "message_types": [
+          "sensor_msgs/msg/CompressedImage"
+        ],
+        "default_topic": "/yolo/jpg",
+        "qos_preset": "sensor_data",
+        "queue": {
+          "capacity": 1,
+          "overflow": "keep_latest",
+          "max_age_ms": 2000,
+          "max_message_bytes": 8388608,
+          "max_bytes": 16777216
+        }
+      }
+    ]
+  }
+}
