@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "System audio device API v1",
+  "$defs": {
+    "selector": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "host_api": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "request": {
+      "type": "object",
+      "required": [
+        "action"
+      ],
+      "properties": {
+        "action": {
+          "enum": [
+            "list",
+            "validate"
+          ]
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "input_device": {
+          "$ref": "#/$defs/selector"
+        },
+        "output_device": {
+          "$ref": "#/$defs/selector"
+        }
+      }
+    },
+    "device": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "host_api",
+        "index",
+        "input_channels",
+        "output_channels",
+        "persistent",
+        "selectable"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "host_api": {
+          "type": "string"
+        },
+        "index": {
+          "type": "integer"
+        },
+        "input_channels": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "output_channels": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "persistent": {
+          "type": "boolean"
+        },
+        "selectable": {
+          "type": "boolean"
+        },
+        "identity": {
+          "const": "name_and_host_api"
+        }
+      }
+    },
+    "inventory": {
+      "type": "object",
+      "required": [
+        "ok",
+        "schema_version",
+        "scope",
+        "devices"
+      ],
+      "properties": {
+        "ok": {
+          "const": true
+        },
+        "schema_version": {
+          "const": "audio-devices.v1"
+        },
+        "scope": {
+          "const": "audio_worker_host"
+        },
+        "devices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/device"
+          }
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "required": [
+        "ok",
+        "code",
+        "message"
+      ],
+      "properties": {
+        "ok": {
+          "const": false
+        },
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

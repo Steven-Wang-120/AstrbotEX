@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://astrbotex.local/schemas/voice-decision.v1.json",
+  "title": "Generic voice decision contract",
+  "type": "object",
+  "$defs": {
+    "request": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "request_id",
+        "state"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "voice-decision.v1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "type": "object",
+          "required": [
+            "latest_utterance"
+          ],
+          "properties": {
+            "latest_utterance": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "questions": {
+          "type": "object"
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "addressed_to_assistant",
+            "should_reply",
+            "should_stop"
+          ],
+          "properties": {
+            "addressed_to_assistant": {
+              "type": "boolean"
+            },
+            "should_reply": {
+              "type": "boolean"
+            },
+            "should_stop": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "required": [
+            "scores"
+          ],
+          "properties": {
+            "scores": {
+              "type": "object",
+              "required": [
+                "addressed",
+                "forward",
+                "quiet"
+              ],
+              "properties": {
+                "addressed": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "forward": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "quiet": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

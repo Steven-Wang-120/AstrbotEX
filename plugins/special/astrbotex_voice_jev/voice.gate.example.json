@@ -1,0 +1,11 @@
+{
+  "type": "laya",
+  "url": "http://127.0.0.1:8000",
+  "model": "multilingual",
+  "timeout": 3,
+  "token_env": "DECISION_API_KEY",
+  "threshold": 0.4,
+  "forward_threshold": 0.4,
+  "followup_seconds": 25,
+  "quiet_threshold": 0.85
+}
