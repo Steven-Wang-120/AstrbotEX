@@ -84,3 +84,17 @@ OneBot 发送偏移仅证明已尝试写入连接，不证明 AstrBot 已处理�
 先改 EX 权威文档、Schema/样例并提升 revision，再生成实际 OpenAPI；提交 EX 后同步 astrC contracts 的源提交和 SHA-256。OpenAPI 当前主要描述请求和路由，响应语义以 ChatService 与原生 Schema 为准，不直接用于完整响应客户端生成。
 
 只提交任务文件。数据库、真实消息、令牌、venv 与本机配置不入库。依赖顶层在 pyproject 固定；[开发环境锁](requirements-chat-dev.lock) 保存本轮解析版本，跨平台安装仍需验证。
+
+## 真实 AstrBot 内置指令验收
+
+2026-11-10 已使用隔离的 AstrBot 4.26.7 镜像，保持其适配器和 builtin_commands 源码不变。双真人群聊 /sid、bot 私聊、身份、私聊访问隔离、机器人重启重连、astrC 实际 Dart 客户端均通过。详见 acceptance/20261110/real-astrbot-roundtrip.json；它固定镜像完整 ID 和关键文件 SHA-256，而非本机 AstrBot-latest HEAD。
+
+```powershell
+.\.venv-chat\Scripts\python.exe scripts/chat_astrbot_lab.py --image <installed-image> --output <evidence.json>
+```
+
+加入 --flutter <flutter.bat> --astrc-root ..\astrC 可同时运行手机仓库的真实客户端测试。工具只使用已安装镜像，不拉取新镜像，不读取生产配置；创建临时数据库和容器，finally 清理。随机 host port 会在 Docker restart 后改变，因此工具先选择端口再明确绑定，让同一轮重连目标保持稳定。
+
+--serve --data-dir <isolated-directory> --host <LAN-IP> --port 8780 可供手机手测。此模式为普通服务，首次创建 alice、bob、bot 和测试群，使用随机测试密码保存在该目录的 TEST_ACCOUNTS.json；该文件和数据库不得提交。--check-only 在自检后退出，未带该选项则等待 Ctrl+C。astrC 提供 tools/start_manual_lab.ps1 便捷入口。
+
+本轮只证明内置 /sid 场景，不代替 QQ/NapCat 对照、第三方插件、断线窗口恰好一次或 Android 真机验收。
