@@ -67,8 +67,8 @@ def main() -> int:
         "platform": [{"id": "astrc_acceptance", "type": "aiocqhttp", "enable": True,
                       "ws_reverse_host": "0.0.0.0", "ws_reverse_port": 6199,
                       "ws_reverse_token": token}],
-        "platform_settings": {"enable_id_white_list": False, "reply_with_mention": False,
-                              "reply_with_quote": False},
+        "platform_settings": {"enable_id_white_list": False, "reply_with_mention": True,
+                              "reply_with_quote": True},
         "dashboard": {"enable": False}, "provider": [], "provider_sources": [],
         "provider_settings": {"enable": False}, "disable_metrics": True,
         "t2i": False, "log_level": "INFO",
@@ -105,6 +105,14 @@ def main() -> int:
         else:
             accounts = {"alice": "1", "bob": "2", "bot": "3", "password": "astrc-demo"}
         listener.connector = ReverseConnector(listener.service, int(accounts["bot"]), f"ws://127.0.0.1:{port}/ws", token)
+        observed_actions = []
+        dispatch = listener.connector.dispatcher.dispatch
+        def observe(request):
+            result = dispatch(request)
+            if request.get("action") in {"get_msg", "get_group_member_info", "get_stranger_info"}:
+                observed_actions.append({"action": request["action"], "params": request.get("params", {}), "status": result["status"]})
+            return result
+        listener.connector.dispatcher.dispatch = observe
         listener.app = create_app(listener.service, demo=not args.serve, connector=listener.connector)
         listener.start()
         deadline = time.monotonic() + 60
@@ -128,7 +136,7 @@ def main() -> int:
                   "astrbot_image": args.image, "astrbot_image_id": image["Id"], "astrbot": metadata,
                   "source_unchanged": True, "scenarios": [],
                   "limitations": ["Android/iOS not verified", "QQ/NapCat comparison not run",
-                                  "Third-party plugins and LLM providers not verified", "Text only"]}
+                                  "Third-party plugins and LLM providers not verified", "Media not implemented"]}
         probe_host = "127.0.0.1" if args.host == "0.0.0.0" else args.host
         base = f"http://{probe_host}:{listener.port}/api/v1/chat"
         with httpx.Client(base_url=base, trust_env=False, timeout=10) as client:
@@ -144,13 +152,24 @@ def main() -> int:
                 direct = client.post("/conversations/direct", headers=sessions["bob"], json={"target_user_id": accounts["bot"]})
                 direct.raise_for_status()
                 scenarios = (("alice-group-command", "alice", group), ("bob-group-command", "bob", group),
-                             ("bob-private-command", "bob", direct.json()), ("alice-group-after-reconnect", "alice", group))
+                             ("bob-private-command", "bob", direct.json()),
+                             ("alice-group-mention-reply", "alice", group),
+                             ("alice-group-after-reconnect", "alice", group))
                 for scenario, username, conversation in scenarios:
                     if scenario == "alice-group-after-reconnect":
                         docker("restart", "--timeout", "5", name)
                     cid = conversation["conversation_id"]
+                    segments = [{"type": "text", "data": {"text": "/sid"}}]
+                    quote_id = None
+                    if scenario == "alice-group-mention-reply":
+                        # Quote a message in this group, not the preceding private reply.
+                        prior = client.get(f"/conversations/{cid}/messages", headers=sessions[username])
+                        prior.raise_for_status()
+                        quote_id = next(m["message_id"] for m in reversed(prior.json()["items"]) if m["sender_id"] == accounts["bot"])
+                        segments = [{"type": "reply", "data": {"message_id": quote_id}},
+                                    {"type": "mention", "data": {"user_id": accounts["bot"]}}, *segments]
                     result = client.post(f"/conversations/{cid}/messages", headers=sessions[username],
-                                         json={"client_message_id": str(uuid4()), "segments": [{"type": "text", "data": {"text": "/sid"}}]})
+                                         json={"client_message_id": str(uuid4()), "segments": segments})
                     result.raise_for_status()
                     sent_id = result.json()["message_id"]
                     deadline = time.monotonic() + 30
@@ -160,9 +179,18 @@ def main() -> int:
                         replies = [m for m in history.json()["items"] if m["sender_id"] == accounts["bot"] and int(m["message_id"]) > int(sent_id)]
                         if replies:
                             reply = replies[0]
-                            text = "".join(s["data"]["text"] for s in reply["segments"])
+                            text = "".join(s["data"]["text"] for s in reply["segments"] if s["type"] == "text")
                             if "UMO:" not in text or f"UID: 「{accounts[username]}」" not in text:
                                 raise RuntimeError(f"Wrong identity or reply for {scenario}")
+                            if not any(s["type"] == "reply" and s["data"]["message_id"] == sent_id for s in reply["segments"]):
+                                raise RuntimeError(f"Missing native quote in real bot reply for {scenario}")
+                            if conversation["kind"] == "group" and not any(s["type"] == "mention" and s["data"]["user_id"] == accounts[username] for s in reply["segments"]):
+                                raise RuntimeError(f"Missing native mention in real bot reply for {scenario}")
+                            if quote_id is not None:
+                                expected = {"get_msg", "get_group_member_info", "get_stranger_info"}
+                                successful = {a["action"] for a in observed_actions if a["status"] == "ok"}
+                                if not expected <= successful or not any(a["action"] == "get_msg" and str(a["params"].get("message_id")) == quote_id and a["status"] == "ok" for a in observed_actions):
+                                    raise RuntimeError("Real AstrBot did not resolve incoming mention and quote")
                             report["scenarios"].append({"name": scenario, "status": "passed", "sender_id": accounts[username],
                                                         "message_id": sent_id, "reply_id": reply["message_id"]})
                             break
@@ -183,6 +211,7 @@ def main() -> int:
             if result.returncode:
                 raise RuntimeError("Real Dart client / AstrBot integration failed")
             report["scenarios"].append({"name": "real-dart-clients-astrbot-roundtrip", "status": "passed"})
+        report["observed_adapter_actions"] = observed_actions
         report["status"] = "passed"
         if args.output:
             args.output.parent.mkdir(parents=True, exist_ok=True)

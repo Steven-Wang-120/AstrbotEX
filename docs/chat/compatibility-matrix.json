@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "updated_at": "2026-11-10",
-  "state": "text_skeleton_real_astrbot_builtin_tested_mobile_pending",
+  "state": "text_mentions_replies_real_astrbot_builtin_tested_mobile_pending",
   "baseline": {
     "ex_source_commit": "bc44433ec3fd37352a478c476e3f47984de291c6",
     "astrbot_commit": null,
@@ -38,14 +38,16 @@
         "get_msg",
         "delete_msg",
         "can_send_image",
-        "get_image"
+        "get_image",
+        "get_stranger_info"
       ],
       "evidence": [
         "tests/chat/test_chat_skeleton.py: real reverse WS simulated-peer roundtrip, permissions, echo and honest capability checks",
-        "docs/chat/acceptance/20261110/real-astrbot-roundtrip.json: unchanged AstrBot 4.26.7 builtin /sid, real Dart clients, and restart reconnect"
+        "docs/chat/acceptance/20261110/real-astrbot-roundtrip.json: unchanged AstrBot 4.26.7 builtin /sid, real Dart clients, and restart reconnect",
+        "docs/chat/acceptance/20261110/segments-astrbot-roundtrip.json: incoming mention/reply resolution and outgoing native mention/quote; actual Dart client"
       ],
       "limitations": [
-        "Text only; no mention/reply/image/notice yet",
+        "Text, at and reply supported; no media or notice yet",
         "get_image unsupported; can_send_image=false",
         "friend_list means established direct peers",
         "Only actual builtin /sid tested; third-party plugins and QQ/NapCat comparison pending"
@@ -72,14 +74,19 @@
       "astrbot_version": "4.26.7",
       "astrbot_image_id": "sha256:3e43b5725d832755076c7cf5ea03eff18c77935c232a0079df6614e229bb22b2",
       "napcat_version": null,
-      "ex_commit": "bc44433ec3fd37352a478c476e3f47984de291c6",
+      "ex_commit": null,
       "source_unchanged": true,
       "required_actions": [
         "send_group_msg",
-        "send_private_msg"
+        "send_private_msg",
+        "get_msg",
+        "get_group_member_info",
+        "get_stranger_info"
       ],
       "required_segments": [
-        "text"
+        "text",
+        "at",
+        "reply"
       ],
       "platform_checks": [
         "aiocqhttp"
@@ -107,11 +114,18 @@
           "reply_id": "7"
         },
         {
-          "name": "alice-group-after-reconnect",
+          "name": "alice-group-mention-reply",
           "status": "passed",
           "sender_id": "1",
           "message_id": "8",
           "reply_id": "9"
+        },
+        {
+          "name": "alice-group-after-reconnect",
+          "status": "passed",
+          "sender_id": "1",
+          "message_id": "10",
+          "reply_id": "11"
         },
         {
           "name": "private-membership-denied",
@@ -124,13 +138,15 @@
       ],
       "status": "partial",
       "evidence": [
-        "docs/chat/acceptance/20261110/real-astrbot-roundtrip.json"
+        "docs/chat/acceptance/20261110/real-astrbot-roundtrip.json",
+        "docs/chat/acceptance/20261110/segments-astrbot-roundtrip.json"
       ],
       "limitations": [
         "Only /sid is covered; other built-in commands untested",
         "No third-party plugin or QQ/NapCat comparison",
         "Android display awaits manual verification"
-      ]
+      ],
+      "ex_revision": "2026-11-10.3 (see commit containing this record)"
     }
   ],
   "plugin_record_template": {

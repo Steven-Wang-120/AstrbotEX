@@ -1,6 +1,6 @@
 # astr-chat 原生协议与 OneBot 映射草案
 
-协议：`astr-chat/0.1-draft`。revision：`2026-11-10.2`。状态：已实现文字骨架子集，其余仍为设计目标。
+协议：`astr-chat/0.1-draft`。revision：`2026-11-10.3`。状态：已实现文字、提及与引用子集，其余仍为设计目标。
 
 权威位置：astrEX `chat` 分支的 `docs/chat/CHAT_CONTRACT.md`。astrC `contracts/` 保存同修订快照。
 
@@ -8,9 +8,9 @@
 
 已实现 login/logout、可选邀请注册、GET/PATCH me、会话列表/创建私聊、建群/查成员、文字发送/分页历史/撤回、sync/events；实际路由见同目录 contracts/openapi.json。
 
-当前仅 text 段；资料 display_name/bio；未读为 null；设备 access token 一小时、无 refresh（501）。posts 也是 501。成员变更、read、媒体、日志、头像、@、引用、notice、刷新轮换和游标过期清理尚未实现。以下完整清单是后续目标，不能据此调用尚不存在的路由。
+当前支持 text、mention、reply 段；资料 display_name/bio；未读为 null；设备 access token 一小时、无 refresh（501）。posts 也是 501。成员变更、read、媒体、日志、头像、notice、刷新轮换和游标过期清理尚未实现。以下完整清单是后续目标，不能据此调用尚不存在的路由。
 
-OneBot 当前已有私聊对端定义为 friend_list；支持基础群/成员查询与文字收发、取消息/撤回。can_send_image/record=false，get_image 尚不支持。传输与模拟对端测试不代表真实插件兼容。
+OneBot 当前已有私聊对端定义为 friend_list；结构化数组执行 text/at/reply 显式双向映射，尚不解析 CQ 字符串（auto_escape=true 时作为纯文本）；支持基础群/成员查询、受共享会话约束的 get_stranger_info、文字/at/reply 收发、取消息/撤回。can_send_image/record=false，get_image 尚不支持。传输与模拟对端测试不代表真实插件兼容。
 
 ## 角色与部署
 
@@ -75,7 +75,9 @@ EX 对话子系统拥有 ChatService、数据存储、真人原生 API 与内置
 }
 ```
 
-同账号 client_message_id 全局唯一；相同会话/内容重试返回原消息，跨会话或内容冲突返回 409。群内提及需验证成员，all 提及按权限允许；引用必须属于当前会话且可见。
+同账号 client_message_id 全局唯一；相同会话/内容重试返回原消息，跨会话或内容冲突返回 409。发送为 1..16 段，所有 text 合计不超过 4000 个 Unicode 码点。mention 仅用于群聊，目标必须是当前群成员；user_id="all" 仅群主或管理员可发。reply 至多一段且必须位于首段，message_id 必须属于同一会话且未撤回；不能只发 reply，需同时含文字或提及。原生 ID 必须为规范十进制字符串且不超过 2147483647。
+
+事务先验证发送者的当前会话权限，再识别相同幂等请求，最后为新消息验证提及/引用目标并入库。已接受请求的同内容重试仍返回原消息，即使其引用目标后来撤回；新请求不得引用已撤回消息。引用只保存 message_id，不复制旧正文；客户端解析已加载历史，撤回后显示 tombstone，未加载时显示明确占位。
 
 消息记录、幂等键、账号投递事件和 outbox 在同一事务提交。HTTP 成功表示服务端已接受，不等于对方已读。bot 离线不能阻止真人消息入库。
 
@@ -114,7 +116,7 @@ EX 对话子系统拥有 ChatService、数据存储、真人原生 API 与内置
 
 成功响应 status=ok、retcode=0，返回实际 data 与 echo。未知 action 在 WS 使用 status=failed、retcode=1404、data=null。参数/权限/存储等业务错误码在实现时冻结，不返回虚假 success。echo 可以是任意 JSON 类型，不能强制变成字符串。
 
-优先 action：get_login_info、get_version_info、get_status、get_friend_list、get_group_list、get_group_info、get_group_member_info、get_group_member_list、send_private_msg、send_group_msg、send_msg、get_msg、delete_msg、can_send_image、get_image。联系人语义在 P1 冻结。
+优先 action：get_login_info、get_version_info、get_status、get_friend_list、get_group_list、get_group_info、get_group_member_info、get_group_member_list、send_private_msg、send_group_msg、send_msg、get_msg、delete_msg、get_stranger_info、can_send_image、get_image。联系人语义在 P1 冻结。
 
 get_version_info 必须真实返回 app_name=astrEX、实际版本与 protocol_version=11。自有扩展用 `_ex_` 前缀。不能假冒 NapCat。
 

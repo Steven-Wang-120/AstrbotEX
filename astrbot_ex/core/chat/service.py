@@ -190,22 +190,59 @@ class ChatService:
             client_id = str(UUID(client_id))
         except (ValueError, TypeError):
             raise ChatError("invalid_message_id", "client_message_id must be a UUID") from None
-        if not segments or len(segments) > 16:
-            raise ChatError("invalid_message", "Message must contain text")
-        for segment in segments:
-            if not isinstance(segment, dict) or set(segment) != {"type", "data"} or segment["type"] != "text" or not isinstance(segment["data"], dict) or set(segment["data"]) != {"text"}:
-                raise ChatError("unsupported_segment", "This skeleton currently supports text messages only")
-            text = segment["data"]["text"]
-            if not isinstance(text, str) or not text or len(text) > 4000:
-                raise ChatError("invalid_message", "Text length must be between 1 and 4000")
+        if not isinstance(segments, list) or not 1 <= len(segments) <= 16:
+            raise ChatError("invalid_message", "Message must contain 1 to 16 segments")
+        text_length, content = 0, False
+        for index, segment in enumerate(segments):
+            if not isinstance(segment, dict) or set(segment) != {"type", "data"} or not isinstance(segment["data"], dict):
+                raise ChatError("invalid_message", "Invalid message segment")
+            kind, data = segment["type"], segment["data"]
+            field = {"text": "text", "mention": "user_id", "reply": "message_id"}.get(kind) if isinstance(kind, str) else None
+            if field is None:
+                raise ChatError("unsupported_segment", "Supported segments: text, mention, reply")
+            if set(data) != {field} or not isinstance(data[field], str):
+                raise ChatError("invalid_message", "Invalid segment data")
+            value = data[field]
+            if kind == "text":
+                if not value or len(value) > 4000:
+                    raise ChatError("invalid_message", "Text length must be between 1 and 4000")
+                text_length += len(value)
+                content = True
+            elif kind == "reply":
+                entity_id(value)
+                if index != 0:
+                    raise ChatError("invalid_message", "A single reply must be the first segment")
+            else:
+                if value != "all":
+                    entity_id(value)
+                content = True
+        if not content or text_length > 4000:
+            raise ChatError("invalid_message", "Provide text or a mention; total text cannot exceed 4000 characters")
         encoded = json.dumps(segments, ensure_ascii=False, sort_keys=True)
         with self.repository.transaction() as db:
-            self._member(db, user_id, cid)
+            member = self._member(db, user_id, cid)
             existing = db.execute("SELECT * FROM messages WHERE sender_id=? AND client_message_id=?", (user_id, client_id)).fetchone()
             if existing:
                 if existing["conversation_id"] != cid or existing["segments"] != encoded:
                     raise ChatError("idempotency_conflict", "Message ID is already used for different content", 409)
                 return self._message(existing)
+            # Check dynamic permissions only for new messages: an accepted retry
+            # remains idempotent even if its quoted message has since been recalled.
+            kind = db.execute("SELECT kind FROM conversations WHERE id=?", (cid,)).fetchone()["kind"]
+            for segment in segments:
+                if segment["type"] == "mention":
+                    target = segment["data"]["user_id"]
+                    if kind != "group":
+                        raise ChatError("invalid_mention", "Mentions are only supported in groups")
+                    if target == "all":
+                        if member["role"] not in {"owner", "admin"}:
+                            raise ChatError("forbidden", "Only group administrators can mention all members", 403)
+                    elif db.execute("SELECT 1 FROM members WHERE conversation_id=? AND user_id=?", (cid, entity_id(target))).fetchone() is None:
+                        raise ChatError("invalid_mention", "Mention target is not a member of this group")
+                elif segment["type"] == "reply":
+                    target = db.execute("SELECT conversation_id,recalled FROM messages WHERE id=?", (entity_id(segment["data"]["message_id"]),)).fetchone()
+                    if target is None or target["conversation_id"] != cid or target["recalled"]:
+                        raise ChatError("invalid_reply", "Reply target must be an available message in this conversation")
             row = db.execute("INSERT INTO messages(conversation_id,sender_id,client_message_id,segments,created_at) VALUES (?,?,?,?,?)", (cid, user_id, client_id, encoded, now()))
             message = self._message(db.execute("SELECT * FROM messages WHERE id=?", (row.lastrowid,)).fetchone())
             people = [r[0] for r in db.execute("SELECT user_id FROM members WHERE conversation_id=?", (cid,))]

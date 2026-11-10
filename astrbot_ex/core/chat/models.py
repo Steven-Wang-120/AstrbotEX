@@ -1,7 +1,7 @@
 """Native API boundaries. Import only when the optional chat stack is enabled."""
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -36,9 +36,30 @@ class TextSegment(StrictModel):
     data: TextData
 
 
+class MentionData(StrictModel):
+    user_id: str = Field(pattern=r"^(all|[1-9][0-9]{0,9})$")
+
+
+class MentionSegment(StrictModel):
+    type: Literal["mention"] = "mention"
+    data: MentionData
+
+
+class ReplyData(StrictModel):
+    message_id: str = Field(pattern=r"^[1-9][0-9]{0,9}$")
+
+
+class ReplySegment(StrictModel):
+    type: Literal["reply"] = "reply"
+    data: ReplyData
+
+
+MessageSegment = Annotated[TextSegment | MentionSegment | ReplySegment, Field(discriminator="type")]
+
+
 class SendMessageRequest(StrictModel):
     client_message_id: UUID
-    segments: list[TextSegment] = Field(min_length=1, max_length=16)
+    segments: list[MessageSegment] = Field(min_length=1, max_length=16)
 
 
 class GroupRequest(StrictModel):

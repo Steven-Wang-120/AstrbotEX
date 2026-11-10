@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:astr-chat:0.1-draft:native-message",
-  "title": "astr-chat persisted message draft",
+  "title": "astr-chat persisted message: text, mention and reply",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -67,7 +67,8 @@
                 "properties": {
                   "text": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 4000
                   }
                 }
               }
@@ -133,35 +134,24 @@
                 }
               }
             }
-          },
-          {
-            "type": "object",
-            "required": [
-              "type",
-              "data"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "type": {
-                "const": "image"
-              },
-              "data": {
-                "type": "object",
-                "required": [
-                  "media_id"
-                ],
-                "additionalProperties": false,
-                "properties": {
-                  "media_id": {
-                    "type": "string",
-                    "format": "uuid"
-                  }
-                }
-              }
-            }
           }
         ]
-      }
+      },
+      "maxItems": 16,
+      "description": "Runtime enforces total text <=4000 code points, ID upper bounds, current membership and same-conversation available reply targets.",
+      "contains": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "reply"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "minContains": 0,
+      "maxContains": 1
     }
   },
   "allOf": [
@@ -183,7 +173,54 @@
       "else": {
         "properties": {
           "segments": {
-            "minItems": 1
+            "minItems": 1,
+            "contains": {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "text",
+                    "mention"
+                  ]
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "minContains": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "segments": {
+            "contains": {
+              "properties": {
+                "type": {
+                  "const": "reply"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "segments": {
+            "prefixItems": [
+              {
+                "properties": {
+                  "type": {
+                    "const": "reply"
+                  }
+                }
+              }
+            ]
           }
         }
       }

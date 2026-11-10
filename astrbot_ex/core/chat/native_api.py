@@ -56,7 +56,7 @@ def create_app(service: ChatService, *, invite_token: str | None = None, connect
     @app.get(prefix + "/health")
     def health():
         return {"product": "astrEX", "version": VERSION, "protocol": PROTOCOL, "mode": "demo" if demo else "normal",
-                "capabilities": ["login", "profile", "conversations", "groups", "text", "history", "sync", "events", "recall"],
+                "capabilities": ["login", "profile", "conversations", "groups", "text", "mention", "reply", "history", "sync", "events", "recall"],
                 "onebot_connected": connector.connected if connector else False}
 
     @app.post(prefix + "/auth/register", status_code=201)

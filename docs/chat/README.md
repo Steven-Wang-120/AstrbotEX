@@ -4,7 +4,7 @@
 
 EX 对话子系统拥有 ChatService、SQLite、真人 API 和内置 OneBot11 协议端。astrC 面向真人，AstrBot 通过 OneBot 运行插件。普通聊天不需要启动运动 runtime。
 
-已实现账号登录、可选邀请注册、本人资料、私聊/群聊、文字、历史、幂等、撤回、持久同步与反向 Universal WS。真实 AstrBot 4.26.7 未修改的内置 /sid 已通过群聊/私聊及重连联调；第三方插件和 QQ/NapCat 对照仍待验收。
+已实现账号登录、可选邀请注册、本人资料、私聊/群聊、文字/@/引用、历史、幂等、撤回、持久同步与反向 Universal WS。真实 AstrBot 4.26.7 未修改的内置 /sid 已通过群聊/私聊及重连联调；第三方插件和 QQ/NapCat 对照仍待验收。
 
 | 文档 | 内容 |
 | --- | --- |

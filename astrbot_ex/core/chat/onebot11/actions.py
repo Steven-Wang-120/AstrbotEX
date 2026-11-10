@@ -28,12 +28,13 @@ class ActionDispatcher:
             "get_group_member_list": lambda p: [self._member(self._find_group(p), m) for m in self._find_group(p)["members"]],
             "get_group_member_info": self._member_info,
             "get_friend_list": self._friends,
+            "get_stranger_info": self._stranger,
             "send_group_msg": self._send_group,
             "send_private_msg": self._send_private,
             "send_msg": self._send,
             "get_msg": self._get_message,
             "delete_msg": self._delete,
-            "_ex_get_capabilities": lambda p: {"actions": sorted(self.actions), "segments": ["text"], "product": "astrEX"},
+            "_ex_get_capabilities": lambda p: {"actions": sorted(self.actions), "segments": ["text", "at", "reply"], "product": "astrEX"},
         }
 
     def dispatch(self, request) -> dict:
@@ -88,6 +89,15 @@ class ActionDispatcher:
         ids = {m["user_id"] for c in self.service.conversations(self.bot_id) if c["kind"] == "direct" for m in c["members"] if int(m["user_id"]) != self.bot_id}
         return [{"user_id": int(uid), "nickname": self.service.user(int(uid))["display_name"], "remark": ""} for uid in sorted(ids)]
 
+    def _stranger(self, params: dict) -> dict:
+        uid = str(entity_id(params["user_id"]))
+        if uid != str(self.bot_id) and not any(
+            m["user_id"] == uid for c in self.service.conversations(self.bot_id) for m in c["members"]
+        ):
+            raise ChatError("forbidden", "Bot cannot access this account", 403)
+        person = self.service.user(int(uid))
+        return {"user_id": int(uid), "nickname": person["display_name"], "sex": "unknown", "age": 0}
+
     @staticmethod
     def _segments(params: dict) -> list:
         message = params["message"]
@@ -97,7 +107,45 @@ class ActionDispatcher:
             return [{"type": "text", "data": {"text": message}}]
         if not isinstance(message, list):
             raise ChatError("invalid_message", "Message must be text or an array")
-        return message
+        result = []
+        for segment in message:
+            if not isinstance(segment, dict) or set(segment) != {"type", "data"} or not isinstance(segment["data"], dict):
+                raise ChatError("invalid_message", "Invalid OneBot segment")
+            kind, data = segment["type"], segment["data"]
+            if kind == "text" and set(data) == {"text"}:
+                result.append(segment)
+            elif kind == "at" and set(data) == {"qq"}:
+                value = data["qq"]
+                result.append({"type": "mention", "data": {"user_id": "all" if value == "all" else str(entity_id(value))}})
+            elif kind == "reply" and set(data) == {"id"}:
+                result.append({"type": "reply", "data": {"message_id": str(entity_id(data["id"]))}})
+            else:
+                raise ChatError("unsupported_segment", "Supported OneBot segments: text, at, reply")
+        return result
+
+    @staticmethod
+    def _onebot_segments(segments: list) -> list:
+        result = []
+        for segment in segments:
+            kind, data = segment["type"], segment["data"]
+            if kind == "mention":
+                result.append({"type": "at", "data": {"qq": data["user_id"]}})
+            elif kind == "reply":
+                result.append({"type": "reply", "data": {"id": data["message_id"]}})
+            elif kind == "text":
+                result.append(segment)
+            else:
+                result.append({"type": "text", "data": {"text": "[Unsupported message]"}})
+        return result
+
+    @staticmethod
+    def _raw(segments: list) -> str:
+        def escape(value, parameter=False):
+            result = str(value).replace("&", "&amp;").replace("[", "&#91;").replace("]", "&#93;")
+            return result.replace(",", "&#44;") if parameter else result
+        return "".join(escape(s["data"]["text"]) if s["type"] == "text" else
+                       "[CQ:" + s["type"] + "," + ",".join(k + "=" + escape(v, True) for k, v in s["data"].items()) + "]"
+                       for s in segments)
 
     def _send_group(self, params: dict) -> dict:
         group = self._find_group(params)
@@ -117,13 +165,9 @@ class ActionDispatcher:
 
     def _get_message(self, params: dict) -> dict:
         message = self.service.get_message(self.bot_id, str(entity_id(params["message_id"])))
-        conversation = self.service.conversation(self.bot_id, message["conversation_id"])
-        sender = self.service.user(int(message["sender_id"]))
-        return {"time": int(datetime.fromisoformat(message["created_at"].replace("Z", "+00:00")).timestamp()),
-                "message_type": conversation["kind"] if conversation["kind"] == "group" else "private",
-                "message_id": int(message["message_id"]), "real_id": int(message["message_id"]),
-                "sender": {"user_id": int(message["sender_id"]), "nickname": sender["display_name"]},
-                "message": message["segments"]}
+        result = self._message_event(message)
+        result["real_id"] = result["message_id"]
+        return result
 
     def _delete(self, params: dict):
         self.service.recall(self.bot_id, str(entity_id(params["message_id"])))
@@ -135,12 +179,15 @@ class ActionDispatcher:
         message = native["payload"]["message"]
         if int(message["sender_id"]) == self.bot_id:
             return None
+        return self._message_event(message)
+
+    def _message_event(self, message: dict) -> dict:
         conversation = self.service.conversation(self.bot_id, message["conversation_id"])
         sender = self.service.user(int(message["sender_id"]))
         result = {"time": int(datetime.fromisoformat(message["created_at"].replace("Z", "+00:00")).timestamp()),
                   "self_id": self.bot_id, "post_type": "message", "message_id": int(message["message_id"]),
-                  "user_id": int(message["sender_id"]), "message": message["segments"],
-                  "raw_message": "".join(s["data"]["text"] for s in message["segments"]), "font": 0}
+                  "user_id": int(message["sender_id"]), "message": self._onebot_segments(message["segments"]),
+                  "raw_message": self._raw(self._onebot_segments(message["segments"])), "font": 0}
         if conversation["kind"] == "group":
             person = next(m for m in conversation["members"] if m["user_id"] == message["sender_id"])
             result.update(message_type="group", sub_type="normal", group_id=int(conversation["group_id"]), anonymous=None,

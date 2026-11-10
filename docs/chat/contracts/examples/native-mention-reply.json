@@ -1,0 +1,29 @@
+{
+  "protocol": "astr-chat/0.1-draft",
+  "message_id": "202",
+  "conversation_id": "00000000-0000-4000-8000-000000000101",
+  "sender_id": "10001",
+  "client_message_id": "00000000-0000-4000-8000-000000000301",
+  "created_at": "2026-11-10T01:00:00.000Z",
+  "recalled": false,
+  "segments": [
+    {
+      "type": "reply",
+      "data": {
+        "message_id": "201"
+      }
+    },
+    {
+      "type": "mention",
+      "data": {
+        "user_id": "3"
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "text": "/sid"
+      }
+    }
+  ]
+}

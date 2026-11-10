@@ -1,6 +1,6 @@
 # astrEX chat 开发指南
 
-日期：2026-11-10。分支 `chat`，状态：可运行文字聊天骨架；尚未达到完整 P1 真机与插件验收。
+日期：2026-11-10。分支 `chat`，状态：可运行文字、@ 和引用聊天；尚未达到完整 P1 真机与插件验收。
 
 ## 阅读和职责
 
@@ -61,23 +61,23 @@ astrbot_ex/core/chat/
 
 ## 已实现与后续
 
-文字消息支持 UUID 幂等、历史 before 分页、成员权限、撤回 tombstone、账号绑定签名游标。群创建后暂不提供成员变更。未读未实现，返回 null；客户端不虚构数字。
+文字、mention 和 reply 消息支持 UUID 幂等、历史 before 分页、成员权限、撤回 tombstone、账号绑定签名游标。群创建后暂不提供成员变更。未读未实现，返回 null；客户端不虚构数字。
 
-OneBot 支持登录/版本/状态、已有私聊对端列表、群/成员查询、文字私聊/群聊、get_msg/delete_msg。can_send_image/record 为 false。未知 action=1404，权限=1403，参数=1400，冲突=1409，内部失败=1500；echo 保留原 JSON 类型。
+OneBot 支持登录/版本/状态、已有私聊对端列表、群/成员查询、文字私聊/群聊、群 at、reply、get_msg/delete_msg、共享会话账号的 get_stranger_info。can_send_image/record 为 false。未知 action=1404，权限=1403，参数=1400，冲突=1409，内部失败=1500；echo 保留原 JSON 类型。
 
-未实现 @、引用、图片、CQ 解析、媒体、notice、refresh、日志、已读、后台通知、插件级兼容。原生 WS 的 Authorization header 适用于 IO 客户端，浏览器初版使用 HTTP sync。demo 只给 localhost:5173 与 127.0.0.1:5173 配置 CORS；普通模式没有开放跨域。
+未实现图片、CQ 解析、媒体、notice、refresh、日志、已读、后台通知、插件级兼容。原生 WS 的 Authorization header 适用于 IO 客户端，浏览器初版使用 HTTP sync。demo 只给 localhost:5173 与 127.0.0.1:5173 配置 CORS；普通模式没有开放跨域。
 
 OneBot 发送偏移仅证明已尝试写入连接，不证明 AstrBot 已处理。连接中断窗口仍可能重复/丢失；不承诺插件端到端恰好一次。bot 自发消息不再投给同一 bot。
 
 ## 验证与联调
 
 ```powershell
-.\.venv-chat\Scripts\python.exe -m pytest tests/chat/test_chat_skeleton.py tests/test_api_server.py tests/test_interaction_core.py -q
+.\.venv-chat\Scripts\python.exe -m pytest tests/chat tests/test_api_server.py tests/test_interaction_core.py tests/test_interaction_status.py -q
 ```
 
-当前为 35 项通过，包含真实 socket 的反向 WS 模拟对端、EX 启停、权限、重启、游标、幂等与旧对话回归。模拟对端不等于运行过真实 AstrBot 插件。存在一条上游 TestClient/httpx 弃用提示。
+当前为 57 项及 11 个 subtest 通过，包含真实 socket 的反向 WS 模拟对端、EX 启停、权限、重启、游标、幂等与旧对话回归。模拟对端不等于运行过真实 AstrBot 插件。存在一条上游 TestClient/httpx 弃用提示。
 
-真人手机联调与 Dart HTTP 实测工具在 astrC 开发指南。下一阶段固定 AstrBot 和目标插件提交，分别在 QQ+NapCat 与 EX 测同一插件，源码不改，记录动作、消息段、效果和平台判断至兼容矩阵。先补最常用的 @、引用、图片，再开展插件对照。
+真人手机联调与 Dart HTTP 实测工具在 astrC 开发指南。下一阶段固定 AstrBot 和目标插件提交，分别在 QQ+NapCat 与 EX 测同一插件，源码不改，记录动作、消息段、效果和平台判断至兼容矩阵。@、引用已通过真实适配器联测；随后补图片并开展插件对照。
 
 ## 契约和提交
 
@@ -98,3 +98,5 @@ OneBot 发送偏移仅证明已尝试写入连接，不证明 AstrBot 已处理�
 --serve --data-dir <isolated-directory> --host <LAN-IP> --port 8780 可供手机手测。此模式为普通服务，首次创建 alice、bob、bot 和测试群，使用随机测试密码保存在该目录的 TEST_ACCOUNTS.json；该文件和数据库不得提交。--check-only 在自检后退出，未带该选项则等待 Ctrl+C。astrC 提供 tools/start_manual_lab.ps1 便捷入口。
 
 本轮只证明内置 /sid 场景，不代替 QQ/NapCat 对照、第三方插件、断线窗口恰好一次或 Android 真机验收。
+
+提及与引用补充验收见 acceptance/20261110/segments-astrbot-roundtrip.json：开启真实 AstrBot reply_with_mention/reply_with_quote，验证输入段解析、实际 get_msg/get_group_member_info/get_stranger_info 查询及原生回复段。

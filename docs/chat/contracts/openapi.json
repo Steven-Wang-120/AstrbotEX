@@ -921,6 +921,40 @@
         ],
         "title": "LoginRequest"
       },
+      "MentionData": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "pattern": "^(all|[1-9][0-9]{0,9})$",
+            "title": "User Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "title": "MentionData"
+      },
+      "MentionSegment": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "mention",
+            "title": "Type",
+            "default": "mention"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MentionData"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "MentionSegment"
+      },
       "ProfilePatch": {
         "properties": {
           "display_name": {
@@ -997,6 +1031,40 @@
         ],
         "title": "RegisterRequest"
       },
+      "ReplyData": {
+        "properties": {
+          "message_id": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,9}$",
+            "title": "Message Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "message_id"
+        ],
+        "title": "ReplyData"
+      },
+      "ReplySegment": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "reply",
+            "title": "Type",
+            "default": "reply"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReplyData"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ReplySegment"
+      },
       "SendMessageRequest": {
         "properties": {
           "client_message_id": {
@@ -1006,7 +1074,25 @@
           },
           "segments": {
             "items": {
-              "$ref": "#/components/schemas/TextSegment"
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TextSegment"
+                },
+                {
+                  "$ref": "#/components/schemas/MentionSegment"
+                },
+                {
+                  "$ref": "#/components/schemas/ReplySegment"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "type",
+                "mapping": {
+                  "mention": "#/components/schemas/MentionSegment",
+                  "reply": "#/components/schemas/ReplySegment",
+                  "text": "#/components/schemas/TextSegment"
+                }
+              }
             },
             "type": "array",
             "maxItems": 16,
