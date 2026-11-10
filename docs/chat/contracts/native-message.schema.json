@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:astr-chat:0.1-draft:native-message",
+  "title": "astr-chat persisted message draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "message_id",
+    "conversation_id",
+    "sender_id",
+    "client_message_id",
+    "created_at",
+    "recalled",
+    "segments"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "astr-chat/0.1-draft"
+    },
+    "message_id": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,9}$",
+      "description": "Runtime must additionally enforce <=2147483647."
+    },
+    "conversation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "sender_id": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,9}$",
+      "description": "Runtime must additionally enforce <=2147483647."
+    },
+    "client_message_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "recalled": {
+      "type": "boolean"
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "data"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "const": "text"
+              },
+              "data": {
+                "type": "object",
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "data"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "const": "mention"
+              },
+              "data": {
+                "type": "object",
+                "required": [
+                  "user_id"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "user_id": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[1-9][0-9]{0,9}$",
+                        "description": "Runtime must additionally enforce <=2147483647."
+                      },
+                      {
+                        "const": "all"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "data"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "const": "reply"
+              },
+              "data": {
+                "type": "object",
+                "required": [
+                  "message_id"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "message_id": {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]{0,9}$",
+                    "description": "Runtime must additionally enforce <=2147483647."
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "data"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "const": "image"
+              },
+              "data": {
+                "type": "object",
+                "required": [
+                  "media_id"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "media_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "recalled": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "segments": {
+            "maxItems": 0
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "segments": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

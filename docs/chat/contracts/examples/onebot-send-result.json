@@ -1,0 +1,8 @@
+{
+  "status": "ok",
+  "retcode": 0,
+  "data": {
+    "message_id": 20002
+  },
+  "echo": "req-1"
+}

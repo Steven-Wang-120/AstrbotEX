@@ -1,5 +1,7 @@
 # AstrBotEX
 
+chat 分支准备：[聊天开发指南](docs/chat/DEVELOPMENT_GUIDE.md)、[技术选型](docs/chat/TECHNOLOGY_SELECTION.md)、[文档索引](docs/chat/README.md)。
+
 决策技术入口：[Laya 协议与部署](docs/B07-LAYA-BACKEND.md)、[管理 API 与页面](docs/B08-DECISION-MANAGEMENT.md)、[来源与复验入口](docs/LOCAL_DEVELOPMENT_INTEGRATION_RESULT.md)。管理 HTTP 只监听 `127.0.0.1`，需要管理凭据；远程访问使用 SSH 隧道。
 
 2026-09 ROS 2 环境框架：在同一个 8765 Dashboard 的“06 环境”中切换普通/ROS 2，

@@ -1,0 +1,15 @@
+{
+  "action": "send_group_msg",
+  "params": {
+    "group_id": 1001,
+    "message": [
+      {
+        "type": "text",
+        "data": {
+          "text": "收到"
+        }
+      }
+    ]
+  },
+  "echo": "req-1"
+}

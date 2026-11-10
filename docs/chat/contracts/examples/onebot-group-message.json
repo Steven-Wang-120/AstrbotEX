@@ -1,0 +1,32 @@
+{
+  "time": 1794272400,
+  "self_id": 10002,
+  "post_type": "message",
+  "message_type": "group",
+  "sub_type": "normal",
+  "message_id": 20001,
+  "group_id": 1001,
+  "user_id": 10001,
+  "anonymous": null,
+  "message": [
+    {
+      "type": "text",
+      "data": {
+        "text": "你好，astrC"
+      }
+    }
+  ],
+  "raw_message": "你好，astrC",
+  "font": 0,
+  "sender": {
+    "user_id": 10001,
+    "nickname": "示例用户",
+    "card": "",
+    "sex": "unknown",
+    "age": 0,
+    "area": "",
+    "level": "",
+    "role": "member",
+    "title": ""
+  }
+}

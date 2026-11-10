@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-11-10",
+  "state": "preparation_only",
+  "baseline": {
+    "ex_source_commit": "b0d81697069dc82428dfcfb89f323f64db1bdd0a",
+    "astrbot_commit": null,
+    "napcat_version": null,
+    "python_version_observed": "3.12.10",
+    "sqlite_version_observed": "3.49.1"
+  },
+  "status_values": [
+    "not_tested",
+    "passed",
+    "partial",
+    "requires_plugin_change",
+    "unsupported"
+  ],
+  "protocol_profiles": [
+    {
+      "name": "onebot11-reverse-ws-core",
+      "status": "not_tested",
+      "required_actions": [
+        "get_login_info",
+        "get_version_info",
+        "get_status",
+        "get_friend_list",
+        "get_group_list",
+        "get_group_info",
+        "get_group_member_info",
+        "get_group_member_list",
+        "send_private_msg",
+        "send_group_msg",
+        "send_msg",
+        "get_msg",
+        "delete_msg",
+        "can_send_image",
+        "get_image"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "napcat-extensions",
+      "status": "not_tested",
+      "required_actions": [],
+      "evidence": []
+    }
+  ],
+  "plugin_records": [],
+  "plugin_record_template": {
+    "plugin_repository": null,
+    "plugin_commit": null,
+    "astrbot_commit": null,
+    "napcat_version": null,
+    "ex_commit": null,
+    "source_unchanged": null,
+    "required_actions": [],
+    "required_segments": [],
+    "platform_checks": [],
+    "scenarios": [
+      {
+        "name": "group-command",
+        "status": "not_tested",
+        "expected": "Correct trigger, recipient, persisted effect and mobile display",
+        "evidence": []
+      }
+    ],
+    "status": "not_tested",
+    "limitations": []
+  },
+  "required_scenarios": [
+    "private-text",
+    "group-command",
+    "mention",
+    "reply-and-get-msg",
+    "image-visible-on-phone",
+    "proactive-send",
+    "multiple-groups-and-bots",
+    "permission-denied",
+    "unsupported-action",
+    "reconnect-window",
+    "stable-ids-after-restart",
+    "mobile-sync-after-offline"
+  ]
+}
