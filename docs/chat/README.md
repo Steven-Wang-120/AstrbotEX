@@ -1,15 +1,18 @@
-# astrEX chat 开发准备
+# astrEX chat
 
-日期：2026-11-10。分支：`chat`。当前状态：文档与契约准备，业务尚未实现。
+2026-11-10，`chat` 分支：第一版可运行骨架。
 
-| 文档 | 用途 |
+EX 对话子系统拥有 ChatService、SQLite、真人 API 和内置 OneBot11 协议端。astrC 面向真人，AstrBot 通过 OneBot 运行插件。普通聊天不需要启动运动 runtime。
+
+已实现账号登录、可选邀请注册、本人资料、私聊/群聊、文字、历史、幂等、撤回、持久同步与反向 Universal WS。原插件兼容仍待真实 AstrBot/插件对照验收。
+
+| 文档 | 内容 |
 | --- | --- |
-| [开发指南](DEVELOPMENT_GUIDE.md) | 开发顺序、模块边界、联调和验收 |
-| [技术选型](TECHNOLOGY_SELECTION.md) | 框架、存储、部署及替代方案 |
-| [协议草案](CHAT_CONTRACT.md) | 真人原生协议与 OneBot 映射的权威定义 |
-| [兼容矩阵](compatibility-matrix.json) | 原插件依赖与实际验证记录模板 |
-| [Schema 与示例](contracts/) | 机器可验证的数据结构 |
+| [开发指南](DEVELOPMENT_GUIDE.md) | 启动、联调、目录、测试与后续阶段 |
+| [技术选型](TECHNOLOGY_SELECTION.md) | 固定依赖、存储与部署边界 |
+| [协议草案](CHAT_CONTRACT.md) | 当前实现子集和后续目标 |
+| [实际 OpenAPI](contracts/openapi.json) | 由当前 FastAPI 应用生成的路由/请求模型 |
+| [NapCat 参考](NAPCAT_REFERENCE.md) | 来源提交、文件位置与采用的设计 |
+| [兼容矩阵](compatibility-matrix.json) | 协议实测与尚未验证的插件记录 |
 
-产品分工：EX 对话模块面向 bot，内置 OneBot11 协议端；astrC 手机版面向真人。自有聊天服务首版也在 EX 仓库内开发，不增加第三个业务仓库。
-
-本目录列出的新模块、API 和测试场景均是待实施设计。尚无聊天后端、OneBot 协议端、手机应用或已验证兼容的插件。astrC `contracts/` 保存本目录协议的带 SHA-256 副本。
+快速开始：安装 `.[chat,chat-dev]`，运行 `python -m astrbot_ex.core.chat --demo`；具体命令与账号见开发指南。astrC 的 contracts 保存本仓库的带哈希快照。

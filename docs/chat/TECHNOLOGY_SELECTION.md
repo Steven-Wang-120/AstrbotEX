@@ -1,93 +1,34 @@
 # astrEX chat 技术选型
 
-决策日期：2026-11-10。状态：初选；完成最小原型后冻结依赖版本。
+2026-11-10：首版骨架已实现，以下版本已在 Python 3.12.10 上运行。
 
-## 目标
-
-EX 对话模块内置类似 NapCat 职责的 OneBot11 协议端，连接 AstrBot 原有 `aiocqhttp` 适配器；自有聊天服务提供账号、群组、消息、媒体与日志。astrC 只服务真人。
-
-首轮按 Android 优先、保留 iOS 评估；此平台优先级尚未得到用户明确确认。
-
-## 现有代码依据
-
-基线提交：`b0d81697069dc82428dfcfb89f323f64db1bdd0a`。
-
-| 位置 | 当前事实 | 对新设计的影响 |
+| 职责 | 选择 | 决策 |
 | --- | --- | --- |
-| `pyproject.toml` | Python >=3.10，pyzmq 与 websockets | chat 作为可选依赖，保持原有安装路径 |
-| `astrbot_ex/core/api_server.py:build_server()` | ThreadingHTTPServer 组装交互、连接与运行时 | 在现有组装点管理 chat；不整体改写管理服务 |
-| `astrbot_ex/core/interaction_core.py:send_text()` | 配置业务连接时走 ZMQ，保留 HTTP 回退 | 新 OneBot 接入独立注册，不用旧单会话代表多人聊天 |
-| `astrbot_ex/core/topic_bus.py` | 进程内 latest-value/有界 inbox | 不充当持久消息库或手机同步日志 |
-| `tests/test_api_server.py` | 已有组装/关闭测试 | 实施后增加 chat 生命周期与资源关闭回归 |
+| 领域 | Python，EX 可选 chat 模块 | 两套入口调用同一 ChatService |
+| 原生 API | FastAPI 0.162.2 / Uvicorn 0.54.0 | 独立 ASGI listener，现有 EX 组装点管理 |
+| 验证 | Pydantic 2.14.3 | 拒绝额外字段，错误不回显密码 |
+| OneBot11 | websockets 15.0.1 | 反向 Universal WS，保持最低 Python 3.10 的依赖可解析性 |
+| 密码 | argon2-cffi 25.1.0 | Argon2id；独立设备随机 token，服务端存散列 |
+| 存储 | sqlite3 / 编号 SQL 迁移 | 单连接 RLock、短事务、DELETE 回滚日志 |
+| 测试 | pytest 9.2.0 / httpx 0.28.1 | 真实 HTTP/WS socket 和领域回归 |
+| 手机 | Flutter 3.47.9 / Dart 3.13.7 | astrC 独立仓库，真人原生 API |
 
-索引的 HTTP/ZMQ 历史提示以当前源码分支为准。
+当前 Python SQLite 3.49.1；暂不用 WAL，避免在未经修复版本验证时增加并发风险。版本依据与背景见官方 [WAL 文档](https://www.sqlite.org/wal.html)。单实例内消息、幂等键和事件在同一事务写入。数据库访问放工作线程，不阻塞 ASGI 循环。多实例需要重新设计存储与分发。
 
-## 初选栈
-
-| 层 | 选择 | 原因与约束 |
-| --- | --- | --- |
-| 领域服务 | Python，保持 EX >=3.10 | 复用宿主；新增依赖需验证最低 Python |
-| 原生 API | FastAPI + Uvicorn | 模型验证、OpenAPI 与 WebSocket；独立 ASGI listener |
-| API 模型 | Pydantic v2 | 边界校验；不直接暴露内部 Python 对象 |
-| OneBot | 薄适配层 + 已有 websockets | EX 主动连接 AstrBot 的反向 WS；业务落到统一 ChatService |
-| 账号/消息 | SQLite + sqlite3，编号 SQL 迁移 | 首版单实例、低运维；事务与恢复先验证 |
-| 媒体 | EX 数据目录内受控文件存储 | 限制大小/类型、路径与访问票据；后续按需对象存储 |
-| 认证 | Argon2id + 有状态设备会话 | 密码散列、令牌撤销、多设备与刷新轮换 |
-| 手机端 | Flutter/Dart | 详见 astrC 技术选型；待 Android 真机原型 |
-
-本轮不修改 `pyproject.toml`，不安装运行依赖。实施时添加可选 `chat` 依赖组，锁定实际验证过的版本。FastAPI/Uvicorn/Pydantic 必须验证 Python 3.10 支持；必要时另行决定是否提高最低版本。
-
-## 部署与模块落位
-
-计划新增 `astrbot_ex/core/chat/`，由 EX 对话子系统拥有。ChatService 提供统一账号/权限/消息操作；原生 API 与 OneBot action 调用同一服务。
+EX 基线 Python >=3.10 保留；依赖元数据支持该范围，但本轮只实测 3.12.10。websockets 17.4 要求 Python >=3.11，故 chat 固定 15.0.1，已重新通过相关测试。完整解析记录见 [开发环境锁](requirements-chat-dev.lock)。
 
 ```text
-astrC -- HTTPS/WSS --> EX chat 原生 API
-                           |
-                    ChatService + 数据库
-                           |
-                 EX 内置 OneBot11 协议端
-                           |
-                 反向 WebSocket --> AstrBot
+astrC -- native HTTP/sync --> EX ChatService + SQLite
+                                    |
+                          EX OneBot11 actions/events
+                                    |
+                          reverse Universal WS --> AstrBot
 ```
 
-- 首版由 EX `build_server()` 负责组装/关闭 chat，独立事件循环和 listener，默认禁用。
-- 候选开发地址 `127.0.0.1:8780`，实施前检查冲突，端口可配置。
-- 现有 8765 管理服务和 8766–8769 桥接职责遵循当前代码；chat 用户凭据不授予管理或动作权限。
-- 普通聊天无需启动运动 runtime；机器人具身授权继续走已有安全边界。
-- 每条 bot 连接绑定确定的账号与凭据；只投递该 bot 可见的会话。
-- 首轮只实现反向 Universal WS。HTTP action 和正向 WS 待实际兼容需要增加。
-- 旧 A.E.B/ZMQ 文字语音链路独立保留，避免双入口重复回复。
+ChatService 属于 EX 对话子系统，宿主暴露引用并统一启停。开发命令可单独启动同一模块，不创建第三个业务仓库。默认 loopback:8780 / 禁用；机器人运动 runtime 不随聊天启动。
 
-## 存储与并发
+首版优先文字闭环：未引入媒体存储、Redis、PostgreSQL、Matrix、独立 Go/Rust 服务，也未重写现有 8765 管理 listener。需要这些能力时按真实负载和插件依赖再选择。
 
-初版采用 SQLite 默认回滚日志 DELETE、受控串行写队列、短事务和忙等待超时；阻塞数据库调用不能占据 ASGI 事件循环。消息、幂等键和待分发事件在同一事务提交。
+安全会话、刷新轮换、限流、持久手机 outbox 与通知仍是后续工作。当前一小时 access token、登出撤销、本人写权限与成员读写权限已实现。资料不含 avatar，未读为 null；不把规划项声明成已有能力。
 
-本机 Python 3.12.10 的 SQLite 为 3.49.1。官方 2026 WAL-reset bug 影响包含该版本的区间；多连接 WAL 必须先确认修复版或官方回补版。首版不默认启用 WAL，详见官方 [WAL 说明](https://www.sqlite.org/wal.html)。手机实际打包 SQLite 版本另行验证。
-
-未来多实例需 PostgreSQL、共享媒体与跨实例分发；这属于数据库和架构迁移，不承诺仅改连接串即可完成。
-
-## 替代方案
-
-| 方案 | 本轮结论 | 原因 |
-| --- | --- | --- |
-| ThreadingHTTPServer 扩展所有聊天功能 | 不选 | 用户 WS、Schema 和 API 文档需自行维护 |
-| FastAPI 替换整个 EX 管理服务 | 暂缓 | 不为聊天原型牵动已存在的控制生命周期 |
-| Go/Rust 独立服务 | 暂缓 | 增加语言与部署链，先验证业务闭环 |
-| Matrix 等现成 IM | 保留候选 | 可减少基础设施工作，但需额外服务与 OneBot 语义映射原型 |
-| 直接搬入 NapCat 的 QQ 接入代码 | 不选 | 自有网络由 EX 负责账号、存储与投递，兼容边界是 OneBot |
-| 手机直接用 OneBot11 | 不选 | 真人需要设备会话、历史恢复、资料与日志的原生 API |
-
-## 冻结与验证
-
-本轮只固定协议草案 `astr-chat/0.1-draft`。原型完成后记录依赖锁、AstrBot commit、插件 commit、连接方式与实测结果。OneBot 标准子集、NapCat 扩展和插件功能分别验收，不把 Schema 验证当作兼容结论。
-
-## 官方依据
-
-- [OneBot11 标准](https://github.com/botuniverse/onebot-11)。
-- [AstrBot OneBot 适配器](https://github.com/AstrBotDevs/AstrBot/blob/master/astrbot/core/platform/sources/aiocqhttp/aiocqhttp_platform_adapter.py)。
-- [FastAPI WebSocket](https://fastapi.tiangolo.com/advanced/websockets/)、[生命周期](https://fastapi.tiangolo.com/advanced/events/)。
-- [SQLite WAL](https://www.sqlite.org/wal.html)。
-- [Flutter Android 环境](https://docs.flutter.dev/platform-integration/android/setup)、[Flutter iOS 环境](https://docs.flutter.dev/platform-integration/ios/setup)。
-
-资料核对日期：2026-11-10。依赖解析与最低版本验证留在 P1，不使用猜测的最新版本。
+NapCat 的架构参考与边界见 [参考记录](NAPCAT_REFERENCE.md)。它的配置 WebUI 面向协议维护；astrC 面向真人，不承载协议 token 配置。

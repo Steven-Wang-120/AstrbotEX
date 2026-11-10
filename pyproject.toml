@@ -9,6 +9,22 @@ dependencies = [
   "websockets>=15.0.1",
 ]
 
+[project.optional-dependencies]
+chat = [
+  "websockets==15.0.1",
+  "fastapi==0.162.2",
+  "uvicorn==0.54.0",
+  "pydantic==2.14.3",
+  "argon2-cffi==25.1.0",
+]
+chat-dev = ["httpx==0.28.1", "pytest==9.2.0"]
+
+[tool.setuptools.packages.find]
+include = ["astrbot_ex*"]
+
+[tool.setuptools.package-data]
+"astrbot_ex.core.chat" = ["migrations/*.sql"]
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"

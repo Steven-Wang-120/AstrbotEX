@@ -17,3 +17,8 @@ ros_interfaces/install/
 ros_interfaces/log/
 
 secrets/
+
+# Optional chat development environment
+.venv-chat/
+
+*.egg-info/

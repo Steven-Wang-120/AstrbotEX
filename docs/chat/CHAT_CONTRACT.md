@@ -1,8 +1,16 @@
 # astr-chat 原生协议与 OneBot 映射草案
 
-协议：`astr-chat/0.1-draft`。revision：`2026-11-10.1`。状态：设计草案，所有新 API 均未实现。
+协议：`astr-chat/0.1-draft`。revision：`2026-11-10.2`。状态：已实现文字骨架子集，其余仍为设计目标。
 
 权威位置：astrEX `chat` 分支的 `docs/chat/CHAT_CONTRACT.md`。astrC `contracts/` 保存同修订快照。
+
+## 当前实现范围
+
+已实现 login/logout、可选邀请注册、GET/PATCH me、会话列表/创建私聊、建群/查成员、文字发送/分页历史/撤回、sync/events；实际路由见同目录 contracts/openapi.json。
+
+当前仅 text 段；资料 display_name/bio；未读为 null；设备 access token 一小时、无 refresh（501）。posts 也是 501。成员变更、read、媒体、日志、头像、@、引用、notice、刷新轮换和游标过期清理尚未实现。以下完整清单是后续目标，不能据此调用尚不存在的路由。
+
+OneBot 当前已有私聊对端定义为 friend_list；支持基础群/成员查询与文字收发、取消息/撤回。can_send_image/record=false，get_image 尚不支持。传输与模拟对端测试不代表真实插件兼容。
 
 ## 角色与部署
 
@@ -21,7 +29,7 @@ EX 对话子系统拥有 ChatService、数据存储、真人原生 API 与内置
 
 ## 原生 API 清单
 
-前缀 `/api/v1/chat`，HTTPS/WSS。此表是未来实现目标，当前没有相应路由。
+前缀 `/api/v1/chat`，HTTPS/WSS。此表包括已实现子集和未来目标，以前述范围和实际 OpenAPI 为准。
 
 | 方法 | 路径 | 语义/权限 |
 | --- | --- | --- |

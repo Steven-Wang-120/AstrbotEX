@@ -1227,6 +1227,14 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
         self._closing = True
         errors = []
         self._close_step_input(errors)
+        chat = getattr(self, "chat_lifecycle", None)
+        if chat is not None:
+            try:
+                chat.close()
+                self.chat_lifecycle = None
+                self.interaction_core.chat_service = None
+            except Exception as exc:
+                errors.append(exc)
         if hasattr(self, '_event_streams_lock'):
             with self._event_streams_lock:
                 streams = list(self._event_streams)
@@ -1451,6 +1459,7 @@ def build_server(host: str, port: int, tick_hz: float, *,
     server.action_ledger = ledger
     server.capability_catalog = catalog
     server.interaction_core = interaction_core
+    server.chat_lifecycle = None
     server.environment_manager = environment_manager
     server.static_root = (project_root / "dashboard").resolve()
     server.vision_sources = VisionSourceManager(data_root / "profiles" / "default" / "vision_sources.json")
@@ -1562,6 +1571,15 @@ def build_server(host: str, port: int, tick_hz: float, *,
     if selected_mode != "normal":
         environment_manager.select(selected_mode)
     environment_manager.start_diagnostics()
+    if os.environ.get("ASTREX_CHAT_ENABLED", "").lower() in {"1", "true"}:
+        try:
+            from astrbot_ex.core.chat.lifecycle import ChatLifecycle
+            server.chat_lifecycle = ChatLifecycle.from_environment(data_root)
+            server.chat_lifecycle.start()
+            interaction_core.chat_service = server.chat_lifecycle.service
+        except BaseException:
+            server.server_close()
+            raise
     return server
 
 

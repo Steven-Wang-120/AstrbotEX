@@ -1,13 +1,14 @@
 {
   "schema_version": 1,
   "updated_at": "2026-11-10",
-  "state": "preparation_only",
+  "state": "text_skeleton_protocol_tested_plugins_pending",
   "baseline": {
     "ex_source_commit": "b0d81697069dc82428dfcfb89f323f64db1bdd0a",
     "astrbot_commit": null,
     "napcat_version": null,
     "python_version_observed": "3.12.10",
-    "sqlite_version_observed": "3.49.1"
+    "sqlite_version_observed": "3.49.1",
+    "napcat_reference_commit": "72912f293924f43463b5976b01fc094a8ae11481"
   },
   "status_values": [
     "not_tested",
@@ -19,7 +20,7 @@
   "protocol_profiles": [
     {
       "name": "onebot11-reverse-ws-core",
-      "status": "not_tested",
+      "status": "partial",
       "required_actions": [
         "get_login_info",
         "get_version_info",
@@ -37,7 +38,15 @@
         "can_send_image",
         "get_image"
       ],
-      "evidence": []
+      "evidence": [
+        "tests/chat/test_chat_skeleton.py: real reverse WS simulated-peer roundtrip, permissions, echo and honest capability checks"
+      ],
+      "limitations": [
+        "Text only; no mention/reply/image/notice yet",
+        "No actual AstrBot or unchanged plugin run",
+        "get_image unsupported; can_send_image=false",
+        "friend_list means established direct peers"
+      ]
     },
     {
       "name": "napcat-extensions",

@@ -64,6 +64,7 @@ class InteractionCore:
         self.stt_provider = stt_provider
         self.tts_provider = tts_provider
         self.business_connections = business_connections
+        self.chat_service: Any | None = None
         self.capture_tail_sec = max(0.0, float(capture_tail_sec))
         self.capture_fallback_playback_sec = max(
             0.0, float(capture_fallback_playback_sec)
