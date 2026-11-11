@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "tested_at": "2026-11-11T11:47:28+0800",
+  "astrbot_image": "sha256:3e43b5725d832755076c7cf5ea03eff18c77935c232a0079df6614e229bb22b2",
+  "astrbot_image_id": "sha256:3e43b5725d832755076c7cf5ea03eff18c77935c232a0079df6614e229bb22b2",
+  "astrbot": {
+    "version": "4.26.7",
+    "source_sha256": {
+      "astrbot/core/platform/sources/aiocqhttp/aiocqhttp_platform_adapter.py": "a40d3a9efe96db58b4f7c7777de8c94caf79fb1b300f80e0ba2b48b4971aa134",
+      "astrbot/core/platform/sources/aiocqhttp/aiocqhttp_message_event.py": "054c2a09fb1fcc2464edbf19a1baca4a1884ec363f4ef05d74c6993052a8c500",
+      "astrbot/builtin_stars/builtin_commands/main.py": "d4d17942f837c7267efe15c189f646b8f75b7b863c69b7c676fb6cad2d808444",
+      "astrbot/builtin_stars/builtin_commands/commands/sid.py": "619193422a39012c67ac7d723395e472bf345799aef42970ea2f802cc702de33"
+    }
+  },
+  "source_unchanged": true,
+  "scenarios": [
+    {
+      "name": "alice-group-command",
+      "status": "passed",
+      "sender_id": "1",
+      "message_id": "1",
+      "reply_id": "2"
+    },
+    {
+      "name": "bob-group-command",
+      "status": "passed",
+      "sender_id": "2",
+      "message_id": "3",
+      "reply_id": "4"
+    },
+    {
+      "name": "bob-private-command",
+      "status": "passed",
+      "sender_id": "2",
+      "message_id": "5",
+      "reply_id": "6"
+    },
+    {
+      "name": "alice-group-mention-reply",
+      "status": "passed",
+      "sender_id": "1",
+      "message_id": "7",
+      "reply_id": "8"
+    },
+    {
+      "name": "alice-group-after-reconnect",
+      "status": "passed",
+      "sender_id": "1",
+      "message_id": "9",
+      "reply_id": "10"
+    },
+    {
+      "name": "private-membership-denied",
+      "status": "passed"
+    }
+  ],
+  "limitations": [
+    "Android/iOS not verified",
+    "QQ/NapCat comparison not run",
+    "Third-party plugins and LLM providers not verified",
+    "Media not implemented"
+  ],
+  "observed_adapter_actions": [
+    {
+      "action": "get_msg",
+      "params": {
+        "message_id": 4,
+        "self_id": 3
+      },
+      "status": "ok"
+    },
+    {
+      "action": "get_group_member_info",
+      "params": {
+        "group_id": 1,
+        "user_id": 2,
+        "no_cache": false,
+        "self_id": 3
+      },
+      "status": "ok"
+    },
+    {
+      "action": "get_stranger_info",
+      "params": {
+        "user_id": 2,
+        "no_cache": false,
+        "self_id": 3
+      },
+      "status": "ok"
+    },
+    {
+      "action": "get_group_member_info",
+      "params": {
+        "group_id": 1,
+        "user_id": 3,
+        "no_cache": false,
+        "self_id": 3
+      },
+      "status": "ok"
+    },
+    {
+      "action": "get_stranger_info",
+      "params": {
+        "user_id": 3,
+        "no_cache": false,
+        "self_id": 3
+      },
+      "status": "ok"
+    }
+  ],
+  "status": "passed"
+}
