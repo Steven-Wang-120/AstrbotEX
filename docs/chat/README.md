@@ -17,3 +17,7 @@ EX 对话子系统拥有 ChatService、SQLite、真人 API 和内置 OneBot11 �
 | [兼容矩阵](compatibility-matrix.json) | 协议实测与尚未验证的插件记录 |
 
 快速开始：安装 `.[chat,chat-dev]`，运行 `python -m astrbot_ex.core.chat --demo`；具体命令与账号见开发指南。astrC 的 contracts 保存本仓库的带哈希快照。
+
+## 设备身份与全球邮箱通道（0.2 预览）
+
+新增独立 [加密邮箱协议](PEER_PROTOCOL.md) 与 [部署指南](PEER_DEPLOYMENT.md)。设备自行生成身份，使用可替换 HTTPS 节点存储转发，不依赖同一局域网。此通道当前仅真人文字，与既有 EX/OneBot 聊天并存。

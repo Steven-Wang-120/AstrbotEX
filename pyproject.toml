@@ -17,6 +17,7 @@ chat = [
   "pydantic==2.14.3",
   "argon2-cffi==25.1.0",
   "Pillow==13.0.0",
+  "cryptography==50.0.2",
 ]
 chat-dev = ["httpx==0.28.1", "pytest==9.2.0"]
 

@@ -1,0 +1,16 @@
+[Unit]
+Description=astrC encrypted mailbox preview
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/astrc-mailbox
+ExecStart=%h/astrc-mailbox/venv/bin/python %h/astrc-mailbox/peer_relay.py --data-root %h/astrc-mailbox/data --public-url https://mail.example.org
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target
