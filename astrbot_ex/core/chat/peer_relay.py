@@ -80,6 +80,23 @@ def validate_card(card, *, allow_loopback=False):
     return card
 
 
+def validate_friend_request(packet, *, allow_loopback=False):
+    fields = {"v", "id", "recipient", "card", "created_at", "comment", "signature"}
+    if not isinstance(packet, dict) or set(packet) != fields or type(packet["v"]) is not int or packet["v"] != 1:
+        raise Fault(400, "invalid_friend_request")
+    validate_card(packet["card"], allow_loopback=allow_loopback)
+    fingerprint(packet["recipient"])
+    try:
+        if str(UUID(packet["id"])) != packet["id"]:
+            raise ValueError()
+    except (ValueError, TypeError, AttributeError):
+        raise Fault(400, "invalid_friend_request") from None
+    if not isinstance(packet["created_at"], str) or not 1 <= len(packet["created_at"]) <= 40 or not isinstance(packet["comment"], str) or len(packet["comment"]) > 200 or packet["recipient"] == packet["card"]["id"]:
+        raise Fault(400, "invalid_friend_request")
+    verify(packet, packet["card"]["sign_key"])
+    return packet
+
+
 class Mailbox:
     def __init__(self, path: Path, *, quota=16 * 1024 * 1024, clock=time.time):
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -97,6 +114,9 @@ class Mailbox:
           PRIMARY KEY(sender,id));
         CREATE INDEX IF NOT EXISTS mailbox_pending ON envelopes(recipient,acked,created);
         CREATE INDEX IF NOT EXISTS mailbox_expiry ON envelopes(expires);
+        CREATE TABLE IF NOT EXISTS friend_requests(sender TEXT,id TEXT,recipient TEXT,digest TEXT,packet TEXT,state TEXT,created REAL,expires REAL,version INTEGER,
+          PRIMARY KEY(sender,id));
+        CREATE INDEX IF NOT EXISTS friend_requests_pending ON friend_requests(recipient,state,created);
         """)
 
     def close(self):
@@ -108,6 +128,7 @@ class Mailbox:
         self.sessions = {k: v for k, v in self.sessions.items() if v[1] > now}
         self.rates = {k: v for k, v in self.rates.items() if v[1] > now}
         self.db.execute("DELETE FROM envelopes WHERE expires<=?", (now,))
+        self.db.execute("DELETE FROM friend_requests WHERE expires<=?", (now,))
 
     def limit(self, key, count):
         self.prune()
@@ -167,7 +188,7 @@ def create_peer_app(store: Mailbox, *, public_url="", allow_loopback=False):
     @app.get(PREFIX + "/health")
     def health():
         return {"protocol": "astrc-mailbox/1", "public_url": public_url, "retention_days": 7,
-                "max_packet_bytes": 32768, "encrypted_content": True}
+                "max_packet_bytes": 32768, "encrypted_content": True, "friend_requests": True}
 
     @app.post(PREFIX + "/challenge")
     async def challenge(request: Request):
@@ -226,6 +247,59 @@ def create_peer_app(store: Mailbox, *, public_url="", allow_loopback=False):
         with store.lock:
             store.db.execute("DELETE FROM allowed WHERE owner=? AND peer=?", (owner["id"], peer_id))
         return {"ok": True}
+
+    @app.post(PREFIX + "/friend-requests", status_code=201)
+    async def request_friend(request: Request, sender=Depends(user)):
+        packet = validate_friend_request(await body(request), allow_loopback=allow_loopback)
+        if packet["card"]["id"] != sender["id"]:
+            raise Fault(403, "invalid_sender")
+        encoded = canonical(packet).decode()
+        digest = hashlib.sha256(encoded.encode()).hexdigest()
+        with store.lock:
+            store.limit(("friend_request", sender["id"]), 30)
+            previous = store.db.execute("SELECT digest,state FROM friend_requests WHERE sender=? AND id=?", (sender["id"], packet["id"])).fetchone()
+            if previous:
+                if previous["digest"] != digest:
+                    raise Fault(409, "idempotency_conflict")
+                return {"id": packet["id"], "state": previous["state"]}
+            if not store.db.execute("SELECT 1 FROM identities WHERE id=?", (packet["recipient"],)).fetchone():
+                raise Fault(404, "recipient_not_registered")
+            if store.db.execute("SELECT COUNT(*) FROM friend_requests WHERE recipient=? AND state='pending'", (packet["recipient"],)).fetchone()[0] >= 100:
+                raise Fault(413, "requests_full")
+            if store.db.execute("SELECT COUNT(*) FROM friend_requests").fetchone()[0] >= 100000:
+                raise Fault(503, "relay_full")
+            allowed = store.db.execute("SELECT 1 FROM allowed WHERE owner=? AND peer=?", (packet["recipient"], sender["id"])).fetchone()
+            state = "approved" if allowed else "pending"
+            store.db.execute("INSERT INTO friend_requests VALUES (?,?,?,?,?,?,?,?,?)", (sender["id"], packet["id"], packet["recipient"], digest, encoded, state, store.clock(), store.clock() + TTL, 1))
+        return {"id": packet["id"], "state": state}
+
+    @app.get(PREFIX + "/friend-requests")
+    def friend_requests(owner=Depends(user)):
+        with store.lock:
+            rows = store.db.execute("SELECT packet FROM friend_requests WHERE recipient=? AND state='pending' ORDER BY created,sender,id LIMIT 100", (owner["id"],)).fetchall()
+        return {"items": [json.loads(row[0]) for row in rows]}
+
+    @app.post(PREFIX + "/friend-requests/{request_id}/resolve")
+    async def resolve_friend(request_id: str, request: Request, owner=Depends(user)):
+        data = await body(request)
+        if set(data) != {"sender", "approve"} or type(data["approve"]) is not bool:
+            raise Fault(400, "invalid_friend_resolution")
+        fingerprint(data["sender"])
+        with store.lock:
+            previous = store.db.execute("SELECT state FROM friend_requests WHERE sender=? AND id=? AND recipient=?", (data["sender"], request_id, owner["id"])).fetchone()
+            if previous is None:
+                raise Fault(404, "request_not_found")
+            state = "approved" if data["approve"] else "rejected"
+            if previous["state"] != "pending" and previous["state"] != state:
+                raise Fault(409, "request_resolved")
+            if data["approve"]:
+                exists = store.db.execute("SELECT 1 FROM allowed WHERE owner=? AND peer=?", (owner["id"], data["sender"])).fetchone()
+                if not exists and store.db.execute("SELECT COUNT(*) FROM allowed WHERE owner=?", (owner["id"],)).fetchone()[0] >= 1000:
+                    raise Fault(413, "contacts_full")
+                store.db.execute("INSERT OR IGNORE INTO allowed VALUES (?,?)", (owner["id"], data["sender"]))
+            store.db.execute("UPDATE friend_requests SET state=? WHERE sender=? AND id=? AND recipient=?", (state, data["sender"], request_id, owner["id"]))
+        return {"state": state}
+
 
     @app.post(PREFIX + "/envelopes", status_code=201)
     async def send(request: Request, sender=Depends(user)):

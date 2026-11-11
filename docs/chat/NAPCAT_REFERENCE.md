@@ -13,3 +13,6 @@
 EX 使用自己持有的账号、群、消息和持久事件，OneBot 调用统一 ChatService。QQ/NTQQ 只属于 NapCat 的平台实现，不进入自有网络。没有接入 NapCat Docker、没有复制或嵌入 NapCat 源码，也未添加其运行依赖。参考来源中的自定义许可保留在原仓库。
 
 兼容目标是 OneBot11 的真实语义及插件实测；不会因接口同名就声称 NapCat 全量兼容。当前 @、引用、图片、扩展、notice、真实插件对照仍待实现/测试。
+
+
+2026-11-11 补核同一已克隆版本的 OB11FriendRequest.ts、SetFriendAddRequest.ts。新增 friend request/approval/notice 映射；EX 使用自己的公网身份账号收发，再适配为 OneBot 数字 ID。保留 echo、Universal反向WS和生命周期/心跳；没有引入QQ/NTQQ依赖。已用真实AstrBot /sid跑通公网私聊，仍不代表NapCat所有扩展兼容。

@@ -183,6 +183,10 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         if backup_filename is not None:
             self._send_backup_download(backup_filename)
             return
+        if path == "/api/v1/ex/chat/account":
+            chat = getattr(self.server, "chat_lifecycle", None)
+            self._send_json(chat.peer_status() if chat else {"enabled": False, "error": "chat_listener_disabled"})
+            return
         if path == "/api/status" or path == "/api/v1/ex/status":
             status = self.controller.status()
             environment_manager = getattr(self.server, "environment_manager", None)
@@ -375,6 +379,34 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             return
         self.server.decision_management.invalidate("legacy_write")
         path = self._path()
+        if path.startswith("/api/v1/ex/chat/account"):
+            from astrbot_ex.core.chat.models import ChatError
+            from astrbot_ex.core.chat.peer_relay import Fault
+            chat = getattr(self.server, "chat_lifecycle", None)
+            if chat is None:
+                self._send_json({"error": "chat_listener_disabled"}, 503)
+                return
+            try:
+                body = self._read_json()
+                if path == "/api/v1/ex/chat/account":
+                    if set(body) != {"name", "relay", "auto_accept"}:
+                        raise ValueError("Provide name, relay and auto_accept")
+                    result = chat.configure_peer(body["name"], body["relay"], body["auto_accept"])
+                elif chat.peer_account is None:
+                    raise ValueError("Create the chat account first")
+                elif path == "/api/v1/ex/chat/account/contacts" and set(body) == {"code"}:
+                    result = chat.peer_account.add_contact(body["code"])
+                elif path == "/api/v1/ex/chat/account/requests" and set(body) == {"flag", "approve"}:
+                    chat.peer_account.resolve(body["flag"], body["approve"])
+                    result = {"ok": True}
+                else:
+                    raise ValueError("Invalid chat account request")
+                self._send_json(result)
+            except ChatError as exc:
+                self._send_json({"error": exc.code, "message": exc.message}, exc.status)
+            except (ValueError, TypeError, KeyError, Fault):
+                self._send_json({"error": "invalid_chat_account_request"}, 400)
+            return
         if path == "/api/v1/ex/backups":
             self._create_backup()
             return

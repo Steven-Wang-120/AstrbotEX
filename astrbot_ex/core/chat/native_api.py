@@ -21,10 +21,15 @@ from .service import ChatService
 def create_app(service: ChatService, *, invite_token: str | None = None, connector=None, demo: bool = False) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app):
+        from .peer_account import run_peer_endpoint
         task = asyncio.create_task(connector.run()) if connector is not None else None
+        peer_task = asyncio.create_task(run_peer_endpoint(service))
         try:
             yield
         finally:
+            peer_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await peer_task
             if task is not None:
                 task.cancel()
                 with suppress(asyncio.CancelledError):

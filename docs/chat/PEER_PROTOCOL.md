@@ -1,6 +1,6 @@
 # astrC 设备身份与加密邮箱协议
 
-协议 `astrc-mailbox/1`，修订 `2026-11-11.1`。这是独立于 `astr-chat/0.1-draft` 的设备身份通道。EX 原生账号、OneBot、群聊与真人图片契约维持原样；两种身份和历史不会自动合并。
+协议 `astrc-mailbox/1`，修订 `2026-11-11.2`。astrC 真人与 EX bot 使用同一设备身份、名片和加密文字协议；EX 经 OneBot11 连接 Agent。原 `astr-chat/0.1-draft` 仅保留兼容联调，历史不会自动合并。机器人账号和管理见 [PEER_BOT.md](PEER_BOT.md)。
 
 ## 身份和联系人
 
@@ -52,3 +52,18 @@ HKDF-SHA256 输出 32 字节，salt 为 canonical 头部，info 为 UTF-8 `astrc
 ## 验证与运维
 
 `tests/chat/test_peer_relay.py` 覆盖证明重放、权限、篡改、ACK、重启、限额和畸形输入。astrC 的真实 Dart runner 分别测试两个独立节点及已部署 HTTPS；模拟身份用例不能代替 Android 真机、恶意节点审计或公开大规模服务验收。部署和备份见 [PEER_DEPLOYMENT.md](PEER_DEPLOYMENT.md)。
+
+
+## 签名好友申请（修订 .2）
+
+health 新增 `friend_requests:true` 能力，原消息信封及七字段名片不变。申请严格字段为 `v,id,recipient,card,created_at,comment,signature`；v 为整数1，id 为规范 UUID，recipient 是收件指纹，card 是发件人原签名名片，comment 最多200 Unicode码点。外层 signature 由发件身份对其余字段 canonical JSON 签名。请求方在收件节点证明本人身份，外层 card.id 必须等于认证身份；节点校验两层签名。
+
+| 方法 | 路径 | 内容 |
+| --- | --- | --- |
+| POST | `/friend-requests` | 提交固定签名申请，201；同 sender+UUID 幂等，改内容409 |
+| GET | `/friend-requests` | 本人的待处理申请，最多100 |
+| POST | `/friend-requests/{id}/resolve` | 收件人提交 `{sender,approve:boolean}`；接受时允许该身份投递，重复同决策幂等 |
+
+发送前先本机保存固定申请，重试不换 UUID/签名。接收人核对指纹后接受；主动添加名片的人也会先在自己的邮箱允许该联系人。申请只能由收件人处理，不能由第三者授权。已允许的联系人申请直接返回 approved；未知收件人404，伪造/篡改400。申请含公开名片和 comment，不是端到端加密消息，因此不在 comment 填写秘密。
+
+每人每分钟最多30申请，收件人最多100个待处理，总申请100000，7天惰性过期；继续使用32768字节HTTP上限。允许联系人仍限1000人。新增独立表，不改变旧信封/ACK；旧客户端可继续互加名片收发，不会自动发出新申请。新客户端如连接旧节点，会保留原互加流程；机器人自动加好友需要节点支持本修订。

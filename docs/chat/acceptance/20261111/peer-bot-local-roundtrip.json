@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "tested_at": "2026-11-11T10:39:37.097359+00:00",
+  "transport": "real isolated loopback mailbox",
+  "astrbot_image": "local/astrbot:upper-c7cd782-20261104",
+  "protocol": "astrc-mailbox/1 + OneBot11",
+  "scenarios": [
+    "astrC human creates identity",
+    "adds signed EX bot card in normal peer UI flow",
+    "signed friend request auto accepted by EX",
+    "encrypted human message through mailbox",
+    "EX decrypts and emits OneBot private event",
+    "real AstrBot /sid command",
+    "OneBot reply encrypted by EX and decrypted by Dart",
+    "human restart retains identity/contact/history",
+    "second real bot reply after restart"
+  ],
+  "limitations": [
+    "Android UI and background not verified",
+    "No model provider or third-party plugin configured",
+    "Peer private text only"
+  ],
+  "source_sha256": {
+    "astrbot_ex/core/chat/peer_account.py": "5666a10f31ebdedbe9bd1ae55d2f203142f3a5e62b93bc30510785e7d85a33de",
+    "astrbot_ex/core/chat/peer_identity.py": "2a53930ab4e622a4d2fee32d1f58846cf850d69017fa2d0a254574cfa7f6946c",
+    "astrbot_ex/core/chat/peer_relay.py": "5fa8aed920375eab36f469e9c199c398ffb34235ffdbb41daef0c2368b6df90d"
+  }
+}

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime
 import logging
+import time
 from uuid import uuid4
 
 from .. import VERSION
@@ -28,6 +29,7 @@ class ActionDispatcher:
             "get_group_member_list": lambda p: [self._member(self._find_group(p), m) for m in self._find_group(p)["members"]],
             "get_group_member_info": self._member_info,
             "get_friend_list": self._friends,
+            "set_friend_add_request": self._friend_request,
             "get_stranger_info": self._stranger,
             "send_group_msg": self._send_group,
             "send_private_msg": self._send_private,
@@ -59,6 +61,15 @@ class ActionDispatcher:
             response.update(retcode=1500, message="Chat service failed")
         return response
 
+    def _friend_request(self, params):
+        account = getattr(self.service, "peer_account", None)
+        if account is None:
+            raise ChatError("not_configured", "Public chat account is not configured", 404)
+        approve = params.get("approve", True)
+        if approve in ("true", "false"):
+            approve = approve == "true"
+        return account.resolve(params["flag"], approve)
+
     def _find_group(self, params: dict) -> dict:
         gid = str(entity_id(params["group_id"]))
         group = next((c for c in self.service.conversations(self.bot_id) if c["group_id"] == gid), None)
@@ -85,13 +96,18 @@ class ActionDispatcher:
         return self._member(group, person)
 
     def _friends(self, params: dict) -> list:
-        # Skeleton semantics: accounts with an established direct conversation.
+        account = getattr(self.service, "peer_account", None)
+        if account is not None:
+            return [{"user_id": r["user_id"], "nickname": self.service.user(r["user_id"])["display_name"], "remark": ""}
+                    for r in account.contacts() if r["state"] == "accepted"]
+        # Legacy local accounts with an established direct conversation.
         ids = {m["user_id"] for c in self.service.conversations(self.bot_id) if c["kind"] == "direct" for m in c["members"] if int(m["user_id"]) != self.bot_id}
         return [{"user_id": int(uid), "nickname": self.service.user(int(uid))["display_name"], "remark": ""} for uid in sorted(ids)]
 
     def _stranger(self, params: dict) -> dict:
         uid = str(entity_id(params["user_id"]))
-        if uid != str(self.bot_id) and not any(
+        account = getattr(self.service, "peer_account", None)
+        if uid != str(self.bot_id) and not (account and account.is_peer_user(uid)) and not any(
             m["user_id"] == uid for c in self.service.conversations(self.bot_id) for m in c["members"]
         ):
             raise ChatError("forbidden", "Bot cannot access this account", 403)
@@ -156,8 +172,13 @@ class ActionDispatcher:
         return {"message_id": int(result["message_id"])}
 
     def _send_private(self, params: dict) -> dict:
-        conversation = self.service.direct(self.bot_id, str(entity_id(params["user_id"])))
-        result = self.service.send(self.bot_id, conversation["conversation_id"], str(uuid4()), self._segments(params))
+        uid = str(entity_id(params["user_id"]))
+        segments = self._segments(params)
+        account = getattr(self.service, "peer_account", None)
+        if account is not None:
+            account.validate_send(uid, segments)
+        conversation = self.service.direct(self.bot_id, uid)
+        result = self.service.send(self.bot_id, conversation["conversation_id"], str(uuid4()), segments)
         return {"message_id": int(result["message_id"])}
 
     def _send(self, params: dict) -> dict:
@@ -173,10 +194,20 @@ class ActionDispatcher:
         return result
 
     def _delete(self, params: dict):
+        account = getattr(self.service, "peer_account", None)
+        if account is not None:
+            message = self.service.get_message(self.bot_id, str(entity_id(params["message_id"])))
+            conversation = self.service.conversation(self.bot_id, message["conversation_id"])
+            if any(account.is_peer_user(p["user_id"]) for p in conversation["members"] if int(p["user_id"]) != self.bot_id):
+                raise ChatError("unsupported_action", "Public chat does not currently support remote recall")
         self.service.recall(self.bot_id, str(entity_id(params["message_id"])))
         return None
 
     def event(self, native: dict) -> dict | None:
+        if native["type"] == "friend.request":
+            return {"time": int(time.time()), "self_id": self.bot_id, "post_type": "request", "request_type": "friend", **native["payload"]}
+        if native["type"] == "friend.add":
+            return {"time": int(time.time()), "self_id": self.bot_id, "post_type": "notice", "notice_type": "friend_add", **native["payload"]}
         if native["type"] != "message.created":
             return None
         message = native["payload"]["message"]

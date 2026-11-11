@@ -257,6 +257,7 @@ function parseHash() {
   }
   if (parts[0] === "connections") return { page: "connections" };
   if (parts[0] === "decision") return { page: "decision" };
+  if (parts[0] === "chat") return { page: "chat" };
   if (parts[0] === "environments") return { page: "environments" };
   if (parts[0] === "archives") return { page: "archives" };
   if (parts[0] === "logs") return { page: "logs" };
@@ -270,6 +271,7 @@ function writeHash(push = false) {
   if (state.activePage === "plugins") hash = `#/plugins/${state.activePluginTab}`;
   else if (state.activePage === "connections") hash = "#/connections";
   else if (state.activePage === "decision") hash = "#/decision";
+  else if (state.activePage === "chat") hash = "#/chat";
   else if (state.activePage === "environments") hash = "#/environments";
   else if (state.activePage === "archives") hash = "#/archives";
   else if (state.activePage === "connection" && state.activeConnectionId) {
@@ -299,6 +301,7 @@ function switchPage(page, options = {}) {
   const fab = $("pluginUploadFab");
   if (fab) fab.hidden = page !== "plugins";
   if (page === "decision") window.DecisionPage?.enter();
+  if (page === "chat") window.ChatAccountPage?.enter();
   if (page === "plugins") renderPluginGrid();
   if (page === "logs") renderEvents();
   if (page === "plugin") renderPluginDashboard();

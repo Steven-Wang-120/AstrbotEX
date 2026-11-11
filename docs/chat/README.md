@@ -1,8 +1,8 @@
 # astrEX chat
 
-2026-11-10，`chat` 分支：第一版可运行骨架。
+2026-11-11，`chat` 分支：真人与 EX bot 同网，OneBot11 接 Agent。
 
-EX 对话子系统拥有 ChatService、SQLite、真人 API 和内置 OneBot11 协议端。astrC 面向真人，AstrBot 通过 OneBot 运行插件。普通聊天不需要启动运动 runtime。
+EX 对话子系统拥有 ChatService、SQLite、持久 bot 设备身份与内置 OneBot11 协议端。人用 astrC；bot 用 EX Chat，双方通过名片及 HTTPS 加密邮箱通信；EX 再经 OneBot11 接 AstrBot 或其他 Agent。应用宝只是测试设备。普通聊天不需要启动运动 runtime。
 
 已实现账号登录、可选邀请注册、本人资料、私聊/群聊、文字/@/引用、真人图片、历史、幂等、撤回、持久同步与反向 Universal WS。真实 AstrBot 4.26.7 未修改的内置 /sid 已通过群聊/私聊及重连联调；第三方插件和 QQ/NapCat 对照仍待验收。
 
@@ -20,4 +20,4 @@ EX 对话子系统拥有 ChatService、SQLite、真人 API 和内置 OneBot11 �
 
 ## 设备身份与全球邮箱通道（0.2 预览）
 
-新增独立 [加密邮箱协议](PEER_PROTOCOL.md) 与 [部署指南](PEER_DEPLOYMENT.md)。设备自行生成身份，使用可替换 HTTPS 节点存储转发，不依赖同一局域网。此通道当前仅真人文字，与既有 EX/OneBot 聊天并存。
+新增独立 [加密邮箱协议](PEER_PROTOCOL.md) 与 [部署指南](PEER_DEPLOYMENT.md)。设备自行生成身份，使用可替换 HTTPS 节点存储转发，不依赖同一局域网。真人和 EX bot 在此通道使用同一种身份与加密文字，EX 通过 OneBot11 连接 Agent；见 [机器人身份](PEER_BOT.md)。旧数字账号通道保留兼容联调。

@@ -46,6 +46,9 @@
           <button class="nav-item" data-page="decision">
             <span class="nav-num">08</span><span class="nav-label">决策</span>
           </button>
+          <button class="nav-item" data-page="chat">
+            <span class="nav-num">09</span><span class="nav-label">聊天账号</span>
+          </button>
         </nav>
 
         <div class="sidebar-foot">
@@ -772,6 +775,31 @@
               </section>
             </div>
           </section>
+          <section class="page" id="page-chat">
+            <header class="page-head"><div class="page-head-num">09</div><div class="page-head-text">
+              <h1>聊天账号</h1><p>以自己的身份与 astrC 用户聊天</p></div>
+              <button class="btn btn-ghost btn-sm" id="chatAccountRefresh">刷新状态</button>
+            </header>
+            <p id="chatAccountStatus" role="status">等待管理凭据</p>
+            <section class="panel">
+              <div class="panel-head"><h2>我的身份</h2></div>
+              <p>把名片发给好友，对方在 astrC 中粘贴添加即可。消息通过聊天网络收发，Agent 由 OneBot 11 接入。</p>
+              <label>昵称 <input class="config-input" id="chatAccountName" maxlength="40" value="AstrBot" /></label>
+              <label>聊天网络 <input class="config-input" id="chatAccountRelay" type="url" placeholder="https://mail.example.org" /></label>
+              <label><input id="chatAccountAutoAccept" type="checkbox" /> 自动接受好友申请</label>
+              <button class="btn btn-primary btn-sm" id="chatAccountSave">创建 / 保存身份</button>
+              <p id="chatAccountFingerprint" style="overflow-wrap:anywhere"></p>
+              <textarea class="config-input" id="chatAccountCard" readonly rows="5" aria-label="我的好友名片"></textarea>
+              <button class="btn btn-ghost btn-sm" id="chatAccountCopy">复制名片</button>
+            </section>
+            <section class="panel">
+              <div class="panel-head"><h2>添加好友</h2></div>
+              <textarea class="config-input" id="chatAccountContact" rows="3" aria-label="好友名片" placeholder="粘贴好友分享的名片，先核对完整身份指纹"></textarea>
+              <button class="btn btn-ghost btn-sm" id="chatAccountAdd">添加好友</button>
+            </section>
+            <section class="panel"><div class="panel-head"><h2>好友申请</h2></div><div id="chatAccountRequests"></div></section>
+          </section>
+
           <section class="page" id="page-decision">
             <header class="page-head"><div class="page-head-num">08</div><div class="page-head-text">
               <h1>决策</h1><p>连接模型、启停 EX 与查看当前任务</p></div>
@@ -869,6 +897,7 @@
     <script src="./environments.js?v=20261101"></script>
     <script src="/dashboard/decision.js?v=20261006-c07"></script>
     <script src="/dashboard/logs.js?v=20261101"></script>
-    <script src="./app.js?v=20261101"></script>
+    <script src="/dashboard/chat-account.js?v=20261111"></script>
+    <script src="./app.js?v=20261111-peer-bot"></script>
   </body>
 </html>
