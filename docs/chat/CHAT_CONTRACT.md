@@ -1,6 +1,6 @@
 # astr-chat 原生协议与 OneBot 映射草案
 
-协议：`astr-chat/0.1-draft`。revision：`2026-11-10.3`。状态：已实现文字、提及与引用子集，其余仍为设计目标。
+协议：`astr-chat/0.1-draft`。revision：`2026-11-11.1`。状态：已实现文字、提及、引用及真人静态图片子集，其余仍为设计目标。
 
 权威位置：astrEX `chat` 分支的 `docs/chat/CHAT_CONTRACT.md`。astrC `contracts/` 保存同修订快照。
 
@@ -8,7 +8,7 @@
 
 已实现 login/logout、可选邀请注册、GET/PATCH me、会话列表/创建私聊、建群/查成员、文字发送/分页历史/撤回、sync/events；实际路由见同目录 contracts/openapi.json。
 
-当前支持 text、mention、reply 段；资料 display_name/bio；未读为 null；设备 access token 一小时、无 refresh（501）。posts 也是 501。成员变更、read、媒体、日志、头像、notice、刷新轮换和游标过期清理尚未实现。以下完整清单是后续目标，不能据此调用尚不存在的路由。
+当前支持 text、mention、reply、image 段；资料 display_name/bio；未读为 null；设备 access token 一小时、无 refresh（501）。posts 也是 501。成员变更、read、机器人媒体、日志、头像、notice、刷新轮换和游标过期清理尚未实现。以下完整清单是后续目标，不能据此调用尚不存在的路由。
 
 OneBot 当前已有私聊对端定义为 friend_list；结构化数组执行 text/at/reply 显式双向映射，尚不解析 CQ 字符串（auto_escape=true 时作为纯文本）；支持基础群/成员查询、受共享会话约束的 get_stranger_info、文字/at/reply 收发、取消息/撤回。can_send_image/record=false，get_image 尚不支持。传输与模拟对端测试不代表真实插件兼容。
 
@@ -48,7 +48,7 @@ EX 对话子系统拥有 ChatService、数据存储、真人原生 API 与内置
 | POST | `/messages/{message_id}/recall` | 本人或有权群管理撤回 |
 | GET | `/sync?after={cursor}&limit={n}` | 账号可见持久事件，含 next_cursor/has_more |
 | WS | `/events?after={cursor}` | 鉴权、恢复与实时事件 |
-| POST | `/media` | multipart 上传，返回 media_id/受控元数据 |
+| POST | `/media?conversation_id={id}&client_media_id={uuid}` | 原始图片二进制上传，返回 media_id/受控元数据；仅当前会话成员 |
 | GET | `/media/{media_id}` | 鉴权下载或短期票据，不暴露磁盘路径 |
 | GET/POST | `/posts` | 查询/发布真人日志 |
 | PATCH/DELETE | `/posts/{post_id}` | 作者修改/删除；管理规则另定 |
@@ -75,13 +75,13 @@ EX 对话子系统拥有 ChatService、数据存储、真人原生 API 与内置
 }
 ```
 
-同账号 client_message_id 全局唯一；相同会话/内容重试返回原消息，跨会话或内容冲突返回 409。发送为 1..16 段，所有 text 合计不超过 4000 个 Unicode 码点。mention 仅用于群聊，目标必须是当前群成员；user_id="all" 仅群主或管理员可发。reply 至多一段且必须位于首段，message_id 必须属于同一会话且未撤回；不能只发 reply，需同时含文字或提及。原生 ID 必须为规范十进制字符串且不超过 2147483647。
+同账号 client_message_id 全局唯一；相同会话/内容重试返回原消息，跨会话或内容冲突返回 409。发送为 1..16 段，所有 text 合计不超过 4000 个 Unicode 码点。mention 仅用于群聊，目标必须是当前群成员；user_id="all" 仅群主或管理员可发。reply 至多一段且必须位于首段，message_id 必须属于同一会话且未撤回；不能只发 reply，需同时含文字、图片或提及。原生 ID 必须为规范十进制字符串且不超过 2147483647。
 
 事务先验证发送者的当前会话权限，再识别相同幂等请求，最后为新消息验证提及/引用目标并入库。已接受请求的同内容重试仍返回原消息，即使其引用目标后来撤回；新请求不得引用已撤回消息。引用只保存 message_id，不复制旧正文；客户端解析已加载历史，撤回后显示 tombstone，未加载时显示明确占位。
 
 消息记录、幂等键、账号投递事件和 outbox 在同一事务提交。HTTP 成功表示服务端已接受，不等于对方已读。bot 离线不能阻止真人消息入库。
 
-撤回保留 tombstone；recalled=true 时 segments 为空，客户端删除旧正文显示。消息编辑与音视频段后续定义。附件上传并完成权限验证后才能发消息，未引用上传按策略清理。
+撤回保留 tombstone；recalled=true 时 segments 为空，客户端删除旧正文显示。消息编辑与音视频段后续定义。附件上传并完成权限验证后才能发消息；未引用上传仍计入账号配额，自动过期清理尚未实现。
 
 未知或不支持的发送段返回明确失败；接收新版本未知段时客户端显示占位，不崩溃或丢掉其他内容。
 
@@ -127,6 +127,16 @@ bot 自发消息正常入库，但默认不向同一 bot 再生成入站消息�
 OneBot 无整个机器人消费链的持久已处理确认；重连窗口可能重复/遗漏。EX 记录 outbox 投递尝试并定义重试上限/期限，不能承诺原插件端到端恰好执行一次。手机游标恢复独立验收。
 
 ## 媒体边界
+
+当前已实现的真人子集：上传 body 为原始图片二进制（application/octet-stream），不信任文件名和 Content-Type。conversation_id 绑定目标会话，client_media_id 为账号全局唯一规范 UUID；同账号、同会话、同源字节重试返回同 media_id，内容或会话冲突为 409。
+
+只接收静态 PNG/JPEG/WebP：输入和规范化结果均不超过 8 MiB，单边不超过 8192 像素、总像素不超过 1600 万；拒绝损坏图片、动图、SVG。服务端解码、应用 EXIF 方向、重新编码为 PNG 或 JPEG，清除 EXIF/定位、ICC 和文本元数据。每账号图片存储上限 64 MiB，未发送上传也计入；目前没有自动垃圾清理。
+
+图片按 SQLite BLOB 保存，无磁盘路径暴露；Schema migration 1→2 在独立事务执行。发送 image.data.media_id 仅可引用本人为当前会话上传的图片。消息、媒体引用关系和事件同事务入库，失败不创建引用。
+
+GET /media/{media_id} 要求真人 Bearer 认证和当前会话成员身份。上传者可读自己的未发送图片；其他成员仅在当前会话存在未撤回的引用消息时可读。最后一条引用撤回后拒绝其他成员的新下载（不能收回已经获取的副本）。响应 private,no-store 和 nosniff，不生成公开 URL。
+
+当前 OneBot 对原生图片提供 [Image] 文本占位，can_send_image=false，get_image 与机器人图片发送尚未实现。以下票据和抓取规则仍是后续目标：
 
 手机用 media_id 和鉴权读取；bot 获得绑定媒体的短期签名 URL，可通过鉴权 action 重新取得。票据不授登录或其他媒体权限。
 

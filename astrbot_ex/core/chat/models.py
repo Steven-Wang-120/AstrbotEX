@@ -54,7 +54,16 @@ class ReplySegment(StrictModel):
     data: ReplyData
 
 
-MessageSegment = Annotated[TextSegment | MentionSegment | ReplySegment, Field(discriminator="type")]
+class ImageData(StrictModel):
+    media_id: str = Field(pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+
+
+class ImageSegment(StrictModel):
+    type: Literal["image"] = "image"
+    data: ImageData
+
+
+MessageSegment = Annotated[TextSegment | MentionSegment | ReplySegment | ImageSegment, Field(discriminator="type")]
 
 
 class SendMessageRequest(StrictModel):

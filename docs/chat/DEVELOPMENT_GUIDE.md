@@ -10,7 +10,7 @@ EX 管理聊天服务与协议端；astrC 是真人手机端；AstrBot 继续承
 
 ## 安装与启动
 
-使用 Python 3.10+；实际验证为 Windows Python 3.12.10 / SQLite 3.49.1。最低 Python 尚未做独立运行验证。chat 为可选依赖，默认关闭。
+基础 EX 使用 Python 3.10+；当前 chat 依赖 Pillow 13.0.0，chat 环境需要 Python 3.11+；实际验证为 Windows Python 3.12.10 / SQLite 3.49.1。最低 Python 尚未做独立运行验证。chat 为可选依赖，默认关闭。
 
 在 EX 根目录：
 
@@ -65,7 +65,7 @@ astrbot_ex/core/chat/
 
 OneBot 支持登录/版本/状态、已有私聊对端列表、群/成员查询、文字私聊/群聊、群 at、reply、get_msg/delete_msg、共享会话账号的 get_stranger_info。can_send_image/record 为 false。未知 action=1404，权限=1403，参数=1400，冲突=1409，内部失败=1500；echo 保留原 JSON 类型。
 
-未实现图片、CQ 解析、媒体、notice、refresh、日志、已读、后台通知、插件级兼容。原生 WS 的 Authorization header 适用于 IO 客户端，浏览器初版使用 HTTP sync。demo 只给 localhost:5173 与 127.0.0.1:5173 配置 CORS；普通模式没有开放跨域。
+真人静态图片已实现；未实现机器人图片、CQ 解析、notice、refresh、日志、已读、后台通知、插件级兼容。原生 WS 的 Authorization header 适用于 IO 客户端，浏览器初版使用 HTTP sync。demo 只给 localhost:5173 与 127.0.0.1:5173 配置 CORS；普通模式没有开放跨域。
 
 OneBot 发送偏移仅证明已尝试写入连接，不证明 AstrBot 已处理。连接中断窗口仍可能重复/丢失；不承诺插件端到端恰好一次。bot 自发消息不再投给同一 bot。
 
@@ -75,9 +75,9 @@ OneBot 发送偏移仅证明已尝试写入连接，不证明 AstrBot 已处理�
 .\.venv-chat\Scripts\python.exe -m pytest tests/chat tests/test_api_server.py tests/test_interaction_core.py tests/test_interaction_status.py -q
 ```
 
-当前为 57 项及 11 个 subtest 通过，包含真实 socket 的反向 WS 模拟对端、EX 启停、权限、重启、游标、幂等与旧对话回归。模拟对端不等于运行过真实 AstrBot 插件。存在一条上游 TestClient/httpx 弃用提示。
+当前为 72 项及 11 个 subtest 通过，包含真实 socket 的反向 WS 模拟对端、EX 启停、权限、重启、游标、幂等与旧对话回归。模拟对端不等于运行过真实 AstrBot 插件。存在一条上游 TestClient/httpx 弃用提示。
 
-真人手机联调与 Dart HTTP 实测工具在 astrC 开发指南。下一阶段固定 AstrBot 和目标插件提交，分别在 QQ+NapCat 与 EX 测同一插件，源码不改，记录动作、消息段、效果和平台判断至兼容矩阵。@、引用已通过真实适配器联测；随后补图片并开展插件对照。
+真人手机联调与 Dart HTTP 实测工具在 astrC 开发指南。下一阶段固定 AstrBot 和目标插件提交，分别在 QQ+NapCat 与 EX 测同一插件，源码不改，记录动作、消息段、效果和平台判断至兼容矩阵。@、引用已通过真实适配器联测；真人图片已完成，随后补机器人图片并开展插件对照。
 
 ## 契约和提交
 
@@ -100,3 +100,9 @@ OneBot 发送偏移仅证明已尝试写入连接，不证明 AstrBot 已处理�
 本轮只证明内置 /sid 场景，不代替 QQ/NapCat 对照、第三方插件、断线窗口恰好一次或 Android 真机验收。
 
 提及与引用补充验收见 acceptance/20261110/segments-astrbot-roundtrip.json：开启真实 AstrBot reply_with_mention/reply_with_quote，验证输入段解析、实际 get_msg/get_group_member_info/get_stranger_info 查询及原生回复段。
+
+## 真人图片
+
+原始图片以 POST /api/v1/chat/media?conversation_id=<id>&client_media_id=<uuid> 上传，body 为 application/octet-stream，返回 media_id、content_type、size_bytes、width、height、sha256。再用 image.data.media_id 发送到同一会话；GET /api/v1/chat/media/{id} 携带真人 Bearer 读取。无公开文件路径和下载 URL。
+
+当前限制：静态 PNG/JPEG/WebP，8 MiB、8192 单边、1600 万像素、64 MiB/账号；规范化清除元数据，未引用上传仍占配额。数据库迁移至 user_version=2。完整权限及重试语义见契约。机器人图片、未引用清理尚未实现，手机真机/iOS 仍待验收。

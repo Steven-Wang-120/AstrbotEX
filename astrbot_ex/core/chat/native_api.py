@@ -8,7 +8,8 @@ from uuid import uuid4
 
 from fastapi import Depends, FastAPI, Header, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
+from .media import MAX_IMAGE_BYTES
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 
@@ -56,7 +57,7 @@ def create_app(service: ChatService, *, invite_token: str | None = None, connect
     @app.get(prefix + "/health")
     def health():
         return {"product": "astrEX", "version": VERSION, "protocol": PROTOCOL, "mode": "demo" if demo else "normal",
-                "capabilities": ["login", "profile", "conversations", "groups", "text", "mention", "reply", "history", "sync", "events", "recall"],
+                "capabilities": ["login", "profile", "conversations", "groups", "text", "mention", "reply", "image", "history", "sync", "events", "recall"],
                 "onebot_connected": connector.connected if connector else False}
 
     @app.post(prefix + "/auth/register", status_code=201)
@@ -121,6 +122,30 @@ def create_app(service: ChatService, *, invite_token: str | None = None, connect
     def recall(message_id: str, user_id: int = Depends(current_user)):
         service.recall(user_id, message_id)
         return {"ok": True}
+
+    @app.post(prefix + "/media", status_code=201, openapi_extra={"requestBody": {
+        "required": True, "content": {"application/octet-stream": {"schema": {"type": "string", "format": "binary"}}}}})
+    async def upload_image(request: Request, conversation_id: str, client_media_id: str, user_id: int = Depends(current_user)):
+        # Raw image body avoids multipart temporary files and bounds actual streamed bytes.
+        length = request.headers.get("content-length")
+        if length is not None:
+            try:
+                if int(length) < 1 or int(length) > MAX_IMAGE_BYTES:
+                    raise ChatError("media_too_large", "Images must contain at most 8 MiB", 413)
+            except ValueError:
+                raise ChatError("invalid_media", "Invalid body length") from None
+        await run_in_threadpool(service.conversation, user_id, conversation_id)
+        content = bytearray()
+        async for chunk in request.stream():
+            if len(content) + len(chunk) > MAX_IMAGE_BYTES:
+                raise ChatError("media_too_large", "Images must contain at most 8 MiB", 413)
+            content.extend(chunk)
+        return await run_in_threadpool(service.media.upload, user_id, conversation_id, client_media_id, bytes(content))
+
+    @app.get(prefix + "/media/{media_id}")
+    def download_image(media_id: str, user_id: int = Depends(current_user)):
+        content, mime = service.media.download(user_id, media_id)
+        return Response(content, media_type=mime, headers={"Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff"})
 
     @app.get(prefix + "/sync")
     def sync(after: str | None = Query(default=None, max_length=512), limit: int = Query(default=100, ge=1, le=100), user_id: int = Depends(current_user)):

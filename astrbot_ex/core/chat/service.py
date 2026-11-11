@@ -16,6 +16,7 @@ from argon2.exceptions import VerificationError
 
 from . import PROTOCOL
 from .models import ChatError
+from .media import MediaStore, media_uuid
 from .repository import ChatRepository
 
 
@@ -36,6 +37,7 @@ def entity_id(value) -> int:
 class ChatService:
     def __init__(self, repository: ChatRepository):
         self.repository = repository
+        self.media = MediaStore(self)
         self.passwords = PasswordHasher()
         self._dummy_hash = self.passwords.hash(secrets.token_urlsafe(24))
         with repository.transaction() as db:
@@ -197,9 +199,9 @@ class ChatService:
             if not isinstance(segment, dict) or set(segment) != {"type", "data"} or not isinstance(segment["data"], dict):
                 raise ChatError("invalid_message", "Invalid message segment")
             kind, data = segment["type"], segment["data"]
-            field = {"text": "text", "mention": "user_id", "reply": "message_id"}.get(kind) if isinstance(kind, str) else None
+            field = {"text": "text", "mention": "user_id", "reply": "message_id", "image": "media_id"}.get(kind) if isinstance(kind, str) else None
             if field is None:
-                raise ChatError("unsupported_segment", "Supported segments: text, mention, reply")
+                raise ChatError("unsupported_segment", "Supported segments: text, mention, reply, image")
             if set(data) != {field} or not isinstance(data[field], str):
                 raise ChatError("invalid_message", "Invalid segment data")
             value = data[field]
@@ -207,6 +209,9 @@ class ChatService:
                 if not value or len(value) > 4000:
                     raise ChatError("invalid_message", "Text length must be between 1 and 4000")
                 text_length += len(value)
+                content = True
+            elif kind == "image":
+                media_uuid(value)
                 content = True
             elif kind == "reply":
                 entity_id(value)
@@ -217,7 +222,7 @@ class ChatService:
                     entity_id(value)
                 content = True
         if not content or text_length > 4000:
-            raise ChatError("invalid_message", "Provide text or a mention; total text cannot exceed 4000 characters")
+            raise ChatError("invalid_message", "Provide text, an image or a mention; total text cannot exceed 4000 characters")
         encoded = json.dumps(segments, ensure_ascii=False, sort_keys=True)
         with self.repository.transaction() as db:
             member = self._member(db, user_id, cid)
@@ -239,12 +244,18 @@ class ChatService:
                             raise ChatError("forbidden", "Only group administrators can mention all members", 403)
                     elif db.execute("SELECT 1 FROM members WHERE conversation_id=? AND user_id=?", (cid, entity_id(target))).fetchone() is None:
                         raise ChatError("invalid_mention", "Mention target is not a member of this group")
+                elif segment["type"] == "image":
+                    media = db.execute("SELECT owner_id,conversation_id FROM media WHERE id=?", (segment["data"]["media_id"],)).fetchone()
+                    if media is None or media["owner_id"] != user_id or media["conversation_id"] != cid:
+                        raise ChatError("invalid_media", "Attach an image uploaded by this account for this conversation")
                 elif segment["type"] == "reply":
                     target = db.execute("SELECT conversation_id,recalled FROM messages WHERE id=?", (entity_id(segment["data"]["message_id"]),)).fetchone()
                     if target is None or target["conversation_id"] != cid or target["recalled"]:
                         raise ChatError("invalid_reply", "Reply target must be an available message in this conversation")
             row = db.execute("INSERT INTO messages(conversation_id,sender_id,client_message_id,segments,created_at) VALUES (?,?,?,?,?)", (cid, user_id, client_id, encoded, now()))
             message = self._message(db.execute("SELECT * FROM messages WHERE id=?", (row.lastrowid,)).fetchone())
+            db.executemany("INSERT OR IGNORE INTO media_uses(media_id,message_id) VALUES (?,?)",
+                           [(s["data"]["media_id"], row.lastrowid) for s in segments if s["type"] == "image"])
             people = [r[0] for r in db.execute("SELECT user_id FROM members WHERE conversation_id=?", (cid,))]
             self._emit(db, people, "message.created", {"message": message})
             return message

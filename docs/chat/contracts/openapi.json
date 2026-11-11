@@ -678,6 +678,132 @@
         }
       }
     },
+    "/api/v1/chat/media": {
+      "post": {
+        "summary": "Upload Image",
+        "operationId": "upload_image_api_v1_chat_media_post",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Conversation Id"
+            }
+          },
+          {
+            "name": "client_media_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Client Media Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/media/{media_id}": {
+      "get": {
+        "summary": "Download Image",
+        "operationId": "download_image_api_v1_chat_media__media_id__get",
+        "parameters": [
+          {
+            "name": "media_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Media Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/chat/sync": {
       "get": {
         "summary": "Sync",
@@ -891,6 +1017,40 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "ImageData": {
+        "properties": {
+          "media_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Media Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "media_id"
+        ],
+        "title": "ImageData"
+      },
+      "ImageSegment": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "image",
+            "title": "Type",
+            "default": "image"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ImageData"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ImageSegment"
+      },
       "LoginRequest": {
         "properties": {
           "username": {
@@ -1083,11 +1243,15 @@
                 },
                 {
                   "$ref": "#/components/schemas/ReplySegment"
+                },
+                {
+                  "$ref": "#/components/schemas/ImageSegment"
                 }
               ],
               "discriminator": {
                 "propertyName": "type",
                 "mapping": {
+                  "image": "#/components/schemas/ImageSegment",
                   "mention": "#/components/schemas/MentionSegment",
                   "reply": "#/components/schemas/ReplySegment",
                   "text": "#/components/schemas/TextSegment"

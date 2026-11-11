@@ -136,7 +136,7 @@ def main() -> int:
                   "astrbot_image": args.image, "astrbot_image_id": image["Id"], "astrbot": metadata,
                   "source_unchanged": True, "scenarios": [],
                   "limitations": ["Android/iOS not verified", "QQ/NapCat comparison not run",
-                                  "Third-party plugins and LLM providers not verified", "Media not implemented"]}
+                                  "Third-party plugins and LLM providers not verified", "Native human images only; OneBot images remain unsupported"]}
         probe_host = "127.0.0.1" if args.host == "0.0.0.0" else args.host
         base = f"http://{probe_host}:{listener.port}/api/v1/chat"
         with httpx.Client(base_url=base, trust_env=False, timeout=10) as client:
@@ -149,6 +149,23 @@ def main() -> int:
                 groups = client.get("/conversations", headers=sessions["alice"])
                 groups.raise_for_status()
                 group = next(c for c in groups.json()["items"] if c["kind"] == "group")
+                from io import BytesIO
+                from PIL import Image
+                picture = BytesIO()
+                Image.new("RGB", (16, 12), "#6555c8").save(picture, format="PNG")
+                upload_key = str(uuid4())
+                image_response = client.post("/media", headers=sessions["alice"],
+                    params={"conversation_id": group["conversation_id"], "client_media_id": upload_key}, content=picture.getvalue())
+                image_response.raise_for_status()
+                mid = image_response.json()["media_id"]
+                if client.get(f"/media/{mid}", headers=sessions["bob"]).status_code != 403:
+                    raise RuntimeError("Unsent image leaked to another member")
+                image_message = client.post(f"/conversations/{group['conversation_id']}/messages", headers=sessions["alice"],
+                    json={"client_message_id": str(uuid4()), "segments": [{"type": "image", "data": {"media_id": mid}}]})
+                image_message.raise_for_status()
+                client.get(f"/media/{mid}", headers=sessions["bob"]).raise_for_status()
+                report["scenarios"].append({"name": "native-image-membership-and-bot-placeholder", "status": "passed",
+                    "scope": "Human HTTP image visibility; OneBot receives text placeholder and subsequent commands still work"})
                 direct = client.post("/conversations/direct", headers=sessions["bob"], json={"target_user_id": accounts["bot"]})
                 direct.raise_for_status()
                 scenarios = (("alice-group-command", "alice", group), ("bob-group-command", "bob", group),

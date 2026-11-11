@@ -134,6 +134,9 @@ class ActionDispatcher:
                 result.append({"type": "reply", "data": {"id": data["message_id"]}})
             elif kind == "text":
                 result.append(segment)
+            elif kind == "image":
+                # Native images are available only through human-authenticated API for now.
+                result.append({"type": "text", "data": {"text": "[Image]"}})
             else:
                 result.append({"type": "text", "data": {"text": "[Unsupported message]"}})
         return result
