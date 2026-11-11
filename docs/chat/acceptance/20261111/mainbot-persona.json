@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-11",
+  "status": "passed",
+  "synthetic_network_identity": true,
+  "mainbot_platform": "astrc_ex_main",
+  "model_transport": {
+    "status": "passed",
+    "synthetic_identity": true,
+    "scenarios": [
+      "primary_platform_sid",
+      "restart_preserves_human_identity",
+      "real_model_reply_over_peer"
+    ],
+    "model_reply_nonempty": true,
+    "model_reply_marker_found": true,
+    "model_reply_character_count": 19,
+    "reply_content_stored": false
+  },
+  "persona": {
+    "selected_persona_id": "111",
+    "source": "existing AstrBot persona database",
+    "exact_prompt_injection_verified": true,
+    "existing_and_new_session_samples": 7,
+    "scope": "deployed_code_and_database_with_stubbed_skill_and_tool_services"
+  },
+  "configuration_change": "provider_settings.default_personality: default -> 111; other configuration fields unchanged",
+  "database_quick_check": "ok",
+  "peer_identity_and_friendship_retained": true,
+  "ui_automated": false,
+  "real_chat_or_persona_prompt_stored": false,
+  "third_party_plugins_verified": false,
+  "archived_mainbot_test": {
+    "status": "passed",
+    "synthetic_identity": true,
+    "scenarios": [
+      "primary_platform_sid",
+      "restart_preserves_human_identity",
+      "real_model_reply_over_peer"
+    ],
+    "model_reply_nonempty": true,
+    "model_reply_marker_found": true,
+    "model_reply_character_count": 16,
+    "reply_content_stored": false
+  },
+  "client_analyze": "passed",
+  "client_default_tests": {
+    "passed": 17,
+    "skipped_real_services": 6
+  },
+  "contract_snapshot_files": 17
+}
