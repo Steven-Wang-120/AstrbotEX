@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "tested_at": "2026-11-14T07:45:21.873424+00:00",
+  "target": "running production EX + primary AstrBot + deployed mailbox",
+  "relay": "https://orangepi5pro.tail8faf70.ts.net",
+  "public_ingress_ip": "103.84.155.153",
+  "tls_certificate_verification": true,
+  "synthetic_identity_only": true,
+  "private_credentials_recorded": false,
+  "scenarios": [
+    "synthetic_friend_accepted_by_running_EX",
+    "running_primary_AstrBot_sid_reply",
+    "public_incoming_image_bytes_and_signed_time",
+    "public_outgoing_image_identical_bytes",
+    "primary_AstrBot_sid_with_image",
+    "public_incoming_file_bytes_and_signed_time",
+    "public_outgoing_file_identical_bytes",
+    "primary_AstrBot_sid_with_file",
+    "public_incoming_sticker_bytes_and_signed_time",
+    "public_outgoing_sticker_identical_bytes",
+    "primary_AstrBot_sid_with_sticker",
+    "running_EX_sticker_favorite_add_and_read",
+    "synthetic_favorite_removed_without_touching_existing",
+    "running_dashboard_serves_current_media_assets"
+  ],
+  "media_kinds": [
+    "image",
+    "file",
+    "animated_sticker"
+  ],
+  "primary_bot_sid_replies": 4,
+  "identity_preserved": true,
+  "mailbox_online": true,
+  "onebot_connected": true,
+  "limitations": [
+    "No physical Android/iOS/background acceptance",
+    "Outgoing media echoed by authenticated EX management API; no test plugin installed on primary AstrBot",
+    "Third-party plugin file:// output not covered"
+  ]
+}

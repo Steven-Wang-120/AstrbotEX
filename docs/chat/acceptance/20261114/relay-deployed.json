@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "upgraded_at": "2026-11-14T07:18:44.466646+00:00",
+  "source_sha256": "cc9239063178c988cae1efe82baea38ea5f07891e6c6a4d0fab1ba82650f4ac1",
+  "service": "astrc-mailbox.service",
+  "consistent_backup_verified": true,
+  "backed_up_data_files": 2,
+  "status": "passed",
+  "health": {
+    "protocol": "astrc-mailbox/1",
+    "public_url": "https://orangepi5pro.tail8faf70.ts.net",
+    "retention_days": 7,
+    "max_packet_bytes": 16777216,
+    "max_attachment_bytes": 8388608,
+    "encrypted_content": true,
+    "friend_requests": true,
+    "media": true
+  },
+  "private_backup_location": "kept outside repository and delivery package"
+}
