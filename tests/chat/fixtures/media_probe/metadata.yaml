@@ -1,0 +1,4 @@
+name: astrc_media_probe
+desc: Synthetic attachment roundtrip, only for a disposable lab
+version: v1.0.0
+author: astrC tests

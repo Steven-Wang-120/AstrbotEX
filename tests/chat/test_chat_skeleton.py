@@ -139,7 +139,7 @@ def test_onebot_registry_preserves_echo_and_rejects_unsupported_capabilities(rig
     version = dispatcher.dispatch({"action": "get_version_info", "echo": echo})
     assert version["data"]["app_name"] == "astrEX" and version["echo"] == echo
     assert dispatcher.dispatch({"action": "missing", "echo": False})["retcode"] == 1404
-    assert dispatcher.dispatch({"action": "can_send_image"})["data"] == {"yes": False}
+    assert dispatcher.dispatch({"action": "can_send_image"})["data"] == {"yes": True}
     sent = dispatcher.dispatch({"action": "send_group_msg", "params": {"group_id": 1, "message": "Bot message"}, "echo": echo})
     assert sent["status"] == "ok" and sent["echo"] == echo
     native = service.sync(int(ids["bot"]))["events"]

@@ -187,6 +187,28 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             chat = getattr(self.server, "chat_lifecycle", None)
             self._send_json(chat.peer_status() if chat else {"enabled": False, "error": "chat_listener_disabled"})
             return
+        if path.startswith("/api/v1/ex/chat/account/"):
+            from astrbot_ex.core.chat.models import ChatError
+            chat = getattr(self.server, "chat_lifecycle", None)
+            account = getattr(chat, "peer_account", None)
+            if account is None:
+                self._send_json({"error": "chat_account_unavailable"}, 503)
+                return
+            try:
+                suffix = path.removeprefix("/api/v1/ex/chat/account/")
+                if suffix.startswith("messages/"):
+                    value = account.history(suffix.removeprefix("messages/"))
+                elif suffix.startswith("media/"):
+                    value = chat.service.media.as_attachment(account.bot_id, suffix.removeprefix("media/"))
+                elif suffix == "stickers":
+                    value = account.stickers()
+                else:
+                    self._send_json({"error": "not_found"}, 404)
+                    return
+                self._send_json(value)
+            except ChatError as exc:
+                self._send_json({"error": exc.code, "message": exc.message}, exc.status)
+            return
         if path == "/api/status" or path == "/api/v1/ex/status":
             status = self.controller.status()
             environment_manager = getattr(self.server, "environment_manager", None)
@@ -387,6 +409,10 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"error": "chat_listener_disabled"}, 503)
                 return
             try:
+                if int(self.headers.get("Content-Length", "0")) > 16 * 1024 * 1024:
+                    self._send_json({"error": "attachment_too_large"}, 413)
+                    self.close_connection = True
+                    return
                 body = self._read_json()
                 if path == "/api/v1/ex/chat/account":
                     if set(body) != {"name", "relay", "auto_accept"}:
@@ -398,6 +424,20 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
                     result = chat.peer_account.add_contact(body["code"])
                 elif path == "/api/v1/ex/chat/account/requests" and set(body) == {"flag", "approve"}:
                     chat.peer_account.resolve(body["flag"], body["approve"])
+                    result = {"ok": True}
+                elif path == "/api/v1/ex/chat/account/messages" and set(body) == {"peer_id", "content", "client_message_id"}:
+                    result = chat.peer_account.send_content(body["peer_id"], body["content"], body["client_message_id"])
+                elif path == "/api/v1/ex/chat/account/attachments/prepare" and set(body) == {"kind", "name", "mime", "data"}:
+                    from astrbot_ex.core.chat.peer_content import MAX_ATTACHMENT_BYTES, attachment
+                    if not isinstance(body["data"], str) or len(body["data"]) > 4 * ((MAX_ATTACHMENT_BYTES + 2) // 3):
+                        raise ValueError("Attachment too large")
+                    result = attachment(body["kind"], body["name"], body["mime"], base64.b64decode(body["data"], validate=True))
+                elif path == "/api/v1/ex/chat/account/stickers" and set(body) in ({"attachment"}, {"media_id"}):
+                    value = body.get("attachment") or chat.service.media.as_attachment(chat.peer_account.bot_id, body["media_id"])
+                    chat.peer_account.favorite_sticker(value)
+                    result = {"ok": True}
+                elif path == "/api/v1/ex/chat/account/stickers/remove" and set(body) == {"sha256"}:
+                    chat.peer_account.remove_sticker(body["sha256"])
                     result = {"ok": True}
                 else:
                     raise ValueError("Invalid chat account request")

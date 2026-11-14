@@ -5,6 +5,7 @@ import asyncio
 from contextlib import asynccontextmanager, suppress
 import hmac
 from uuid import uuid4
+from urllib.parse import quote
 
 from fastapi import Depends, FastAPI, Header, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
@@ -62,7 +63,7 @@ def create_app(service: ChatService, *, invite_token: str | None = None, connect
     @app.get(prefix + "/health")
     def health():
         return {"product": "astrEX", "version": VERSION, "protocol": PROTOCOL, "mode": "demo" if demo else "normal",
-                "capabilities": ["login", "profile", "conversations", "groups", "text", "mention", "reply", "image", "history", "sync", "events", "recall"],
+                "capabilities": ["login", "profile", "conversations", "groups", "text", "mention", "reply", "image", "file", "sticker", "history", "sync", "events", "recall"],
                 "onebot_connected": connector.connected if connector else False}
 
     @app.post(prefix + "/auth/register", status_code=201)
@@ -130,7 +131,7 @@ def create_app(service: ChatService, *, invite_token: str | None = None, connect
 
     @app.post(prefix + "/media", status_code=201, openapi_extra={"requestBody": {
         "required": True, "content": {"application/octet-stream": {"schema": {"type": "string", "format": "binary"}}}}})
-    async def upload_image(request: Request, conversation_id: str, client_media_id: str, user_id: int = Depends(current_user)):
+    async def upload_image(request: Request, conversation_id: str, client_media_id: str, kind: str | None = None, name: str = "attachment", user_id: int = Depends(current_user)):
         # Raw image body avoids multipart temporary files and bounds actual streamed bytes.
         length = request.headers.get("content-length")
         if length is not None:
@@ -145,12 +146,40 @@ def create_app(service: ChatService, *, invite_token: str | None = None, connect
             if len(content) + len(chunk) > MAX_IMAGE_BYTES:
                 raise ChatError("media_too_large", "Images must contain at most 8 MiB", 413)
             content.extend(chunk)
+        if kind is not None:
+            from .peer_content import attachment
+            from PIL import Image
+            from io import BytesIO
+            mime = "application/octet-stream"
+            if kind in {"image", "sticker"}:
+                try:
+                    with Image.open(BytesIO(content)) as image:
+                        mime = Image.MIME.get(image.format, "application/octet-stream")
+                except (OSError, ValueError, Image.DecompressionBombError, Image.DecompressionBombWarning):
+                    raise ChatError("invalid_attachment", "Invalid image") from None
+            try:
+                value = attachment(kind, name, mime, bytes(content))
+            except ValueError as exc:
+                raise ChatError("invalid_attachment", str(exc)) from None
+            return await run_in_threadpool(service.media.upload_attachment, user_id, conversation_id, client_media_id, value)
         return await run_in_threadpool(service.media.upload, user_id, conversation_id, client_media_id, bytes(content))
 
     @app.get(prefix + "/media/{media_id}")
     def download_image(media_id: str, user_id: int = Depends(current_user)):
         content, mime = service.media.download(user_id, media_id)
         return Response(content, media_type=mime, headers={"Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff"})
+
+    @app.get(prefix + "/agent-media/{media_id}")
+    def agent_media(media_id: str, user_id: int, expires: int, signature: str = Query(max_length=64)):
+        content, mime = service.agent_media(user_id, media_id, expires, signature)
+        # Capability URL is short-lived and scoped to one media item visible to the bot.
+        with service.repository.transaction() as db:
+            row = db.execute("SELECT name,kind FROM media WHERE id=?", (media_id,)).fetchone()
+        disposition = "inline" if row["kind"] in {"image", "sticker"} else "attachment"
+        return Response(content, media_type=mime if disposition == "inline" else "application/octet-stream", headers={
+            "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff",
+            "Content-Disposition": f"{disposition}; filename*=UTF-8''{quote(row['name'])}",
+        })
 
     @app.get(prefix + "/sync")
     def sync(after: str | None = Query(default=None, max_length=512), limit: int = Query(default=100, ge=1, le=100), user_id: int = Depends(current_user)):

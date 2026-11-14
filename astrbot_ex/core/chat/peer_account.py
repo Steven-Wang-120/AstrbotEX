@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import secrets
 import time
+from uuid import NAMESPACE_URL, uuid4, uuid5
 from urllib.parse import urlsplit
 
 import httpx
@@ -12,6 +13,7 @@ import httpx
 from .models import ChatError
 from .peer_identity import PeerIdentity, parse_contact
 from .peer_relay import canonical, validate_friend_request, Fault
+from .peer_content import MAX_ATTACHMENT_BYTES, validate_content
 
 
 class RelayError(Exception):
@@ -23,7 +25,7 @@ class RelayError(Exception):
 class PeerRelayClient:
     def __init__(self, identity, relay, *, allow_loopback=False, client=None):
         self.identity, self.relay, self.allow_loopback = identity, relay, allow_loopback
-        self.client = client or httpx.AsyncClient(timeout=8, follow_redirects=False, trust_env=False)
+        self.client = client or httpx.AsyncClient(timeout=60, follow_redirects=False, trust_env=False)
         self.tokens, self.allowed = {}, set()
 
     def origin(self, value):
@@ -184,8 +186,8 @@ class PeerAccount:
             contact = next(r for r in self.contacts() if r["user_id"] == int(uid))
             if contact["state"] != "accepted":
                 raise ChatError("forbidden", "Friend request has not been approved", 403)
-            if any(s["type"] not in {"text", "reply"} for s in segments) or not any(s["type"] == "text" for s in segments):
-                raise ChatError("unsupported_segment", "This network currently supports private text messages")
+            if any(s["type"] not in {"text", "reply", "image", "file", "sticker"} for s in segments):
+                raise ChatError("unsupported_segment", "Unsupported private message segment")
 
     def status(self):
         with self.service.repository.transaction() as db:
@@ -238,7 +240,7 @@ class PeerAccount:
                     rejected = db.execute("SELECT 1 FROM peer_rejected WHERE bot_id=? AND sender=? AND id=?", (self.bot_id, sender, packet["id"])).fetchone()
                 if not rejected:
                     try:
-                        text = self.identity.open(json.loads(contacts[sender]["card"]), packet)
+                        content = self.identity.open_content(json.loads(contacts[sender]["card"]), packet)
                     except Exception:
                         with self.service.repository.transaction() as db:
                             db.execute("INSERT OR IGNORE INTO peer_rejected VALUES (?,?,?)", (self.bot_id, sender, packet["id"]))
@@ -246,7 +248,12 @@ class PeerAccount:
                         uid = contacts[sender]["user_id"]
                         conversation = self.service.direct(self.bot_id, str(uid))
                         # ChatService commits before ACK; sender+UUID remains idempotent after restart.
-                        self.service.send(uid, conversation["conversation_id"], packet["id"], [{"type": "text", "data": {"text": text}}])
+                        segments = [{"type": "text", "data": {"text": content["text"]}}] if content["text"] else []
+                        for index, item in enumerate(content.get("attachments", [])):
+                            mid = str(uuid5(NAMESPACE_URL, f"astrc:{sender}:{packet['id']}:{index}"))
+                            metadata = self.service.media.upload_attachment(uid, conversation["conversation_id"], mid, item)
+                            segments.append({"type": item["kind"], "data": {"media_id": metadata["media_id"]}})
+                        self.service.send(uid, conversation["conversation_id"], packet["id"], segments, sent_at=packet["created_at"])
                 ack.append({"sender": sender, "id": packet["id"]})
             if ack:
                 await self.client.request(self.relay, "/ack", "POST", {"items": ack})
@@ -268,13 +275,67 @@ class PeerAccount:
                 if packet is None:
                     segments = json.loads(row["segments"])
                     text = "".join(s["data"]["text"] for s in segments if s["type"] == "text")
-                    packet = self.identity.seal(json.loads(contact["card"]), text, row["client_message_id"])
+                    items = [self.service.media.as_attachment(self.bot_id, s["data"]["media_id"]) for s in segments if s["type"] in {"image", "file", "sticker"}]
+                    content = {"text": text, **({"attachments": items} if items else {})}
+                    packet = self.identity.seal_content(json.loads(contact["card"]), content, row["client_message_id"], created_at=row["created_at"])
                     with self.service.repository.transaction() as db:
                         db.execute("INSERT INTO peer_outbox VALUES (?,?,?,0)", (self.bot_id, row["id"], canonical(packet).decode()))
                 # Persist the complete fixed envelope before sending; retries never re-encrypt.
                 await self.client.request(json.loads(contact["card"])["relay"], "/envelopes", "POST", packet)
                 with self.service.repository.transaction() as db:
                     db.execute("UPDATE peer_outbox SET accepted=1 WHERE bot_id=? AND message_id=?", (self.bot_id, row["id"]))
+
+    def history(self, peer_id, limit=50):
+        contact = next((r for r in self.contacts() if r["peer_id"] == peer_id and r["state"] == "accepted"), None)
+        if contact is None:
+            raise ChatError("not_found", "Accepted contact not found", 404)
+        conversation = self.service.direct(self.bot_id, str(contact["user_id"]))
+        items = self.service.messages(self.bot_id, conversation["conversation_id"], min(100, max(1, limit)))
+        with self.service.repository.transaction() as db:
+            for message in items:
+                if message["sender_id"] == str(self.bot_id):
+                    outbox = db.execute("SELECT accepted FROM peer_outbox WHERE bot_id=? AND message_id=?", (self.bot_id, int(message["message_id"]))).fetchone()
+                    message["delivery"] = "accepted" if outbox and outbox[0] else "queued"
+                for segment in message["segments"]:
+                    if segment["type"] in {"image", "file", "sticker"}:
+                        row = db.execute("SELECT * FROM media WHERE id=?", (segment["data"]["media_id"],)).fetchone()
+                        segment["data"] = {**segment["data"], **self.service.media.metadata(row)}
+        return {"items": items, "conversation_id": conversation["conversation_id"], "self_id": str(self.bot_id)}
+
+    def send_content(self, peer_id, content, message_id=None):
+        try:
+            validate_content(content)
+        except ValueError as exc:
+            raise ChatError("invalid_attachment", str(exc)) from None
+        history = self.history(peer_id, 1)
+        segments = [{"type": "text", "data": {"text": content["text"]}}] if content["text"] else []
+        message_id = message_id or str(uuid4())
+        for index, value in enumerate(content.get("attachments", [])):
+            mid = str(uuid5(NAMESPACE_URL, f"astrc-management:{message_id}:{index}"))
+            item = self.service.media.upload_attachment(self.bot_id, history["conversation_id"], mid, value)
+            segments.append({"type": value["kind"], "data": {"media_id": item["media_id"]}})
+        return self.service.send(self.bot_id, history["conversation_id"], message_id, segments)
+
+    def favorite_sticker(self, value):
+        value = {**value, "kind": "sticker"}
+        try:
+            validate_content({"text": "", "attachments": [value]})
+        except ValueError as exc:
+            raise ChatError("invalid_sticker", str(exc)) from None
+        with self.service.repository.transaction() as db:
+            existing = db.execute("SELECT 1 FROM sticker_favorites WHERE owner_id=? AND sha256=?", (self.bot_id, value["sha256"])).fetchone()
+            count, size = db.execute("SELECT COUNT(*),COALESCE(SUM(LENGTH(attachment)),0) FROM sticker_favorites WHERE owner_id=?", (self.bot_id,)).fetchone()
+            if not existing and (count >= 100 or size + len(canonical(value)) > 32 * 1024 * 1024):
+                raise ChatError("sticker_quota", "Saved sticker capacity reached", 413)
+            db.execute("INSERT OR IGNORE INTO sticker_favorites VALUES (?,?,?,?)", (self.bot_id, value["sha256"], canonical(value).decode(), time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())))
+
+    def stickers(self):
+        with self.service.repository.transaction() as db:
+            return {"items": [json.loads(r[0]) for r in db.execute("SELECT attachment FROM sticker_favorites WHERE owner_id=? ORDER BY created_at", (self.bot_id,))]}
+
+    def remove_sticker(self, digest):
+        with self.service.repository.transaction() as db:
+            db.execute("DELETE FROM sticker_favorites WHERE owner_id=? AND sha256=?", (self.bot_id, digest))
 
 
 async def run_peer_endpoint(service):

@@ -62,9 +62,12 @@ def test_native_image_upload_is_normalized_scoped_and_visible_only_after_send(ri
     private = service.direct(int(ids['alice']), ids['bob'])
     assert send_image(client, alice, private['conversation_id'], media['media_id']).status_code == 400
     bot = ActionDispatcher(service, int(ids['bot']))
-    assert bot.dispatch({'action': 'can_send_image'})['data'] == {'yes': False}
+    assert bot.dispatch({'action': 'can_send_image'})['data'] == {'yes': True}
     event = next(e for e in service.sync(int(ids['bot']))['events'] if e['type'] == 'message.created' and e['payload']['message']['message_id'] == sent.json()['message_id'])
-    assert bot.event(event)['message'] == [{'type': 'text', 'data': {'text': '[Image]'}}]
+    segment = bot.event(event)['message'][0]
+    assert segment['type'] == 'image' and segment['data']['file'] == media['media_id']
+    assert '/api/v1/chat/agent-media/' in segment['data']['url']
+    assert client.get(segment['data']['url']).content == own.content
 
 
 def test_image_upload_and_send_retries_are_idempotent_and_recall_revokes_download(rig):
@@ -151,7 +154,7 @@ def test_media_and_visibility_survive_reopen_and_v1_database_migration(tmp_path)
         service = ChatService(repo)
         assert service.media.upload(int(ids['alice']), ids['conversation_id'], key, picture()) == stored
         assert service.media.download(int(ids['bob']), stored['media_id'])[1] == 'image/png'
-        assert repo.connection.execute('PRAGMA user_version').fetchone()[0] == 2
+        assert repo.connection.execute('PRAGMA user_version').fetchone()[0] == 3
     finally:
         repo.close()
 

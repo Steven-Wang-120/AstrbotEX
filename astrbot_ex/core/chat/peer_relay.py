@@ -21,6 +21,9 @@ from fastapi.responses import JSONResponse
 
 PREFIX = "/api/v1/peer"
 TTL = 7 * 86400
+MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024
+MAX_PLAIN_BYTES = 12 * 1024 * 1024
+MAX_PACKET_BYTES = 16 * 1024 * 1024
 
 
 def canonical(value) -> bytes:
@@ -98,12 +101,13 @@ def validate_friend_request(packet, *, allow_loopback=False):
 
 
 class Mailbox:
-    def __init__(self, path: Path, *, quota=16 * 1024 * 1024, clock=time.time):
+    def __init__(self, path: Path, *, quota=64 * 1024 * 1024, global_quota=512 * 1024 * 1024, clock=time.time):
         path.parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(path, check_same_thread=False, isolation_level=None)
         self.db.row_factory = sqlite3.Row
         self.lock = threading.RLock()
         self.quota, self.clock = quota, clock
+        self.global_quota = global_quota
         self.challenges, self.sessions, self.rates = {}, {}, {}
         self.db.executescript("""
         PRAGMA journal_mode=DELETE;
@@ -157,8 +161,9 @@ def create_peer_app(store: Mailbox, *, public_url="", allow_loopback=False):
         # Enforce streamed size, including requests without Content-Length.
         if request.method in {"POST", "PUT"}:
             body = bytearray()
+            limit = MAX_PACKET_BYTES if request.url.path == PREFIX + "/envelopes" else 32768
             async for chunk in request.stream():
-                if len(body) + len(chunk) > 32768:
+                if len(body) + len(chunk) > limit:
                     return JSONResponse({"error": "body_too_large"}, status_code=413)
                 body.extend(chunk)
             request._body = bytes(body)
@@ -188,7 +193,8 @@ def create_peer_app(store: Mailbox, *, public_url="", allow_loopback=False):
     @app.get(PREFIX + "/health")
     def health():
         return {"protocol": "astrc-mailbox/1", "public_url": public_url, "retention_days": 7,
-                "max_packet_bytes": 32768, "encrypted_content": True, "friend_requests": True}
+                "max_packet_bytes": MAX_PACKET_BYTES, "max_attachment_bytes": MAX_ATTACHMENT_BYTES,
+                "encrypted_content": True, "friend_requests": True, "media": True}
 
     @app.post(PREFIX + "/challenge")
     async def challenge(request: Request):
@@ -317,7 +323,7 @@ def create_peer_app(store: Mailbox, *, public_url="", allow_loopback=False):
         unbase(packet["nonce"], 12)
         unbase(packet["mac"], 16)
         ciphertext = unbase(packet["ciphertext"])
-        if not 1 <= len(ciphertext) <= 16384:
+        if not 1 <= len(ciphertext) <= MAX_PLAIN_BYTES:
             raise Fault(413, "packet_too_large")
         verify(packet, sender["sign_key"])
         encoded = canonical(packet).decode()
@@ -336,6 +342,8 @@ def create_peer_app(store: Mailbox, *, public_url="", allow_loopback=False):
                 raise Fault(413, "mailbox_full")
             if store.db.execute("SELECT COUNT(*) FROM envelopes").fetchone()[0] >= 100000:
                 raise Fault(503, "relay_full")
+            if store.db.execute("SELECT COALESCE(SUM(LENGTH(packet)),0) FROM envelopes WHERE acked=0").fetchone()[0] + len(encoded.encode()) > store.global_quota:
+                raise Fault(503, "relay_full")
             store.db.execute("INSERT INTO envelopes VALUES (?,?,?,?,?,?,?,0)",
                 (sender["id"], packet["id"], packet["recipient"], digest, encoded, store.clock(), store.clock() + TTL))
         return {"id": packet["id"], "accepted": True}
@@ -343,8 +351,15 @@ def create_peer_app(store: Mailbox, *, public_url="", allow_loopback=False):
     @app.get(PREFIX + "/envelopes")
     def inbox(owner=Depends(user)):
         with store.lock:
-            rows = store.db.execute("SELECT packet FROM envelopes WHERE recipient=? AND acked=0 ORDER BY created,sender,id LIMIT 100", (owner["id"],)).fetchall()
-            return {"items": [json.loads(r[0]) for r in rows]}
+            rows = store.db.execute("SELECT packet FROM envelopes WHERE recipient=? AND acked=0 ORDER BY created,sender,id LIMIT 100", (owner["id"],))
+            items, size = [], 0
+            for row in rows:
+                packet_size = len(row[0].encode())
+                if items and size + packet_size > MAX_PACKET_BYTES:
+                    break
+                items.append(json.loads(row[0]))
+                size += packet_size
+            return {"items": items}
 
     @app.post(PREFIX + "/ack")
     async def ack(request: Request, owner=Depends(user)):

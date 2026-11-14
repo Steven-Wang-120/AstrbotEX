@@ -777,13 +777,12 @@
           </section>
           <section class="page" id="page-chat">
             <header class="page-head"><div class="page-head-num">09</div><div class="page-head-text">
-              <h1>聊天账号</h1><p>以自己的身份与 astrC 用户聊天</p></div>
+              <h1>聊天账号</h1></div>
               <button class="btn btn-ghost btn-sm" id="chatAccountRefresh">刷新状态</button>
             </header>
             <p id="chatAccountStatus" role="status">等待管理凭据</p>
             <section class="panel">
               <div class="panel-head"><h2>我的身份</h2></div>
-              <p>把名片发给好友，对方在 astrC 中粘贴添加即可。消息通过聊天网络收发，Agent 由 OneBot 11 接入。</p>
               <label>昵称 <input class="config-input" id="chatAccountName" maxlength="40" value="AstrBot" /></label>
               <label>聊天网络 <input class="config-input" id="chatAccountRelay" type="url" placeholder="https://mail.example.org" /></label>
               <label><input id="chatAccountAutoAccept" type="checkbox" /> 自动接受好友申请</label>
@@ -794,10 +793,36 @@
             </section>
             <section class="panel">
               <div class="panel-head"><h2>添加好友</h2></div>
-              <textarea class="config-input" id="chatAccountContact" rows="3" aria-label="好友名片" placeholder="粘贴好友分享的名片，先核对完整身份指纹"></textarea>
+              <textarea class="config-input" id="chatAccountContact" rows="3" aria-label="好友名片" placeholder="好友名片"></textarea>
               <button class="btn btn-ghost btn-sm" id="chatAccountAdd">添加好友</button>
             </section>
             <section class="panel"><div class="panel-head"><h2>好友申请</h2></div><div id="chatAccountRequests"></div></section>
+            <section class="panel chat-workspace">
+              <div class="panel-head"><h2>聊天</h2><select id="chatContactSelect" class="config-input" aria-label="选择聊天好友"><option value="">选择好友</option></select></div>
+              <div id="chatMessages" class="chat-messages" role="log" aria-label="聊天记录" aria-live="polite"></div>
+              <div id="chatDraft" class="chat-draft" hidden></div>
+              <div class="chat-composer">
+                <button id="chatEmojiToggle" class="btn btn-ghost" aria-label="Emoji 与表情包" aria-expanded="false">☺</button>
+                <textarea id="chatMessageInput" class="config-input" rows="2" maxlength="4000" placeholder="输入消息" aria-label="输入消息"></textarea>
+                <button id="chatAttachmentToggle" class="btn btn-ghost" aria-label="添加附件" aria-expanded="false">＋</button>
+                <button id="chatSend" class="btn btn-primary" aria-label="发送" title="发送"><svg viewBox="0 0 24 24" class="chat-icon" aria-hidden="true"><path d="m4 4 17 8-17 8 3-8-3-8Zm3 8h14" /></svg></button>
+              </div>
+              <div id="chatAttachmentPanel" class="chat-attachment-panel" hidden>
+                <button id="chatPickImage" class="btn btn-ghost"><svg viewBox="0 0 24 24" class="chat-icon" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m3 16 5-5 5 5 3-3 5 5"/><circle cx="16" cy="8" r="1"/></svg><span>相册</span></button>
+                <button id="chatPickCamera" class="btn btn-ghost"><svg viewBox="0 0 24 24" class="chat-icon" aria-hidden="true"><path d="M3 7h4l2-3h6l2 3h4v13H3Z"/><circle cx="12" cy="13" r="4"/></svg><span>拍摄</span></button>
+                <button id="chatPickFile" class="btn btn-ghost"><svg viewBox="0 0 24 24" class="chat-icon" aria-hidden="true"><path d="M3 6h6l2 3h10v12H3Z"/></svg><span>文件</span></button>
+                <button id="chatShowStickers" class="btn btn-ghost"><svg viewBox="0 0 24 24" class="chat-icon" aria-hidden="true"><path d="M20 5c-3-3-7-1-8 1-1-2-5-4-8-1-4 4 1 9 8 15 7-6 12-11 8-15Z"/></svg><span>收藏表情</span></button>
+              </div>
+              <div id="chatEmojiPanel" class="chat-emoji-panel" hidden>
+                <div class="chat-panel-tabs"><button id="chatEmojiTab" class="btn btn-ghost btn-sm">Emoji</button><button id="chatStickerTab" class="btn btn-ghost btn-sm">我的表情</button><button id="chatImportSticker" class="btn btn-ghost btn-sm" title="导入表情包" aria-label="导入表情包">＋</button></div>
+                <div id="chatEmojiGrid" class="chat-emoji-grid"></div><div id="chatStickerGrid" class="chat-sticker-grid" hidden></div>
+              </div>
+              <p id="chatComposeStatus" role="status" hidden></p>
+              <input id="chatImagePicker" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
+              <input id="chatCameraPicker" type="file" accept="image/*" capture="environment" hidden />
+              <input id="chatFilePicker" type="file" hidden />
+              <input id="chatStickerPicker" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
+            </section>
           </section>
 
           <section class="page" id="page-decision">
@@ -897,7 +922,9 @@
     <script src="./environments.js?v=20261101"></script>
     <script src="/dashboard/decision.js?v=20261006-c07"></script>
     <script src="/dashboard/logs.js?v=20261101"></script>
-    <script src="/dashboard/chat-account.js?v=20261111"></script>
+    <link rel="stylesheet" href="/dashboard/chat-media.css?v=20261113" />
+    <script src="/dashboard/chat-account.js?v=20261113"></script>
+    <script src="/dashboard/chat-media.js?v=20261113"></script>
     <script src="./app.js?v=20261111-peer-bot"></script>
   </body>
 </html>

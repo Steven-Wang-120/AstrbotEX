@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "tested_at": "2026-11-13T14:04:42.467885+00:00",
+  "transport": "real isolated loopback mailbox",
+  "astrbot_image": "local/astrbot:upper-c7cd782-20261104",
+  "protocol": "astrc-mailbox/1 + OneBot11",
+  "scenarios": [
+    "astrC human creates identity",
+    "adds signed EX bot card in normal peer UI flow",
+    "signed friend request auto accepted by EX",
+    "encrypted human message through mailbox",
+    "EX decrypts and emits OneBot private event",
+    "real AstrBot /sid command",
+    "OneBot reply encrypted by EX and decrypted by Dart",
+    "human restart retains identity/contact/history",
+    "second real bot reply after restart",
+    "Dart encrypted PNG to actual AstrBot Image component",
+    "AstrBot original HTTP media fetch and base64 Image reply verified by identical digest",
+    "Dart binary attachment to actual AstrBot File.get_file",
+    "AstrBot base64 file action and identical Dart reply",
+    "Animated GIF through actual AstrBot and back without byte changes"
+  ],
+  "limitations": [
+    "Android UI and background not verified",
+    "No model provider or third-party plugin configured",
+    "Synthetic probe uses base64 file action; ordinary file:// plugin output unsupported",
+    "AstrBot normal static-image preprocessing may convert PNG to JPEG; probe fetches original event URL"
+  ],
+  "source_sha256": {
+    "astrbot_ex/core/chat/peer_account.py": "9268c7fbe26d523deb55375069bfa47bc3128061151f3cdd8a41d252c01916b7",
+    "astrbot_ex/core/chat/peer_identity.py": "107c6103394fe4c91fabcfa836f79c4203f7219293257080bbde4ccd596675a8",
+    "astrbot_ex/core/chat/peer_relay.py": "cc9239063178c988cae1efe82baea38ea5f07891e6c6a4d0fab1ba82650f4ac1"
+  }
+}

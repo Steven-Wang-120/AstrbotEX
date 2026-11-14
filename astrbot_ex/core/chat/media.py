@@ -9,6 +9,7 @@ from uuid import UUID, uuid4
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 from .models import ChatError
+from .peer_content import attachment, validate_attachment
 
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
 MAX_IMAGE_PIXELS = 16_000_000
@@ -71,7 +72,39 @@ class MediaStore:
     @staticmethod
     def metadata(row) -> dict:
         return {"media_id": row["id"], "conversation_id": row["conversation_id"], "content_type": row["content_type"],
-                "size_bytes": row["size_bytes"], "width": row["width"], "height": row["height"], "sha256": row["sha256"]}
+                "size_bytes": row["size_bytes"], "width": row["width"], "height": row["height"], "sha256": row["sha256"],
+                "kind": row["kind"], "name": row["name"]}
+
+    def upload_attachment(self, user_id: int, cid: str, client_id: str, value: dict) -> dict:
+        client_id = media_uuid(client_id)
+        try:
+            content = validate_attachment(value)
+        except ValueError as exc:
+            raise ChatError("invalid_attachment", str(exc)) from None
+        width = height = 0
+        if value["kind"] != "file":
+            with Image.open(BytesIO(content)) as image:
+                width, height = image.size
+        with self.repository.transaction() as db:
+            self.service._member(db, user_id, cid)
+            existing = self._existing(db, user_id, cid, client_id, value["sha256"])
+            if existing is not None:
+                if existing["kind"] != value["kind"] or existing["name"] != value["name"] or existing["content_type"] != value["mime"]:
+                    raise ChatError("idempotency_conflict", "Attachment metadata changed", 409)
+                return self.metadata(existing)
+            used = db.execute("SELECT COALESCE(SUM(size_bytes),0) FROM media WHERE owner_id=?", (user_id,)).fetchone()[0]
+            if used + len(content) > MAX_ACCOUNT_BYTES:
+                raise ChatError("media_quota", "Account attachment storage limit reached", 413)
+            mid = str(uuid4())
+            db.execute("INSERT INTO media(id,owner_id,conversation_id,client_media_id,source_sha256,sha256,content_type,size_bytes,width,height,content,kind,name) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                       (mid, user_id, cid, client_id, value["sha256"], value["sha256"], value["mime"], len(content), width, height, content, value["kind"], value["name"]))
+            return self.metadata(db.execute("SELECT * FROM media WHERE id=?", (mid,)).fetchone())
+
+    def as_attachment(self, user_id: int, media_id: str) -> dict:
+        content, mime = self.download(user_id, media_id)
+        with self.repository.transaction() as db:
+            row = db.execute("SELECT kind,name FROM media WHERE id=?", (media_id,)).fetchone()
+        return attachment(row["kind"], row["name"], mime, content)
 
     @staticmethod
     def _existing(db, user_id: int, cid: str, client_id: str, digest: str):

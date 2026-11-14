@@ -702,6 +702,32 @@
             }
           },
           {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kind"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "attachment",
+              "title": "Name"
+            }
+          },
+          {
             "name": "authorization",
             "in": "header",
             "required": false,
@@ -779,6 +805,71 @@
                 }
               ],
               "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/agent-media/{media_id}": {
+      "get": {
+        "summary": "Agent Media",
+        "operationId": "agent_media_api_v1_chat_agent_media__media_id__get",
+        "parameters": [
+          {
+            "name": "media_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Media Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "expires",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Expires"
+            }
+          },
+          {
+            "name": "signature",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Signature"
             }
           }
         ],
@@ -979,6 +1070,25 @@
           "target_user_id"
         ],
         "title": "DirectRequest"
+      },
+      "FileSegment": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "file",
+            "title": "Type",
+            "default": "file"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ImageData"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "FileSegment"
       },
       "GroupRequest": {
         "properties": {
@@ -1246,14 +1356,22 @@
                 },
                 {
                   "$ref": "#/components/schemas/ImageSegment"
+                },
+                {
+                  "$ref": "#/components/schemas/FileSegment"
+                },
+                {
+                  "$ref": "#/components/schemas/StickerSegment"
                 }
               ],
               "discriminator": {
                 "propertyName": "type",
                 "mapping": {
+                  "file": "#/components/schemas/FileSegment",
                   "image": "#/components/schemas/ImageSegment",
                   "mention": "#/components/schemas/MentionSegment",
                   "reply": "#/components/schemas/ReplySegment",
+                  "sticker": "#/components/schemas/StickerSegment",
                   "text": "#/components/schemas/TextSegment"
                 }
               }
@@ -1271,6 +1389,25 @@
           "segments"
         ],
         "title": "SendMessageRequest"
+      },
+      "StickerSegment": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "sticker",
+            "title": "Type",
+            "default": "sticker"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ImageData"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "StickerSegment"
       },
       "TextData": {
         "properties": {

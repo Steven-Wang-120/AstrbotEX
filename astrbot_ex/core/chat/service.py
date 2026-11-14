@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import hashlib
 import hmac
 import json
+import os
 import secrets
 import sqlite3
 import time
@@ -18,6 +19,7 @@ from . import PROTOCOL
 from .models import ChatError
 from .media import MediaStore, media_uuid
 from .repository import ChatRepository
+from .peer_content import MAX_ATTACHMENT_BYTES
 
 
 def now() -> str:
@@ -61,6 +63,19 @@ class ChatService:
                 "sender_id": str(row["sender_id"]), "client_message_id": row["client_message_id"],
                 "created_at": row["created_at"], "recalled": bool(row["recalled"]),
                 "segments": [] if row["recalled"] else json.loads(row["segments"])}
+
+    def agent_media_url(self, user_id, media_id, *, expires=None):
+        self.media.download(user_id, media_id)
+        expires = expires or int(time.time()) + 600
+        signature = hmac.new(self._cursor_secret, f"agent-media:{user_id}:{media_id}:{expires}".encode(), hashlib.sha256).hexdigest()
+        root = os.environ.get("ASTREX_CHAT_MEDIA_BASE_URL", "http://127.0.0.1:8780").rstrip("/")
+        return f"{root}/api/v1/chat/agent-media/{media_id}?user_id={user_id}&expires={expires}&signature={signature}"
+
+    def agent_media(self, user_id, media_id, expires, signature):
+        expected = hmac.new(self._cursor_secret, f"agent-media:{user_id}:{media_id}:{expires}".encode(), hashlib.sha256).hexdigest()
+        if expires < time.time() or expires > time.time() + 601 or not hmac.compare_digest(expected, signature):
+            raise ChatError("forbidden", "Media link expired or invalid", 403)
+        return self.media.download(user_id, media_id)
 
     @staticmethod
     def _emit(db, user_ids, kind: str, payload: dict) -> None:
@@ -187,7 +202,7 @@ class ChatService:
             rows = db.execute("SELECT * FROM messages WHERE conversation_id=? AND id<? ORDER BY id DESC LIMIT ?", (cid, before or 2147483648, min(max(limit, 1), 100))).fetchall()
             return [self._message(r) for r in reversed(rows)]
 
-    def send(self, user_id: int, cid: str, client_id: str, segments: list[dict]) -> dict:
+    def send(self, user_id: int, cid: str, client_id: str, segments: list[dict], *, sent_at: str | None = None) -> dict:
         try:
             client_id = str(UUID(client_id))
         except (ValueError, TypeError):
@@ -199,9 +214,9 @@ class ChatService:
             if not isinstance(segment, dict) or set(segment) != {"type", "data"} or not isinstance(segment["data"], dict):
                 raise ChatError("invalid_message", "Invalid message segment")
             kind, data = segment["type"], segment["data"]
-            field = {"text": "text", "mention": "user_id", "reply": "message_id", "image": "media_id"}.get(kind) if isinstance(kind, str) else None
+            field = {"text": "text", "mention": "user_id", "reply": "message_id", "image": "media_id", "file": "media_id", "sticker": "media_id"}.get(kind) if isinstance(kind, str) else None
             if field is None:
-                raise ChatError("unsupported_segment", "Supported segments: text, mention, reply, image")
+                raise ChatError("unsupported_segment", "Supported segments: text, mention, reply, image, file, sticker")
             if set(data) != {field} or not isinstance(data[field], str):
                 raise ChatError("invalid_message", "Invalid segment data")
             value = data[field]
@@ -210,7 +225,7 @@ class ChatService:
                     raise ChatError("invalid_message", "Text length must be between 1 and 4000")
                 text_length += len(value)
                 content = True
-            elif kind == "image":
+            elif kind in {"image", "file", "sticker"}:
                 media_uuid(value)
                 content = True
             elif kind == "reply":
@@ -222,7 +237,7 @@ class ChatService:
                     entity_id(value)
                 content = True
         if not content or text_length > 4000:
-            raise ChatError("invalid_message", "Provide text, an image or a mention; total text cannot exceed 4000 characters")
+            raise ChatError("invalid_message", "Provide text, an attachment or a mention; total text cannot exceed 4000 characters")
         encoded = json.dumps(segments, ensure_ascii=False, sort_keys=True)
         with self.repository.transaction() as db:
             member = self._member(db, user_id, cid)
@@ -234,6 +249,7 @@ class ChatService:
             # Check dynamic permissions only for new messages: an accepted retry
             # remains idempotent even if its quoted message has since been recalled.
             kind = db.execute("SELECT kind FROM conversations WHERE id=?", (cid,)).fetchone()["kind"]
+            attachment_count = attachment_size = 0
             for segment in segments:
                 if segment["type"] == "mention":
                     target = segment["data"]["user_id"]
@@ -244,18 +260,31 @@ class ChatService:
                             raise ChatError("forbidden", "Only group administrators can mention all members", 403)
                     elif db.execute("SELECT 1 FROM members WHERE conversation_id=? AND user_id=?", (cid, entity_id(target))).fetchone() is None:
                         raise ChatError("invalid_mention", "Mention target is not a member of this group")
-                elif segment["type"] == "image":
-                    media = db.execute("SELECT owner_id,conversation_id FROM media WHERE id=?", (segment["data"]["media_id"],)).fetchone()
+                elif segment["type"] in {"image", "file", "sticker"}:
+                    media = db.execute("SELECT owner_id,conversation_id,kind,size_bytes FROM media WHERE id=?", (segment["data"]["media_id"],)).fetchone()
                     if media is None or media["owner_id"] != user_id or media["conversation_id"] != cid:
-                        raise ChatError("invalid_media", "Attach an image uploaded by this account for this conversation")
+                        raise ChatError("invalid_media", "Attach media uploaded by this account for this conversation")
+                    if media["kind"] != segment["type"]:
+                        raise ChatError("invalid_media", "Attachment kind does not match its segment")
+                    attachment_count += 1
+                    attachment_size += media["size_bytes"]
                 elif segment["type"] == "reply":
                     target = db.execute("SELECT conversation_id,recalled FROM messages WHERE id=?", (entity_id(segment["data"]["message_id"]),)).fetchone()
                     if target is None or target["conversation_id"] != cid or target["recalled"]:
                         raise ChatError("invalid_reply", "Reply target must be an available message in this conversation")
-            row = db.execute("INSERT INTO messages(conversation_id,sender_id,client_message_id,segments,created_at) VALUES (?,?,?,?,?)", (cid, user_id, client_id, encoded, now()))
+            if attachment_count > 4 or attachment_size > MAX_ATTACHMENT_BYTES:
+                raise ChatError("media_too_large", "At most four attachments totaling 8 MiB", 413)
+            if sent_at is not None:
+                try:
+                    timestamp = datetime.fromisoformat(sent_at.replace("Z", "+00:00"))
+                    if timestamp.tzinfo is None:
+                        raise ValueError()
+                except (ValueError, TypeError, AttributeError):
+                    raise ChatError("invalid_timestamp", "Provide a timezone-aware timestamp") from None
+            row = db.execute("INSERT INTO messages(conversation_id,sender_id,client_message_id,segments,created_at) VALUES (?,?,?,?,?)", (cid, user_id, client_id, encoded, sent_at or now()))
             message = self._message(db.execute("SELECT * FROM messages WHERE id=?", (row.lastrowid,)).fetchone())
             db.executemany("INSERT OR IGNORE INTO media_uses(media_id,message_id) VALUES (?,?)",
-                           [(s["data"]["media_id"], row.lastrowid) for s in segments if s["type"] == "image"])
+                           [(s["data"]["media_id"], row.lastrowid) for s in segments if s["type"] in {"image", "file", "sticker"}])
             people = [r[0] for r in db.execute("SELECT user_id FROM members WHERE conversation_id=?", (cid,))]
             self._emit(db, people, "message.created", {"message": message})
             return message

@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 from uuid import UUID, uuid4
 
+from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -15,6 +16,7 @@ from cryptography.hazmat.primitives.hashes import SHA256
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 from .peer_relay import canonical, unbase, validate_card, verify
+from .peer_content import MAX_PLAIN_BYTES, validate_content
 
 
 def b64(value):
@@ -64,43 +66,51 @@ class PeerIdentity:
         return request
 
     def seal(self, recipient, text, message_id=None):
-        if not isinstance(text, str) or not text.strip() or len(text) > 4000:
-            raise ValueError("Text must contain 1 to 4000 characters")
+        return self.seal_content(recipient, {"text": text}, message_id)
+
+    def seal_content(self, recipient, content, message_id=None, *, created_at=None):
+        validate_content(content)
         ephemeral = X25519PrivateKey.generate()
         header = {"v": 1, "id": message_id or str(uuid4()), "sender": self.id, "recipient": recipient["id"],
-                  "created_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                  "created_at": created_at or datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                   "ephemeral": b64(ephemeral.public_key().public_bytes_raw())}
         shared = ephemeral.exchange(X25519PublicKey.from_public_bytes(unbase(recipient["box_key"], 32)))
         key = HKDF(SHA256(), 32, canonical(header), b"astrc-message-v1").derive(shared)
         nonce = os.urandom(12)
-        encrypted = AESGCM(key).encrypt(nonce, canonical({"text": text}), canonical(header))
+        encrypted = AESGCM(key).encrypt(nonce, canonical(content), canonical(header))
         packet = {**header, "nonce": b64(nonce), "ciphertext": b64(encrypted[:-16]), "mac": b64(encrypted[-16:])}
         packet["signature"] = self.sign(canonical(packet))
         return packet
 
     def open(self, sender, packet):
+        return self.open_content(sender, packet)["text"]
+
+    def open_content(self, sender, packet):
         fields = {"v", "id", "sender", "recipient", "created_at", "ephemeral", "nonce", "ciphertext", "mac", "signature"}
         if not isinstance(packet, dict) or set(packet) != fields or type(packet["v"]) is not int or packet["v"] != 1 or packet["sender"] != sender["id"] or packet["recipient"] != self.id:
             raise ValueError("Invalid message identity")
         try:
             if str(UUID(packet["id"])) != packet["id"] or not isinstance(packet["created_at"], str) or not 1 <= len(packet["created_at"]) <= 40:
                 raise ValueError("Invalid message header")
+            if datetime.fromisoformat(packet["created_at"].replace("Z", "+00:00")).tzinfo is None:
+                raise ValueError("Invalid message timestamp")
         except (TypeError, AttributeError):
             raise ValueError("Invalid message header") from None
-        if not isinstance(packet["ciphertext"], str) or len(packet["ciphertext"]) > 21848:
+        if not isinstance(packet["ciphertext"], str) or len(packet["ciphertext"]) > 4 * ((MAX_PLAIN_BYTES + 2) // 3):
             raise ValueError("Invalid message size")
         ciphertext = unbase(packet["ciphertext"])
-        if not 1 <= len(ciphertext) <= 16384:
+        if not 1 <= len(ciphertext) <= MAX_PLAIN_BYTES:
             raise ValueError("Invalid message size")
         verify(packet, sender["sign_key"])
         header = {k: packet[k] for k in ("v", "id", "sender", "recipient", "created_at", "ephemeral")}
         shared = self.exchange.exchange(X25519PublicKey.from_public_bytes(unbase(packet["ephemeral"], 32)))
         key = HKDF(SHA256(), 32, canonical(header), b"astrc-message-v1").derive(shared)
-        plain = AESGCM(key).decrypt(unbase(packet["nonce"], 12), ciphertext + unbase(packet["mac"], 16), canonical(header))
+        try:
+            plain = AESGCM(key).decrypt(unbase(packet["nonce"], 12), ciphertext + unbase(packet["mac"], 16), canonical(header))
+        except InvalidTag:
+            raise ValueError("Invalid encrypted message") from None
         data = json.loads(plain)
-        if not isinstance(data, dict) or set(data) != {"text"} or not isinstance(data["text"], str) or not 1 <= len(data["text"]) <= 4000:
-            raise ValueError("Invalid message text")
-        return data["text"]
+        return validate_content(data)
 
 
 def parse_contact(code, *, allow_loopback=False):

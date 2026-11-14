@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+import base64
 import logging
 import time
 from uuid import uuid4
@@ -9,6 +10,9 @@ from uuid import uuid4
 from .. import VERSION
 from ..models import ChatError
 from ..service import ChatService, entity_id
+from ..peer_content import MAX_ATTACHMENT_BYTES, attachment, IMAGE_MIMES
+from io import BytesIO
+from PIL import Image
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +26,7 @@ class ActionDispatcher:
             "get_login_info": lambda p: {"user_id": bot_id, "nickname": service.user(bot_id)["display_name"]},
             "get_version_info": lambda p: {"app_name": "astrEX", "app_version": VERSION, "protocol_version": "11"},
             "get_status": lambda p: {"online": True, "good": True},
-            "can_send_image": lambda p: {"yes": False},
+            "can_send_image": lambda p: {"yes": True},
             "can_send_record": lambda p: {"yes": False},
             "get_group_list": lambda p: [self._group(c) for c in service.conversations(bot_id) if c["kind"] == "group"],
             "get_group_info": lambda p: self._group(self._find_group(p)),
@@ -33,10 +37,13 @@ class ActionDispatcher:
             "get_stranger_info": self._stranger,
             "send_group_msg": self._send_group,
             "send_private_msg": self._send_private,
+            "upload_private_file": self._upload_private_file,
+            "get_image": self._get_media,
+            "get_private_file_url": self._get_media,
             "send_msg": self._send,
             "get_msg": self._get_message,
             "delete_msg": self._delete,
-            "_ex_get_capabilities": lambda p: {"actions": sorted(self.actions), "segments": ["text", "at", "reply"], "product": "astrEX"},
+            "_ex_get_capabilities": lambda p: {"actions": sorted(self.actions), "segments": ["text", "at", "reply", "image", "file"], "product": "astrEX"},
         }
 
     def dispatch(self, request) -> dict:
@@ -114,8 +121,7 @@ class ActionDispatcher:
         person = self.service.user(int(uid))
         return {"user_id": int(uid), "nickname": person["display_name"], "sex": "unknown", "age": 0}
 
-    @staticmethod
-    def _segments(params: dict) -> list:
+    def _segments(self, params: dict, cid=None) -> list:
         message = params["message"]
         if isinstance(message, str):
             if "[CQ:" in message and not params.get("auto_escape", False):
@@ -135,12 +141,28 @@ class ActionDispatcher:
                 result.append({"type": "mention", "data": {"user_id": "all" if value == "all" else str(entity_id(value))}})
             elif kind == "reply" and set(data) == {"id"}:
                 result.append({"type": "reply", "data": {"message_id": str(entity_id(data["id"]))}})
+            elif kind in {"image", "file", "sticker"} and cid is not None:
+                source = data.get("file")
+                if not isinstance(source, str) or not source.startswith("base64://") or len(source) > 4 * ((MAX_ATTACHMENT_BYTES + 2) // 3) + 9:
+                    raise ChatError("unsupported_media_source", "Agent attachments require bounded base64:// data")
+                try:
+                    content = base64.b64decode(source[9:], validate=True)
+                    mime = "application/octet-stream"
+                    if kind in {"image", "sticker"}:
+                        with Image.open(BytesIO(content)) as image:
+                            mime = IMAGE_MIMES.get(image.format, "application/octet-stream")
+                    attachment_kind = "sticker" if kind == "sticker" or (kind == "image" and str(data.get("sub_type", "")) == "1") else kind
+                    name = data.get("name") or ("image." + mime.split("/")[-1] if kind != "file" else "attachment")
+                    item = attachment(attachment_kind, name, mime, content)
+                except (ValueError, TypeError, OSError, Image.DecompressionBombError, Image.DecompressionBombWarning):
+                    raise ChatError("invalid_attachment", "Invalid image/file or attachment exceeds 8 MiB") from None
+                media = self.service.media.upload_attachment(self.bot_id, cid, str(uuid4()), item)
+                result.append({"type": attachment_kind, "data": {"media_id": media["media_id"]}})
             else:
-                raise ChatError("unsupported_segment", "Supported OneBot segments: text, at, reply")
+                raise ChatError("unsupported_segment", "Supported OneBot segments: text, at, reply, image, file, sticker")
         return result
 
-    @staticmethod
-    def _onebot_segments(segments: list) -> list:
+    def _onebot_segments(self, segments: list) -> list:
         result = []
         for segment in segments:
             kind, data = segment["type"], segment["data"]
@@ -150,9 +172,13 @@ class ActionDispatcher:
                 result.append({"type": "reply", "data": {"id": data["message_id"]}})
             elif kind == "text":
                 result.append(segment)
-            elif kind == "image":
-                # Native images are available only through human-authenticated API for now.
-                result.append({"type": "text", "data": {"text": "[Image]"}})
+            elif kind in {"image", "sticker", "file"}:
+                mid = data["media_id"]
+                value = self.service.media.as_attachment(self.bot_id, mid)
+                payload = {"file": mid, "url": self.service.agent_media_url(self.bot_id, mid), "name": value["name"], "size": value["size"]}
+                if kind != "file":
+                    payload["sub_type"] = "1" if kind == "sticker" else "0"
+                result.append({"type": "file" if kind == "file" else "image", "data": payload})
             else:
                 result.append({"type": "text", "data": {"text": "[Unsupported message]"}})
         return result
@@ -168,18 +194,28 @@ class ActionDispatcher:
 
     def _send_group(self, params: dict) -> dict:
         group = self._find_group(params)
-        result = self.service.send(self.bot_id, group["conversation_id"], str(uuid4()), self._segments(params))
+        result = self.service.send(self.bot_id, group["conversation_id"], str(uuid4()), self._segments(params, group["conversation_id"]))
         return {"message_id": int(result["message_id"])}
 
     def _send_private(self, params: dict) -> dict:
         uid = str(entity_id(params["user_id"]))
-        segments = self._segments(params)
         account = getattr(self.service, "peer_account", None)
         if account is not None:
-            account.validate_send(uid, segments)
+            account.validate_send(uid, [{"type": "text", "data": {"text": "permission-check"}}])
         conversation = self.service.direct(self.bot_id, uid)
+        segments = self._segments(params, conversation["conversation_id"])
+        if account is not None:
+            account.validate_send(uid, segments)
         result = self.service.send(self.bot_id, conversation["conversation_id"], str(uuid4()), segments)
         return {"message_id": int(result["message_id"])}
+
+    def _upload_private_file(self, params):
+        return self._send_private({"user_id": params["user_id"], "message": [{"type": "file", "data": {"file": params["file"], "name": params.get("name", "attachment")}}]})
+
+    def _get_media(self, params):
+        mid = params.get("file_id", params.get("file"))
+        value = self.service.media.as_attachment(self.bot_id, mid)
+        return {"url": self.service.agent_media_url(self.bot_id, mid), "file_name": value["name"], "file_size": value["size"]}
 
     def _send(self, params: dict) -> dict:
         kind = params.get("message_type", "group" if "group_id" in params else "private")

@@ -46,5 +46,7 @@ sudo tailscale funnel status
 
 保留与限制以 [协议](PEER_PROTOCOL.md) 为准：7 天惰性过期、已入邮箱不等于已读。节点迁移须分享新名片、更新好友地址并自行处理旧邮箱未取信件；不自动转寄。
 
+2026-11-13 媒体升级仍可单文件部署 peer_relay.py，不新增 Pillow 等图像依赖；邮箱不解密媒体。先备份，再替换文件和重启；检查 health.media=true、max_packet_bytes=16777216、max_attachment_bytes=8388608。反向代理的请求体上限须至少 16 MiB，并给上传留出超时。每邮箱 64 MiB、全节点未确认密文 512 MiB；HTTP 413/503 不能作为成功投递处理。EX bot 和手机也须升级才能解析新正文。
+
 
 修订2026-11-11.2新增签名好友申请。升级 peer_relay.py 后 SQLite 自动增加独立申请表，旧名片/信封兼容。health.friend_requests=true 表示支持；EX bot 设置与 OneBot 接入见 [PEER_BOT.md](PEER_BOT.md)。

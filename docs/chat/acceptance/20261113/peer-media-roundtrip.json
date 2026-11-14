@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "tested_at": "2026-11-13T13:39:43.497713+00:00",
+  "status": "passed",
+  "transport": "two actual isolated HTTP loopback mailboxes",
+  "server_source_sha256": "cc9239063178c988cae1efe82baea38ea5f07891e6c6a4d0fab1ba82650f4ac1",
+  "scenarios": [
+    "device_identity_creation",
+    "signed_mutual_contact_cards",
+    "cross_mailbox_authenticated_send",
+    "recipient_offline_storage",
+    "queued_outbox_restart_same_uuid_and_ciphertext",
+    "sender_restart_same_identity_and_outbox",
+    "recipient_unlock_and_decrypt",
+    "ack_replay_without_duplicate",
+    "encrypted_reply",
+    "encrypted_local_persistence",
+    "signed_friend_request_cross_mailbox",
+    "pending_request_persists_after_recipient_restart",
+    "explicit_acceptance_grants_delivery",
+    "message_after_friend_approval",
+    "encrypted_photo",
+    "binary_file_over_old_packet_limit",
+    "animated_gif_sticker",
+    "fixed_media_outbox_after_restart",
+    "signed_sender_timestamp_preserved",
+    "saved_sticker_survives_restart",
+    "favorite_sticker_reply"
+  ],
+  "limitations": [
+    "Android physical device not installed",
+    "No group/push in peer mode",
+    "No double ratchet or forward secrecy claim",
+    "Synthetic test identities only"
+  ]
+}

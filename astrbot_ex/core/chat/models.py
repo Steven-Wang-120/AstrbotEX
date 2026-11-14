@@ -62,8 +62,15 @@ class ImageSegment(StrictModel):
     type: Literal["image"] = "image"
     data: ImageData
 
+class FileSegment(StrictModel):
+    type: Literal["file"] = "file"
+    data: ImageData
 
-MessageSegment = Annotated[TextSegment | MentionSegment | ReplySegment | ImageSegment, Field(discriminator="type")]
+class StickerSegment(StrictModel):
+    type: Literal["sticker"] = "sticker"
+    data: ImageData
+
+MessageSegment = Annotated[TextSegment | MentionSegment | ReplySegment | ImageSegment | FileSegment | StickerSegment, Field(discriminator="type")]
 
 
 class SendMessageRequest(StrictModel):

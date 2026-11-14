@@ -9,9 +9,10 @@ window.ChatAccountPage = (() => {
   };
   async function refresh() {
     const value = await apiJson('/api/v1/ex/chat/account');
+    window.ChatMediaPage?.contacts(value);
     el('chatAccountStatus').textContent = value.enabled
       ? `聊天网络${value.online ? '已连接' : '连接中'} · Agent ${value.onebot_connected ? '已连接' : '未连接'}${value.error ? ' · ' + value.error : ''}`
-      : '尚未创建聊天身份；先启用 EX 聊天服务。';
+      : '未启用';
     el('chatAccountCard').value = value.contact_code || '';
     el('chatAccountFingerprint').textContent = value.card?.id || '';
     if (value.enabled && !el('chatAccountName').matches(':focus') && !el('chatAccountRelay').matches(':focus')) {
@@ -57,7 +58,7 @@ window.ChatAccountPage = (() => {
     el('chatAccountCopy').addEventListener('click', (event) => action(event.currentTarget, async () => {
       if (!el('chatAccountCard').value) throw new Error('请先创建身份并刷新名片。');
       await navigator.clipboard.writeText(el('chatAccountCard').value);
-      el('chatAccountStatus').textContent = '名片已复制，可在 astrC 中粘贴添加。';
+      el('chatAccountStatus').textContent = '已复制';
     }));
     el('chatAccountAdd').addEventListener('click', (event) => action(event.currentTarget, async () => {
       await apiJson('/api/v1/ex/chat/account/contacts', {method:'POST', body: JSON.stringify({code: el('chatAccountContact').value.trim()})});

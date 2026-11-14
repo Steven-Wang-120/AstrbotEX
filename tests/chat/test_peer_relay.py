@@ -85,6 +85,31 @@ def test_contact_consent_offline_delivery_ack_and_retry(rig):
     assert store.db.execute('SELECT packet FROM envelopes').fetchone()[0] == ''
 
 
+def test_global_pending_quota_releases_on_ack_and_inbox_is_bounded(rig, monkeypatch):
+    from astrbot_ex.core.chat import peer_relay
+
+    store, client, clock = rig
+    a, b = identity('quota sender'), identity('quota recipient')
+    ah, _ = authenticate(client, a)
+    bh, _ = authenticate(client, b)
+    client.put('/api/v1/peer/allowed/' + a[1]['id'], headers=bh)
+    first, second, third = [packet(a, b[1]) for _ in range(3)]
+    size = len(canonical(first))
+    store.global_quota = size + 10
+    assert client.post('/api/v1/peer/envelopes', json=first, headers=ah).status_code == 201
+    assert client.post('/api/v1/peer/envelopes', json=second, headers=ah).status_code == 503
+    client.post('/api/v1/peer/ack', json={'items':[{'sender':a[1]['id'], 'id':first['id']}]}, headers=bh)
+    assert client.post('/api/v1/peer/envelopes', json=second, headers=ah).status_code == 201
+    store.global_quota = 512 * 1024 * 1024
+    clock[0] += 1  # Distinct arrivals; equal timestamps are ordered by UUID.
+    assert client.post('/api/v1/peer/envelopes', json=third, headers=ah).status_code == 201
+    monkeypatch.setattr(peer_relay, 'MAX_PACKET_BYTES', size * 2 - 1)
+    inbox = client.get('/api/v1/peer/envelopes', headers=bh).json()['items']
+    assert inbox == [second]
+    client.post('/api/v1/peer/ack', json={'items':[{'sender':a[1]['id'], 'id':second['id']}]}, headers=bh)
+    assert client.get('/api/v1/peer/envelopes', headers=bh).json()['items'] == [third]
+
+
 def test_packet_tampering_impersonation_and_id_conflict(rig):
     _, client, _ = rig
     a, b = identity(), identity()

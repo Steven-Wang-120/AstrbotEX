@@ -1,12 +1,12 @@
 # astrEX chat 开发指南
 
-日期：2026-11-10。分支 `chat`，状态：可运行文字、@ 和引用聊天；尚未达到完整 P1 真机与插件验收。
+日期：2026-11-14。分支 `chat`，媒体契约修订 `2026-11-13.1`：支持文字、@、引用、图片、文件和动静态表情；尚未达到完整真机与插件验收。最新证据见 [媒体升级验证](PROGRESS_20261113.md)。
 
 ## 阅读和职责
 
 先遵循本机独立项目索引的 START-HERE 最小协议，再读 [选型](TECHNOLOGY_SELECTION.md)、[契约](CHAT_CONTRACT.md) 和 [NapCat 参考](NAPCAT_REFERENCE.md)。astrS 仅作命名参考。
 
-EX 管理聊天服务与协议端；astrC 是真人手机端；AstrBot 继续承载插件。本轮没有改 AstrBot、A.E.B 或本机 Docker。
+EX 管理聊天服务与协议端；astrC 是真人手机端；AstrBot 继续承载插件。本轮没有修改 AstrBot 或 A.E.B 源码，未切换现用 Docker 服务。
 
 ## 安装与启动
 
@@ -63,7 +63,7 @@ astrbot_ex/core/chat/
 
 文字、mention 和 reply 消息支持 UUID 幂等、历史 before 分页、成员权限、撤回 tombstone、账号绑定签名游标。群创建后暂不提供成员变更。未读未实现，返回 null；客户端不虚构数字。
 
-OneBot 支持登录/版本/状态、已有私聊对端列表、群/成员查询、文字私聊/群聊、群 at、reply、get_msg/delete_msg、共享会话账号的 get_stranger_info。can_send_image/record 为 false。未知 action=1404，权限=1403，参数=1400，冲突=1409，内部失败=1500；echo 保留原 JSON 类型。
+OneBot 支持登录/版本/状态、已有私聊对端列表、群/成员查询、文字私聊/群聊、群 at、reply、get_msg/delete_msg、共享会话账号的 get_stranger_info。can_send_image=true、can_send_record=false；受控 base64 附件和短期签名下载已支持。未知 action=1404，权限=1403，参数=1400，冲突=1409，内部失败=1500；echo 保留原 JSON 类型。
 
 真人静态图片已实现；未实现机器人图片、CQ 解析、notice、refresh、日志、已读、后台通知、插件级兼容。原生 WS 的 Authorization header 适用于 IO 客户端，浏览器初版使用 HTTP sync。demo 只给 localhost:5173 与 127.0.0.1:5173 配置 CORS；普通模式没有开放跨域。
 
@@ -105,4 +105,4 @@ OneBot 发送偏移仅证明已尝试写入连接，不证明 AstrBot 已处理�
 
 原始图片以 POST /api/v1/chat/media?conversation_id=<id>&client_media_id=<uuid> 上传，body 为 application/octet-stream，返回 media_id、content_type、size_bytes、width、height、sha256。再用 image.data.media_id 发送到同一会话；GET /api/v1/chat/media/{id} 携带真人 Bearer 读取。无公开文件路径和下载 URL。
 
-当前限制：静态 PNG/JPEG/WebP，8 MiB、8192 单边、1600 万像素、64 MiB/账号；规范化清除元数据，未引用上传仍占配额。数据库迁移至 user_version=2。完整权限及重试语义见契约。机器人图片、未引用清理尚未实现，手机真机/iOS 仍待验收。
+当前限制：静态 PNG/JPEG/WebP，8 MiB、8192 单边、1600 万像素、64 MiB/账号；规范化清除元数据，未引用上传仍占配额。数据库现迁移至 user_version=3。显式 kind=image/file/sticker 与 name 可上传原字节附件，支持 GIF/WebP 动图；最多 4 个、合计 8 MiB。OneBot 支持有界 base64:// 媒体和 600 秒签名下载；容器需设置 ASTREX_CHAT_MEDIA_BASE_URL 为 Agent 可达地址。收藏与管理 API 见 PEER_BOT.md。未引用清理、手机真机/iOS 仍待验收。

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:astr-chat:0.1-draft:native-message",
-  "title": "astr-chat persisted message: text, mention, reply and native image",
+  "title": "astr-chat persisted message: text, mention, reply, image, file and sticker",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -161,6 +161,60 @@
                 }
               }
             }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "data"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "const": "file"
+              },
+              "data": {
+                "type": "object",
+                "required": [
+                  "media_id"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "media_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "data"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "const": "sticker"
+              },
+              "data": {
+                "type": "object",
+                "required": [
+                  "media_id"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "media_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                  }
+                }
+              }
+            }
           }
         ]
       },
@@ -207,7 +261,9 @@
                   "enum": [
                     "text",
                     "mention",
-                    "image"
+                    "image",
+                    "file",
+                    "sticker"
                   ]
                 }
               },

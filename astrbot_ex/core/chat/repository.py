@@ -18,7 +18,7 @@ class ChatRepository:
         self.connection.execute("PRAGMA foreign_keys=ON")
         self.connection.execute("PRAGMA journal_mode=DELETE")
         version = self.connection.execute("PRAGMA user_version").fetchone()[0]
-        if version > 2:
+        if version > 3:
             self.connection.close()
             raise RuntimeError("Unsupported chat database version")
         if version == 0:
@@ -26,6 +26,9 @@ class ChatRepository:
             version = 1
         if version < 2:
             self.connection.executescript("BEGIN IMMEDIATE;\n" + (Path(__file__).parent / "migrations/002_media.sql").read_text(encoding="utf-8") + "\nCOMMIT;")
+            version = 2
+        if version < 3:
+            self.connection.executescript("BEGIN IMMEDIATE;\n" + (Path(__file__).parent / "migrations/003_attachments.sql").read_text(encoding="utf-8") + "\nCOMMIT;")
 
     @contextmanager
     def transaction(self):

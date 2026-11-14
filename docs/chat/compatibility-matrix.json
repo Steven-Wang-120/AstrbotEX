@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-11",
-  "state": "native_human_images_and_mentions_replies_tested_onebot_images_pending",
+  "updated_at": "2026-11-14",
+  "state": "peer_and_native_media_real_astrbot_probe_passed_deployment_pending",
   "baseline": {
     "ex_source_commit": "bc44433ec3fd37352a478c476e3f47984de291c6",
     "astrbot_commit": null,
@@ -45,13 +45,15 @@
         "tests/chat/test_chat_skeleton.py: real reverse WS simulated-peer roundtrip, permissions, echo and honest capability checks",
         "docs/chat/acceptance/20261110/real-astrbot-roundtrip.json: unchanged AstrBot 4.26.7 builtin /sid, real Dart clients, and restart reconnect",
         "docs/chat/acceptance/20261110/segments-astrbot-roundtrip.json: incoming mention/reply resolution and outgoing native mention/quote; actual Dart client",
-        "docs/chat/acceptance/20261111/native-image-astrbot-roundtrip.json: native human image visibility and OneBot text placeholder coexist with real AstrBot commands"
+        "docs/chat/acceptance/20261111/native-image-astrbot-roundtrip.json: native human image visibility and OneBot text placeholder coexist with real AstrBot commands",
+        "tests/chat/test_peer_attachments.py: encrypted image/file/GIF, OneBot base64 replies, signed media URLs, ACK and restart; real AstrBot media acceptance separate",
+        "docs/chat/acceptance/20261113/real-astrbot-media.json: actual AstrBot image/file/GIF probe roundtrip; normal file:// outputs remain unsupported"
       ],
       "limitations": [
-        "Native human images supported; OneBot images are explicit text placeholders; no media URLs or notices yet",
-        "get_image unsupported; can_send_image=false",
+        "OneBot media supports bounded base64:// only; URL/file:// outbound sources unsupported",
+        "Signed media URL base must be reachable from Agent; file plugins using local paths need adaptation",
         "friend_list means established direct peers",
-        "Only actual builtin /sid tested; third-party plugins and QQ/NapCat comparison pending"
+        "Historical real builtin /sid evidence remains valid for its pinned build; current third-party plugins and QQ/NapCat comparison pending"
       ]
     },
     {
@@ -184,5 +186,19 @@
     "reconnect-window",
     "stable-ids-after-restart",
     "mobile-sync-after-offline"
-  ]
+  ],
+  "media_acceptance": {
+    "status": "partial",
+    "ex_revision": "2026-11-13.1 (see commit containing this record)",
+    "evidence": [
+      "docs/chat/acceptance/20261113/peer-media-roundtrip.json",
+      "docs/chat/acceptance/20261113/real-astrbot-media.json"
+    ],
+    "limitations": [
+      "Synthetic media probe only; no third-party plugin/model provider",
+      "Normal AstrBot static-image preprocessing may transcode",
+      "Ordinary file:// output requires plugin adaptation",
+      "Public relay/EX upgrade and physical Android acceptance pending"
+    ]
+  }
 }
