@@ -159,6 +159,7 @@ class PluginManifest:
     enabled_default: bool = False
     cover: str | None = None
     dashboard: str | None = None
+    voice_dashboard: bool = False
     publishes: list[TopicDeclaration] = field(default_factory=list)
     subscribes: list[TopicDeclaration] = field(default_factory=list)
     actions: list[ActionDeclaration] = field(default_factory=list)
@@ -843,6 +844,7 @@ class LocalPluginManager:
             enabled_default=bool(data.get("enabled_default", False)),
             cover=str(data["cover"]).strip() if data.get("cover") else None,
             dashboard=str(data["dashboard"]).strip() if data.get("dashboard") else None,
+            voice_dashboard=data.get("voice_dashboard", False),
             publishes=self._parse_topics(data.get("publishes", [])),
             subscribes=self._parse_topics(data.get("subscribes", [])),
             actions=(self._parse_actions(data.get("actions", [])) if "action_api_version" not in data else []),
@@ -853,6 +855,8 @@ class LocalPluginManager:
         )
 
     def _validate_manifest(self, manifest: PluginManifest) -> None:
+        if type(manifest.voice_dashboard) is not bool:
+            raise ValueError("voice_dashboard must be a boolean")
         if not manifest.id.replace("_", "").replace("-", "").isalnum():
             raise ValueError("plugin id must only contain letters, numbers, '_' or '-'")
         if not manifest.name:
@@ -972,6 +976,7 @@ class LocalPluginManager:
             "author": manifest.author,
             "provides": manifest.provides,
             "requires": manifest.requires,
+            "voice_dashboard": manifest.voice_dashboard,
             "publishes": [self._topic_dict(item) for item in manifest.publishes],
             "subscribes": [self._topic_dict(item) for item in manifest.subscribes],
             "actions": [self._action_dict(item) for item in manifest.actions],
