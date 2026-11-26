@@ -1,0 +1,239 @@
+{
+  "task_id": "B09",
+  "status": "PASS",
+  "scope": [
+    "unit_fake",
+    "real_zmq_loopback",
+    "backend_request_capture"
+  ],
+  "code_revision": {
+    "repo": "D:/Code/AstrBotEX",
+    "worktree": "D:\\Code\\AstrBotEX-work\\upper-b09",
+    "branch": "upper/B09",
+    "head": "764a7c2 B09: silent upper-step receive and model input adapter",
+    "base": "c1a4b89",
+    "dirty_tree": "<clean>"
+  },
+  "changed_files": {
+    "added": [
+      "astrbot_ex/core/step_input.py",
+      "astrbot_ex/core/decision/instruction_input.py",
+      "tests/test_step_input.py",
+      "tests/test_step_input_integration.py"
+    ],
+    "modified": [
+      "astrbot_ex/core/connection_manager.py",
+      "astrbot_ex/core/api_server.py",
+      "astrbot_ex/core/decision/service.py",
+      "astrbot_ex/core/decision/backends/jev.py",
+      "astrbot_ex/core/decision/backends/mock.py",
+      "dashboard/app.js",
+      "tests/test_connection_manager.py",
+      "tests/test_jev_backend.py"
+    ],
+    "deleted": []
+  },
+  "interfaces": {
+    "zmq": {
+      "protocol": "astrbotex-zmq",
+      "version": 1,
+      "channel": "control",
+      "methods": [
+        "upper.capabilities.get",
+        "upper.steps.inject"
+      ],
+      "payload_schema": "aeb.upper_steps.v1",
+      "visibility": "decision_only"
+    },
+    "capabilities_response": [
+      "ok",
+      "schema",
+      "visibility",
+      "methods",
+      "input_ready",
+      "input_ready_reason",
+      "ex_session",
+      "backend",
+      "limits",
+      "catalog_version",
+      "actions"
+    ],
+    "receipt_fields": [
+      "batch_id",
+      "request_id",
+      "payload_hash",
+      "phase",
+      "segment_count",
+      "ex_session",
+      "reason"
+    ],
+    "phases": [
+      "received",
+      "injected",
+      "rejected",
+      "unknown"
+    ],
+    "error_codes": [
+      "invalid_batch",
+      "payload_too_large",
+      "route_mismatch",
+      "session_mismatch",
+      "id_conflict",
+      "input_busy",
+      "backend_unsupported",
+      "delivery_unknown",
+      "internal_error",
+      "unsupported_method"
+    ],
+    "local_config": [
+      "upper_robot_id",
+      "upper_route_refs",
+      "upper_ex_session"
+    ],
+    "python": [
+      "StepInputIngress.handle",
+      "StepInputLog.register/update/entries",
+      "DecisionInstructionInput.accept/supports",
+      "DecisionService.instruction_ready/submit_instruction",
+      "JevBackend.consume_instruction"
+    ]
+  },
+  "dependencies": {
+    "upstream": [
+      "B00 (parser/sample contract)",
+      "B06 (peer binding, consumes capabilities)"
+    ],
+    "consumers_to_retest": [
+      "B05 (delivery receipts)",
+      "B06 (control channel peer binding)",
+      "B10 (shutdown ordering)",
+      "B11 (local capture fixture)"
+    ]
+  },
+  "entry_points": [
+    "astrbot_ex.core.api_server._build_step_input",
+    "ConnectionManager.set_step_input_handler",
+    "ConnectionManager.control_trusted_context"
+  ],
+  "tests": {
+    "commands": [
+      [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_step_input.py",
+        "-v"
+      ],
+      [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_step_input_integration.py",
+        "-v"
+      ],
+      [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_connection_manager.py",
+        "-v"
+      ],
+      [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_jev_backend.py",
+        "-v"
+      ],
+      [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_decision_service.py",
+        "-v"
+      ],
+      [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_decision_backend_contract.py",
+        "-v"
+      ],
+      [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_decision_management_interleaving.py",
+        "-v"
+      ],
+      [
+        "C:\\Users\\17088\\.workbuddy-ai\\binaries\\python\\versions\\3.13.12\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ]
+    ],
+    "all_exit_zero": true,
+    "full_suite": "python -B -m unittest discover -s tests -> OK (836 tests, 2 skipped)",
+    "note": "The 1000-iteration dispatcher stress test is timing sensitive; it failed once under full-suite load and passed on the recorded run and in isolation."
+  },
+  "evidence": {
+    "directory": "port_artifacts/upper/B09/20261102T074928Z",
+    "files": [
+      "handoff.json",
+      "commands.log",
+      "results.json"
+    ],
+    "model_capture": "tests/test_step_input_integration.py::BackendRequestCaptureTest asserts the serialised JevBackend body carries model=PINNED_MODEL and state.instruction_input equal to batch.to_wire()",
+    "zmq_capture": "tests/test_step_input_integration.py::ControlLoopbackTest drives a real ROUTER against a real control DEALER"
+  },
+  "known_issues": [
+    "real_host scope was not exercised: no running AstrBot Host was attached in this run.",
+    "live_model_optional was not exercised: no external model credentials were used.",
+    "tests/test_action_dispatcher.py::test_1000_real_dispatcher_state_sequences_with_resources_and_rearm is timing sensitive; it passes in isolation (148s) and failed once under full-suite load. The file is untouched by this task and the same failure exists on the baseline.",
+    "full-suite run reports 4 failures + 13 errors in the AEB plugin worktree; the baseline at b8b448e reports the identical counts, so they are pre-existing."
+  ],
+  "rollback": [
+    "Set the control connection enabled=false; the text/audio/vision routes keep working.",
+    "api_server._close_step_input runs first on shutdown, so detaching is safe at any time.",
+    "The receipt log at <data_root>/execution/upper_step_input.jsonl is retained and its unknown rows stay unknown; nothing is re-injected on restart."
+  ]
+}

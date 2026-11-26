@@ -1,0 +1,15 @@
+{
+  "case_id": "prob_reject_string",
+  "expected_accept": false,
+  "expected_error": "invalid_probabilities",
+  "kind": "probabilities",
+  "note": "A numeric string is not a number.",
+  "payload": {
+    "action_only": 0.1,
+    "speech_and_action": 0.1,
+    "speech_only": "0.8"
+  },
+  "sides": [
+    "aeb"
+  ]
+}

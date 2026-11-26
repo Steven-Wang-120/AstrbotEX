@@ -15,7 +15,9 @@ from ..actions.dispatcher import DispatcherBusy
 from ..actions.ledger import LedgerBusy, LedgerClosed, LedgerFault, OwnerBinding
 from ..actions.models import ActionCommand, ActionStatus, ContractError, TERMINAL_STATUSES, validate_params
 from .backends import MockBackend
+from .primitive_pipeline import PrimitivePipeline
 from .goal_manager import GoalManager
+from .instruction_input import InstructionInputError
 from .models import BackendDecision, DecisionSnapshot, VersionSet, validate_backend_selection
 from .observations import ObservationStore
 
@@ -73,12 +75,24 @@ class DecisionService:
         self._review_future = None
         self._backend_input = None
         self._backend_result = None
+        # Upper-step input rounds share the single backend thread with decide().
+        # They never touch Goal state, the dispatcher or ActionService.
+        self._instruction_input = None
+        self._instruction_running = None
+        self._instruction_result = None
+        self._instruction_rounds = 0
+        self._last_instruction = None
+        self.primitives = None
+        self._primitive_owner = None
+        self._primitive_request = None
+        self._primitive_running = None
         self._live_snapshot = None
         self._timed_out = False
         self._next_request_ns = 0
         self._failures = 0
         self._rows = ()
         self._proven_uncertain = set()
+        self._catalog_cache = None
         self._last_catalog_revision = -1
         self._last_framework_versions = None
         self._last_error = ""
@@ -91,6 +105,7 @@ class DecisionService:
         self._last_poll_ns = 0
         self._last_stop_epoch = -1
         self.completion_hook = None
+        self._decision_rejection = None
         self._control = threading.Thread(target=self._run, name="decision-control", daemon=True)
         self._backend_worker = threading.Thread(target=self._backend_loop, name="decision-backend", daemon=True)
         self._backend_worker.start()
@@ -108,17 +123,19 @@ class DecisionService:
             snapshot = self._dispatch_snapshot or self._last_snapshot
             if snapshot and self.mode == "execute":
                 # Invalidate target-bound queued starts before their Actor guard.
-                entries = {e["owner"]: e for e in self.catalog.snapshot().entries}
+                entries = None
                 for owner in snapshot.owners:
-                    entry = entries.get(owner["owner"])
-                    if entry is None:
-                        continue
                     for candidate in owner["candidates"]:
                         if candidate["kind"] != "start":
                             continue
                         aid = candidate["action_id"]
-                        params = snapshot.goal["parameters"][aid]
+                        params = snapshot.goal["parameters"].get(aid, {})
                         if "target" not in params and "target_ref" not in params:
+                            continue
+                        if entries is None:
+                            entries = {e["owner"]: e for e in self._catalog_snapshot().entries}
+                        entry = entries.get(owner["owner"])
+                        if entry is None:
                             continue
                         action = next(a for a in entry["manifest"]["actions"] if a["action_id"] == aid)
                         _, reason = self.observations.relevant(action, params, dangerous=action["danger"] == "high")
@@ -128,11 +145,25 @@ class DecisionService:
             self._condition.notify_all()
 
     def submit_goal(self, raw) -> dict:
+        return self._submit_goal(raw)
+
+    def _submit_goal(self, raw, *, pipeline=None) -> dict:
         with self._condition:
             if self._closed:
                 raise RuntimeError("decision service closed")
             self._check_backend_switch()
+            goal_id = raw.get('goal_id') if isinstance(raw, dict) else raw.goal_id
+            if pipeline is None:
+                if getattr(self.backend, "primitive_only", False):
+                    raise ValueError("bound_primitive_required")
+                if self.primitives is not None and goal_id in self.primitives.owned_goals:
+                    raise ValueError("primitive_goal_id_reserved")
+            elif (pipeline is not self.primitives or pipeline.phase != "submitting"
+                    or pipeline.goal_id != goal_id):
+                raise RuntimeError("primitive_dispatch_changed")
             result = self.goals.submit(raw)
+            if self.primitives is not None and pipeline is None:
+                self.primitives.cancel("superseded_by_goal")
             if self.goals.status()["phase"] in {"pending_cancel", "blocked"}:
                 self._queue_stop()
             self._dirty = True
@@ -145,6 +176,8 @@ class DecisionService:
                 raise RuntimeError("decision service closed")
             epoch = self.goals.gate_epoch
             result = self.goals.cancel(raw)
+            if self.primitives is not None:
+                self.primitives.cancel('goal_canceled')
             if self.goals.gate_epoch != epoch:
                 self._queue_stop()
                 self._condition.notify_all()
@@ -229,6 +262,8 @@ class DecisionService:
         with self._condition:
             if self._closed:
                 raise RuntimeError("decision service closed")
+            if self.primitives is not None:
+                self.primitives.cancel(reason)
             self.goals.stop(reason)  # closes Dispatcher gate immediately
             self._queue_stop(new_request=True)
             return copy.deepcopy(self._stop_operation)
@@ -426,6 +461,16 @@ class DecisionService:
             self._dirty = True
             self._condition.notify_all()
 
+    def _catalog_snapshot(self):
+        # Keep one private, read-only view. Refresh under the catalog lock before
+        # each use, including the final admission check after a model response.
+        with self._lock:
+            revision = self._catalog_cache.revision if self._catalog_cache is not None else -1
+            changed = self.catalog.snapshot_if_changed(revision)
+            if changed is not None:
+                self._catalog_cache = changed
+            return self._catalog_cache
+
     def _versions(self, catalog) -> VersionSet:
         state = self.goals.status()
         environment_generation = (self._environment_snapshot["generation"] if self._environment_snapshot is not None
@@ -510,7 +555,7 @@ class DecisionService:
             goal, _, phase = self.goals.current()
             if goal is None or phase != "active" or self._clock() >= goal.expires_ns or self.mode == "disabled":
                 return None
-            catalog = self.catalog.snapshot()
+            catalog = self._catalog_snapshot()
             payload = goal.payload()
             rows = self._current_rows(goal)
             occupied = {r for row in self._rows for r in row.held_resources}
@@ -564,9 +609,10 @@ class DecisionService:
                 self._trace("outcome", snapshot, outcome=outcome, reason_code=reason[:256], details=details)
 
     def _validate_response(self, snapshot, decision):
-        current = self._versions(self.catalog.snapshot())
+        current = self._versions(self._catalog_snapshot())
+        current_values = current.to_dict()
         for key, value in snapshot.versions.to_dict().items():
-            if current.to_dict()[key] != value:
+            if current_values[key] != value:
                 raise RuntimeError(f"{key}_changed")
         goal, _, phase = self.goals.current()
         if goal is None or phase != "active" or self._clock() >= goal.expires_ns:
@@ -587,7 +633,47 @@ class DecisionService:
             if live["health"]["status"] != "ok":
                 raise RuntimeError(live["health"]["reason_code"])
         self.observations.request_observations(snapshot.observations)
+        if decision is None:
+            # A bound primitive already names its single allowed action and exact parameters.
+            # Keep the same admission, observation, revision and dispatcher checks as model selections.
+            pipeline = self.primitives
+            if (pipeline is None or not pipeline.owns(goal) or pipeline.phase != "running"
+                    or pipeline.goal_id != snapshot.goal["goal_id"] or self._current_rows(goal)):
+                raise RuntimeError("primitive_dispatch_changed")
+            candidates = [option for owner in snapshot.owners for option in owner["candidates"]
+                          if option["kind"] == "start" and option["eligible"]
+                          and option["action_id"] == pipeline.binding["action_id"]]
+            if len(snapshot.owners) != 1 or len(candidates) != 1:
+                raise RuntimeError("bound_action_unavailable")
+            return candidates
         return validate_backend_selection(snapshot, decision, current)
+
+    def _reject_decision(self, snapshot, decision, reason) -> None:
+        """Preserve the choice, revoke this Goal, then use the proven terminal path."""
+        with self.goals._lock, self.actions.dispatcher._lock:
+            # Fence the original snapshot at revocation, not only at reply parsing.
+            self._validate_response(snapshot, decision)
+            terminal = self.goals.reject_decision(snapshot.versions.goal_revision, reason,
+                goal_id=snapshot.goal["goal_id"])
+            if terminal is None:
+                raise RuntimeError("goal_authorization_expired")
+        diagnostic = {"snapshot_id": snapshot.snapshot_id, "backend": decision.backend,
+            "model": decision.model, "choices": copy.deepcopy(decision.choices),
+            "choice_count": len(decision.choices), "truncated": False}
+        # Journal facts have an 8 KiB budget. Keep original scores, never normalize
+        # or substitute options; the local decision record retains the full reply.
+        while len(json.dumps(diagnostic, ensure_ascii=False).encode("utf-8")) > 3500:
+            diagnostic["truncated"] = True
+            choice = diagnostic["choices"][-1]
+            probabilities = choice.get("probabilities", {})
+            if probabilities:
+                choice.setdefault("probability_count", len(probabilities))
+                probabilities.pop(next(reversed(probabilities)))
+            else:
+                diagnostic["choices"].pop()
+        self._decision_rejection = (terminal, diagnostic)
+        self._queue_stop()
+        self._record(snapshot, "decision_rejected", reason, decision=decision.to_dict())
 
     def _apply(self, snapshot, decision) -> None:
         try:
@@ -598,8 +684,15 @@ class DecisionService:
             raise _ApplicationIOError(str(exc)) from exc
         with self._lock:
             selected = self._validate_response(snapshot, decision)
-            catalog = self.catalog.snapshot()
+            catalog = self._catalog_snapshot()
             entries = {e["owner"]: e for e in catalog.entries}
+            threshold = getattr(self.backend, "min_confidence", None)
+            if (decision is not None and self.mode == "execute" and threshold is not None and any(
+                    choice.get("confidence", 0) < threshold for choice in decision.choices)):
+                if getattr(self.backend, "execution_allowed", False) is not True:
+                    raise RuntimeError("backend_execute_not_allowed")
+                self._reject_decision(snapshot, decision, "low_confidence")
+                return
             occupied = {r for row in self._rows for r in row.held_resources}
             starts, cancels, observed, replans = [], [], {}, []
             owner_by_option = {c["option_id"]: o["owner"] for o in snapshot.owners for c in o["candidates"]}
@@ -628,9 +721,7 @@ class DecisionService:
             if self.mode != "execute" or getattr(self.backend, "execution_allowed", False) is not True:
                 raise RuntimeError("backend_execute_not_allowed")
             if replans:
-                self.goals.awaiting_llm(snapshot.versions.goal_revision, "backend_requested_replan")
-                self._queue_stop()
-                self._record(snapshot, "awaiting_llm", "backend_requested_replan")
+                self._reject_decision(snapshot, decision, "backend_requested_replan")
                 return
             if cancels:
                 for cid, binding in cancels:
@@ -670,6 +761,8 @@ class DecisionService:
                             "action_id": action["action_id"], "operation": "start",
                             "params": snapshot.goal["parameters"][action["action_id"]],
                             "lease_ms": min(int(ttl), action.get("max_duration_ms", 1000))})
+                        if decision is None:
+                            self.primitives.steps[-1]["action_submit_ns"] = self._clock()
                         future = self.actions.start(command)
                         admitted.append((command.command_id, entry["owner"], entry["generation"], future))
                 except Exception:
@@ -693,6 +786,10 @@ class DecisionService:
             self._record(snapshot, "partial_execution", "partial_dispatch_failure", commands=batch["commands"])
             raise
         self._record(snapshot, "admitted", commands=batch["commands"])
+        try:
+            self._poll_rows()
+        except Exception as exc:
+            raise _ApplicationIOError(str(exc)) from exc
 
     def _settle_observed_stop(self) -> None:
         # Controller/lifecycle may have completed this stop on the synchronous
@@ -760,12 +857,43 @@ class DecisionService:
     def _backend_loop(self) -> None:
         while True:
             with self._condition:
-                self._condition.wait_for(lambda: self._closed or self._backend_input is not None)
+                self._condition.wait_for(lambda: self._closed or self._backend_input is not None
+                                         or self._instruction_input is not None or self._primitive_request is not None)
                 if self._closed:
+                    self._settle_instruction_locked("unknown", "closed")
                     return
                 snapshot = self._backend_input
-                self._backend_input = None
+                instruction = None
+                primitive = None
+                if snapshot is None:
+                    instruction = self._instruction_input
+                    self._instruction_input = None
+                    # Mark the slot busy in the same lock acquisition so a
+                    # second submit cannot slip in between pickup and start.
+                    self._instruction_running = instruction
+                    if instruction is None:
+                        primitive = self._primitive_request
+                        self._primitive_request = None
+                        self._primitive_running = primitive
+                        pipeline = self.primitives
+                else:
+                    self._backend_input = None
                 backend = self.backend
+            if primitive is not None:
+                try:
+                    if pipeline is not None:
+                        pipeline.bind_round(backend, *primitive)
+                except Exception:
+                    pass  # The pipeline exposes the binding failure; never replay.
+                finally:
+                    with self._condition:
+                        self._primitive_running = None
+                        self._condition.notify_all()
+                continue
+            if instruction is not None:
+                # Serialized with decide(): one non-thread-safe client, one thread.
+                self._run_instruction_round(backend, instruction)
+                continue
             self._trace("prepared", snapshot, snapshot=snapshot.to_dict(),
                         backend=self._backend_name, backend_type=type(backend).__name__,
                         service_generation=getattr(backend, "generation", None))
@@ -807,9 +935,177 @@ class DecisionService:
                 self._backend_result = (result, error)
                 self._condition.notify_all()
 
+    # -- upper-step input -------------------------------------------------
+
+    def instruction_ready(self) -> tuple[bool, str]:
+        """Explicit capability probe; never falls back to another backend."""
+
+        if self._closed:
+            return False, "closed"
+        backend = self.backend
+        if (not callable(getattr(backend, "consume_instruction", None))
+                and not (self.primitives and (callable(getattr(backend, "bind_primitive", None))
+                                              or getattr(backend, "structured_only", False)))):
+            return False, "backend_unsupported"
+        supports = getattr(backend, "supports_instruction_input", None)
+        if callable(supports):
+            try:
+                if not supports():
+                    return False, "backend_unsupported"
+            except Exception:
+                return False, "backend_unsupported"
+        return True, ""
+
+    def _instruction_busy_locked(self) -> str:
+        if self.primitives is not None and self.primitives.active:
+            return "primitive_batch_active"
+        if self._instruction_input is not None or self._instruction_running is not None:
+            return "instruction_pending"
+        if self._backend_input is not None or self._backend_result is not None:
+            return "backend_busy"
+        if self.goals.active is not None or self.goals.pending_replace is not None:
+            # An existing goal keeps its authority; a new batch never preempts it.
+            return "active_goal"
+        return ""
+
+    def set_primitive_owner(self, owner, registry):
+        with self._condition:
+            if owner is self._primitive_owner:
+                return
+            if self.primitives is not None:
+                if (self.primitives.owns(self.goals.active)
+                        or self.primitives.owns(self.goals.pending_replace)):
+                    self.request_stop("primitive_owner_changed")
+                else:
+                    self.primitives.cancel("primitive_owner_changed")
+            self._primitive_owner = None
+            self.primitives = None
+            if owner is not None:
+                provider = owner.create_primitive_provider(self.observations, registry)
+                self.primitives = PrimitivePipeline(self, provider)
+                self._primitive_owner = owner
+            self._condition.notify_all()
+
+    def submit_instruction(self, batch, *, timeout_sec: float = 2.0, on_settled=None) -> dict:
+        """Queue one immutable batch and wait at most ``timeout_sec`` for it.
+
+        Returns ``{"phase": "injected"|"received"|"unknown"|"rejected"}``.  A
+        ``received`` answer means the batch is still queued; ``on_settled`` is
+        then called by the backend thread when the real outcome is known.
+        """
+
+        with self._condition:
+            if self._closed:
+                raise InstructionInputError("backend_unsupported", "closed")
+            ready, reason = self.instruction_ready()
+            if not ready:
+                raise InstructionInputError("backend_unsupported", reason)
+            busy = self._instruction_busy_locked()
+            if busy:
+                raise InstructionInputError("input_busy", busy)
+            structured = [segment.structured_action_json is not None for segment in batch.segments]
+            if any(structured):
+                if self.primitives is None or not callable(getattr(self.primitives.provider, "bind_structured", None)):
+                    raise InstructionInputError("backend_unsupported", "structured_action_unsupported")
+                if not all(structured) and not callable(getattr(self.backend, "bind_primitive", None)):
+                    raise InstructionInputError("invalid_batch", "structured_action_required")
+                pipeline = self.primitives
+            elif getattr(self.backend, "structured_only", False):
+                raise InstructionInputError("invalid_batch", "structured_action_required")
+            else:
+                pipeline = self.primitives if callable(getattr(self.backend, "bind_primitive", None)) else None
+            if pipeline is not None:
+                pipeline.begin(batch)
+            self._instruction_input = (batch, self.config_revision, self._backend_name, on_settled, pipeline)
+            self._instruction_result = None
+            self._condition.notify_all()
+            deadline = time.monotonic() + max(0.0, float(timeout_sec))
+            while self._instruction_result is None and not self._closed:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    break
+                self._condition.wait(remaining)
+            result = self._instruction_result
+            if result is None:
+                if self._closed:
+                    return {"phase": "unknown", "detail": "closed"}
+                return {"phase": "received", "detail": "queued"}
+            self._instruction_result = None
+            phase, detail = result
+            return {"phase": phase, "detail": detail}
+
+    def _settle_instruction_locked(self, phase: str, detail: str) -> None:
+        """Resolve a waiter that is still blocked during close()."""
+
+        pending = self._instruction_input
+        self._instruction_input = None
+        if pending is not None:
+            callback = pending[3] if len(pending) > 3 else None
+            if callable(callback):
+                try:
+                    callback(phase, detail)
+                except Exception:
+                    pass
+        if self._instruction_result is None:
+            self._instruction_result = (phase, detail)
+            self._condition.notify_all()
+
+    def _run_instruction_round(self, backend, instruction) -> None:
+        batch, epoch, backend_name, on_settled, pipeline = instruction
+        phase, detail = "unknown", ""
+        if epoch != self.config_revision or backend_name != self._backend_name:
+            # A configuration switch invalidated this generation; the new
+            # session must not consume a batch prepared for the old one.
+            phase, detail = "rejected", "session_mismatch"
+        else:
+            consume = getattr(backend, "consume_instruction", None)
+            if pipeline is None and not callable(consume):
+                phase, detail = "rejected", "backend_unsupported"
+            else:
+                try:
+                    if pipeline is not None:
+                        bound = pipeline.bind_round(backend, batch.batch_id, 0)
+                        phase = 'injected' if bound is not None else 'rejected'
+                        detail = bound.get('model', '') if bound is not None else 'binding_canceled'
+                    else:
+                        outcome = consume(batch) or {}
+                        phase = "injected" if outcome.get("accepted") is True else "rejected"
+                        detail = str(outcome.get("detail") or outcome.get("model") or "")
+                except Exception as exc:  # noqa: BLE001
+                    code = getattr(exc, "code", None)
+                    if isinstance(code, str) and code:
+                        phase, detail = "rejected", code
+                    elif isinstance(exc, ValueError) and pipeline is not None:
+                        phase, detail = "rejected", "invalid_action"
+                    else:
+                        phase, detail = "unknown", type(exc).__name__
+        with self._lock:
+            self._instruction_rounds += 1
+            self._last_instruction = {
+                "batch_id": getattr(batch, "batch_id", ""),
+                "phase": phase,
+                "detail": detail,
+                "backend": backend_name,
+                "at": time.time(),
+            }
+        if callable(on_settled):
+            try:
+                on_settled(phase, detail)
+            except Exception:
+                pass
+        with self._condition:
+            self._instruction_running = None
+            self._instruction_result = (phase, detail)
+            self._condition.notify_all()
+
+    def _completion_for(self, goal):
+        if self.primitives is not None and self.primitives.owns(goal):
+            return self.primitives.complete
+        return self.completion_hook
+
     def _finish_proven_completion(self, goal, epoch) -> None:
         """Post-stop hook; all refresh/journal I/O is outside safety locks."""
-        hook = self.completion_hook
+        hook = self._completion_for(goal)
         if hook is None or goal is None:
             return
         self._poll_rows()
@@ -858,7 +1154,10 @@ class DecisionService:
                 if self.goals._terminal_stop == terminal and self.goals.gate_epoch == epoch:
                     self.goals.block("terminal_stop_requires_explicit_review")
             return
-        if status == "failed" and not failed_commands:
+        rejection = (copy.deepcopy(self._decision_rejection[1])
+            if self._decision_rejection is not None and self._decision_rejection[0] == terminal
+            and status == "failed" and reason in {"low_confidence", "backend_requested_replan"} else None)
+        if status == "failed" and not failed_commands and rejection is None:
             return
         commands = []
         deadline = time.monotonic() + self._io_timeout
@@ -881,7 +1180,7 @@ class DecisionService:
                     row.command_id, OwnerBinding(row.owner, row.generation)).result(remaining)
                 if proof is None or proof.stopped is not True:
                     return
-                item["stop_evidence"] = {"stopped": True, "source": proof.source, "reference": proof.reference}
+                item["stop_evidence"] = proof.to_dict()
             commands.append(item)
         failure_evidence = ([item for item in commands if item["command_id"] in failed_commands]
                             if status == "failed" else [])
@@ -892,7 +1191,7 @@ class DecisionService:
                     or self.actions.dispatcher._gate or self.actions.dispatcher.blocked
                     or self.actions._stop_proof_epoch < self.actions.dispatcher._epoch):
                 return
-            hook = self.completion_hook
+            hook = self._completion_for(goal)
             proof_epoch = self.actions._stop_proof_epoch
             summary = {"status": status, "reason_code": reason,
                 "details": {"stop_evidence": {"stopped": True, "source": "ex-framework",
@@ -900,7 +1199,9 @@ class DecisionService:
                     "terminal_evidence": {"verified": True, "goal_id": goal.payload()["goal_id"],
                         "goal_revision": goal.revision, "stop_proof_epoch": proof_epoch,
                         "dispatcher_epoch": self.actions.dispatcher._epoch, "commands": commands}}}
-            if status == "failed":
+            if rejection is not None:
+                summary["details"]["decision_rejection"] = rejection
+            if status == "failed" and failed_commands:
                 summary["details"]["failure_evidence"] = {"verified": True,
                     "goal_id": goal.payload()["goal_id"], "goal_revision": goal.revision,
                     "commands": failure_evidence}
@@ -1042,7 +1343,7 @@ class DecisionService:
         now = self._clock()
         if self.environment is not None:
             self._environment_snapshot = self.environment.snapshot()
-        catalog = self.catalog.snapshot()
+        catalog = self._catalog_snapshot()
         if catalog.revision != self._last_catalog_revision:
             self.observations.configure(catalog.entries)
             if self._last_catalog_revision >= 0 and self.goals.current()[0] is not None:
@@ -1103,7 +1404,20 @@ class DecisionService:
                 with self._condition:
                     self._backend_applying = False
         with self._condition:
-            if self._live_snapshot is None and self._dirty and now >= self._next_request_ns:
+            goal, _, phase = self.goals.current()
+            pipeline = self.primitives
+            bound_goal = pipeline is not None and pipeline.owns(goal)
+            if bound_goal:
+                # No model polling for an already-bound goal, including while its
+                # command is active or while committed completion is being observed.
+                if (phase != "active" or pipeline.phase != "running" or pipeline.goal_id != goal.payload()["goal_id"]
+                        or pipeline.steps[-1].get("dispatch_attempted") or self._current_rows(goal)):
+                    return
+                pipeline.steps[-1]["dispatch_attempted"] = True
+                snapshot = self.build_snapshot()
+            elif (self._live_snapshot is None and self._dirty and now >= self._next_request_ns
+                    and self._instruction_input is None and self._instruction_running is None
+                    and self._primitive_request is None and self._primitive_running is None):
                 self._dirty = False
                 snapshot = self.build_snapshot()
                 if snapshot and snapshot.owners:
@@ -1111,6 +1425,18 @@ class DecisionService:
                     self._backend_input = snapshot
                     self._next_request_ns = now + self._interval_ns
                     self._condition.notify_all()
+        if bound_goal and snapshot is not None:
+            try:
+                self._apply(snapshot, None)
+            except (OSError, FutureTimeout, _ApplicationIOError, LedgerBusy, LedgerClosed, LedgerFault, DispatcherBusy):
+                raise
+            except Exception as exc:
+                with self._condition:
+                    if pipeline.active and pipeline.owns(self.goals.current()[0]):
+                        self.request_stop("bound_dispatch_rejected")
+                        pipeline.phase, pipeline.reason = "rejected", str(exc)[:128]
+                        pipeline.steps[-1].update(state="rejected", reason=pipeline.reason)
+                self._record(snapshot, "discarded", str(exc))
 
     def _run(self) -> None:
         while True:
@@ -1120,6 +1446,8 @@ class DecisionService:
             try:
                 self._process_control()
                 self._step()
+                if self.primitives is not None:
+                    self.primitives.tick()
             except Exception as exc:
                 with self._condition:
                     if self._closed:
@@ -1155,8 +1483,15 @@ class DecisionService:
                     "backend_applying": self._backend_applying,
                     "management_trace_dropped": self._management_trace_dropped,
                     "config_revision": self.config_revision, "decisions": copy.deepcopy(list(self._decisions)),
-                    "catalog_revision": self.catalog.snapshot().revision,
+                    "catalog_revision": self._catalog_snapshot().revision,
                     "environment_revision": self.actions._environment_revision,
+                    "instruction": {
+                        "ready": self.instruction_ready()[0],
+                        "reason": self.instruction_ready()[1],
+                        "rounds": self._instruction_rounds,
+                        "last": copy.deepcopy(self._last_instruction),
+                    },
+                    "primitives": self.primitives.status() if self.primitives is not None else None,
                     "closed": self._closed}
 
     def snapshot(self) -> dict | None:
@@ -1170,6 +1505,8 @@ class DecisionService:
         receipt = self.request_stop("decision_service_close")
         with self._condition:
             self._closed = True
+            # Release any caller still waiting on a queued instruction round.
+            self._settle_instruction_locked("unknown", "closed")
             self._condition.notify_all()
         errors = []
         try:

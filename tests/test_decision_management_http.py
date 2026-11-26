@@ -210,11 +210,21 @@ class DecisionManagementHTTPTests(ManagementHTTPFixture, unittest.TestCase):
         self.assertNotIn(marker, json.dumps(current))
         self.assertEqual(current["revision"], original["revision"] + 1)
         secret_files = list((self.root / "secrets").iterdir())
-        self.assertEqual((self.root / "secrets").stat().st_mode & 0o777, 0o700)
+        if os.name != "nt":
+            self.assertEqual((self.root / "secrets").stat().st_mode & 0o777, 0o700)
+        else:
+            # Windows stat does not expose POSIX permissions; verify chmod intent.
+            with patch("os.chmod", wraps=os.chmod) as chmod:
+                from astrbot_ex.core.decision.config import SecretStore
+                SecretStore(self.root)
+            chmod.assert_any_call(self.root / "secrets", 0o700)
+            for path in secret_files:
+                if path.is_file():
+                    chmod.assert_any_call(path, 0o600)
         self.assertTrue(any(path.read_text() == marker or path.read_text().strip() == marker
                             for path in secret_files if path.is_file()))
         for path in secret_files:
-            if path.is_file():
+            if path.is_file() and os.name != "nt":
                 self.assertEqual(path.stat().st_mode & 0o777, 0o600)
         code, kept, _ = self.write("/secret", {"action": "keep"}, version=current)
         self.assertEqual(code, 200)
@@ -259,19 +269,40 @@ class DecisionManagementHTTPTests(ManagementHTTPFixture, unittest.TestCase):
         wrong = {**self.get_config(), "ex_session": "stale-ex-session"}
         self.assertEqual(self.write("/stop", version=wrong)[0], 409)
 
-    def test_ordinary_assembly_cannot_gain_laya_execution_from_http(self):
+    def test_builtin_laya_can_activate_but_injected_transport_cannot_gain_execution_from_http(self):
+        from astrbot_ex.core.decision.backends.registry import create_backend
+        from tests.test_laya_backend import FixtureTransport
+
         original = self.get_config()
         saved = copy.deepcopy(original["saved"])
         saved["backend"] = "laya"
+        saved["laya"]["service_connection"]["base_url"] = "http://127.0.0.1:1"
         self.assertEqual(self.write("/config", {"config": saved}, version=original)[0], 200)
         code, accepted, _ = self.write("/mode", {"mode": "execute"})
-        if code == 202:
-            operation = self.operation(accepted)
-            self.assertIn(operation["state"], {"failed", "blocked"})
-        else:
-            self.assertEqual(code, 409)
-        self.assertEqual(self.server.decision_service.status()["mode"], "disabled")
+        self.assertEqual(code, 202)
+        self.assertEqual(self.operation(accepted)["state"], "succeeded")
+        self.assertTrue(self.server.decision_service.backend.execution_allowed)
+        self.assertEqual(self.server.controller.runtime.state.value, "running")
+        self.assertIsNone(self.server.decision_service.goals.active)
         self.assertEqual(self.server.action_ledger.list_commands().result(1), ())
+        code, accepted, _ = self.write("/stop")
+        self.assertEqual(code, 202)
+        self.assertEqual(self.operation(accepted)["state"], "succeeded")
+        self.assert_idle()
+        # Force a fresh backend installation rather than reusing the effective live one.
+        self.assertEqual(self.write("/config", {"config": saved})[0], 200)
+
+        def injected(name, **kwargs):
+            if name == "laya":
+                kwargs["transport"] = FixtureTransport()
+            return create_backend(name, **kwargs)
+        with patch("astrbot_ex.core.decision.management.create_backend", side_effect=injected):
+            code, accepted, _ = self.write("/mode", {"mode": "execute"})
+            self.assertEqual(code, 202)
+            self.assertEqual(self.operation(accepted)["state"], "failed")
+        self.assertFalse(self.server.decision_service.backend.execution_allowed)
+        self.assertFalse(self.server.decision_service.status()["gate_open"])
+        self.assert_idle()
 
     def test_backup_excludes_secret_credentials_and_restore_creates_new_version(self):
         marker = "B08-BACKUP-SECRET-MUST-NOT-EXPORT"

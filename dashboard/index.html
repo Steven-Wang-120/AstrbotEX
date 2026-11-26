@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ASTRBOTEX · CONTROL PANEL</title>
-    <link rel="stylesheet" href="./styles.css?v=20260923-environments" />
+    <link rel="stylesheet" href="./styles.css?v=20261006-c07" />
+    <link rel="stylesheet" href="/dashboard/environment-diagnostics.css?v=20261101" />
+    <link rel="stylesheet" href="/dashboard/logs.css?v=20261101" />
   </head>
   <body>
     <div class="app-shell">
@@ -247,17 +249,26 @@
                 <h2>事件流</h2>
                 <span class="panel-meta" id="eventStatus">SSE 未连接</span>
               </div>
+              <div class="log-toolbar">
+                <div id="logLevelFilters" aria-label="日志等级筛选"></div>
+                <select id="logSourceFilter" aria-label="日志来源"><option value="">全部来源</option></select>
+                <input id="logSearchInput" type="search" placeholder="搜索日志" aria-label="搜索日志" />
+                <button id="logExportButton" class="btn btn-ghost btn-sm">导出可见日志</button>
+                <span id="logUnreadCount" aria-live="polite"></span>
+              </div>
+              <div id="logGapNotice" class="log-gap-notice" hidden role="status"></div>
               <div class="log-console" id="logConsole"></div>
             </section>
           </section>
 
           <!-- ============ 04 VOICE ============ -->
           <section class="page" id="page-voice">
+
             <header class="page-head">
               <div class="page-head-num">04</div>
               <div class="page-head-text">
                 <h1>交互 / 语音</h1>
-                <p>STT / TTS 链路状态与自检</p>
+                <p>AstrBot 兼容代理连接与手动测试；连续语音、设备与决策设置在下方。</p>
               </div>
             </header>
 
@@ -295,56 +306,6 @@
             <section class="panel">
               <div class="panel-head">
                 <span class="panel-num">04.A</span>
-                <h2>链路自检</h2>
-                <button class="btn btn-ghost btn-sm" id="voiceRefreshButton">刷新</button>
-              </div>
-              <div class="snapshot-grid" id="voiceStatusGrid">
-                <div class="kv">
-                  <span class="kv-label">AstrBot 地址</span>
-                  <span class="kv-dots"></span>
-                  <b class="kv-value" id="voiceDetailUrl">--</b>
-                </div>
-                <div class="kv">
-                  <span class="kv-label">麦克风插件</span>
-                  <span class="kv-dots"></span>
-                  <b class="kv-value" id="voiceDetailMic">--</b>
-                </div>
-                <div class="kv">
-                  <span class="kv-label">扬声器插件</span>
-                  <span class="kv-dots"></span>
-                  <b class="kv-value" id="voiceDetailSpeaker">--</b>
-                </div>
-                <div class="kv">
-                  <span class="kv-label">STT 代理</span>
-                  <span class="kv-dots"></span>
-                  <b class="kv-value" id="voiceDetailSttProxy">--</b>
-                </div>
-                <div class="kv">
-                  <span class="kv-label">TTS 代理</span>
-                  <span class="kv-dots"></span>
-                  <b class="kv-value" id="voiceDetailTtsProxy">--</b>
-                </div>
-                <div class="kv">
-                  <span class="kv-label">最近 STT</span>
-                  <span class="kv-dots"></span>
-                  <b class="kv-value" id="voiceDetailLastStt">--</b>
-                </div>
-                <div class="kv">
-                  <span class="kv-label">最近 TTS</span>
-                  <span class="kv-dots"></span>
-                  <b class="kv-value" id="voiceDetailLastTts">--</b>
-                </div>
-                <div class="kv">
-                  <span class="kv-label">最近错误</span>
-                  <span class="kv-dots"></span>
-                  <b class="kv-value" id="voiceDetailError">--</b>
-                </div>
-              </div>
-            </section>
-
-            <section class="panel">
-              <div class="panel-head">
-                <span class="panel-num">04.B</span>
                 <h2>手动测试</h2>
               </div>
               <div class="snapshot-grid">
@@ -370,6 +331,66 @@
                 <span class="kv-dots"></span>
                 <b class="kv-value" id="voiceTestResult" style="word-break:break-all">--</b>
               </div>
+            </section>
+
+            <section class="panel voice-live-panel">
+              <div class="panel-head">
+                <span class="panel-num">04.B</span>
+                <h2>连续语音对话</h2>
+                <span class="panel-meta">设备属于运行音频模块的主机；播报时保持收音。</span>
+              </div>
+
+              <p id="voiceLiveState" role="status">正在获取状态</p>
+              <p id="voiceLiveModels" role="status">正在读取模型配置</p>
+              <label>语音插件<select class="config-input" id="voiceLivePlugin"><option value="">选择外部语音插件</option></select></label>
+
+              <div class="voice-live-actions">
+                <button class="btn btn-primary" id="voiceLiveStart">开启连续对话</button>
+                <button class="btn btn-ghost" id="voiceLiveStop">停止连续对话</button>
+                <button class="btn btn-ghost" id="voiceLiveRuntime" hidden>启动运行时</button>
+                <span class="voice-inline-result" id="voiceLiveActionResult" role="status"></span>
+              </div>
+
+              <div class="voice-live-fields">
+                <label>决策协议<select class="config-input" id="voiceLiveType"><option>systemone</option><option>laya</option><option>cloudflare</option><option>http_json</option><option>openai</option></select></label>
+                <label>决策 URL<input class="config-input" id="voiceLiveUrl" type="url" placeholder="https://…"></label>
+                <label>决策 API Key<span class="voice-key"><input class="config-input" id="voiceLiveKey" type="password" autocomplete="new-password" placeholder="留空则用本地配置里的密钥"><button class="btn btn-ghost btn-sm" id="voiceLiveKeyEye" type="button">显示</button></span></label>
+                <label>决策模型<input class="config-input" id="voiceLiveModel" placeholder="clef / multilingual / 兼容模型名"></label>
+                <label>对话识别阈值<input class="config-input" id="voiceLiveThreshold" type="number" min="0" max="1" step="0.05" value="0.4"></label>
+                <label>决策模式<select class="config-input" id="voiceLiveMode"><option value="http">URL 服务</option><option value="topic">EX 消息接口</option></select></label>
+              </div>
+              <p class="voice-hint" id="voiceLiveHint"></p>
+
+              <div class="voice-live-actions">
+                <button class="btn btn-primary" id="voiceLiveSave">保存设备和设置</button>
+                <span class="voice-inline-result" id="voiceLiveResult" role="status"></span>
+              </div>
+
+              <details class="voice-advanced">
+                <summary>设备与高级设置</summary>
+                <div class="voice-live-fields">
+                  <label>录音设备<select class="config-input" id="voiceLiveInput"></select></label>
+                  <label>播放设备<select class="config-input" id="voiceLiveOutput"></select></label>
+                  <button class="btn btn-ghost" id="voiceLiveRefresh">刷新设备</button>
+                  <button class="btn btn-ghost" id="voiceLiveCheck">检查设备格式</button>
+                </div>
+                <p class="voice-inline-result" id="voiceDeviceResult" role="status"></p>
+                <p class="voice-hint">设备、模型文件和主机运行路径由外部插件管理。麦克风与扬声器位于插件运行的主机。</p>
+              </details>
+
+              <div class="voice-chat-head">
+                <h3>转写与回复</h3>
+                <div class="voice-chat-tools">
+                  <button class="btn btn-ghost btn-sm active" id="voiceChatTab">简洁聊天</button>
+                  <button class="btn btn-ghost btn-sm" id="voiceDebugTab">原始日志</button>
+                  <button class="btn btn-ghost btn-sm" id="voiceChatExport">导出</button>
+                  <button class="btn btn-ghost btn-sm" id="voiceChatClear">清空</button>
+                </div>
+              </div>
+              <div class="voice-chat" id="voiceChat" aria-live="polite">
+                <p class="voice-chat-empty" id="voiceChatEmpty">等待语音…说完一句后这里会出现完整转写。</p>
+              </div>
+              <pre class="voice-raw" id="voiceRaw" hidden aria-live="polite"></pre>
             </section>
           </section>
 
@@ -764,86 +785,96 @@
           </section>
           <section class="page" id="page-decision">
             <header class="page-head"><div class="page-head-num">08</div><div class="page-head-text">
-              <h1>决策</h1><p>EX 后端、当前任务与执行事实</p></div>
-              <button class="btn btn-ghost btn-sm" id="decisionRefresh">读取当前状态</button>
+              <h1>决策</h1><p>连接模型、启停 EX 与查看当前任务</p></div>
+              <button class="btn btn-ghost btn-sm" id="decisionRefresh">刷新状态</button>
             </header>
-            <div class="decision-readline"><strong id="decisionFreshness">等待凭据</strong><span id="decisionTransport"></span></div>
-            <p class="decision-message" id="decisionMessage" role="status" aria-live="polite">页面只读取状态。配置和控制操作需要显式点击。</p>
+            <p class="decision-muted" id="decisionFreshness">等待管理凭据</p>
+            <p class="decision-message" id="decisionMessage" role="status" aria-live="polite">刷新只读取状态；操作需要显式点击。</p>
             <div class="decision-layout">
               <section class="panel decision-wide">
-                <div class="panel-head"><span class="panel-num">08.A</span><h2>状态与控制</h2>
-                  <button class="btn btn-danger-solid" id="decisionStop" data-decision-write="stop">请求停止</button></div>
-                <div class="decision-metrics">
-                  <div><span>当前后端</span><strong id="decisionBackend">未提供</strong></div>
-                  <div><span>决策模式</span><strong id="decisionModeState">未知</strong></div>
-                  <div><span>Laya 服务</span><strong id="decisionServiceState">未知</strong></div>
-                  <div><span>blocked</span><strong id="decisionBlocked">未知</strong></div>
+                <div class="panel-head"><span class="panel-num">08.A</span><h2>决策供应商</h2></div>
+                <div class="decision-providers">
+                  <button type="button" class="decision-provider" id="decisionProviderjev" aria-haspopup="dialog" aria-controls="decisionModal" aria-pressed="false">
+                    <strong>Jev</strong><span>云端决策模型</span><small id="decisionProviderStatejev">点击配置</small>
+                  </button>
+                  <button type="button" class="decision-provider" id="decisionProviderlaya" aria-haspopup="dialog" aria-controls="decisionModal" aria-pressed="false">
+                    <strong>Laya</strong><span>外部服务或 EX 自启</span><small id="decisionProviderStatelaya">点击配置</small>
+                  </button>
+                  <button type="button" class="decision-provider" id="decisionProviderstructured" aria-haspopup="dialog" aria-controls="decisionModal" aria-pressed="false">
+                    <strong>上层结构化动作</strong><span>直接执行已校验的动作参数</span><small id="decisionProviderStatestructured">点击配置</small>
+                  </button>
+                  <button type="button" class="decision-provider" id="decisionProvideropenai_json" aria-haspopup="dialog" aria-controls="decisionModal" aria-pressed="false">
+                    <strong>结构化模型</strong><span>云端或内网模型，一次请求填参</span><small id="decisionProviderStateopenai_json">点击配置</small>
+                  </button>
                 </div>
-                <div id="decisionStatusFacts"></div><div id="decisionStatusDetails"></div>
-                <p class="decision-warning" id="decisionQuality"></p>
-                <p class="decision-muted">停止请求已受理不等于停止已证明。blocked 与停止证明分别显示。</p>
-                <details class="decision-json" open><summary>本页管理操作</summary><div id="decisionOperations"></div></details>
+                <p class="decision-muted" id="decisionConnection">连接暂不可确认</p>
               </section>
               <section class="panel">
-                <div class="panel-head"><span class="panel-num">08.B</span><h2>配置与 Laya 服务</h2></div>
-                <p id="decisionConfigVersions" class="decision-muted"></p><p id="decisionConfigNote" class="decision-draft"></p>
-                <label class="connection-field"><span>EX 决策后端</span><select class="config-input" id="decisionBackendSelect" aria-label="EX 决策后端"></select></label>
-                <pre id="decisionLayaIdentity" class="decision-identity" data-decision-backend="laya"></pre>
-                <pre id="decisionJevIdentity" class="decision-identity" data-decision-backend="jev"></pre>
-                <div id="decisionFields"></div>
+                <div class="panel-head"><span class="panel-num">08.B</span><h2>EX</h2></div>
+                <strong id="decisionEXState" role="status">状态暂不可确认</strong>
                 <div class="decision-buttons">
-                  <button class="btn btn-primary" id="decisionSave" data-decision-write="config">保存配置</button>
-                  <button class="btn btn-ghost btn-sm" id="decisionReloadConfig">放弃草稿并读取</button>
-                  <button class="btn btn-ghost btn-sm" id="decisionReviewConfig">核对新版本，保留草稿</button>
+                  <button class="btn btn-primary" id="decisionStart" disabled>启用 EX</button>
+                  <button class="btn btn-danger-solid" id="decisionStop" disabled>停止 EX</button>
                 </div>
-                <div id="decisionConfigProjection"></div>
-                <details class="decision-json"><summary>Jev 密钥</summary>
-                  <p id="decisionSecretState"></p>
-                  <label class="connection-field"><span>密钥操作</span><select class="config-input" id="decisionSecretAction">
-                    <option value="keep">保留现有密钥</option><option value="set">设置新密钥</option><option value="clear">明确清除密钥</option></select></label>
-                  <label class="connection-field"><span>新密钥（只写）</span><input class="config-input" id="decisionSecret" type="password" autocomplete="off" spellcheck="false" disabled /></label>
-                  <button class="btn btn-ghost btn-sm" id="decisionSecretSave" data-decision-write="secret">提交密钥操作</button>
-                </details>
-                <p class="decision-muted" id="decisionProbeScope"></p>
-                <div class="decision-buttons"><button class="btn btn-ghost" id="decisionTest" data-decision-write="test">测试连接</button>
-                  <label for="decisionApplyMode">应用模式</label><select id="decisionApplyMode" class="config-input decision-mode-select">
-                    <option value="disabled">disabled</option><option value="shadow" selected>shadow</option><option value="execute" disabled>execute</option></select>
-                  <button class="btn btn-ghost" id="decisionApply" data-decision-write="mode">应用模式</button></div>
-                <p class="decision-muted" id="decisionApplyHint"></p>
-                <div class="decision-buttons">
-                  <button class="btn btn-ghost" id="decisionServiceStart" data-decision-write="service_start">启动 Laya</button>
-                  <button class="btn btn-ghost" id="decisionServiceStop" data-decision-write="service_stop">停止 Laya 服务</button>
-                  <button class="btn btn-ghost" id="decisionServiceRecover" data-decision-write="service_recover">显式恢复 Laya</button>
-                </div>
-                <p class="decision-muted">保存不启动服务。服务启动后保持 disabled。恢复后需要新模式授权和新 Goal，旧请求不会重放。</p>
+                <p class="decision-warning" id="decisionError" hidden></p>
               </section>
               <section class="panel">
-                <div class="panel-head"><span class="panel-num">08.C</span><h2>当前任务与 Goal</h2></div>
-                <div id="decisionGoals"></div>
-                <div class="decision-placeholder"><h3>A.E.B. 任务与步骤</h3><p>EX 任务协调已接线；A.E.B. 任务与步骤的页面投影尚未接入。</p>
-                  <p class="decision-muted">当前步骤、步骤列表、等待输入 / 复核、反馈序号及完成证据：未接入。</p>
-                  <p class="decision-muted">反馈 ACK 只表示收到反馈，不表示任务成功。不会从历史 Goal 推测任务队列或完成百分比。</p></div>
-                <div class="decision-placeholder"><h3>公开回复投递</h3><dl class="decision-kv"><dt>通道</dt><dd>未接入</dd><dt>投递状态</dt><dd>未接入</dd><dt>关联 ID</dt><dd>未接入</dd></dl>
-                  <p class="decision-muted">此处只预留展示。内部 Goal、请求和工具输出不会由本页发送到聊天或 TTS。</p></div>
+                <div class="panel-head"><span class="panel-num">08.C</span><h2>当前 LLM 任务</h2></div>
+                <strong id="decisionTaskStatus" role="status">任务暂不可确认</strong>
+                <p id="decisionTaskTitle" class="decision-task-title"></p>
+                <p id="decisionTaskGoal" class="decision-muted"></p>
+                <p id="decisionTaskProgress" class="decision-muted"></p>
               </section>
-              <section class="panel decision-wide">
-                <div class="panel-head"><span class="panel-num">08.D</span><h2>实际决策</h2></div>
-                <div id="decisionBuilt"></div><div id="decisionLatest" class="decision-latest"></div><div id="decisionCatalog"></div>
-                <p class="decision-muted">准备、POST 尝试、本地 socket 写入、收到响应分别记录。未知不等于否；socket 写入不证明服务端收到或动作完成。</p>
-                <details class="decision-json"><summary>请求历史与分页</summary>
-                  <div class="decision-buttons"><button class="btn btn-ghost btn-sm" id="decisionHistoryPrev">上一页请求</button><button class="btn btn-ghost btn-sm" id="decisionHistoryNext">下一页请求</button></div>
-                  <p class="decision-muted" id="decisionHistoryMeta"></p><div id="decisionHistory"></div>
-                </details>
-                <div id="decisionRequestDetail"><p class="decision-muted">选择一条请求查看实际正文、响应和关联版本。</p></div>
-              </section>
-              <section class="panel decision-wide" id="decision-actions-panel">
-                <div class="panel-head"><span class="panel-num">08.E</span><h2>动作与反馈</h2></div>
-                <div class="decision-buttons"><button class="btn btn-ghost btn-sm" id="decisionActionsPrev">上一页动作</button><button class="btn btn-ghost btn-sm" id="decisionActionsNext">下一页动作</button><button class="btn btn-ghost btn-sm" id="decisionActionClear" hidden>取消命令筛选</button></div>
-                <p class="decision-muted" id="decisionActionsMeta"></p><div id="decisionActions"></div>
-                <div class="decision-placeholder"><h3>控制端详情</h3><p>Grounder 候选、选中轨迹、ROS ACK、执行反馈及物理判定：未接入。</p>
-                  <p class="decision-muted">当前通用 details 仅按账本原文展示。测试 Actor 成功不能作为机械臂物理成功。</p></div>
+              <section class="panel decision-wide" id="decision-task-panel">
+                <div class="panel-head"><span class="panel-num">08.D</span><h2>任务选择模型 Jev</h2></div>
+                <p class="decision-muted">任务入口追踪。这里显示模型选择与观测绑定；当前任务状态见上方。</p>
+                <div id="decisionTaskSelection"><p class="decision-muted">未接入</p></div>
               </section>
             </div>
+            <dialog id="decisionModal" class="decision-modal" aria-labelledby="decisionModalTitle" aria-describedby="decisionServiceHint">
+              <div class="decision-modal-head"><h2 id="decisionModalTitle">供应商配置</h2>
+                <button type="button" class="btn btn-ghost btn-sm" id="decisionModalClose" aria-label="关闭配置">关闭</button></div>
+              <p class="decision-message" id="decisionModalMessage" role="status" aria-live="polite">配置仅在保存时写入。</p>
+              <form id="decisionConfigForm">
+                <label class="connection-field"><span>服务地址</span><input id="decisionAddress" class="config-input" type="url" required autocomplete="off" spellcheck="false" /></label>
+                <label class="connection-field"><span>支持的模型</span><select id="decisionModel" class="config-input" required></select></label>
+                <div id="decisionJsonFields" hidden>
+                  <button type="button" class="btn btn-ghost btn-sm" id="decisionSiliconFlow">使用硅基流动 Qwen3-VL-8B</button>
+                  <label class="connection-field"><span>模型标识</span><input id="decisionJsonModel" class="config-input" autocomplete="off" spellcheck="false" /></label>
+                  <label class="connection-field"><span>输出格式</span><select id="decisionJsonFormat" class="config-input">
+                    <option value="json_schema">JSON Schema</option><option value="json_object">JSON Object</option></select></label>
+                  <label class="connection-field"><span>认证</span><select id="decisionJsonAuth" class="config-input">
+                    <option value="none">无需认证</option><option value="bearer">Bearer 密钥</option></select></label>
+                  <label class="decision-clear"><input id="decisionJsonImage" type="checkbox" /> 每条指令附实时相机原图</label>
+                </div>
+                <div id="decisionLayaFields" hidden>
+                  <label class="connection-field"><span>服务方式</span><select id="decisionLayaMode" class="config-input">
+                    <option value="external">连接已启动服务</option><option value="owned">由 EX 自启</option></select></label>
+                  <label class="connection-field"><span>认证</span><select id="decisionAuth" class="config-input">
+                    <option value="none">无需认证</option><option value="bearer">密钥认证</option></select></label>
+                </div>
+                <div id="decisionOwnedFields" hidden>
+                  <label class="connection-field"><span>已安装 Python 的绝对路径</span><input id="decisionPython" class="config-input" autocomplete="off" spellcheck="false" /></label>
+                  <label class="connection-field"><span>真实模型缓存目录（绝对路径）</span><input id="decisionCache" class="config-input" autocomplete="off" spellcheck="false" /></label>
+                  <label class="connection-field"><span>部署设备</span><select id="decisionDevice" class="config-input">
+                    <option value="">请选择已安装的设备</option><option value="cpu">CPU</option><option value="cuda">CUDA</option></select></label>
+                </div>
+                <p class="decision-muted" id="decisionServiceHint"></p>
+                <label class="connection-field"><span>供应商密钥</span><input id="decisionSecret" class="config-input" type="password" autocomplete="off" spellcheck="false" /></label>
+                <p class="decision-muted" id="decisionSecretState"></p>
+                <label class="decision-clear"><input id="decisionSecretClear" type="checkbox" /> 明确清除已保存密钥</label>
+                <p class="decision-draft" id="decisionConfigNote"></p>
+                <button type="button" class="btn btn-ghost btn-sm" id="decisionReviewConfig" hidden>核对当前配置，保留修改</button>
+                <p class="decision-muted" id="decisionProbeHint"></p>
+                <p id="decisionTestResult" class="decision-test-result" role="status" aria-live="polite"></p>
+                <div class="decision-buttons">
+                  <button type="button" class="btn btn-ghost" id="decisionTest">测试当前草稿</button>
+                  <button type="submit" class="btn btn-primary" id="decisionSave">保存配置</button>
+                  <button type="button" class="btn btn-ghost" id="decisionCancel">取消</button>
+                </div>
+              </form>
+              <div class="decision-modal-safety"><button type="button" class="btn btn-danger-solid" id="decisionModalStop">停止 EX</button></div>
+            </dialog>
           </section>
         </main>
 
@@ -866,8 +897,9 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <input id="pluginZipInput" type="file" accept=".zip,application/zip" hidden />
     <input id="archiveZipInput" type="file" accept=".zip,application/zip" hidden />
-    <script src="./environments.js?v=20260923"></script>
-    <script src="/dashboard/decision.js?v=20261002-b09"></script>
-    <script src="./app.js?v=20261002-b09"></script>
+    <script src="./environments.js?v=20261101"></script>
+    <script src="/dashboard/decision.js?v=20261006-c07"></script>
+    <script src="/dashboard/logs.js?v=20261101"></script>
+    <script src="./app.js?v=20261101"></script>
   </body>
 </html>

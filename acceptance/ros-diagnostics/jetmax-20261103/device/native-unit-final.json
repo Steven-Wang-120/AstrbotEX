@@ -1,0 +1,19 @@
+{
+  "stage": "finished",
+  "python": "3.10.12",
+  "platform": "Linux-4.9.337-tegra-aarch64-with-glibc2.35",
+  "temp_directory": "/dev/shm",
+  "started_at": "2026-11-03T12:31:23.521412+00:00",
+  "base_commit": "86ce3916e9dd93dd8d85e435e138eb64c2d13be1",
+  "source_sha256": {
+    "scripts/verify_ros2_diagnostics.py": "4ad6a402570b4b4e8491c6b115704df9efdbe5e64ca5f249733d7bbe9ec0b85d",
+    "tests/test_action_dispatcher.py": "08cb9d36872698f9b21bb279c22c9df0a5d52479bafb132bb7a34fda8a0598e2",
+    "tests/test_ros2_diagnostics_verifier.py": "a81d203796c955c44e75d1f5d325f02e7df5138e58d640c925df4130f3bdca86"
+  },
+  "exit_code": 0,
+  "elapsed_sec": 276.641,
+  "tests": 968,
+  "result": "PASS",
+  "log_tail": "hon3.10/socketserver.py\", line 747, in __init__\n    self.handle()\n  File \"/usr/lib/python3.10/http/server.py\", line 433, in handle\n    self.handle_one_request()\n  File \"/usr/lib/python3.10/http/server.py\", line 421, in handle_one_request\n    method()\n  File \"/home/jetmax/ros-diag-acceptance-20261103/source/astrbot_ex/core/api_server.py\", line 175, in do_GET\n    if self._try_send_static():\n  File \"/home/jetmax/ros-diag-acceptance-20261103/source/astrbot_ex/core/api_server.py\", line 1067, in _try_send_static\n    self.wfile.write(body)\n  File \"/usr/lib/python3.10/socketserver.py\", line 826, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n...........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 968 tests in 274.774s\n\nOK\nSDK journal compatibility disabled {'starts': 1, 'cancels': [], 'epoch_before': 3, 'epoch_after': 3, 'gate': True, 'held_resources': ['shared'], 'stop_calls': 0}\nSDK journal compatibility shadow {'starts': 1, 'cancels': [], 'epoch_before': 5, 'epoch_after': 5, 'gate': True, 'held_resources': ['shared'], 'stop_calls': 0}\nblocked-subscriber tts {'stop': 0.438, 'voice': 0.049}\nblocked-subscriber text {'voice': 0.176, 'stop': 0.73}\nG04 event-latch gate+status n=20 p95_ms=0.722 max_ms=0.767; single_live_calls=1\n",
+  "finished_at": "2026-11-03T12:36:00.165068+00:00"
+}

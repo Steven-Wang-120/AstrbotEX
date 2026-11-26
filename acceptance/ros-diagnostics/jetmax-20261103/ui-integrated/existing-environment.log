@@ -1,0 +1,1 @@
+{"passed": ["environment navigation and numbering", "environment draft survives polling and can be discarded", "plugin ROS draft survives polling and can be discarded", "SSE reconnect", "navigation and browser reload never select a mode"], "javascript_errors": [], "mode_change_requests": []}

@@ -1,3 +1,0 @@
-activation_start
-activation_complete
-Python 3.11.16

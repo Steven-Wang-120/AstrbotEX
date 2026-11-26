@@ -1,0 +1,29 @@
+✔ real Host page: configure offline, persist, conflict and preserve failed drafts (8146.5355ms)
+✖ real Host CRUD, prompts, reload and four viewport/theme combinations (4052.8256ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12470.8029
+
+✖ failing tests:
+
+test at D:\Code\A.E.B-work\upper-b10-b11\astrbot_plugin_astrbotex_interaction\tests\ui\upper_control.spec.mjs:1369:27
+✖ real Host CRUD, prompts, reload and four viewport/theme combinations (4052.8256ms)
+  AssertionError [ERR_ASSERTION]: {"status":"error","message":"Missing API key"}
+  
+  401 !== 200
+  
+      at TestContext.<anonymous> (file:///D:/Code/A.E.B-work/upper-b10-b11/astrbot_plugin_astrbotex_interaction/tests/ui/upper_control.spec.mjs:1454:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 401,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,8 @@
+[32m[13:30:19.290][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task finished name='Task-2' coro=<IsolationTests.test_100_seeded_private_marker_combinations_no_leak() done, defined at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_output_isolation.py:23> result=None created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 4.829 seconds[0m
+/AstrBot/astrbot/core/utils/tencent_record_helper.py:4: DeprecationWarning: 'audioop' is deprecated and slated for removal in Python 3.13
+  import audioop
+...
+----------------------------------------------------------------------
+Ran 3 tests in 4.965s
+
+OK

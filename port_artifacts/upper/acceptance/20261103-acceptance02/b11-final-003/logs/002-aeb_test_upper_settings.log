@@ -1,0 +1,28 @@
+test_apply_scope_never_reports_a_reload_for_a_prompt_only_change (test_upper_settings.ApplyScopeTests.test_apply_scope_never_reports_a_reload_for_a_prompt_only_change) ... ok
+test_connection_fields_require_a_reload (test_upper_settings.ApplyScopeTests.test_connection_fields_require_a_reload) ... ok
+test_prompt_and_model_fields_apply_to_the_next_input (test_upper_settings.ApplyScopeTests.test_prompt_and_model_fields_apply_to_the_next_input) ... ok
+test_defaults_match_the_documented_schema (test_upper_settings.DefaultTests.test_defaults_match_the_documented_schema) ... ok
+test_feature_ships_disabled_on_loopback (test_upper_settings.DefaultTests.test_feature_ships_disabled_on_loopback) ... ok
+test_old_channel_keys_are_left_alone (test_upper_settings.DefaultTests.test_old_channel_keys_are_left_alone) ... ok
+test_the_module_cannot_call_a_model_or_a_socket (test_upper_settings.IsolationTests.test_the_module_cannot_call_a_model_or_a_socket) ... ok
+test_a_partial_patch_preserves_untouched_fields (test_upper_settings.PartialSaveTests.test_a_partial_patch_preserves_untouched_fields) ... ok
+test_bool_is_not_a_port (test_upper_settings.PartialSaveTests.test_bool_is_not_a_port) ... ok
+test_empty_prompt_is_legal_and_means_use_the_builtin (test_upper_settings.PartialSaveTests.test_empty_prompt_is_legal_and_means_use_the_builtin) ... ok
+test_invalid_values_are_rejected (test_upper_settings.PartialSaveTests.test_invalid_values_are_rejected) ... ok
+test_no_op_save_does_not_move_the_revision (test_upper_settings.PartialSaveTests.test_no_op_save_does_not_move_the_revision) ... ok
+test_oversized_prompt_uses_the_prompt_error_code (test_upper_settings.PartialSaveTests.test_oversized_prompt_uses_the_prompt_error_code) ... ok
+test_unknown_setting_is_rejected (test_upper_settings.PartialSaveTests.test_unknown_setting_is_rejected) ... ok
+test_load_prompts_returns_the_override_and_revision (test_upper_settings.PromptSharingTests.test_load_prompts_returns_the_override_and_revision) ... ok
+test_prompts_and_settings_share_one_revision (test_upper_settings.PromptSharingTests.test_prompts_and_settings_share_one_revision) ... ok
+test_saving_one_prompt_leaves_the_other_alone (test_upper_settings.PromptSharingTests.test_saving_one_prompt_leaves_the_other_alone) ... ok
+test_a_broken_external_value_falls_back_visibly (test_upper_settings.RevisionTests.test_a_broken_external_value_falls_back_visibly) ... ok
+test_an_external_host_edit_invalidates_an_older_page_save (test_upper_settings.RevisionTests.test_an_external_host_edit_invalidates_an_older_page_save) ... ok
+test_revision_survives_a_restart (test_upper_settings.RevisionTests.test_revision_survives_a_restart) ... ok
+test_two_saves_from_the_same_revision_only_one_wins (test_upper_settings.RevisionTests.test_two_saves_from_the_same_revision_only_one_wins) ... ok
+test_a_failed_host_write_is_reported_and_rolled_back (test_upper_settings.WriteFailureTests.test_a_failed_host_write_is_reported_and_rolled_back) ... ok
+test_no_second_settings_file_is_created (test_upper_settings.WriteFailureTests.test_no_second_settings_file_is_created) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.015s
+
+OK

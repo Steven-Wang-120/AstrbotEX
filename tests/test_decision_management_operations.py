@@ -23,6 +23,7 @@ class DecisionManagementOperationsTests(ManagementHTTPFixture, unittest.TestCase
     def setUp(self):
         self.deployment_temp = tempfile.TemporaryDirectory()
         deployment_root = Path(self.deployment_temp.name)
+        (deployment_root / "cache").mkdir()
         with socket.socket() as available:
             available.bind(("127.0.0.1", 0))
             port = available.getsockname()[1]
@@ -53,6 +54,14 @@ class DecisionManagementOperationsTests(ManagementHTTPFixture, unittest.TestCase
         with patch("tests.test_decision_management_http.ManagementSettings", return_value=settings):
             super().setUp()
         self.management = self.server.decision_management
+        config = self.get_config()
+        saved = copy.deepcopy(config["saved"])
+        saved["backend"] = "laya"
+        saved["laya"]["service_connection"]["mode"] = "owned"
+        saved["laya"]["deployment"] = {"launcher": "subprocess", "python": str(deployment.python),
+                                       "cache": str(deployment.cache), "device": deployment.device}
+        self.assertEqual(self.write("/config", {"config": saved}, version=config)[0], 200)
+        self.owned = self.management.laya
         original = self.management._run_operation
 
         def observed(operation, work):
@@ -193,6 +202,9 @@ class DecisionManagementOperationsTests(ManagementHTTPFixture, unittest.TestCase
         self.assertEqual(self.server.action_ledger.list_commands().result(1), ())
 
     def test_new_stop_atomically_rejects_old_mode_at_trusted_commit_boundary(self):
+        self.save_laya()
+        self.load_release.set()
+        self.assertEqual(self.finished(self.write("/service/start")[1])["state"], "succeeded")
         entered, release = threading.Event(), threading.Event()
         self.release_events.append(release)
         original = self.server.decision_service.management_set_mode

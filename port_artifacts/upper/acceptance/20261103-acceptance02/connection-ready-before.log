@@ -1,0 +1,30 @@
+test_running_waits_for_socket_initialization (tests.test_connection_manager.ConnectionManagerZeroMQTest.test_running_waits_for_socket_initialization) ... 
+  test_running_waits_for_socket_initialization (tests.test_connection_manager.ConnectionManagerZeroMQTest.test_running_waits_for_socket_initialization) (delayed_id='router') ... FAIL
+  test_running_waits_for_socket_initialization (tests.test_connection_manager.ConnectionManagerZeroMQTest.test_running_waits_for_socket_initialization) (delayed_id='dealer') ... FAIL
+
+======================================================================
+FAIL: test_running_waits_for_socket_initialization (tests.test_connection_manager.ConnectionManagerZeroMQTest.test_running_waits_for_socket_initialization) (delayed_id='router')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Code\AstrBotEX-work\upper-b10-b11\tests\test_connection_manager.py", line 101, in test_running_waits_for_socket_initialization
+    self.assertEqual(runtime["state"], "starting")
+AssertionError: 'running' != 'starting'
+- running
++ starting
+
+
+======================================================================
+FAIL: test_running_waits_for_socket_initialization (tests.test_connection_manager.ConnectionManagerZeroMQTest.test_running_waits_for_socket_initialization) (delayed_id='dealer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Code\AstrBotEX-work\upper-b10-b11\tests\test_connection_manager.py", line 101, in test_running_waits_for_socket_initialization
+    self.assertEqual(runtime["state"], "starting")
+AssertionError: 'running' != 'starting'
+- running
++ starting
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.217s
+
+FAILED (failures=2)

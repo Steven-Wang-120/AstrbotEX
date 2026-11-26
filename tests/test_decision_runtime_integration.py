@@ -170,9 +170,10 @@ class JevServiceCompositionTests(unittest.TestCase):
         self.assertTrue(self.entered.wait(1))
         before = service.config_revision
         old_id = self.requests[0]["state"]["snapshot"]["snapshot_id"]
-        service.reconfigure_backend(replace(self.backend.config, model="jev-1.14.0"))
+        self.assertNotEqual(self.backend.config.deadline_ms, 2000)
+        service.reconfigure_backend(replace(self.backend.config, deadline_ms=2000))
         self.assertEqual(service.config_revision, before + 1)
-        self.assertEqual(self.backend.config.model, "jev-1.14.0")
+        self.assertEqual(self.backend.config.deadline_ms, 2000)
         self.release.set()
         self.assertTrue(wait_for(lambda: any(d["snapshot_id"] == old_id and d["outcome"] == "discarded"
                                               for d in service.status()["decisions"])))

@@ -4,7 +4,6 @@ import argparse
 import base64
 import json
 import os
-import queue
 import shutil
 import tempfile
 import threading
@@ -25,10 +24,12 @@ from astrbot_ex.core.actions.service import ActionService
 from astrbot_ex.core.actions.storage import prepare_action_ledger
 from astrbot_ex.core.decision.catalog import CapabilityCatalog
 from astrbot_ex.core.decision.service import DecisionService, ShutdownErrors
-from astrbot_ex.core.decision.management import DecisionManagement, ManagementSettings
+from astrbot_ex.core.decision.management import DecisionManagement, ManagementSettings, management_public_address
 from astrbot_ex.core.decision.config import ManagementError
 from astrbot_ex.core.decision.controller import DecisionController
 from astrbot_ex.core.decision.public_delivery import TaskPublicDelivery
+from astrbot_ex.core.decision.instruction_input import DecisionInstructionInput
+from astrbot_ex.core.step_input import StepInputIngress, StepInputLog
 from astrbot_ex.core.backup import SnapshotError, SnapshotService
 from astrbot_ex.core.connection_manager import ConnectionManager
 from astrbot_ex.core.environments import (
@@ -37,6 +38,7 @@ from astrbot_ex.core.environments import (
     EnvironmentRevisionConflict,
 )
 from astrbot_ex.core.event_bus import EventBus
+from astrbot_ex.core.event_stream import project_event
 from astrbot_ex.core.interaction_core import InteractionCore
 from astrbot_ex.core.local_plugins import LocalPluginManager
 from astrbot_ex.core.models import RuntimeEvent, RuntimeState
@@ -49,6 +51,7 @@ from astrbot_ex.core.scene_fusion import SceneFusion
 from astrbot_ex.core.serialization import to_jsonable
 from astrbot_ex.core.topic_bus import TopicBus
 from astrbot_ex.core.vision_sources import VisionSourceManager
+from astrbot_ex.core.voice_dashboard import VoiceDashboard
 
 
 class RuntimeController:
@@ -166,35 +169,6 @@ class RuntimeController:
             time.sleep(interval)
 
 
-class EventStream:
-    def __init__(self, controller: RuntimeController) -> None:
-        self.controller = controller
-        self.queue: queue.Queue[RuntimeEvent] = queue.Queue(maxsize=200)
-        self.unsubscribe = controller.runtime.event_bus.subscribe(self._on_event)
-
-    def close(self) -> None:
-        self.unsubscribe()
-
-    def recent(self) -> list[RuntimeEvent]:
-        return self.controller.runtime.event_bus.recent(50)
-
-    def get(self, timeout: float) -> RuntimeEvent | None:
-        try:
-            return self.queue.get(timeout=timeout)
-        except queue.Empty:
-            return None
-
-    def _on_event(self, event: RuntimeEvent) -> None:
-        try:
-            self.queue.put_nowait(event)
-        except queue.Full:
-            try:
-                self.queue.get_nowait()
-            except queue.Empty:
-                pass
-            self.queue.put_nowait(event)
-
-
 class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
     server_version = "AstrBotEXAPI/0.1"
 
@@ -206,6 +180,8 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         if self.server.decision_management.handle_http(self):
             return
         path = self._path()
+        if self._voice_api(path, 'GET'):
+            return
         backup_filename = self._match_backup_filename(path)
         if backup_filename is not None:
             self._send_backup_download(backup_filename)
@@ -330,8 +306,14 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             return False
         try:
             status = HTTPStatus.OK
+            diagnostic_route = path in {prefix + '/diagnostics', prefix + '/diagnostics/refresh'}
+            if diagnostic_route and (getattr(self.server, '_closing', False) or manager._diagnostics_closing):
+                self._send_json({'ok': False, 'code': 'service_closing', 'message': 'diagnostics service is closing'}, HTTPStatus.SERVICE_UNAVAILABLE)
+                return True
             if method == "GET":
-                if plugin_ros:
+                if path == prefix + '/diagnostics':
+                    result = {'ok': True, **manager.diagnostics_snapshot()}
+                elif plugin_ros:
                     result = {"ok": True, "ros2": self.server.local_plugins.get_ros2(unquote(path[len(plugin_prefix):-5])),
                               "environment": manager.snapshot()}
                 elif path in {prefix, "/api/environments", prefix + "/ros2/status"}:
@@ -351,7 +333,14 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             else:
                 payload = self._read_json()
                 if not isinstance(payload, dict): raise ValueError("request body must be an object")
-                if plugin_ros:
+                if path == prefix + '/diagnostics/refresh':
+                    if (not isinstance(payload.get('expected_session'), str) or not payload['expected_session']
+                            or type(payload.get('expected_revision')) is not int):
+                        raise ValueError('expected_session and integer expected_revision are required')
+                    result = manager.refresh_diagnostics(expected_session=payload['expected_session'],
+                                                         expected_revision=payload['expected_revision'])
+                    status = HTTPStatus.ACCEPTED
+                elif plugin_ros:
                     manager._check_revision(expected_session=payload.get("expected_session"))
                     result = self.server.local_plugins.update_ros2(unquote(path[len(plugin_prefix):-5]),
                                                                    payload.get("bindings"), payload.get("expected_revision"))
@@ -371,12 +360,49 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
                     return False
             self._send_json(result, status)
         except (EnvironmentRevisionConflict, EnvironmentBusyError) as exc:
+            if diagnostic_route and isinstance(exc, EnvironmentBusyError):
+                self._send_json({'ok': False, 'code': 'service_closing', 'message': 'diagnostics service is unavailable'}, HTTPStatus.SERVICE_UNAVAILABLE)
+                return True
             code = "revision_conflict" if isinstance(exc, EnvironmentRevisionConflict) else "environment_busy"
             self._send_json({"ok": False, "code": code, "message": str(exc), "error": str(exc), "details": manager.snapshot()}, HTTPStatus.CONFLICT)
         except KeyError as exc:
             self._send_json({"ok": False, "code": "not_found", "message": str(exc), "error": str(exc), "details": {}}, HTTPStatus.NOT_FOUND)
         except ValueError as exc:
             self._send_json({"ok": False, "code": "invalid_environment_request", "message": str(exc), "error": str(exc), "details": {}}, HTTPStatus.BAD_REQUEST)
+        return True
+
+    def _voice_api(self, path: str, method: str) -> bool:
+        prefix = '/api/v1/ex/voice/'
+        if not path.startswith(prefix):
+            return False
+        action = path[len(prefix):]
+        plugin_id = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get('plugin_id', [None])[0]
+        try:
+            voice = self.server.voice_dashboard
+            if method == 'GET' and action == 'status':
+                result = voice.status(plugin_id=plugin_id)
+            elif method == 'GET' and action == 'devices':
+                result = voice.devices({'action': 'list'}, plugin_id=plugin_id)
+            elif method == 'POST' and action in ('config', 'streaming', 'devices/check'):
+                payload = self._read_json()
+                if not isinstance(payload, dict):
+                    raise ValueError('请求必须为 JSON 对象')
+                plugin_id = payload.get('plugin_id')
+                if plugin_id is not None and not isinstance(plugin_id, str):
+                    raise ValueError('plugin_id 必须为字符串')
+                if action == 'config':
+                    result = voice.configure(payload.get('config'), plugin_id=plugin_id)
+                elif action == 'streaming':
+                    result = voice.streaming(payload.get('enabled'), plugin_id=plugin_id)
+                else:
+                    request = {key: value for key, value in payload.items() if key != 'plugin_id'}
+                    result = voice.devices({**request, 'action': 'validate'}, plugin_id=plugin_id)
+            else:
+                self._send_json({'ok': False, 'error': 'not found'}, HTTPStatus.NOT_FOUND)
+                return True
+            self._send_json(result)
+        except (ValueError, KeyError, OSError, RuntimeError, TimeoutError) as exc:
+            self._send_json({'ok': False, 'error': str(exc)}, HTTPStatus.BAD_REQUEST)
         return True
 
     def do_POST(self) -> None:
@@ -386,6 +412,8 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             return
         self.server.decision_management.invalidate("legacy_write")
         path = self._path()
+        if self._voice_api(path, 'POST'):
+            return
         if path == "/api/v1/ex/backups":
             self._create_backup()
             return
@@ -865,7 +893,18 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
     def _send_json(self, payload: Any, status: HTTPStatus = HTTPStatus.OK) -> None:
         management = getattr(self.server, "decision_management", None)
         if management is not None:
-            payload = management.sanitize(to_jsonable(payload))
+            payload = to_jsonable(payload)
+            if isinstance(payload, dict) and isinstance(payload.get('recent_events'), list):
+                recent = []
+                for event in payload['recent_events']:
+                    row = management.sse_payload(event)
+                    log = (event.get('data') or {}).get('log') if isinstance(event, dict) else None
+                    if isinstance(row, dict) and isinstance(log, dict) and isinstance(log.get('event_id'), str):
+                        # Transport identity stays outside decision_changed's data whitelist.
+                        row['event_id'] = log['event_id']
+                    recent.append(row)
+                payload = {**payload, 'recent_events': recent}
+            payload = management.sanitize(payload)
         body = json.dumps(to_jsonable(payload), ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -1070,25 +1109,70 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
         return True
 
     def _send_events(self) -> None:
-        stream = EventStream(self.controller)
-        self.send_response(HTTPStatus.OK)
-        self.send_header("Content-Type", "text/event-stream; charset=utf-8")
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("Connection", "keep-alive")
-        self.end_headers()
+        if getattr(self.server, '_closing', False):
+            self._send_json({'ok': False, 'code': 'service_closing'}, HTTPStatus.SERVICE_UNAVAILABLE)
+            return
+        self.connection.settimeout(5.0)
+        cursors = self.headers.get_all('Last-Event-ID', [])
+        if len(cursors) > 1:
+            self._send_json({'ok': False, 'code': 'invalid_event_cursor'}, HTTPStatus.BAD_REQUEST)
+            return
         try:
-            for event in stream.recent():
-                self._write_sse("event", event)
+            stream = self.controller.runtime.event_bus.open_stream(cursors[0] if cursors else None)
+        except ValueError:
+            self._send_json({'ok': False, 'code': 'invalid_event_cursor', 'message': 'invalid Last-Event-ID'}, HTTPStatus.BAD_REQUEST)
+            return
+        with self.server._event_streams_lock:
+            if self.server._closing:
+                stream.close()
+                self._send_json({'ok': False, 'code': 'service_closing'}, HTTPStatus.SERVICE_UNAVAILABLE)
+                return
+            self.server._event_streams.add(stream)
+        try:
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-Type', 'text/event-stream; charset=utf-8')
+            self.send_header('Cache-Control', 'no-store')
+            self.send_header('Connection', 'close')
+            self.end_headers()
+            self.close_connection = True
+            def send(frame):
+                if frame['kind'] == 'control':
+                    self._write_sse('log_control', frame['control'])
+                else:
+                    projected = project_event(frame['event'])
+                    payload = {key: projected[key] for key in ('type', 'message', 'timestamp', 'data')}
+                    if 'log' in projected:
+                        payload['data']['log'] = projected['log']
+                    self._write_sse('event', payload, event_id=frame['event_id'])
+            # B03 exposes startup controls via get(), history via recent().
+            # Send reset/gap first, while holding any already-live event until
+            # the captured history has been replayed.
+            pending = None
             while True:
-                event = stream.get(timeout=10.0)
-                if event is None:
-                    self._write_raw(": keepalive\n\n")
-                    continue
-                self._write_sse("event", event)
-        except (BrokenPipeError, ConnectionResetError):
+                initial = stream.get(timeout=0)
+                if initial is None:
+                    break
+                if initial['kind'] == 'control':
+                    send(initial)
+                else:
+                    pending = initial
+                    break
+            for frame in stream.recent():
+                send(frame)
+            if pending is not None:
+                send(pending)
+            while not stream.closed and not self.server._closing:
+                frame = stream.get(timeout=10.0)
+                if frame is not None:
+                    send(frame)
+                elif not stream.closed:
+                    self._write_raw(': keepalive\n\n')
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, TimeoutError):
             pass
         finally:
             stream.close()
+            with self.server._event_streams_lock:
+                self.server._event_streams.discard(stream)
 
     def _parse_multipart_form_data(self) -> dict[str, dict[str, Any]]:
         length = int(self.headers.get("Content-Length", "0"))
@@ -1116,12 +1200,13 @@ class AstrBotEXRequestHandler(BaseHTTPRequestHandler):
             fields[name] = entry
         return fields
 
-    def _write_sse(self, event_name: str, payload: Any) -> None:
+    def _write_sse(self, event_name: str, payload: Any, *, event_id: str | None = None) -> None:
         management = getattr(self.server, "decision_management", None)
         if management is not None:
             payload = management.sse_payload(payload)
         data = json.dumps(to_jsonable(payload), ensure_ascii=False)
-        self._write_raw(f"event: {event_name}\ndata: {data}\n\n")
+        prefix = f"id: {event_id}\n" if event_id is not None else ""
+        self._write_raw(f"{prefix}event: {event_name}\ndata: {data}\n\n")
 
     def _write_raw(self, text: str) -> None:
         self.wfile.write(text.encode("utf-8"))
@@ -1149,13 +1234,49 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
     bridge: AstrBotBridge
     interaction_core: InteractionCore
     connections: ConnectionManager
+    voice_dashboard: VoiceDashboard
     snapshot_service: SnapshotService
     environment_manager: EnvironmentManager
     action_service: ActionService
     decision_management: DecisionManagement
+    step_input_ingress: "StepInputIngress | None"
+
+    def _close_step_input(self, errors: list) -> None:
+        """Stop accepting upper steps before anything else is torn down.
+
+        Order matters: detach the route so no new request can arrive, then drain
+        and join the worker so no late phase update can land after the receipt
+        log is considered final.
+        """
+
+        ingress = getattr(self, "step_input_ingress", None)
+        self.step_input_ingress = None
+        try:
+            if hasattr(self, "connections"):
+                self.connections.set_step_input_handler(None)
+                self.connections.set_control_session_provider(None)
+        except Exception as exc:
+            errors.append(exc)
+        if ingress is not None:
+            try:
+                ingress.close()
+            except Exception as exc:
+                errors.append(exc)
 
     def server_close(self) -> None:
+        self._closing = True
         errors = []
+        self._close_step_input(errors)
+        if hasattr(self, '_event_streams_lock'):
+            with self._event_streams_lock:
+                streams = list(self._event_streams)
+            for stream in streams:
+                stream.close()
+        if hasattr(self, 'environment_manager'):
+            try:
+                self.environment_manager.close_diagnostics()
+            except Exception as exc:
+                errors.append(exc)
         if hasattr(self, "decision_management"):
             try:
                 self.decision_management.close()
@@ -1165,7 +1286,7 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
             if hasattr(self, "controller"):
                 self.controller.stop("api server shutdown")
             if hasattr(self, "environment_manager"):
-                self.environment_manager.close("api server shutdown")
+                self.environment_manager.close("api server shutdown", close_diagnostics=False)
         except Exception as exc:
             # Keep the old adapter and action reporting alive when stop is unproven.
             super().server_close()
@@ -1207,10 +1328,60 @@ class AstrBotEXHTTPServer(ThreadingHTTPServer):
             raise ShutdownErrors("API server shutdown failed", errors)
 
 
+def _build_step_input(decision_service: DecisionService, connections: ConnectionManager,
+                      data_root: Path) -> StepInputIngress:
+    """Wire the upper-step ingress.
+
+    Built after the decision service (it needs the existing backend slot) and
+    before ``connections.start_enabled()``, so the first inbound control request
+    always finds a live handler.
+    """
+
+    log = StepInputLog(data_root / "execution" / "upper_step_input.jsonl")
+    adapter = DecisionInstructionInput(decision_service)
+
+    def catalog_summary() -> dict:
+        # Read-only visibility only: an action description is never an
+        # execution grant.
+        snapshot = decision_service.catalog.snapshot()
+        actions = []
+        for entry in snapshot.entries:
+            manifest = entry.get("manifest") or {}
+            for action in manifest.get("actions") or ():
+                actions.append({
+                    "owner": entry.get("owner"),
+                    "action_id": action.get("action_id"),
+                    "description": str(action.get("description") or "")[:200],
+                    "available": bool(entry.get("available")),
+                })
+        pipeline = decision_service.primitives
+        tools = getattr(pipeline.provider, "tool_definitions", None) if pipeline else None
+        return {"catalog_version": str(snapshot.revision), "actions": actions[:128],
+                "primitive_catalog": pipeline.catalog if pipeline else None,
+                "primitive_tools": tools() if callable(tools) else []}
+
+    ingress = StepInputIngress(
+        log=log,
+        adapter=adapter,
+        trusted_context=connections.control_trusted_context,
+        catalog_summary=catalog_summary,
+        primitive_status=lambda: pipeline.status() if (pipeline := decision_service.primitives) else {},
+    )
+    # The session is a runtime value; a reloaded record cannot pin it.
+    connections.set_control_session_provider(lambda: decision_service.goals.ex_session)
+    connections.set_step_input_handler(ingress.handle)
+    ingress.start()
+    return ingress
+
+
 def build_server(host: str, port: int, tick_hz: float, *,
                  management_settings: ManagementSettings | None = None) -> AstrBotEXHTTPServer:
-    if host not in {"127.0.0.1", "localhost"}:
-        raise ValueError("management HTTP requires a loopback binding")
+    settings = ManagementSettings() if management_settings is None else management_settings
+    if not isinstance(settings, ManagementSettings):
+        raise ManagementError("invalid_management_settings", 500)
+    public_address = management_public_address(settings.public_origin)
+    if host not in {"127.0.0.1", "localhost"} and public_address != (host, port):
+        raise ValueError("non-loopback management binding requires an exact configured management origin")
     project_root = Path(__file__).resolve().parents[2]
     data_dir = os.environ.get("ASTRBOTEX_DATA_DIR")
     data_root = Path(data_dir).resolve() if data_dir else project_root
@@ -1313,7 +1484,11 @@ def build_server(host: str, port: int, tick_hz: float, *,
     runtime.interaction_core = interaction_core
     controller = RuntimeController(runtime=runtime, tick_hz=tick_hz)
     server = AstrBotEXHTTPServer((host, port), AstrBotEXRequestHandler)
+    server._closing = False
+    server._event_streams = set()
+    server._event_streams_lock = threading.Lock()
     server.controller = controller
+    decision_management.attach_runtime(controller, connections)
     server.action_service = action_service
     server.decision_service = decision_service
     server.decision_management = decision_management
@@ -1333,10 +1508,13 @@ def build_server(host: str, port: int, tick_hz: float, *,
         environment_manager=environment_manager,
         action_dispatcher=dispatcher,
         capability_catalog=catalog,
+        on_primitive_owner=decision_service.set_primitive_owner,
     )
     server.local_plugins.discover()
     server.local_plugins.load_enabled()
     action_service.update_versions()
+
+    server.voice_dashboard = VoiceDashboard(server.local_plugins, controller)
     server.bridge = AstrBotBridge(
         controller=controller,
         local_plugins=server.local_plugins,
@@ -1364,7 +1542,8 @@ def build_server(host: str, port: int, tick_hz: float, *,
         try:
             decision_management.before_restore()
         except ManagementError as exc:
-            if exc.code != "stop_not_proven":
+            # A superseded stop receipt cannot prove this restore safe either.
+            if exc.code not in {"stop_not_proven", "stop_operation_superseded"}:
                 raise
             raise SnapshotError(action_service.status()["error"] or "stop proof pending") from exc
         controller.stop("instance snapshot restore")
@@ -1422,6 +1601,7 @@ def build_server(host: str, port: int, tick_hz: float, *,
             public_handler=server.task_public_delivery.enqueue)
         connections.set_task_turn_handler(server.decision_controller.turn)
         interaction_core.task_authority_invalidator = server.decision_controller.invalidate_local
+        server.step_input_ingress = _build_step_input(decision_service, connections, data_root)
     except BaseException:
         server.server_close()
         raise
@@ -1429,6 +1609,7 @@ def build_server(host: str, port: int, tick_hz: float, *,
     selected_mode = environment_manager.status()["config"]["selected_mode"]
     if selected_mode != "normal":
         environment_manager.select(selected_mode)
+    environment_manager.start_diagnostics()
     return server
 
 
@@ -1437,9 +1618,12 @@ def main() -> None:
     parser.add_argument("--host", default=os.environ.get("ASTRBOTEX_HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.environ.get("ASTRBOTEX_PORT", "8765")))
     parser.add_argument("--tick-hz", type=float, default=float(os.environ.get("ASTRBOTEX_TICK_HZ", "20")))
+    parser.add_argument("--management-origin", default=os.environ.get("ASTRBOTEX_MANAGEMENT_ORIGIN"),
+                        help="Exact http://IP:port origin for an explicitly configured remote Web UI; keeps bearer authentication.")
     args = parser.parse_args()
 
-    server = build_server(args.host, args.port, args.tick_hz)
+    server = build_server(args.host, args.port, args.tick_hz,
+                          management_settings=ManagementSettings(public_origin=args.management_origin))
     print(f"Management credential file: {server.decision_management.credential_path}")
     print(f"AstrBotEX API listening on http://{args.host}:{args.port}")
     print(f"Dashboard: http://{args.host}:{args.port}/")

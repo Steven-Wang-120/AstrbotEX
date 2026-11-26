@@ -1,0 +1,17 @@
+# EXAMPLE ONLY - drop-in for the EX service. Not installed by this repository.
+#
+# Path (the directory name must match the EX unit name):
+#   /etc/systemd/system/<EX_SERVICE_NAME>.service.d/20-loopback-multicast.conf
+#
+# It only orders the EX service after the loopback-multicast oneshot. Wants is
+# used rather than Requires on purpose: with Requires, a failed `ip link` would
+# refuse to start EX at all. The oneshot already fails loudly on its own, and
+# the diagnostic preflight reports the missing MULTICAST flag, so the operator
+# gets both the failed unit and the visible warning instead of a dead service.
+#
+# If the site prefers hard coupling, change Wants to Requires and document that
+# a multicast failure now blocks EX startup completely.
+
+[Unit]
+Wants=astrex-loopback-multicast.service
+After=astrex-loopback-multicast.service

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>EX logs fixture (B05)</title>
+<link rel="stylesheet" href="../../../../dashboard/styles.css" />
+<link rel="stylesheet" href="../../../../dashboard/logs.css" />
+<style>
+  body { margin: 0; padding: 20px; background: #F5F8F6; }
+  #page-logs { max-width: 1200px; margin: 0 auto; }
+</style>
+</head>
+<body>
+<section class="page active" id="page-logs">
+  <header class="page-head">
+    <div class="page-head-actions">
+      <div class="status-pill" id="logConnectionPill">
+        <span class="sq" aria-hidden="true"></span><span data-label>日志流连接中</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="logAutoscrollButton">自动滚动: 开</button>
+      <button class="btn btn-ghost btn-sm" id="logClearButton">清空</button>
+    </div>
+  </header>
+  <section class="panel log-panel">
+    <div class="panel-head">
+      <span class="panel-num">03.A</span><h2>事件流</h2>
+      <span class="panel-meta" id="eventStatus">SSE 未连接</span>
+    </div>
+    <div class="log-toolbar">
+      <div class="log-level-filters" id="logLevelFilters"></div>
+      <select class="log-source-filter" id="logSourceFilter" aria-label="来源筛选"></select>
+      <input class="log-search-input" id="logSearchInput" type="search" placeholder="搜索纯文本" />
+      <button class="log-export-button" id="logExportButton" type="button">导出可见日志</button>
+      <span class="log-unread-count" id="logUnreadCount" hidden></span>
+    </div>
+    <div class="log-gap" id="logGapNotice" hidden></div>
+    <div class="log-console" id="logConsole"></div>
+  </section>
+</section>
+<script src="../../../../dashboard/logs.js"></script>
+<script>window.EXLogs.mount();</script>
+</body>
+</html>

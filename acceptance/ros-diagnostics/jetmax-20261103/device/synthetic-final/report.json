@@ -1,0 +1,78 @@
+{
+  "scenario": "synthetic",
+  "url": "http://127.0.0.1:18765",
+  "domain": 73,
+  "duration_sec": 30,
+  "repeat": 2,
+  "with_observer": false,
+  "platform": "linux",
+  "result": "PASS",
+  "reason": "",
+  "rounds": [
+    {
+      "round": 1,
+      "checks": {
+        "no_data_with_peer": true,
+        "receiving": true,
+        "stale": true,
+        "recovered": true,
+        "duration": true,
+        "new_rx": true,
+        "new_consumption": true,
+        "input_count": true,
+        "round_exit_idle_gate_closed": true
+      },
+      "started_at": "2026-11-03T12:35:37Z",
+      "elapsed_sec": 30.115217396999924,
+      "input_count": 117,
+      "rx_delta": 117,
+      "consume_delta": 117,
+      "binding": {
+        "endpoint_id": "600380e479d44619bb32ee532050c4ac:image",
+        "owner_generation": "600380e479d44619bb32ee532050c4ac",
+        "environment_generation": 2,
+        "binding_generation": 5
+      },
+      "finished_at": "2026-11-03T12:36:07Z"
+    },
+    {
+      "round": 2,
+      "checks": {
+        "no_data_with_peer": true,
+        "receiving": true,
+        "stale": true,
+        "recovered": true,
+        "duration": true,
+        "new_rx": true,
+        "new_consumption": true,
+        "input_count": true,
+        "round_exit_idle_gate_closed": true
+      },
+      "started_at": "2026-11-03T12:36:08Z",
+      "elapsed_sec": 30.182510943000125,
+      "input_count": 117,
+      "rx_delta": 117,
+      "consume_delta": 117,
+      "binding": {
+        "endpoint_id": "600380e479d44619bb32ee532050c4ac:image",
+        "owner_generation": "600380e479d44619bb32ee532050c4ac",
+        "environment_generation": 4,
+        "binding_generation": 11
+      },
+      "finished_at": "2026-11-03T12:36:38Z"
+    }
+  ],
+  "cleanup": {
+    "runtime_stop": true,
+    "mode_normal": true,
+    "bindings": true,
+    "config": true,
+    "plugin_enabled_restored": true,
+    "idle_gate_closed": true
+  },
+  "sse_frames": 286,
+  "sse_error": null,
+  "schema": "astrex.ros2_diagnostics_acceptance.v1",
+  "started_at": "2026-11-03T12:35:35Z",
+  "finished_at": "2026-11-03T12:36:39Z"
+}

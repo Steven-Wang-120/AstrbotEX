@@ -1,0 +1,11 @@
+{
+  "original": "/home/jetmax/astrex/bin/run-yolo",
+  "original_session_sha256": "abe1d129afa34e227b40c34fb0e604e745b8384235af2ff71a0ee7afaae1cdef",
+  "changes": [
+    "private EX port 18765",
+    "private management credential path"
+  ],
+  "camera_entry_unchanged": "/home/jetmax/astrex/bin/run-camera",
+  "camera_device": "/dev/video0",
+  "aeb_forwarding": false
+}

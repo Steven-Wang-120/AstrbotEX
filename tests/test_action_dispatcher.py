@@ -194,7 +194,7 @@ class DispatcherTests(unittest.TestCase):
         self.assertEqual(events[-1].reason_code, reason)
         return snapshot
 
-    def _budget_timeout_order(self, *, actor_first):
+    def _lease_timeout_order(self, *, actor_first):
         plugin = self.owner(resource="joint")
         self.enabled("arm")
         entered, release = threading.Event(), threading.Event()
@@ -229,7 +229,7 @@ class DispatcherTests(unittest.TestCase):
         plugin.callback = callback
         plugin.after_action = lambda: None
         try:
-            self.dispatcher.start(command("arm", "budget-order", lease=800)).result(3)
+            self.dispatcher.start(command("arm", "lease-order", lease=180)).result(3)
             self.assertTrue(reported.wait(2))
             busy = self.dispatcher._enqueue(hold_control, priority=True)
             self.assertTrue(entered.wait(2))
@@ -238,8 +238,8 @@ class DispatcherTests(unittest.TestCase):
             slot = self.dispatcher._enqueue(hold_slot, priority=True)
             self.dispatcher._enqueue = enqueue_with_retry_latch
             self.assertTrue(retry_entered.wait(2))
-            self.assertEqual(self.dispatcher._timeout_pending["budget-order"],
-                             "actor_callback_budget_exceeded")
+            self.assertEqual(self.dispatcher._timeout_pending["lease-order"],
+                             "action_deadline")
             release.set()
             self.assertTrue(slot_entered.wait(2))
             busy.result(3)
@@ -254,7 +254,7 @@ class DispatcherTests(unittest.TestCase):
             slot_release.set()
             slot.result(3)
             self.dispatcher._enqueue(lambda: None).result(3)
-            self._assert_durable_timeout("budget-order", plugin, "actor_callback_budget_exceeded")
+            self._assert_durable_timeout("lease-order", plugin, "action_deadline")
             with self.assertRaises(RuntimeError):
                 reports[0].result(3)
             self.assertTrue(reports[0].done())
@@ -262,7 +262,7 @@ class DispatcherTests(unittest.TestCase):
             plugin.release.set()
             self.actors["arm"].call("after_action", timeout=3)
             self.dispatcher._enqueue(lambda: None).result(3)
-            self._assert_durable_timeout("budget-order", plugin, "actor_callback_budget_exceeded")
+            self._assert_durable_timeout("lease-order", plugin, "action_deadline")
         finally:
             self.dispatcher._enqueue = original_enqueue
             retry_release.set()
@@ -270,11 +270,11 @@ class DispatcherTests(unittest.TestCase):
             slot_release.set()
             plugin.release.set()
 
-    def test_expired_budget_actor_result_before_timeout_retry(self):
-        self._budget_timeout_order(actor_first=True)
+    def test_expired_lease_actor_result_before_timeout_retry(self):
+        self._lease_timeout_order(actor_first=True)
 
-    def test_expired_budget_timeout_retry_before_actor_result(self):
-        self._budget_timeout_order(actor_first=False)
+    def test_expired_lease_timeout_retry_before_actor_result(self):
+        self._lease_timeout_order(actor_first=False)
 
     def _park_dispatch_watchdog(self):
         # Park the real watcher before its first observation, not the Actor or ledger.
@@ -292,7 +292,7 @@ class DispatcherTests(unittest.TestCase):
         self.assertTrue(parked.wait(2))
         return release
 
-    def test_expired_budget_actor_result_before_watch_observation(self):
+    def test_slow_callback_succeeds_before_watch_observation(self):
         watch_release = self._park_dispatch_watchdog()
         plugin = self.owner(resource="joint")
         self.enabled("arm")
@@ -304,14 +304,12 @@ class DispatcherTests(unittest.TestCase):
         plugin.callback = callback
         plugin.after_action = lambda: None
         try:
-            self.dispatcher.start(command("arm", "unobserved-budget", lease=800)).result(3)
+            self.dispatcher.start(command("arm", "unobserved-slow", lease=800)).result(3)
             self.actors["arm"].call("after_action", timeout=3)
             self.assertGreater(self.actors["arm"].action_mailbox_stats()["last_action_duration_ms"], 20)
             self.dispatcher._enqueue(lambda: None).result(3)
-            self._assert_durable_timeout("unobserved-budget", plugin, "actor_callback_budget_exceeded")
-            with self.assertRaisesRegex(RuntimeError, "callback exceeded budget"):
-                reports[0].result(3)
-            self.assertTrue(reports[0].done())
+            self.assertEqual(reports[0].result(3).status, ActionStatus.SUCCEEDED)
+            self.assertFalse(self.dispatcher.blocked)
         finally:
             watch_release.set()
             plugin.release.set()
@@ -393,7 +391,7 @@ class DispatcherTests(unittest.TestCase):
         self.assertTrue(self.dispatcher.blocked)
         self.assertFalse(self.dispatcher._gate)
 
-    def test_running_report_then_callback_budget_is_durable_uncertainty(self):
+    def test_running_report_from_slow_callback_within_lease(self):
         plugin = self.owner(resource="joint")
         self.enabled("arm")
         reported, release, report_future = threading.Event(), threading.Event(), []
@@ -410,10 +408,9 @@ class DispatcherTests(unittest.TestCase):
             self.assertEqual(self.dispatcher.query("running-slow").result(3).status, ActionStatus.RUNNING)
             time.sleep(0.05)
             release.set()
-            snap = self.wait_status("running-slow", ActionStatus.TIMED_OUT)
-            self.assertEqual(snap.reason_code, "actor_callback_budget_exceeded")
-            self.assertEqual(snap.held_resources, ("joint",))
-            self.assertTrue(self.dispatcher.blocked)
+            self.actors["arm"].call("after_action", timeout=2)
+            self.assertEqual(self.dispatcher.query("running-slow").result(2).status, ActionStatus.RUNNING)
+            self.assertFalse(self.dispatcher.blocked)
         finally:
             release.set()
 
@@ -631,10 +628,10 @@ class DispatcherTests(unittest.TestCase):
         plugin.callback = callback
         plugin.after_action = lambda: None
         try:
-            self.dispatcher.start(command("arm", "canceled-terminal", lease=800)).result(3)
+            self.dispatcher.start(command("arm", "canceled-terminal", lease=200)).result(3)
             self.assertTrue(reported.wait(2))
             snap = self.wait_status("canceled-terminal", ActionStatus.TIMED_OUT)
-            self.assertEqual(snap.reason_code, "actor_callback_budget_exceeded")
+            self.assertEqual(snap.reason_code, "action_deadline")
             plugin.release.set()
             self.actors["arm"].call("after_action", timeout=3)
             self.assertTrue(reports[0].cancelled())
@@ -669,11 +666,11 @@ class DispatcherTests(unittest.TestCase):
         plugin.callback = callback
         plugin.after_action = lambda: None
         try:
-            self.dispatcher.start(command("arm", "canceled-slow", lease=800)).result(3)
+            self.dispatcher.start(command("arm", "canceled-slow", lease=200)).result(3)
             self.assertTrue(plugin.entered.wait(2))
             snap = self.wait_status("canceled-slow", ActionStatus.TIMED_OUT)
             self.assertEqual((snap.reason_code, snap.held_resources),
-                             ("actor_callback_budget_exceeded", ("joint",)))
+                             ("action_deadline", ("joint",)))
             # Reports created after the durable timeout exercise _actor_done, not _persist.
             create.set()
             self.assertTrue(reported.wait(2))
@@ -690,7 +687,7 @@ class DispatcherTests(unittest.TestCase):
             self.assertTrue(reports[0].cancelled())
             if cancel_race:
                 self.assertTrue(raced.is_set())
-            with self.assertRaisesRegex(RuntimeError, "callback exceeded budget"):
+            with self.assertRaisesRegex(RuntimeError, "terminal before callback completed"):
                 reports[1].result(3)
             self.assertTrue(reports[1].done())
             self.assertTrue(self.dispatcher.blocked)
@@ -699,7 +696,7 @@ class DispatcherTests(unittest.TestCase):
                 self.assertEqual(self.dispatcher._live["canceled-slow"].deferred_reports, [])
             final = self.dispatcher.query("canceled-slow").result(3)
             self.assertEqual((final.status, final.reason_code, final.held_resources),
-                             (ActionStatus.TIMED_OUT, "actor_callback_budget_exceeded", ("joint",)))
+                             (ActionStatus.TIMED_OUT, "action_deadline", ("joint",)))
             self.assertEqual(len(plugin.commands), 1)
         finally:
             create.set()
@@ -814,7 +811,7 @@ class DispatcherTests(unittest.TestCase):
         self.assertEqual(self.dispatcher.query("reject-first").result(3).held_resources, ())
         self.assertEqual(len(plugin.commands), 1)
 
-    def test_sync_success_report_cannot_release_resource_after_slow_callback(self):
+    def test_sync_success_report_releases_resource_after_slow_callback(self):
         plugin = self.owner(resource="joint")
         self.enabled("arm")
         binding = OwnerBinding("arm", 3)
@@ -823,13 +820,12 @@ class DispatcherTests(unittest.TestCase):
             report_future.append(self.dispatcher.report(cmd.command_id, binding, ActionStatus.SUCCEEDED))
             time.sleep(0.08)
         plugin.callback = callback
-        self.dispatcher.start(command("arm", "late-budget", lease=800)).result(3)
-        self.wait_status("late-budget", ActionStatus.TIMED_OUT)
-        self.assertTrue(self.dispatcher.blocked)
-        self.assertEqual(self.dispatcher.query("late-budget").result(3).held_resources, ("joint",))
+        self.dispatcher.start(command("arm", "slow-success", lease=800)).result(3)
+        snap = self.wait_status("slow-success", ActionStatus.SUCCEEDED)
+        self.assertFalse(self.dispatcher.blocked)
+        self.assertEqual(snap.held_resources, ())
         self.assertEqual(len(report_future), 1)
-        with self.assertRaises(RuntimeError):
-            report_future[0].result(3)
+        self.assertEqual(report_future[0].result(3).status, ActionStatus.SUCCEEDED)
 
     def test_report_priority_over_normal_admission_backlog(self):
         plugin = self.owner(max_duration=30_000)
@@ -888,16 +884,14 @@ class DispatcherTests(unittest.TestCase):
             time.sleep(0.005)
         self.assertTrue(any("emergency_stop_failed" in item for item in self.dispatcher.faults))
 
-    def test_slow_callback_is_uncertain_not_accepted(self):
+    def test_slow_callback_is_accepted_within_lease(self):
         plugin = self.owner(resource="joint")
         plugin.sleep_seconds = 0.09
         self.enabled("arm")
         self.dispatcher.start(command("arm", "slow", lease=800)).result(3)
-        self.wait_status("slow", ActionStatus.TIMED_OUT)
-        self.assertTrue(self.dispatcher.blocked)
-        self.assertEqual(self.dispatcher.query("slow").result(3).held_resources, ("joint",))
-        with self.assertRaises(RuntimeError):
-            self.dispatcher.start(command("arm", "later"))
+        snap = self.wait_status("slow", ActionStatus.ACCEPTED)
+        self.assertFalse(self.dispatcher.blocked)
+        self.assertEqual(snap.held_resources, ("joint",))
 
     def test_lease_measured_from_ingress_not_writer_commit(self):
         plugin = self.owner()
@@ -1069,13 +1063,15 @@ class DispatcherTests(unittest.TestCase):
         self.assertEqual(caught.exception.code, ErrorCode.DUPLICATE_REQUEST_ID_CONFLICT)
 
     def test_a03_actor_queue_full_and_oversize(self):
-        plugin = self.owner(queue_count=2)
-        self.enabled("arm")
+        # Keep queued commands alive while a slow host validates the deliberately
+        # oversized payload. Deadline behavior has separate watchdog tests.
+        plugin = self.owner(queue_count=2, max_duration=5000)
+        self.enabled("arm", ttl=15000)
         self.assertTrue(self.actors["arm"].cast("block_legacy"))
         self.assertTrue(plugin.entered.wait(2))
-        self.dispatcher.start(command("arm", "first")).result(3)
-        self.dispatcher.start(command("arm", "second")).result(3)
-        self.assertEqual(self.dispatcher.start(command("arm", "third")).result(3).status, ActionStatus.REJECTED)
+        self.dispatcher.start(command("arm", "first", lease=4500)).result(3)
+        self.dispatcher.start(command("arm", "second", lease=4500)).result(3)
+        self.assertEqual(self.dispatcher.start(command("arm", "third", lease=4500)).result(3).status, ActionStatus.REJECTED)
         self.assertEqual(self.dispatcher.query("third").result(2).reason_code, "actor_busy")
         huge = command("arm", "huge")
         huge["params"]["payload"] = "x" * 1_100_000

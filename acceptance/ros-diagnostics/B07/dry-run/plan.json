@@ -1,0 +1,59 @@
+{
+  "schema": "astrex.ros2_diagnostics_acceptance.v1",
+  "generated_at": "2026-10-31T11:52:55Z",
+  "dry_run": true,
+  "scenario": "synthetic",
+  "url": "http://127.0.0.1:8765",
+  "domain": 73,
+  "duration_sec": 30,
+  "repeat": 2,
+  "with_observer": false,
+  "entry": null,
+  "reads_token": false,
+  "imports_ros": false,
+  "changes": [],
+  "steps": [
+    {
+      "step": "preflight",
+      "detail": "GET environments/status/plugins; require normal mode, idle runtime, action gate closed, other plugins disabled"
+    },
+    {
+      "step": "snapshot",
+      "detail": "record environment config, ros2 bindings and plugin enable flags for restore"
+    },
+    {
+      "step": "configure",
+      "detail": "set ros2 domain 73 and a unique image topic; enable diag_image_probe; select ros2 mode; start runtime"
+    },
+    {
+      "step": "publisher",
+      "detail": "create ONE CompressedImage publisher with sensor_data QoS; no subscriber is created"
+    },
+    {
+      "step": "no_data",
+      "detail": "publish nothing past startup_grace_sec; expect NO_DATA_WITH_PEER (yellow)"
+    },
+    {
+      "step": "receiving",
+      "detail": "publish 12 embedded JPEG frames; expect rx/consume to grow and one recovery event (green)"
+    },
+    {
+      "step": "stale",
+      "detail": "stop publishing past stale_after_sec; expect a stale warning (yellow)"
+    },
+    {
+      "step": "recover",
+      "detail": "resume frames; expect a second recovery"
+    },
+    {
+      "step": "restore",
+      "detail": "stop owned publisher/entry, stop runtime, restore config, bindings and plugin enable flags; each restore is attempted independently"
+    }
+  ],
+  "notes": [
+    "dry-run does not read --token-file, does not write configuration and does not import ROS",
+    "each round must run at least 30 seconds and at least 2 rounds must be executed",
+    "a round with --with-observer is reported separately and cannot replace a failed no-observer round",
+    "results on Windows/mock are NOT_RUN for native ROS; only a Linux instance with Humble can produce a native PASS"
+  ]
+}

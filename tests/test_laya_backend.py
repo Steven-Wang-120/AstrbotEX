@@ -205,7 +205,7 @@ class LayaBackendTests(unittest.TestCase):
                 self.assertEqual(transport.requests, [])
         transport = FixtureTransport()
         backend = self.backend(transport)
-        probed = backend.probe()
+        probed = backend.health_probe()
         self.assertIsInstance(probed, dict)
         self.assertEqual(transport.requests, [])
         self.assertTrue(transport.calls)

@@ -1,4 +1,4 @@
-> 2026-10-02 集成说明：本文保留原施工任务和历史验收边界；已完成的 B04/B07/B08/B09 以 [当前集成报告](../LOCAL_DEVELOPMENT_INTEGRATION_RESULT.md) 为准，不重复开发。
+> 历史施工背景（2026-10-06 标注）：下文旧 shadow-only、GET-only probe、/mode 不启动 runtime 等为旧基线，非最终 v2 合同。C06 正在整改，当前合同及最终源同步 TODO 见 [B08](../B08-DECISION-MANAGEMENT.md)，历史限制见 [来源说明](../LOCAL_DEVELOPMENT_INTEGRATION_RESULT.md)。
 
 # B08｜高风险｜决策管理 API 与密钥保护
 
@@ -6,7 +6,7 @@
 
 2026-10-01 的同步阶段只同步上游、验证已有能力和整理任务书；该阶段的历史报告保持原样。后续已按单独授权实施 B08。以下保留原任务的需求与阶段，用于交接和复核，不把机器人或真实模型质量写成已通过。
 
-本轮定向回归 199/199、补充边界 7/7、特殊字符密钥脱敏 1/1、Chrome 页面检查 7/7 通过。一次真实 GPU HTTP 闭环通过，包含写出后超时隔离和显式恢复；执行对象仅为隔离测试 Actor。详见 [本轮结果](../B08_DECISION_MANAGEMENT_RESULT.md)。不 commit、不 push；已有暂存内容和并行任务保持不变。接口与样例见 [B08 实现交接说明](../../apps/AstrBotEX/docs/B08-DECISION-MANAGEMENT.md)。
+历史验证边界见 [技术交接](../B08_DECISION_MANAGEMENT_RESULT.md)。本页保留旧任务背景；C06 v2 与 core/UI 尚在整改，旧定向/GPU 测试结果不能作为新接口通过证据。当前冻结 API 与最终源同步 TODO 见 [B08 说明](../B08-DECISION-MANAGEMENT.md)。
 
 ## 1. 可行性、依赖与最小范围
 
@@ -25,7 +25,7 @@ B08 已基于 B02/B04 的 ActionService、Ledger、GoalManager、DecisionService
 
 新增小型 `core/decision/config.py`、`management.py`、`history.py`、`owned_laya.py`，分别承担配置/密钥、路由/操作、请求追踪和自有 Laya 进程管理。对 service/backend 只增加管理所需的可信方法和有界追踪 hook，不重写动作系统。
 
-2026-10-01 同步回归中有一项停止证明重试后的状态断言失败，历史证据仍见[同步报告](../ASTRBOTEX_SYNC_20261001_RESULT.md)。后续 B04 已增加公开停止回执与可信 `replace_backend()`，并处理原等待边界；业务停止断言保留。该历史失败不再作为“接口尚未实现”的说明。B08 停止成功仍必须匹配公开 proven 证据，不能只检查私有 pending 标志。
+2026-10-01 的同步回归曾有停止证明重试后的断言失败，后续 B04 增加公开停止回执与可信 `replace_backend()`，保留业务停止断言。技术边界见 [停止与切换交接](../B04_BOUNDARY_20261001_RESULT.md)。历史失败不代表接口尚未实现；停止成功仍须匹配公开 proven，不能只检查私有 pending。
 
 ## 2. 配置与访问规则
 

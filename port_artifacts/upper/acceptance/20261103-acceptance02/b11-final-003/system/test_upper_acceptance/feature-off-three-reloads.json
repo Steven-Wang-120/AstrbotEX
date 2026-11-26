@@ -1,0 +1,21 @@
+{
+  "rounds": [
+    {
+      "reload": 1,
+      "control_listener": false,
+      "upper_handled": false
+    },
+    {
+      "reload": 2,
+      "control_listener": false,
+      "upper_handled": false
+    },
+    {
+      "reload": 3,
+      "control_listener": false,
+      "upper_handled": false
+    }
+  ],
+  "classifier_calls": 0,
+  "control_calls": 0
+}

@@ -81,11 +81,8 @@ class _Live:
     status: str = ActionStatus.ADMITTED
     delivered: bool = False
     actor_future: Future[Any] | None = None
-    callback_started_ns: int = 0
     callback_finished_ns: int = 0
-    callback_slow: bool = False
     stop_requested: bool = False
-    budget_baseline: int = 0
     deferred_reports: list[_ControlItem] = None
 
 
@@ -460,7 +457,6 @@ class ActionDispatcher:
                 return admission.snapshot
             live = _Live(command, owner.binding, context, owner, pending.deadline_ns)
             live.deferred_reports = []
-            live.budget_baseline = owner.actor.action_mailbox_stats()["action_budget_exceeded"]
             with self._lock:
                 self._live[command.command_id] = live
                 for item in self._pending.get(command.command_id, ()):
@@ -501,13 +497,6 @@ class ActionDispatcher:
         """Called under _lock; expiry must not depend on watchdog queue order."""
         if live.status in TERMINAL_STATUSES:
             return ""
-        if live.actor_future is not None and live.actor_future.running() and not live.callback_started_ns:
-            live.callback_started_ns = now
-        if (live.callback_started_ns and not live.callback_finished_ns and
-                now - live.callback_started_ns > 20_000_000):
-            live.callback_slow = True
-        if live.callback_slow:
-            return "actor_callback_budget_exceeded"
         pending = self._timeout_pending.get(live.command.command_id)
         if pending:
             return pending
@@ -556,8 +545,7 @@ class ActionDispatcher:
             if snapshot.status == ActionStatus.FAILED and not snapshot.held_resources:
                 proof = self.ledger.stop_proof(command_id, live.binding).result()
                 stopped_failure = (proof is not None and proof.stopped is True
-                    and snapshot.details.get("stop_evidence") == {
-                        "stopped": True, "source": proof.source, "reference": proof.reference})
+                    and snapshot.details.get("stop_evidence") == proof.to_dict())
         except Exception:
             self._block("ledger_report_failed")
             raise
@@ -579,21 +567,10 @@ class ActionDispatcher:
         return snapshot
 
     def _actor_done(self, command_id: str, done: Future[Any]) -> None:
-        with self._lock:
+        with self._condition:
             live = self._live.get(command_id)
             if live is not None:
                 live.callback_finished_ns = time.monotonic_ns()
-                if (live.callback_started_ns and
-                        live.callback_finished_ns - live.callback_started_ns > 20_000_000):
-                    live.callback_slow = True
-                if not done.cancelled() and not isinstance(done.exception(), ActionGuardRejected):
-                    duration = live.owner.actor.action_mailbox_stats()
-                    if duration["action_budget_exceeded"] > live.budget_baseline and (
-                            duration["last_action_duration_ms"] or 0) > 20:
-                        live.callback_slow = True
-        if live is not None and live.callback_slow:
-            self._block("actor_callback_budget_exceeded")
-        with self._condition:
             if self._closed or len(self._priority) >= self._priority_size:
                 if live is not None:
                     for item in live.deferred_reports:
@@ -604,8 +581,8 @@ class ActionDispatcher:
                 self._priority.append(_ControlItem(lambda: self._handle_actor(command_id, done), None))
                 if live is not None:
                     for item in live.deferred_reports:
-                        if live.callback_slow:
-                            _fail_report(item.future, RuntimeError("actor callback exceeded budget"))
+                        if live.status in TERMINAL_STATUSES:
+                            _fail_report(item.future, RuntimeError("action became terminal before callback completed"))
                         elif len(self._priority) < self._priority_size:
                             self._priority.append(item)
                         else:
@@ -838,10 +815,13 @@ class ActionDispatcher:
                 retry = [(cid, reason) for cid, reason in self._timeout_pending.items()
                          if cid not in self._timeout_enqueued]
             for cid, reason in retry:
-                self._block(reason)
                 with self._lock:
-                    if cid not in self._timeout_pending or cid in self._timeout_enqueued:
+                    live = self._live.get(cid)
+                    if (self._timeout_pending.get(cid) != reason or cid in self._timeout_enqueued
+                            or live is None or live.status in TERMINAL_STATUSES):
                         continue
+                    # A captured retry must not close a gate reviewed after its timeout.
+                    self._block(reason)
                     self._timeout_enqueued.add(cid)
                 try:
                     self._enqueue(lambda name=cid, why=reason: self._timeout(name, why),

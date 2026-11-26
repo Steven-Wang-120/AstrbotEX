@@ -50,6 +50,22 @@ class RecordingPlugin:
 
 
 class PluginActorTest(unittest.TestCase):
+    def test_worker_interval_sleeps_without_delaying_mailbox(self):
+        registry = PluginRegistry()
+        plugin = RecordingPlugin()
+        plugin.worker_interval_s = 3
+        entered = threading.Event()
+        plugin.on_worker_step = lambda: (setattr(plugin, "worker_steps", plugin.worker_steps + 1), entered.set())
+        registry.register("device", plugin)
+        try:
+            registry.start_runtime()
+            self.assertTrue(entered.wait(1))
+            slot = registry.get(plugin.id)
+            self.assertEqual(slot.call("echo", "awake", timeout=1), "awake")
+            self.assertEqual(plugin.worker_steps, 1)
+        finally:
+            registry.unregister(plugin.id)
+
     def test_all_plugin_callbacks_run_on_one_managed_thread(self) -> None:
         registry = PluginRegistry()
         plugin = RecordingPlugin()

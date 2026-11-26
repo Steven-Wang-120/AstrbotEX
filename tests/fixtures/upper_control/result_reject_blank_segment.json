@@ -1,0 +1,20 @@
+{
+  "case_id": "result_reject_blank_segment",
+  "expected_accept": false,
+  "expected_error": "invalid_result",
+  "kind": "result",
+  "note": "A whitespace-only paragraph is not an execution step.",
+  "payload": {
+    "public_text": "收到。",
+    "segments": [
+      {
+        "text": "   "
+      }
+    ],
+    "send_count": 1
+  },
+  "route": "speech_and_action",
+  "sides": [
+    "aeb"
+  ]
+}

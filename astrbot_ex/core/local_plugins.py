@@ -159,6 +159,7 @@ class PluginManifest:
     enabled_default: bool = False
     cover: str | None = None
     dashboard: str | None = None
+    voice_dashboard: bool = False
     publishes: list[TopicDeclaration] = field(default_factory=list)
     subscribes: list[TopicDeclaration] = field(default_factory=list)
     actions: list[ActionDeclaration] = field(default_factory=list)
@@ -222,6 +223,7 @@ class LocalPluginManager:
         environment_manager: Any = None,
         action_dispatcher: Any = None,
         capability_catalog: CapabilityCatalog | None = None,
+        on_primitive_owner=None,
     ) -> None:
         self.plugins_root = plugins_root
         self.state_path = state_path
@@ -230,6 +232,7 @@ class LocalPluginManager:
         self.topic_bus = topic_bus
         self.environment_manager = environment_manager
         self.action_dispatcher = action_dispatcher
+        self.on_primitive_owner = on_primitive_owner
         self.capability_catalog = capability_catalog
         self._config_lock = threading.RLock()
         self.records: dict[str, LocalPluginRecord] = {}
@@ -315,7 +318,13 @@ class LocalPluginManager:
                 directory_version=directory_version,
                 directory_status=directory_status,
             ))
-        return self.capability_catalog.refresh(inputs)
+        catalog = self.capability_catalog.refresh(inputs)
+        if self.on_primitive_owner is not None:
+            owners = [self.records[item.owner].plugin for item in inputs
+                      if item.enabled and item.state == "ready" and not item.directory_status
+                      and callable(getattr(self.records[item.owner].plugin, "create_primitive_provider", None))]
+            self.on_primitive_owner(owners[0] if len(owners) == 1 else None, self.registry)
+        return catalog
 
     def list_plugins(self) -> list[dict[str, Any]]:
         return [self._serialize(record) for record in self.records.values()]
@@ -675,9 +684,11 @@ class LocalPluginManager:
         if record.root.resolve() not in entry.parents and entry != record.root.resolve():
             raise ValueError("entry path escapes plugin root")
         module_name = f"astrbotex_local_plugin_{record.manifest.id}"
-        if module_name in sys.modules:
-            del sys.modules[module_name]
-        spec = importlib.util.spec_from_file_location(module_name, entry)
+        for name in tuple(sys.modules):
+            if name == module_name or name.startswith(module_name + "."):
+                del sys.modules[name]
+        spec = importlib.util.spec_from_file_location(
+            module_name, entry, submodule_search_locations=[str(record.root.resolve())])
         if spec is None or spec.loader is None:
             raise ValueError(f"cannot import plugin entry: {record.manifest.entry}")
         module = importlib.util.module_from_spec(spec)
@@ -843,6 +854,7 @@ class LocalPluginManager:
             enabled_default=bool(data.get("enabled_default", False)),
             cover=str(data["cover"]).strip() if data.get("cover") else None,
             dashboard=str(data["dashboard"]).strip() if data.get("dashboard") else None,
+            voice_dashboard=data.get("voice_dashboard", False),
             publishes=self._parse_topics(data.get("publishes", [])),
             subscribes=self._parse_topics(data.get("subscribes", [])),
             actions=(self._parse_actions(data.get("actions", [])) if "action_api_version" not in data else []),
@@ -853,6 +865,8 @@ class LocalPluginManager:
         )
 
     def _validate_manifest(self, manifest: PluginManifest) -> None:
+        if type(manifest.voice_dashboard) is not bool:
+            raise ValueError("voice_dashboard must be a boolean")
         if not manifest.id.replace("_", "").replace("-", "").isalnum():
             raise ValueError("plugin id must only contain letters, numbers, '_' or '-'")
         if not manifest.name:
@@ -972,6 +986,7 @@ class LocalPluginManager:
             "author": manifest.author,
             "provides": manifest.provides,
             "requires": manifest.requires,
+            "voice_dashboard": manifest.voice_dashboard,
             "publishes": [self._topic_dict(item) for item in manifest.publishes],
             "subscribes": [self._topic_dict(item) for item in manifest.subscribes],
             "actions": [self._action_dict(item) for item in manifest.actions],

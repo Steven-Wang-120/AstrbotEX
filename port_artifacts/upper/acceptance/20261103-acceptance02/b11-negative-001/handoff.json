@@ -1,0 +1,147 @@
+{
+  "task_id": "B11",
+  "code_revision": {
+    "aeb": {
+      "root": "D:\\Code\\A.E.B-work\\upper-b10-b11",
+      "available": true,
+      "head": "2b1da6addee26eab0e2757fa1627b1bd4d85581f",
+      "branch": "upper/B10-B11",
+      "dirty": true,
+      "dirty_fingerprint": "fee1e4302f23538c66c80ba33b3b7fe98df56d00ef1af540a1d9d4c2039532c4",
+      "dirty_entries": 30
+    },
+    "ex": {
+      "root": "D:\\Code\\AstrBotEX-work\\upper-b10-b11",
+      "available": true,
+      "head": "846046de542a62a81a7aacf5d31ce7ec297005aa",
+      "branch": "upper/B10-B11",
+      "dirty": false,
+      "dirty_fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dirty_entries": 0
+    },
+    "host": {
+      "root": "D:\\Code\\AstrBot-latest",
+      "available": true,
+      "head": "d6738a03f394cb98cdef6e1efb883ac6be171beb",
+      "branch": "master",
+      "dirty": true,
+      "dirty_fingerprint": "a7184f113431602a2c1e763b48f53d7968d82f62cae64891481e4132acd5b776",
+      "dirty_entries": 1495
+    }
+  },
+  "changed_files": [
+    "astrbot_plugin_astrbotex_interaction/main.py",
+    "astrbot_plugin_astrbotex_interaction/task_models.py",
+    "astrbot_plugin_astrbotex_interaction/upper_pipeline.py",
+    "astrbot_plugin_astrbotex_interaction/upper_models.py",
+    "astrbot_plugin_astrbotex_interaction/upper_api.py",
+    "astrbot_plugin_astrbotex_interaction/tests/test_upper_api.py",
+    "astrbot_plugin_astrbotex_interaction/tests/test_upper_models.py",
+    "astrbot_plugin_astrbotex_interaction/tests/test_upper_verify_runner.py",
+    "astrbot_plugin_astrbotex_interaction/tests/ui/upper_control.spec.mjs",
+    "astrbot_ex/core/step_input.py",
+    "tests/test_step_input.py",
+    "astrbot_plugin_astrbotex_interaction/tests/test_upper_composition.py",
+    "astrbot_plugin_astrbotex_interaction/tests/test_upper_e2e.py",
+    "astrbot_plugin_astrbotex_interaction/scripts/verify_upper_control.py",
+    "astrbot_plugin_astrbotex_interaction/docs/upper-control-deploy.md",
+    "tests/test_upper_control_e2e.py"
+  ],
+  "interfaces": [
+    "verify_upper_control.py --scope unit|loopback|host|page|all",
+    "--ui-mode real_host --host-url <isolated Dashboard URL> (mandatory for all/host)",
+    "test_upper_e2e.py (AEB, real pipeline + real ROUTER/DEALER peer)",
+    "test_upper_control_e2e.py (EX, ingress + backend request capture)",
+    "UpperSettings.control_route_ref (ASTRBOTEX_UPPER_CONTROL_ROUTE_REF)"
+  ],
+  "cross_task_fixes": [
+    {
+      "owner": "B04",
+      "file": "upper_store.py",
+      "defect": "json_value/canonical only accepted dict/list/scalars, so the SettingsSnapshot/CatalogSnapshot/PromptSnapshot dataclasses B05 passes were rejected as invalid_type and no plan could be saved.",
+      "fix": "_snapshot_value() converts upper snapshots before canonical serialization; legacy task_models.py is identical to the source baseline."
+    },
+    {
+      "owner": "B05",
+      "file": "upper_pipeline.py",
+      "defect": "save_result read settings_hash/prompt_hash off B02's PromptSnapshot, which exposes settings_version/content_hash; the frozen batch then carried an empty prompt_version and every injection was invalid_batch.",
+      "fix": "Read the field names B02 actually publishes."
+    },
+    {
+      "owner": "B03",
+      "file": "tests/test_upper_models.py",
+      "defect": "Two tests indexed the tool set as dicts; the Host expects FunctionTool objects, so the suite failed on the merged branch.",
+      "fix": "Read tool.name instead."
+    },
+    {
+      "owner": "B05",
+      "file": "tests/test_upper_pipeline.py",
+      "defect": "The fake prompt snapshot invented settings_hash/prompt_hash, hiding the field-name mismatch above.",
+      "fix": "Fake now uses the published field names."
+    }
+  ],
+  "repair_20261103": [
+    "Management APIs stay available with both feature flags off.",
+    "The API reads actual SettingsSnapshot.settings and CatalogSnapshot.entries.",
+    "Catalog creates stable local IDs and preserves IDs/revisions across edits.",
+    "Provider IDs, timeout and origin are frozen from each input snapshot.",
+    "Voice public output retains the text peer; control uses its configured peer.",
+    "EX ingress reuses the shared strict B00 parser.",
+    "The real Dashboard iframe/bridge is tested separately from fake browser UI.",
+    "Missing/failed mandatory stages exit non-zero; Windows argv stays intact."
+  ],
+  "dependencies": {
+    "aeb_core": [
+      "B00",
+      "B01",
+      "B02",
+      "B03",
+      "B04",
+      "B05",
+      "B06"
+    ],
+    "aeb_page": [
+      "B07",
+      "B08"
+    ],
+    "ex": [
+      "B00",
+      "B09"
+    ],
+    "host": "local AstrBot image or importable checkout"
+  },
+  "entry_points": {
+    "cli": "python -B scripts/verify_upper_control.py --help",
+    "aeb_tests": "astrbot_plugin_astrbotex_interaction/tests/test_upper_e2e.py",
+    "ex_tests": "tests/test_upper_control_e2e.py"
+  },
+  "tests": [
+    "unit_aeb",
+    "unit_ex",
+    "loopback_aeb",
+    "loopback_ex",
+    "host",
+    "page_spec",
+    "legacy_regression"
+  ],
+  "evidence": "C:\\Users\\17088\\AstrBot-upper-review\\20261103-acceptance02\\b11-negative-001",
+  "scope": "unit_fake|real_zmq_loopback|host_python_integration|backend_request_capture",
+  "page_mode": "real_host",
+  "page_status": "FAIL",
+  "known_issues": [
+    "A missing or failed mandatory stage makes the verdict partial and exits non-zero.",
+    "Host Python integration does not replace a real Dashboard page check.",
+    "Forced process recovery and production-adapter output checks are mandatory Host tests.",
+    "Host scope needs an importable Host checkout or a local image; no image is pulled.",
+    "Upper control requires control_enabled: without the control channel a turn could classify an input and have nowhere to deliver, so takeover stays off.",
+    "EX tests/test_action_runtime_integration.py::test_controller_start_stop_race is timing sensitive and fails intermittently under full-suite load; it passes in isolation and is unrelated to upper control."
+  ],
+  "consumers_to_retest": [
+    "B04",
+    "B05",
+    "B07",
+    "B08",
+    "B09"
+  ],
+  "rollback": "Close upper_enabled/control_enabled; keep new tables, logs and pending rows."
+}

@@ -1,0 +1,16 @@
+{
+  "case_id": "prob_speech_only",
+  "expected_accept": true,
+  "expected_error": null,
+  "expected_route": "speech_only",
+  "kind": "probabilities",
+  "note": "Clearly speaking only; argmax must pick speech_only.",
+  "payload": {
+    "action_only": 0.11,
+    "speech_and_action": 0.07,
+    "speech_only": 0.82
+  },
+  "sides": [
+    "aeb"
+  ]
+}

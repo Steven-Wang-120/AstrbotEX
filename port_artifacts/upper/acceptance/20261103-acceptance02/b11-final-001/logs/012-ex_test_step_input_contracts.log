@@ -1,0 +1,29 @@
+test_every_case_file_matches_its_recorded_sha256 (tests.test_step_input_contracts.FixtureIntegrityTests.test_every_case_file_matches_its_recorded_sha256) ... ok
+test_manifest_lists_every_case_file (tests.test_step_input_contracts.FixtureIntegrityTests.test_manifest_lists_every_case_file) ... ok
+test_shared_cases_are_wire_batches (tests.test_step_input_contracts.FixtureIntegrityTests.test_shared_cases_are_wire_batches) ... ok
+test_the_receiving_half_gets_meaningful_coverage (tests.test_step_input_contracts.FixtureIntegrityTests.test_the_receiving_half_gets_meaningful_coverage) ... ok
+test_a_valid_id_is_not_an_authorisation (tests.test_step_input_contracts.IngressTests.test_a_valid_id_is_not_an_authorisation) ... ok
+test_stale_session_is_rejected (tests.test_step_input_contracts.IngressTests.test_stale_session_is_rejected) ... ok
+test_trusted_ingress_rejects_a_path_like_robot (tests.test_step_input_contracts.IngressTests.test_trusted_ingress_rejects_a_path_like_robot) ... ok
+test_unregistered_route_is_rejected (tests.test_step_input_contracts.IngressTests.test_unregistered_route_is_rejected) ... ok
+test_from_batch_keeps_order_and_boundaries (tests.test_step_input_contracts.InstructionInputTests.test_from_batch_keeps_order_and_boundaries) ... ok
+test_binary_visibility_is_rejected (tests.test_step_input_contracts.ParserHardeningTests.test_binary_visibility_is_rejected) ... ok
+test_bool_is_not_an_integer (tests.test_step_input_contracts.ParserHardeningTests.test_bool_is_not_an_integer) ... ok
+test_canonical_hash_is_stable_across_key_order (tests.test_step_input_contracts.ParserHardeningTests.test_canonical_hash_is_stable_across_key_order) ... ok
+test_hash_matches_a_plain_canonicalisation (tests.test_step_input_contracts.ParserHardeningTests.test_hash_matches_a_plain_canonicalisation) ... ok
+test_joined_text_keeps_paragraph_boundaries (tests.test_step_input_contracts.ParserHardeningTests.test_joined_text_keeps_paragraph_boundaries) ... ok
+test_non_finite_is_not_produced_by_the_canonical_form (tests.test_step_input_contracts.ParserHardeningTests.test_non_finite_is_not_produced_by_the_canonical_form) ... ok
+test_other_schema_is_refused_not_guessed (tests.test_step_input_contracts.ParserHardeningTests.test_other_schema_is_refused_not_guessed) ... ok
+test_oversize_is_rejected_without_truncation (tests.test_step_input_contracts.ParserHardeningTests.test_oversize_is_rejected_without_truncation) ... ok
+test_unknown_field_is_rejected_not_dropped (tests.test_step_input_contracts.ParserHardeningTests.test_unknown_field_is_rejected_not_dropped) ... ok
+test_delivered_receipt_must_not_carry_an_error (tests.test_step_input_contracts.ReceiptTests.test_delivered_receipt_must_not_carry_an_error) ... ok
+test_receipt_round_trips (tests.test_step_input_contracts.ReceiptTests.test_receipt_round_trips) ... ok
+test_received_and_injected_prove_delivery_only (tests.test_step_input_contracts.ReceiptTests.test_received_and_injected_prove_delivery_only) ... ok
+test_rejected_receipt_must_name_a_code (tests.test_step_input_contracts.ReceiptTests.test_rejected_receipt_must_name_a_code) ... ok
+test_unknown_phase_is_rejected (tests.test_step_input_contracts.ReceiptTests.test_unknown_phase_is_rejected) ... ok
+test_shared_cases (tests.test_step_input_contracts.SharedFixtureTests.test_shared_cases) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.024s
+
+OK

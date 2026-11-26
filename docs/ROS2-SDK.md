@@ -93,3 +93,97 @@ Humble 的某些订阅 API 没有实际匹配数，返回 `null`；graph 数量�
 `GET/POST /api/v1/ex/plugins/{id}/ros2` 读取/保存插件绑定。
 SSE 事件为 `environment_changed / ros_graph_changed / ros_endpoints_changed`，仅推送变更提示。
 网页合并请求、保护未保存草稿，重新可见或 SSE 重连后刷新；统计事件按配置限频。
+
+## 周期输入声明（本轮新增）
+
+订阅端口可声明持续数据健康策略。不声明与声明 `mode=off` 等价，旧 manifest 不需要修改：
+
+```json
+{"id":"image","direction":"subscribe",
+ "message_types":["sensor_msgs/msg/CompressedImage"],
+ "default_topic":"/ex_diag/image","qos_preset":"sensor_data",
+ "diagnostics":{"mode":"periodic","startup_grace_sec":10.0,"stale_after_sec":5.0}}
+```
+
+- `mode` 仅 `off / periodic`；缺省规范化为 `off`，两个数值仍规范化为 10 / 5。
+- `startup_grace_sec` 取值 `[0, 300]`，`stale_after_sec` 取值 `[0.2, 300]`；必须是有限数值且不接受 `true/false`。
+  未知 `diagnostics` 字段按配置错误拒绝，不做静默丢弃。
+- 只有 `direction=subscribe` 可声明 `periodic`。`publish` 端口声明 `periodic` 被拒绝：
+  本地 `tx_published` 增长不能证明对端收到，用发送计数推断“数据健康”是错误结论。
+- 离散语义的端口（mark、按键、偶发控制指令）不声明 `periodic`；它们本来就没有“持续有数据”的预期。
+- 策略属于 manifest，不是 binding 字段。`ros2.bindings` 的字段白名单不因本功能扩大，
+  不能通过保存绑定把 `diagnostics` 偷偷注入。
+
+周期检查只在 runtime `RUNNING`、端口 enabled、原生资源有效、环境处于 ros2 且 idle 时启用。
+idle / paused / fault、环境切换和插件卸载期间检查暂停，不报“相机掉线”。本功能不新增自动启停。
+
+## 端口健康 `data_health`（本轮新增）
+
+`status()` 原有 `state/status` 保持不变，新增 `data_health` 与 `diagnostics` 对象。
+`data_health` 枚举固定，不接受自定义值：
+
+| 值 | 含义 |
+| --- | --- |
+| `not_monitored` | `mode=off`，或 publish 端口；不推断持续数据健康 |
+| `disabled` | 周期订阅当前被禁用 |
+| `paused` | runtime 非 RUNNING 或环境操作中，周期检查暂停 |
+| `unavailable` | 预期运行，但原生资源/接口当前不可用 |
+| `warming_up` | 观察窗口内尚无回调，仍在启动宽限内 |
+| `no_data` | 当前窗口从未收到回调，宽限已过 |
+| `receiving` | 当前绑定最近收到回调，age <= `stale_after_sec` |
+| `stale` | 当前窗口曾收到回调，但最新 age > `stale_after_sec` |
+| `unknown` | 证据不完整或采集失败；`unknown` 不等于正常，不能涂绿 |
+
+`diagnostics` 对象字段：`policy`、`monitoring_active`、`binding_received`、
+`receive_age_sec`、`consume_age_sec`、`monitoring_age_sec`、`reason_code`，以及
+`monitoring_epoch`（每个新活动窗口递增，供插件关联 scope）。
+
+三个 age 都是后端单调时钟算出的非负数或 `null`。**前端不得用墙钟 `last_message_at` 计算健康**：
+系统时间前后跳变时，墙钟差值会给出完全错误的结论，而单调年龄不受影响。
+`monitoring_active` 表示“按当前 runtime/环境/启用状态预期需要工作”，
+所以资源缺失时它仍可为 `true`，同时 `data_health=unavailable`——这两种信息不能合并。
+无数据计时只有 `resource_created=true` 才开始；窗口起点取绑定成功时刻与本轮 RUNNING 开始时刻的较晚值，
+晚 attach 的端口不能继承已经被消耗掉的宽限。
+
+历史累计计数（`rx_received / rx_consumed / tx_*`）保留原语义，不因窗口切换清零；
+窗口只影响健康判定，不影响累计量。旧代次回调不能把新窗口判成 `receiving`。
+
+## 诊断快照、预检与事件（本轮新增）
+
+`GET /api/v1/ex/environments/diagnostics` 返回只读缓存快照，普通 GET 不触发重新探测。
+固定字段：`schema_version`、`environment`、`collected_at`（墙钟，仅展示）、
+`collection_age_sec`（单调年龄）、`current`、`partial`、`summary`、`preflight`、
+`ports`、`active_issues`、`refresh`。
+
+`summary` 取 `ok / warning / error / unknown / paused`。没有 ROS 活动时是 `paused`，
+不能把“没在跑 ROS”显示成“通过 ROS 检测”。初次采集前 `current=false`、`summary=unknown`。
+`refresh` 为 `{id, state, error_code}`，`state` 取 `idle / pending / running / completed / failed / superseded`。
+
+`POST /api/v1/ex/environments/diagnostics/refresh` 请求 `{expected_session, expected_revision}`：
+缺字段 400、旧值 409，通过后 202 返回 `refresh_id`。它不修改环境 revision，也不触发环境选择；
+并发点击合并成一次，不创建无限工作线程。刷新只重查诊断，前端“重新检查”按钮不应顺带 select 环境。
+
+预检报告 `collect_preflight()` 字段：`schema_version=1`、`platform`、`supported`、
+`checks[]`、`runtime`、`interfaces`、`partial`。check 项为 `{id, status, message, evidence, remediation}`，
+`status` 取 `pass / warn / fail / unknown`。`runtime` 白名单仅
+`ros_distro / python_executable / rmw_requested / rmw_effective / domain_id / localhost_only /
+overlay_paths / rclpy_available / rosidl_available`。
+路径只返回路径与存在性，不返回文件内容；报告不附全量 `environ`。
+`rmw_requested` 未设置、`rmw_effective` 无法读取时都返回 `null`，
+**不能猜成默认实现**；`supported` 只表示平台探针支持性，不代表 ROS 通信通过。
+
+预检缓存默认 TTL 30 秒。诊断 issue 事件 `type=ros_diagnostic`，
+`data` 含 `severity / source / code / issue_key / scope / state=active|recovered|withdrawn /
+evidence / remediation`。恢复用固定 `code=ROS_DIAGNOSTIC_RECOVERED` 并附 `recovered_code`；
+观察结束是 `withdrawn`，不能当 `recovered` 报。同 scope 同 code 只保留一个活跃项，重复采样只增加 `occurrences`。
+
+`vision_health` 是低频业务状态事件，沿用同一 `severity/source/code` 形状与可用的 port scope，
+但**不进入**通用 `active_issues` 状态机，也不改写端口 `data_health`。
+视觉业务状态与端口收数健康是两件事：推理正常但 `objects` 为空是正常结果，不是 ROS 断流。
+
+## 结果与未知值
+
+诊断链路的结论分四级：`PASS`（实际执行且条件全部成立）、`FAIL`（执行过但条件不成立）、
+`NOT_RUN`（没有环境或未执行，不计入通过数）、`BLOCKED`（缺依赖/权限/基线，需写清解除条件）。
+Windows 与 mock 上只能得到 `NOT_RUN`：没有 `rclpy` 和真实 DDS 时，
+单元测试通过不能写成“ROS 通过”，原生结论只能在 Linux + Humble 上产生。

@@ -1,0 +1,1432 @@
+[
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:1",
+    "event": "event",
+    "data": "{\"type\": \"runtime_state\", \"message\": \"stopped by api\", \"timestamp\": 1793709335.0873313, \"data\": {\"state\": \"idle\", \"log\": {\"level\": \"INFO\", \"source\": \"runtime_state\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 1, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:1\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:2",
+    "event": "event",
+    "data": "{\"type\": \"plugin\", \"message\": \"plugin enabled changed\", \"timestamp\": 1793709335.118068, \"data\": {\"plugin\": \"diag_image_probe\", \"enabled\": false, \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 2, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:2\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:3",
+    "event": "event",
+    "data": "{\"type\": \"plugin\", \"message\": \"plugin enabled changed\", \"timestamp\": 1793709335.1258101, \"data\": {\"plugin\": \"yolo\", \"enabled\": false, \"log\": {\"level\": \"INFO\", \"source\": \"yolo\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 3, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:3\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:4",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"environment config saved\", \"timestamp\": 1793709335.1367233, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 2, \"generation\": 1, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 4, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:4\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:5",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"environment config saved\", \"timestamp\": 1793709335.415433, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 3, \"generation\": 1, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 5, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:5\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:6",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"ROS endpoint changed\", \"timestamp\": 1793709335.4237905, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 3, \"generation\": 1, \"plugin_id\": \"diag_image_probe\", \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 6, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:6\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:7",
+    "event": "event",
+    "data": "{\"type\": \"plugin\", \"message\": \"plugin enabled changed\", \"timestamp\": 1793709335.4251232, \"data\": {\"plugin\": \"diag_image_probe\", \"enabled\": true, \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 7, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:7\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:8",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"ROS endpoint removed\", \"timestamp\": 1793709335.4466062, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 3, \"generation\": 1, \"plugin_id\": \"diag_image_probe\", \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 8, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:8\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:9",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"ROS endpoint changed\", \"timestamp\": 1793709335.4470062, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 3, \"generation\": 1, \"plugin_id\": \"diag_image_probe\", \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 9, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:9\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:10",
+    "event": "event",
+    "data": "{\"type\": \"environment\", \"message\": \"plugin ROS bindings updated\", \"timestamp\": 1793709335.4488506, \"data\": {\"plugin_id\": \"diag_image_probe\", \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 10, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:10\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:11",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"environment switching\", \"timestamp\": 1793709335.4558387, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 4, \"generation\": 1, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 11, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:11\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:12",
+    "event": "event",
+    "data": "{\"type\": \"ros_graph_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709335.9570093, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 4, \"generation\": 1, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 12, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:12\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:13",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709335.9572763, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 4, \"generation\": 1, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 13, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:13\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:14",
+    "event": "event",
+    "data": "{\"type\": \"ros_graph_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709336.3401208, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 4, \"generation\": 1, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 14, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:14\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:15",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"environment operation finished\", \"timestamp\": 1793709336.3461635, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 15, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:15\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:16",
+    "event": "event",
+    "data": "{\"type\": \"ros_graph_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709337.1475847, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 16, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:16\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:17",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709337.1478393, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 17, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:17\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:18",
+    "event": "event",
+    "data": "{\"type\": \"runtime_state\", \"message\": \"runtime started\", \"timestamp\": 1793709337.2558978, \"data\": {\"state\": \"running\", \"log\": {\"level\": \"INFO\", \"source\": \"runtime_state\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 18, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:18\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:19",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709337.2578068, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 19, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:19\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:20",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709337.2580066, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 20, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:20\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:21",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709337.2581422, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 21, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:21\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:22",
+    "event": "event",
+    "data": "{\"type\": \"ros_graph_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709337.3531113, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 22, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:22\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:23",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709338.1746013, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 23, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:23\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:24",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709338.276107, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 24, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:24\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:25",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709338.2765822, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 25, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:25\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:26",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709338.2770188, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 26, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:26\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:27",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709339.2074728, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 27, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:27\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:28",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709339.313594, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 28, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:28\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:29",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709339.3140006, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 29, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:29\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:30",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709339.3142927, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 30, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:30\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:31",
+    "event": "event",
+    "data": "{\"type\": \"ros_diagnostic\", \"message\": \"图上有发布者，但当前观察窗口没有收到回调\", \"timestamp\": 1793709339.3742537, \"data\": {\"severity\": \"warning\", \"source\": \"ros.port\", \"code\": \"ROS_RX_NO_DATA_WITH_PEER\", \"issue_key\": \"7592c18c2a5e4eb2ab6055bce4349823|2|600380e479d44619bb32ee532050c4ac:image|600380e479d44619bb32ee532050c4ac|5|1|ROS_RX_NO_DATA_WITH_PEER\", \"scope\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"environment_generation\": 2, \"endpoint_id\": \"600380e479d44619bb32ee532050c4ac:image\", \"owner_generation\": \"600380e479d44619bb32ee532050c4ac\", \"binding_generation\": 5, \"monitoring_epoch\": 1, \"plugin_id\": \"diag_image_probe\", \"port_id\": \"image\", \"topic\": \"/ex_diag_acceptance_37106_3946670444415_0\"}, \"state\": \"active\", \"evidence\": {\"state\": \"waiting_peer\", \"graph_peer_count\": 1, \"matched_peer_count\": null, \"binding_received\": 0, \"receive_age_sec\": null, \"consume_age_sec\": null, \"monitoring_age_sec\": 2.012861633}, \"remediation\": [\"确认生产者正在发布，核对 Domain、实际 RMW 和 QoS；不要仅凭图推断已收数\"], \"occurrences\": 1, \"detected_at\": 1793709339.3675928, \"log\": {\"level\": \"WARNING\", \"source\": \"ros.port\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 31, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:31\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:32",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709340.2339141, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 32, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:32\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:33",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709340.3362713, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 33, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:33\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:34",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709340.3365881, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 34, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:34\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:35",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709340.338411, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 35, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:35\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:36",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709341.2643902, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 36, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:36\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:37",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709341.3610218, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 37, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:37\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:38",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709341.361404, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 38, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:38\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:39",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709341.3616855, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 39, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:39\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:40",
+    "event": "event",
+    "data": "{\"type\": \"ros_diagnostic\", \"message\": \"恢复：ROS_RX_NO_DATA_WITH_PEER\", \"timestamp\": 1793709341.385951, \"data\": {\"severity\": \"info\", \"source\": \"ros.port\", \"code\": \"ROS_DIAGNOSTIC_RECOVERED\", \"recovered_code\": \"ROS_RX_NO_DATA_WITH_PEER\", \"issue_key\": \"7592c18c2a5e4eb2ab6055bce4349823|2|600380e479d44619bb32ee532050c4ac:image|600380e479d44619bb32ee532050c4ac|5|1|ROS_RX_NO_DATA_WITH_PEER\", \"scope\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"environment_generation\": 2, \"endpoint_id\": \"600380e479d44619bb32ee532050c4ac:image\", \"owner_generation\": \"600380e479d44619bb32ee532050c4ac\", \"binding_generation\": 5, \"monitoring_epoch\": 1, \"plugin_id\": \"diag_image_probe\", \"port_id\": \"image\", \"topic\": \"/ex_diag_acceptance_37106_3946670444415_0\"}, \"state\": \"recovered\", \"evidence\": {\"state\": \"waiting_peer\", \"graph_peer_count\": 1, \"matched_peer_count\": null, \"binding_received\": 0, \"receive_age_sec\": null, \"consume_age_sec\": null, \"monitoring_age_sec\": 2.012861633}, \"remediation\": [], \"detected_at\": 1793709341.3823, \"log\": {\"level\": \"INFO\", \"source\": \"ros.port\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 40, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:40\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:41",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709342.2910318, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 41, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:41\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:42",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709342.3742895, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 42, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:42\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:43",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709342.3744912, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 43, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:43\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:44",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709342.3746228, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 44, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:44\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:45",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709343.3019874, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 45, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:45\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:46",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709343.3848493, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 46, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:46\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:47",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709343.3850663, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 47, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:47\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:48",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709343.3852034, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 48, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:48\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:49",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709344.3142807, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 49, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:49\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:50",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709344.3928647, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 50, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:50\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:51",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709344.39307, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 51, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:51\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:52",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709344.3932064, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 52, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:52\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:53",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709345.3256078, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 53, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:53\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:54",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709345.4078784, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 54, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:54\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:55",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709345.408104, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 55, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:55\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:56",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709345.408253, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 56, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:56\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:57",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709346.337198, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 57, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:57\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:58",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709346.4160457, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 58, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:58\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:59",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709346.4162521, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 59, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:59\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:60",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709346.41637, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 60, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:60\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:61",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709347.3478186, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 61, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:61\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:62",
+    "event": "event",
+    "data": "{\"type\": \"ros_diagnostic\", \"message\": \"恢复：ROS_RX_STALE\", \"timestamp\": 1793709347.399106, \"data\": {\"severity\": \"info\", \"source\": \"ros.port\", \"code\": \"ROS_DIAGNOSTIC_RECOVERED\", \"recovered_code\": \"ROS_RX_STALE\", \"issue_key\": \"7592c18c2a5e4eb2ab6055bce4349823|2|600380e479d44619bb32ee532050c4ac:image|600380e479d44619bb32ee532050c4ac|5|1|ROS_RX_STALE\", \"scope\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"environment_generation\": 2, \"endpoint_id\": \"600380e479d44619bb32ee532050c4ac:image\", \"owner_generation\": \"600380e479d44619bb32ee532050c4ac\", \"binding_generation\": 5, \"monitoring_epoch\": 1, \"plugin_id\": \"diag_image_probe\", \"port_id\": \"image\", \"topic\": \"/ex_diag_acceptance_37106_3946670444415_0\"}, \"state\": \"recovered\", \"evidence\": {\"state\": \"ready\", \"graph_peer_count\": 1, \"matched_peer_count\": null, \"binding_received\": 12, \"receive_age_sec\": 3.313572139, \"consume_age_sec\": 3.313165056, \"monitoring_age_sec\": 8.038447585}, \"remediation\": [], \"detected_at\": 1793709347.3976238, \"log\": {\"level\": \"INFO\", \"source\": \"ros.port\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 62, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:62\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:63",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709347.4246402, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 63, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:63\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:64",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709347.424864, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 64, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:64\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:65",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709347.4249904, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 65, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:65\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:66",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709348.3582606, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 66, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:66\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:67",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709348.4355307, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 67, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:67\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:68",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709348.435766, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 68, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:68\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:69",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709348.4358938, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 69, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:69\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:70",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709349.3725443, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 70, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:70\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:71",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709349.4433239, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 71, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:71\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:72",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709349.4435518, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 72, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:72\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:73",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709349.443679, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 73, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:73\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:74",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709350.3833263, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 74, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:74\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:75",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709350.4545784, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 75, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:75\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:76",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709350.4547973, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 76, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:76\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:77",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709350.4549215, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 77, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:77\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:78",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709351.3940833, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 78, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:78\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:79",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709351.467273, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 79, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:79\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:80",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709351.4674966, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 80, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:80\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:81",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709351.4676232, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 81, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:81\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:82",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709352.4050982, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 82, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:82\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:83",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709352.4815116, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 83, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:83\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:84",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709352.481754, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 84, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:84\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:85",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709352.481883, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 85, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:85\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:86",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709353.4160442, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 86, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:86\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:87",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709353.4902096, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 87, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:87\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:88",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709353.4904404, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 88, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:88\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:89",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709353.4905925, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 89, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:89\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:90",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709354.429049, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 90, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:90\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:91",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709354.4992092, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 91, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:91\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:92",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709354.4994924, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 92, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:92\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:93",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709354.499623, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 93, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:93\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:94",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709355.4397252, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 94, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:94\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:95",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709355.5079956, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 95, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:95\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:96",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709355.5082183, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 96, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:96\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:97",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709355.5083437, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 97, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:97\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:98",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709356.4532464, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 98, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:98\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:99",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709356.5185006, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 99, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:99\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:100",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709356.5187123, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 100, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:100\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:101",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709356.5188377, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 101, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:101\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:102",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709357.463619, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 102, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:102\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:103",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709357.5287912, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 103, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:103\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:104",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709357.5290198, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 104, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:104\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:105",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709357.5291467, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 105, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:105\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:106",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709358.4743507, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 106, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:106\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:107",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709358.5382948, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 107, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:107\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:108",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709358.5384984, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 108, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:108\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:109",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709358.5386207, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 109, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:109\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:110",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709359.4866946, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 110, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:110\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:111",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709359.550359, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 111, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:111\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:112",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709359.550577, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 112, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:112\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:113",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709359.5507004, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 113, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:113\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:114",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709360.497943, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 114, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:114\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:115",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709360.5606775, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 115, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:115\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:116",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709360.5609012, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 116, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:116\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:117",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709360.5610316, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 117, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:117\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:118",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709361.5086691, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 118, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:118\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:119",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709361.5687785, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 119, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:119\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:120",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709361.5689926, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 120, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:120\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:121",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709361.5691183, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 121, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:121\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:122",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709362.5189836, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 122, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:122\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:123",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709362.5787175, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 123, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:123\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:124",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709362.5789306, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 124, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:124\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:125",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709362.5790524, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 125, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:125\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:126",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709363.5301087, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 126, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:126\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:127",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709363.5858142, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 127, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:127\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:128",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709363.5860193, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 128, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:128\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:129",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709363.586139, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 129, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:129\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:130",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709364.5406337, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 130, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:130\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:131",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709364.5926652, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 131, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:131\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:132",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709364.5928805, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 132, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:132\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:133",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709364.5930037, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 133, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:133\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:134",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709365.5513816, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 134, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:134\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:135",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709365.6026158, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 135, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:135\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:136",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709365.6028318, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 136, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:136\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:137",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709365.602962, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 137, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:137\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:138",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709366.5680299, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 5, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 138, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:138\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:139",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709366.613798, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 139, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:139\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:140",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709366.6140137, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 140, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:140\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:141",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709366.6141355, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 141, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:141\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:142",
+    "event": "event",
+    "data": "{\"type\": \"runtime_state\", \"message\": \"independent acceptance round complete\", \"timestamp\": 1793709367.4074488, \"data\": {\"state\": \"idle\", \"log\": {\"level\": \"INFO\", \"source\": \"runtime_state\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 142, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:142\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:143",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"environment switching\", \"timestamp\": 1793709367.4157937, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 6, \"generation\": 2, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 143, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:143\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:144",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"environment operation finished\", \"timestamp\": 1793709367.640959, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 7, \"generation\": 3, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 144, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:144\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:145",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"ROS endpoint removed\", \"timestamp\": 1793709367.9700396, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 7, \"generation\": 3, \"plugin_id\": \"diag_image_probe\", \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 145, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:145\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:146",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"ROS endpoint changed\", \"timestamp\": 1793709367.9703398, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 7, \"generation\": 3, \"plugin_id\": \"diag_image_probe\", \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 146, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:146\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:147",
+    "event": "event",
+    "data": "{\"type\": \"environment\", \"message\": \"plugin ROS bindings updated\", \"timestamp\": 1793709367.972418, \"data\": {\"plugin_id\": \"diag_image_probe\", \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 147, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:147\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:148",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"environment switching\", \"timestamp\": 1793709367.9804106, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 8, \"generation\": 3, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 148, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:148\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:149",
+    "event": "event",
+    "data": "{\"type\": \"ros_graph_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709368.019967, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 8, \"generation\": 3, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 149, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:149\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:150",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709368.0201926, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 8, \"generation\": 3, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 150, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:150\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:151",
+    "event": "event",
+    "data": "{\"type\": \"ros_graph_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709368.0301063, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 8, \"generation\": 3, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 151, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:151\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:152",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"environment operation finished\", \"timestamp\": 1793709368.033417, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 152, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:152\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:153",
+    "event": "event",
+    "data": "{\"type\": \"runtime_state\", \"message\": \"runtime started\", \"timestamp\": 1793709368.5277913, \"data\": {\"state\": \"running\", \"log\": {\"level\": \"INFO\", \"source\": \"runtime_state\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 153, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:153\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:154",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709368.5293293, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 154, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:154\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:155",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709368.5295296, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 155, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:155\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:156",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709368.5296607, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 156, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:156\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:157",
+    "event": "event",
+    "data": "{\"type\": \"ros_graph_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709368.6352725, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 157, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:157\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:158",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709369.0395653, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 158, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:158\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:159",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709369.537825, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 159, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:159\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:160",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709369.5380454, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 160, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:160\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:161",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709369.5381725, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 161, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:161\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:162",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709370.0503244, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 162, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:162\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:163",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709370.549344, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 163, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:163\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:164",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709370.5495741, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 164, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:164\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:165",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709370.5496988, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 165, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:165\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:166",
+    "event": "event",
+    "data": "{\"type\": \"ros_diagnostic\", \"message\": \"图上有发布者，但当前观察窗口没有收到回调\", \"timestamp\": 1793709370.6546607, \"data\": {\"severity\": \"warning\", \"source\": \"ros.port\", \"code\": \"ROS_RX_NO_DATA_WITH_PEER\", \"issue_key\": \"7592c18c2a5e4eb2ab6055bce4349823|4|600380e479d44619bb32ee532050c4ac:image|600380e479d44619bb32ee532050c4ac|11|2|ROS_RX_NO_DATA_WITH_PEER\", \"scope\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"environment_generation\": 4, \"endpoint_id\": \"600380e479d44619bb32ee532050c4ac:image\", \"owner_generation\": \"600380e479d44619bb32ee532050c4ac\", \"binding_generation\": 11, \"monitoring_epoch\": 2, \"plugin_id\": \"diag_image_probe\", \"port_id\": \"image\", \"topic\": \"/ex_diag_acceptance_37106_3979198497446_1\"}, \"state\": \"active\", \"evidence\": {\"state\": \"waiting_peer\", \"graph_peer_count\": 1, \"matched_peer_count\": null, \"binding_received\": 0, \"receive_age_sec\": null, \"consume_age_sec\": null, \"monitoring_age_sec\": 2.004702466}, \"remediation\": [\"确认生产者正在发布，核对 Domain、实际 RMW 和 QoS；不要仅凭图推断已收数\"], \"occurrences\": 1, \"detected_at\": 1793709370.6522665, \"log\": {\"level\": \"WARNING\", \"source\": \"ros.port\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 166, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:166\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:167",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709371.0611455, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 167, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:167\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:168",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709371.5662615, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 168, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:168\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:169",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709371.5664632, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 169, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:169\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:170",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709371.5665843, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 170, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:170\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:171",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709372.0720487, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 171, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:171\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:172",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709372.5799894, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 172, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:172\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:173",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709372.5801997, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 173, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:173\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:174",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709372.580322, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 174, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:174\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:175",
+    "event": "event",
+    "data": "{\"type\": \"ros_diagnostic\", \"message\": \"恢复：ROS_RX_NO_DATA_WITH_PEER\", \"timestamp\": 1793709372.6585193, \"data\": {\"severity\": \"info\", \"source\": \"ros.port\", \"code\": \"ROS_DIAGNOSTIC_RECOVERED\", \"recovered_code\": \"ROS_RX_NO_DATA_WITH_PEER\", \"issue_key\": \"7592c18c2a5e4eb2ab6055bce4349823|4|600380e479d44619bb32ee532050c4ac:image|600380e479d44619bb32ee532050c4ac|11|2|ROS_RX_NO_DATA_WITH_PEER\", \"scope\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"environment_generation\": 4, \"endpoint_id\": \"600380e479d44619bb32ee532050c4ac:image\", \"owner_generation\": \"600380e479d44619bb32ee532050c4ac\", \"binding_generation\": 11, \"monitoring_epoch\": 2, \"plugin_id\": \"diag_image_probe\", \"port_id\": \"image\", \"topic\": \"/ex_diag_acceptance_37106_3979198497446_1\"}, \"state\": \"recovered\", \"evidence\": {\"state\": \"waiting_peer\", \"graph_peer_count\": 1, \"matched_peer_count\": null, \"binding_received\": 0, \"receive_age_sec\": null, \"consume_age_sec\": null, \"monitoring_age_sec\": 2.004702466}, \"remediation\": [], \"detected_at\": 1793709372.6570432, \"log\": {\"level\": \"INFO\", \"source\": \"ros.port\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 175, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:175\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:176",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709373.0827737, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 176, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:176\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:177",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709373.5912101, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 177, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:177\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:178",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709373.591419, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 178, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:178\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:179",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709373.5915387, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 179, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:179\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:180",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709374.0932636, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 180, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:180\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:181",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709374.5985556, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 181, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:181\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:182",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709374.598769, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 182, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:182\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:183",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709374.598887, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 183, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:183\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:184",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709375.1039076, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 184, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:184\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:185",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709375.6090305, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 185, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:185\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:186",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709375.6092358, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 186, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:186\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:187",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709375.6093683, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 187, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:187\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:188",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709376.1144087, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 188, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:188\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:189",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709376.6199405, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 189, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:189\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:190",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709376.6201503, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 190, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:190\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:191",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709376.620272, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 191, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:191\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:192",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709377.124878, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 192, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:192\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:193",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709377.6306129, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 193, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:193\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:194",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709377.6308126, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 194, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:194\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:195",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709377.6309333, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 195, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:195\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:196",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709378.135583, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 196, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:196\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:197",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709378.6413827, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 197, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:197\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:198",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709378.6415815, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 198, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:198\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:199",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709378.6416998, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 199, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:199\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:200",
+    "event": "event",
+    "data": "{\"type\": \"ros_diagnostic\", \"message\": \"恢复：ROS_RX_STALE\", \"timestamp\": 1793709378.6708872, \"data\": {\"severity\": \"info\", \"source\": \"ros.port\", \"code\": \"ROS_DIAGNOSTIC_RECOVERED\", \"recovered_code\": \"ROS_RX_STALE\", \"issue_key\": \"7592c18c2a5e4eb2ab6055bce4349823|4|600380e479d44619bb32ee532050c4ac:image|600380e479d44619bb32ee532050c4ac|11|2|ROS_RX_STALE\", \"scope\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"environment_generation\": 4, \"endpoint_id\": \"600380e479d44619bb32ee532050c4ac:image\", \"owner_generation\": \"600380e479d44619bb32ee532050c4ac\", \"binding_generation\": 11, \"monitoring_epoch\": 2, \"plugin_id\": \"diag_image_probe\", \"port_id\": \"image\", \"topic\": \"/ex_diag_acceptance_37106_3979198497446_1\"}, \"state\": \"recovered\", \"evidence\": {\"state\": \"ready\", \"graph_peer_count\": 1, \"matched_peer_count\": null, \"binding_received\": 12, \"receive_age_sec\": 3.321992361, \"consume_age_sec\": 3.315579157, \"monitoring_age_sec\": 8.017539948}, \"remediation\": [], \"detected_at\": 1793709378.6694205, \"log\": {\"level\": \"INFO\", \"source\": \"ros.port\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 200, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:200\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:201",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709379.1466336, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 201, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:201\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:202",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709379.6517766, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 202, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:202\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:203",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709379.6519957, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 203, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:203\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:204",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709379.6521168, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 204, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:204\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:205",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709380.157095, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 205, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:205\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:206",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709380.6630456, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 206, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:206\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:207",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709380.663241, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 207, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:207\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:208",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709380.6633584, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 208, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:208\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:209",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709381.168268, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 209, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:209\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:210",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709381.6743596, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 210, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:210\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:211",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709381.67456, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 211, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:211\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:212",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709381.674679, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 212, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:212\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:213",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709382.1796317, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 213, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:213\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:214",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709382.684988, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 214, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:214\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:215",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709382.6851947, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 215, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:215\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:216",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709382.6853144, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 216, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:216\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:217",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709383.1901667, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 217, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:217\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:218",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709383.6960793, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 218, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:218\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:219",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709383.6962924, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 219, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:219\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:220",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709383.6964166, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 220, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:220\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:221",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709384.202829, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 221, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:221\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:222",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709384.7091687, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 222, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:222\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:223",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709384.7093964, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 223, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:223\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:224",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709384.7095163, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 224, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:224\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:225",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709385.2172558, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 225, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:225\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:226",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709385.7352607, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 226, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:226\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:227",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709385.7362676, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 227, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:227\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:228",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709385.7367556, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 228, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:228\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:229",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709386.2524939, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 229, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:229\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:230",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709386.7626, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 230, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:230\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:231",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709386.7630863, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 231, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:231\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:232",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709386.7634928, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 232, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:232\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:233",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709387.2798202, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 233, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:233\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:234",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709387.7932272, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 234, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:234\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:235",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709387.793857, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 235, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:235\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:236",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709387.7942588, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 236, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:236\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:237",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709388.3096032, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 237, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:237\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:238",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709388.8231757, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 238, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:238\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:239",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709388.8237622, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 239, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:239\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:240",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709388.824162, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 240, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:240\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:241",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709389.332391, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 241, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:241\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:242",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709389.845525, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 242, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:242\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:243",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709389.8464208, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 243, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:243\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:244",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709389.8468149, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 244, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:244\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:245",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709390.3690116, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 245, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:245\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:246",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709390.88269, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 246, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:246\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:247",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709390.8829, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 247, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:247\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:248",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709390.883023, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 248, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:248\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:249",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709391.4057915, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 249, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:249\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:250",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709391.9204397, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 250, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:250\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:251",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709391.920658, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 251, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:251\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:252",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709391.920783, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 252, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:252\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:253",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709392.4227948, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 253, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:253\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:254",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709392.9282765, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 254, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:254\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:255",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709392.9284768, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 255, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:255\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:256",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709392.9285917, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 256, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:256\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:257",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709393.436829, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 257, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:257\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:258",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709393.9421606, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 258, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:258\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:259",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709393.9423664, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 259, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:259\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:260",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709393.9424846, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 260, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:260\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:261",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709394.4539309, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 261, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:261\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:262",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709394.967191, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 262, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:262\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:263",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709394.9675548, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 263, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:263\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:264",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709394.9678414, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 264, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:264\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:265",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709395.4780695, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 265, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:265\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:266",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709395.9962592, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 266, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:266\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:267",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709395.9971914, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 267, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:267\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:268",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709395.9978018, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 268, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:268\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:269",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709396.5180445, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 269, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:269\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:270",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709397.0151565, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 270, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:270\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:271",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709397.015529, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 271, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:271\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:272",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709397.0159485, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 272, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:272\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:273",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709397.54181, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 273, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:273\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:274",
+    "event": "event",
+    "data": "{\"type\": \"motion\", \"message\": \"motion bridge unavailable\", \"timestamp\": 1793709398.039356, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"motion\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 274, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:274\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:275",
+    "event": "event",
+    "data": "{\"type\": \"vision\", \"message\": \"vision provider unavailable\", \"timestamp\": 1793709398.0395455, \"data\": {\"log\": {\"level\": \"INFO\", \"source\": \"vision\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 275, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:275\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:276",
+    "event": "event",
+    "data": "{\"type\": \"scan\", \"message\": \"scan provider unavailable\", \"timestamp\": 1793709398.0396624, \"data\": {\"severity\": \"warning\", \"log\": {\"level\": \"WARNING\", \"source\": \"scan\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 276, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:276\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:277",
+    "event": "event",
+    "data": "{\"type\": \"ros_endpoints_changed\", \"message\": \"ROS resources changed\", \"timestamp\": 1793709398.5596073, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 9, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 277, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:277\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:278",
+    "event": "event",
+    "data": "{\"type\": \"runtime_state\", \"message\": \"independent acceptance round complete\", \"timestamp\": 1793709398.745384, \"data\": {\"state\": \"idle\", \"log\": {\"level\": \"INFO\", \"source\": \"runtime_state\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 278, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:278\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:279",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"environment switching\", \"timestamp\": 1793709398.753681, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 10, \"generation\": 4, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 279, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:279\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:280",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"environment operation finished\", \"timestamp\": 1793709398.995206, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 11, \"generation\": 5, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 280, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:280\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:281",
+    "event": "event",
+    "data": "{\"type\": \"runtime_state\", \"message\": \"acceptance finished\", \"timestamp\": 1793709399.3101664, \"data\": {\"state\": \"idle\", \"log\": {\"level\": \"INFO\", \"source\": \"runtime_state\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 281, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:281\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:282",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"ROS endpoint removed\", \"timestamp\": 1793709399.3322604, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 11, \"generation\": 5, \"plugin_id\": \"diag_image_probe\", \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 282, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:282\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:283",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"ROS endpoint changed\", \"timestamp\": 1793709399.3325567, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 11, \"generation\": 5, \"plugin_id\": \"diag_image_probe\", \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 283, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:283\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:284",
+    "event": "event",
+    "data": "{\"type\": \"environment\", \"message\": \"plugin ROS bindings updated\", \"timestamp\": 1793709399.3342266, \"data\": {\"plugin_id\": \"diag_image_probe\", \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 284, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:284\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:285",
+    "event": "event",
+    "data": "{\"type\": \"environment_changed\", \"message\": \"environment config saved\", \"timestamp\": 1793709399.3424244, \"data\": {\"session_id\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"revision\": 12, \"generation\": 5, \"log\": {\"level\": \"INFO\", \"source\": \"7592c18c2a5e4eb2ab6055bce4349823\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 285, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:285\"}}}"
+  },
+  {
+    "id": "0cd326f615ad42c090d3a96084b6a78f:286",
+    "event": "event",
+    "data": "{\"type\": \"plugin\", \"message\": \"plugin enabled changed\", \"timestamp\": 1793709399.3496845, \"data\": {\"plugin\": \"diag_image_probe\", \"enabled\": false, \"log\": {\"level\": \"INFO\", \"source\": \"diag_image_probe\", \"stream_id\": \"0cd326f615ad42c090d3a96084b6a78f\", \"sequence\": 286, \"event_id\": \"0cd326f615ad42c090d3a96084b6a78f:286\"}}}"
+  }
+]

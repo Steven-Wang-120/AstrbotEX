@@ -105,7 +105,9 @@ stop_request = service.cancel(command_id, binding, "mock stop").result(timeout=5
 
 固定回调 `on_action_command(command)`、`on_action_cancel(command_id, reason)`，不是 payload 指定方法名。start 回调应只验证/准备本地状态，返回 `"accepted"`/`"rejected"`（或带对应 status 的 dict）。进度在有界 `on_worker_step`/受控独立 Mock 执行器推进；停止/drain 中仍能继续 worker，但不能因此恢复新 start。
 
-Actor 默认独立 start 队列 64 条/1MiB、cancel 队列 16 条/64KiB；N+1 明确失败，不覆盖已接收调用。Dispatcher 普通队列默认 512，优先队列独立有界，Ledger writer 默认 128。取消优先只抢占未执行调用，不能杀死阻塞 Python handler。Actor 默认 callback 预算 20ms，Dispatcher 亦检查 20ms；这是故障诊断/关闭授权边界，不是实时抢占保证。
+Actor 默认独立 start 队列 64 条/1MiB、cancel 队列 16 条/64KiB；N+1 明确失败，不覆盖已接收调用。Dispatcher 普通队列默认 512，优先队列独立有界，Ledger writer 默认 128。取消优先只抢占未执行调用，不能杀死阻塞 Python handler。Dispatcher 按动作的 `lease_ms` 和已请求取消的 `cancel_timeout_ms` 判断超时。Actor 记录回调耗时，显式配置的回调时长阈值仅用于统计。
+
+执行账本使用 SQLite WAL 和 `synchronous=FULL`。准入事务提交后才允许下发命令，SQLite 每次提交会同步 WAL。选择 NORMAL 时，断电可丢失已经确认的准入记录，影响同一 ID 的去重与重启复核。[SQLite 同步模式说明](https://sqlite.org/pragma.html#pragma_synchronous)
 
 插件正常上报：
 

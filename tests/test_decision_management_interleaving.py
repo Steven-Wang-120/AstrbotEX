@@ -23,7 +23,7 @@ from astrbot_ex.core.plugin_actor import PluginActor
 from tests import test_laya_backend as laya_fixture
 from tests import test_goal_manager as goal_fixture
 from tests import test_decision_service as decision_fixture
-import test_decision_management_http as http_fixture
+from tests import test_decision_management_http as http_fixture
 
 
 class ProcessFixture:
@@ -48,7 +48,7 @@ class ProbeFixture:
     def __init__(self, config=None):
         self.config = config
         self.cancelled = threading.Event()
-    def probe(self):
+    def health_probe(self):
         return {'ok': True, 'health': laya_fixture.health()}
     def status(self):
         return {'busy': False, 'restart_required': False}
@@ -64,6 +64,7 @@ class DecisionManagementInterleavingTests(http_fixture.ManagementHTTPFixture, un
         from urllib.request import build_opener, ProxyHandler
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
+        (self.root / 'cache').mkdir()
         self.processes, self.actors, self.post_calls = [], [], []
         self.warmup_blocked = False
         self.warmup_entered = threading.Event()
@@ -102,6 +103,13 @@ class DecisionManagementInterleavingTests(http_fixture.ManagementHTTPFixture, un
         self.thread.start()
         self.base = 'http://127.0.0.1:' + str(self.server.server_address[1])
         self.opener = build_opener(ProxyHandler({}))
+        config = self.get_config()
+        saved = copy.deepcopy(config['saved'])
+        saved['backend'] = 'laya'
+        saved['laya']['service_connection']['mode'] = 'owned'
+        saved['laya']['deployment'] = {'launcher': 'subprocess', 'python': str(deployment.python),
+                                     'cache': str(deployment.cache), 'device': deployment.device}
+        self.assertEqual(self.write('/config', {'config': saved}, version=config)[0], 200)
 
     def tearDown(self):
         try:
@@ -119,7 +127,7 @@ class DecisionManagementInterleavingTests(http_fixture.ManagementHTTPFixture, un
         config = self.get_config()
         saved = copy.deepcopy(config['saved'])
         saved['backend'] = 'laya'
-        saved['laya'].update(enabled=True, allow_live_http=True)
+        saved['laya'].update(enabled=True, allow_live_http=True, execution_enabled=True)
         self.assertEqual(self.write('/config', {'config': saved}, version=config)[0], 200)
 
     def actor(self):
@@ -154,6 +162,8 @@ class DecisionManagementInterleavingTests(http_fixture.ManagementHTTPFixture, un
         self.assert_idle()
 
     def test_new_stop_wins_over_backend_apply_latched_before_trusted_replacement(self):
+        self.laya_config()
+        self.assertEqual(self.operation(self.begin('/service/start'))['state'], 'succeeded')
         entered, release = threading.Event(), threading.Event()
         original = self.server.decision_service.replace_backend
         def parked(*args, **kwargs):

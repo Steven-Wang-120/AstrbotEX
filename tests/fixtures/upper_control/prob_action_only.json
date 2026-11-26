@@ -1,0 +1,16 @@
+{
+  "case_id": "prob_action_only",
+  "expected_accept": true,
+  "expected_error": null,
+  "expected_route": "action_only",
+  "kind": "probabilities",
+  "note": "Clearly executing only; argmax must pick action_only.",
+  "payload": {
+    "action_only": 0.81,
+    "speech_and_action": 0.13,
+    "speech_only": 0.06
+  },
+  "sides": [
+    "aeb"
+  ]
+}

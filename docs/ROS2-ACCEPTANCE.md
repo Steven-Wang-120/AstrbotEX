@@ -43,6 +43,56 @@ Humble 无法报告订阅匹配数时显示 unknown，通过实际接收和 grap
 宿主机节点和 Docker EX 是不同进程及文件系统；通过 Linux host 网络通信。
 容器外验收使用 Domain 73 和唯一 Topic，完成后恢复原配置；未驱动真实硬件。
 
+## 无观察节点原生验收
+
+本节记录 2026-10-31 诊断与日志改造轮次（分支 `feat/ros-diag-b07-b09-20261031`）新增的验收方式；
+上面 2026-09-24 的部署结果属于上一轮，两者数字不能相加或互相引用。
+
+旧脚本 `verify_ros2_deployment.py` 自己建立外部 subscriber，验证的是两端互通，
+属于独立 roundtrip 场景。它**不能**证明“EX 在不加旁路观察节点时能收到数据”：
+加了订阅者就改变了被测拓扑，结论不可迁移。两者不能互相替代。
+
+无观察节点场景只允许三类参与者：必要的图像生产者（synthetic 由脚本自建唯一 publisher，
+entry 由现场入口拥有 camera/YOLO 进程）、EX 自身、HTTP/SSE 测试客户端。
+禁止 `ros2 topic list/echo/hz`、临时 rclpy 旁路 subscriber、ROS daemon 辅助探测。
+主要证据是 publisher 本地计数/日志和 EX 自身 callback 计数（`rx_received / rx_consumed`）。
+
+时间线必须符合健康规则：publisher 可见但不发数据、越过启动宽限后出现
+`ROS_RX_NO_DATA_WITH_PEER`（黄色）；连续至少 10 帧进入 EX callback 并被消费后转 `receiving` 并产生一次恢复；
+停止发送越过 `stale_after_sec` 后转 `stale`（黄色）；恢复送帧后产生第二次恢复。
+每轮至少 30 秒，至少独立重复 2 轮。
+
+旁路观察者场景另起一轮，用 `--with-observer` 显式开启，结果单独记录，
+**不能覆盖无观察节点轮次的失败**。两轮之间清理全部测试参与者。
+共享环境里无法排除他人旁路时，把该前置条件标为“未满足”，不去停别人的生产节点或 daemon。
+
+结果等级固定为四级，不得混用：
+
+| 等级 | 含义 |
+| --- | --- |
+| PASS | 实际执行且全部条件成立 |
+| FAIL | 执行过但任一条件不成立，或出现违反安全边界的行为 |
+| NOT_RUN | 无环境或未执行，仅有设计；不计入通过数 |
+| BLOCKED | 缺必要依赖/权限/基线，需写清解除条件 |
+
+本轮结果：
+
+| 项目 | 环境 | 结果 |
+| --- | --- | --- |
+| 脚本 `--help` 与参数拒绝（远程 url、`duration<30`、`repeat<2`、缺 `--entry`） | Windows，无 ROS | PASS |
+| `--scenario synthetic --dry-run` | Windows，无 ROS | PASS（未读 token、未写配置、未 import ROS） |
+| 原生 synthetic 两轮（Domain 73） | 需 Linux + Humble + 专用实例 | NOT_RUN |
+| 原生 entry 两轮（Domain 0，现场 `run-yolo`） | 需现场设备与模型环境 | NOT_RUN |
+| 真实视觉识别精度 | — | 不在本期范围 |
+
+**当前只能写“模块与脚本验收通过，原生验收未完成”。** Windows/mock 上不可能得到原生 PASS：
+没有 `rclpy` 与真实 DDS 时，单元测试通过不等于 ROS 通过。
+脚本在没有原生条件时返回 `NOT_RUN`（退出码 3），不会把跳过伪装成通过。
+
+原生执行后证据必须包含：EX 与 publisher 的 PID 及拓扑说明、requested/effective RMW、Domain、
+接口标志、端口 generation、每轮输入计数、EX 的 `rx_received/rx_consumed`、诊断时间线、
+SSE 事件 ID、停止后状态与清理结果。缺任一项不能判 PASS。
+
 ## 压力观测
 
 香橙派最终镜像：2048 字节 String，输入约 1212.4 条/秒，发送 1527 条，
@@ -74,8 +124,28 @@ Humble 无法报告订阅匹配数时显示 unknown，通过实际接收和 grap
 
 - 单元及真实 ROS：`python -m unittest discover -s tests -p 'test_*.py'`，须预加载对应 ROS 和自定义接口。
 - 浏览器：`python scripts/verify_environment_ui.py --url http://100.95.122.29:8765`，需额外安装 Playwright/Chromium。
-- 容器外：宿主机 source Humble 后运行 `scripts/verify_ros2_deployment.py`，仅用于普通模式、空闲、无其他启用插件的验收实例。
+- 容器外：宿主机 source Humble 后运行 `scripts/verify_ros2_deployment.py`，仅用于普通模式、空闲、无其他启用插件的验收实例；它自带 subscriber，只证明两端互通，不证明无观察节点入口可用。
+- 无观察节点：`scripts/verify_ros2_diagnostics.py`，`--dry-run` 可在 Windows 运行，原生场景需要 Linux + Humble + 专用实例。两轮结果分别写入 `acceptance/ros-diagnostics/B07/synthetic` 与 `entry`。
 - 自定义接口在镜像构建期或固定 overlay 部署，重启 EX 后使用；网页不执行安装/编译。
 - 未验证真实相机、雷达、CAN、麦克风、扬声器或机器人动作；这些旧插件已退出本期范围。
 - 未宣称 ROS 发现可跨 Tailscale 多播；此次验证是同一 Linux 主机的容器外节点。
 - 外部节点异常退出的 DDS 租约超时、长时间稳定性尚未作专项量测。
+
+## 2026-11-03 JetMax 诊断与日志验收
+
+本次已完成前文 2026-10-31 轮次中尚未执行的原生验收。
+验收源码为 `3060ef9`，详见
+[JetMax 完整报告](../acceptance/ros-diagnostics/jetmax-20261103/REPORT.md)。
+
+- JetMax Humble 全套 unittest 968 项全部通过；Windows 968 项中 967 通过、1 项环境跳过。
+- 无旁路观察者与独立旁路对照各 2 轮，每轮至少 30 秒；
+  EX 自身拓扑分别确认 1 与 2 个订阅者，接收、stale、恢复和清理均通过。
+- 复用已有相机 / YOLO 入口的两个独立轮次通过，轮内新增接收与消费各 26 帧；
+  两轮均有真实 YOLO 就绪事件。未驱动机械臂关节。
+- 浏览器验收 140 项通过，B09 视觉插件单元测试 48 项通过。
+- 修复验收脚本同名端口计数归属及慢设备队列测试的时间预算后，最终版本已复测。
+- 原 EX 服务、ROS2 配置与插件启用状态已恢复，runtime idle、动作 gate 关闭；
+  所有临时相机与 EX 进程均退出。
+
+这是本节所列分支在 JetMax 上的诊断和视觉链路验收；
+前文 2026-09-24 的香橙派记录仍保留为独立历史结果。

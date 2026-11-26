@@ -1,0 +1,38 @@
+{
+  "plan": {
+    "plan_id": "b3291acfd819404089dd70643ab15630",
+    "request_id": "17637fbeebc4422cbc569a4fa6cb69d3",
+    "input_key": "upper-cbee67e7dddd9bbdd4f848ba1c09a1c0c22b9cc966a3e744951cea5f278d5696",
+    "route": "speech_only",
+    "probabilities": {
+      "action_only": 0.05,
+      "speech_and_action": 0.05,
+      "speech_only": 0.9
+    },
+    "public_text": "UPPER_PUBLIC_failed_platform",
+    "send_count": 0,
+    "segment_count": 0,
+    "result_hash": "aba17bcd14180be7762ac2919082cadebc087effd9dc76a39fadf9ed007f1d02",
+    "plan_revision": 1,
+    "generation": 1,
+    "status": "planned",
+    "settings_hash": "be9324d0bc96e0abfbf7ba0b6a33192111813a62c5db328b28fdf348340145bb",
+    "catalog_hash": "9415ae303a5c16d57075c344b5ee01987b5f31a6e99e79fd27306215144c7302",
+    "prompt_hash": "d146f69bb8b10c4036fa981cdae4ad672033e87202ffce518dc496f0ff25eacd",
+    "created_at": 1793712539.5473275,
+    "updated_at": 1793712539.5473275,
+    "input_status": "planned",
+    "segments": [],
+    "batch": null,
+    "public_reply": {
+      "reply_id": "34850f1362fd4bdeabdcc4e9a21a26c4",
+      "plan_id": "b3291acfd819404089dd70643ab15630",
+      "input_key": "upper-cbee67e7dddd9bbdd4f848ba1c09a1c0c22b9cc966a3e744951cea5f278d5696",
+      "text": "UPPER_PUBLIC_failed_platform",
+      "status": "delivery_unknown",
+      "error_code": "public_send_failed"
+    }
+  },
+  "send_attempts": 1,
+  "automatic_retry": false
+}

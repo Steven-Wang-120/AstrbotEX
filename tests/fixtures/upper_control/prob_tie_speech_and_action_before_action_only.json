@@ -1,0 +1,16 @@
+{
+  "case_id": "prob_tie_speech_and_action_before_action_only",
+  "expected_accept": true,
+  "expected_error": null,
+  "expected_route": "speech_and_action",
+  "kind": "probabilities",
+  "note": "Exact tie speech_and_action/action_only: C01 order puts speech_and_action first.",
+  "payload": {
+    "action_only": 0.5,
+    "speech_and_action": 0.5,
+    "speech_only": 0.0
+  },
+  "sides": [
+    "aeb"
+  ]
+}

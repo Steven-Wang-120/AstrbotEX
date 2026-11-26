@@ -1,0 +1,208 @@
+[32m[13:45:18.940][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task finished name='Task-2' coro=<RealManagementCatalogTests.test_real_catalog_create_reload_edit_conflict_delete() done, defined at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_e2e.py:554> result=None created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.167 seconds[0m
+[32m[13:45:18.986][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:19.034][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:19.034][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:19.034][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=41647, audio=56793, vision=58865[0m
+[32m[13:45:19.124][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:59487"
+}[0m
+[32m[13:45:19.154][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:19.193][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:19.207][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:19.207][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:19.207][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=55855, audio=51449, vision=48025[0m
+[32m[13:45:19.250][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:37905"
+}[0m
+[32m[13:45:19.278][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:19.315][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:19.329][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:19.329][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:19.329][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=42107, audio=53277, vision=48675[0m
+[32m[13:45:19.348][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:59447"
+}[0m
+[32m[13:45:19.378][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:19.402][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:19.402][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=42107, audio=53277, vision=48675[0m
+[32m[13:45:19.435][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:19.474][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:19.489][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:19.489][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:19.489][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=58277, audio=57475, vision=53643[0m
+[32m[13:45:19.507][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:57881"
+}[0m
+[32m[13:45:19.536][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:19.559][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:19.563][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=58277, audio=57475, vision=53643[0m
+[32m[13:45:19.610][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:19.647][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:19.662][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:19.662][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:19.662][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=35335, audio=34639, vision=58791[0m
+[32m[13:45:19.724][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:48467"
+}[0m
+[32m[13:45:19.752][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:19.790][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:19.805][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:19.805][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:19.805][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=51507, audio=58723, vision=34401[0m
+[32m[13:45:19.893][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:59893"
+}[0m
+[32m[13:45:19.923][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:19.961][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:19.977][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:19.977][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:19.977][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=53459, audio=39869, vision=48681[0m
+[32m[13:45:20.061][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:44519"
+}[0m
+[32m[13:45:20.090][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:20.130][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:20.144][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:20.144][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:20.144][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=46353, audio=42395, vision=49941[0m
+[32m[13:45:20.229][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:53149"
+}[0m
+[32m[13:45:20.260][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:20.299][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:20.314][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:20.314][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:20.314][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=45719, audio=55637, vision=36693[0m
+[32m[13:45:20.400][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:51281"
+}[0m
+[32m[13:45:20.430][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:20.469][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:20.484][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:20.484][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:20.484][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=43051, audio=46045, vision=47147[0m
+[32m[13:45:20.570][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:35471"
+}[0m
+[32m[13:45:20.600][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:20.639][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:20.653][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:20.653][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:20.653][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=55845, audio=38789, vision=45487[0m
+[32m[13:45:20.712][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:35941"
+}[0m
+[32m[13:45:20.742][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:20.780][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:20.794][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:20.795][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:20.795][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=32805, audio=50155, vision=33515[0m
+[32m[13:45:20.812][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:34459"
+}[0m
+[32m[13:45:20.841][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:20.866][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:20.866][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=32805, audio=50155, vision=33515[0m
+[32m[13:45:20.875][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:20.875][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:20.926][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:34459"
+}[0m
+[32m[13:45:20.958][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:20.998][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:21.013][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:21.013][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:21.013][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=51023, audio=45901, vision=45309[0m
+[32m[13:45:21.097][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:43679"
+}[0m
+[32m[13:45:21.126][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:21.163][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:21.177][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:21.177][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:21.177][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=36761, audio=54787, vision=50777[0m
+[32m[13:45:21.236][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:55403"
+}[0m
+[32m[13:45:21.265][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:21.303][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:21.318][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:21.318][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:21.318][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=45717, audio=38609, vision=46835[0m
+[32m[13:45:21.373][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:55507"
+}[0m
+[32m[13:45:21.401][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:21.408][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+[32m[13:45:21.445][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[13:45:21.460][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[13:45:21.460][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[13:45:21.460][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=60343, audio=38765, vision=36731[0m
+[32m[13:45:21.595][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:52131"
+}[0m
+[32m[13:45:21.627][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+  re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+  re_skip_default = re.compile("(\r\n|\s)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/finalseg/__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+  re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+test_real_catalog_create_reload_edit_conflict_delete (test_upper_e2e.RealManagementCatalogTests.test_real_catalog_create_reload_edit_conflict_delete) ... ok
+test_action_only_injects_without_public_output (test_upper_e2e.UpperStackAcceptanceTests.test_action_only_injects_without_public_output) ... ok
+test_disabling_suppresses_late_model_output_and_restores_normal_admission (test_upper_e2e.UpperStackAcceptanceTests.test_disabling_suppresses_late_model_output_and_restores_normal_admission) ... ok
+test_feature_off_produces_zero_classification_and_zero_injection (test_upper_e2e.UpperStackAcceptanceTests.test_feature_off_produces_zero_classification_and_zero_injection) ... ok
+test_management_api_is_available_before_enabling_or_configuring_robot (test_upper_e2e.UpperStackAcceptanceTests.test_management_api_is_available_before_enabling_or_configuring_robot) ... ok
+test_provider_save_applies_to_next_input_but_not_inflight_input (test_upper_e2e.UpperStackAcceptanceTests.test_provider_save_applies_to_next_input_but_not_inflight_input) ... ok
+test_replayed_event_produces_one_plan_and_one_delivery (test_upper_e2e.UpperStackAcceptanceTests.test_replayed_event_produces_one_plan_and_one_delivery) ... ok
+test_s1_single_segment_with_three_actions_is_not_split (test_upper_e2e.UpperStackAcceptanceTests.test_s1_single_segment_with_three_actions_is_not_split) ... ok
+test_s2_three_segments_travel_in_one_batch (test_upper_e2e.UpperStackAcceptanceTests.test_s2_three_segments_travel_in_one_batch) ... ok
+test_s3_prefix_only_keeps_suffix_pending (test_upper_e2e.UpperStackAcceptanceTests.test_s3_prefix_only_keeps_suffix_pending) ... ok
+test_s4_two_of_three_segments (test_upper_e2e.UpperStackAcceptanceTests.test_s4_two_of_three_segments) ... ok
+test_same_message_id_from_a_new_event_is_not_regenerated (test_upper_e2e.UpperStackAcceptanceTests.test_same_message_id_from_a_new_event_is_not_regenerated) ... ok
+test_saved_enable_flag_admits_next_input_without_rebinding_connection_settings (test_upper_e2e.UpperStackAcceptanceTests.test_saved_enable_flag_admits_next_input_without_rebinding_connection_settings) ... ok
+test_speech_and_action_uses_both_surfaces_once (test_upper_e2e.UpperStackAcceptanceTests.test_speech_and_action_uses_both_surfaces_once) ... ok
+test_speech_only_sends_public_once_and_never_injects (test_upper_e2e.UpperStackAcceptanceTests.test_speech_only_sends_public_once_and_never_injects) ... ok
+test_terminate_releases_control_and_invalidates_generation (test_upper_e2e.UpperStackAcceptanceTests.test_terminate_releases_control_and_invalidates_generation) ... ok
+test_voice_route_matrix_keeps_text_peer_separate_from_control_peer (test_upper_e2e.UpperStackAcceptanceTests.test_voice_route_matrix_keeps_text_peer_separate_from_control_peer) ... ok
+test_absent_dependencies_exit_nonzero_and_report_not_run (test_upper_e2e.VerifyRunnerTests.test_absent_dependencies_exit_nonzero_and_report_not_run) ... ok
+test_existing_evidence_directory_is_never_overwritten (test_upper_e2e.VerifyRunnerTests.test_existing_evidence_directory_is_never_overwritten) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 3.081s
+
+OK

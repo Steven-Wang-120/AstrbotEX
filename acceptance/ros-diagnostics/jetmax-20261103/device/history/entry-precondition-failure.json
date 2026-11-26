@@ -1,0 +1,15 @@
+{
+  "scenario": "entry",
+  "url": "http://127.0.0.1:18765",
+  "domain": 0,
+  "duration_sec": 30,
+  "repeat": 2,
+  "with_observer": false,
+  "platform": "linux",
+  "result": "FAIL",
+  "reason": "disable unrelated plugins before native acceptance",
+  "rounds": [],
+  "schema": "astrex.ros2_diagnostics_acceptance.v1",
+  "started_at": "2026-11-03T12:20:43Z",
+  "finished_at": "2026-11-03T12:20:43Z"
+}

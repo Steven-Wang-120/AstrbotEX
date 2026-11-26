@@ -1,0 +1,129 @@
+{
+  "mode": "fake_bridge",
+  "generated_at": "2026-11-03T13:43:53.853Z",
+  "page_root": "D:\\Code\\A.E.B-work\\upper-b10-b11\\astrbot_plugin_astrbotex_interaction\\pages\\upper-control",
+  "entries": [
+    {
+      "file": "01-actions-empty.png",
+      "area": "actions",
+      "note": "空动作目录，右侧显示空状态",
+      "assertion": "GET upper/actions 返回 actions=[] 且 revision=1",
+      "request": {
+        "method": "GET",
+        "endpoint": "upper/plans",
+        "params": {
+          "limit": 20
+        },
+        "body": null
+      }
+    },
+    {
+      "file": "02-action-draft.png",
+      "area": "actions",
+      "note": "新建条目并填写参数，尚未保存",
+      "assertion": "草稿仅存在于表单，未产生任何 POST",
+      "request": null
+    },
+    {
+      "file": "03-action-saved.png",
+      "area": "actions",
+      "note": "保存后条目出现在列表并保持选中",
+      "assertion": "POST upper/actions/save 带 expected_revision=1，目录 revision 变为 2",
+      "request": {
+        "method": "POST",
+        "endpoint": "upper/actions/save",
+        "params": null,
+        "body": {
+          "record": {
+            "action_ref": null,
+            "action_id": "ex.pick_object",
+            "level": "primitive",
+            "name": "抓取红色杯子",
+            "description": "按已配置方案执行，用于界面回归测试。",
+            "parameters": [
+              {
+                "name": "target",
+                "description": "目标引用",
+                "unit": "",
+                "required": true
+              }
+            ],
+            "usage_stages": [],
+            "skill_markdown": "",
+            "enabled": true
+          },
+          "expected_revision": 1
+        }
+      }
+    },
+    {
+      "file": "04-delete-confirm.png",
+      "area": "actions",
+      "note": "删除前的原生确认对话框，说明不影响 EX",
+      "assertion": "确认框出现时不发送请求",
+      "request": null
+    },
+    {
+      "file": "05-prompts.png",
+      "area": "prompts",
+      "note": "路由规范单独保存，编排规范保持内置",
+      "assertion": "POST upper/prompts/save 只提交 routing，planning_prompt 仍为空",
+      "request": {
+        "method": "POST",
+        "endpoint": "upper/prompts/save",
+        "params": null,
+        "body": {
+          "kind": "routing",
+          "content": "只在确认目标后执行。",
+          "expected_revision": 1
+        }
+      }
+    },
+    {
+      "file": "06-settings.png",
+      "area": "settings",
+      "note": "保存后重载提示只列出 reload_required 字段",
+      "assertion": "POST upper/settings/save 返回 reload_required 含 control_port",
+      "request": {
+        "method": "POST",
+        "endpoint": "upper/settings/save",
+        "params": null,
+        "body": {
+          "settings": {
+            "routing_provider_id": "prov-b",
+            "control_port": 8790
+          },
+          "expected_revision": 2
+        }
+      }
+    },
+    {
+      "file": "07-records-detail.png",
+      "area": "records",
+      "note": "投递阶段与待发段，无任何完成字样或操作按钮",
+      "assertion": "GET upper/plans/get 返回 phase=injected 且 pending_segments 非空",
+      "request": {
+        "method": "GET",
+        "endpoint": "upper/plans/get",
+        "params": {
+          "plan_id": "plan-sentinel"
+        },
+        "body": null
+      }
+    },
+    {
+      "file": "08-dark-actions.png",
+      "area": "actions",
+      "note": "暗色主题下动作区无横向溢出",
+      "assertion": "scrollWidth - clientWidth <= 1",
+      "request": null
+    },
+    {
+      "file": "09-narrow-dark-records.png",
+      "area": "records",
+      "note": "390px 暗色主题，记录详情纵向堆叠且无横向溢出",
+      "assertion": "scrollWidth - clientWidth <= 1 且标签高度 >= 40px",
+      "request": null
+    }
+  ]
+}

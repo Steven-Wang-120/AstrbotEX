@@ -1,0 +1,26 @@
+test_a01_two_owners_100_each_isolated (test_action_dispatcher.DispatcherTests) ... ERROR
+
+======================================================================
+ERROR: test_a01_two_owners_100_each_isolated (test_action_dispatcher.DispatcherTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/tests/test_action_dispatcher.py", line 1050, in test_a01_two_owners_100_each_isolated
+    future.result(15)
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 451, in result
+    return self.__get_result()
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/astrbot_ex/core/actions/dispatcher.py", line 887, in _work
+    result = item.work()
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/astrbot_ex/core/actions/dispatcher.py", line 431, in <lambda>
+    future = self._enqueue(lambda: self._start(command, context, owner, pending),
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/astrbot_ex/core/actions/dispatcher.py", line 455, in _start
+    self._check(command, context, owner, time.monotonic_ns())
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/astrbot_ex/core/actions/dispatcher.py", line 318, in _check
+    raise TimeoutError("trusted context expired")
+TimeoutError: trusted context expired
+
+----------------------------------------------------------------------
+Ran 1 test in 5.370s
+
+FAILED (errors=1)

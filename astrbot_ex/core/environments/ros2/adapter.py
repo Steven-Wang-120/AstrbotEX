@@ -10,10 +10,30 @@ import time
 import json
 from contextlib import contextmanager
 from typing import Any
-from .interfaces import load_message, check_message, installed_interfaces
+from .interfaces import load_message, load_interface, check_message, installed_interfaces
 from ..contracts import environment_config
 
 class Ros2UnavailableError(RuntimeError): pass
+
+
+def _subscription_callback(port, generation, binding_generation, *, with_message_info=True):
+    if not with_message_info:
+        # Earlier Humble executors call subscriptions with only the message.
+        def receive_message(message):
+            port.receive(message, generation, binding_generation, source_id=None)
+        return receive_message
+
+    # Exactly two callback arguments select rclpy's MessageInfo callback form.
+    def receive(message, info):
+        try:
+            # Jazzy/Humble bindings can expose MessageInfo as a dict; newer
+            # bindings also provide attribute access. Preserve the wire GID.
+            gid = bytes(info.get('publisher_gid') if isinstance(info, dict) else info.publisher_gid)
+            source_id = gid.hex() if gid and any(gid) else None
+        except (AttributeError, TypeError, ValueError):
+            source_id = None
+        port.receive(message, generation, binding_generation, source_id=source_id)
+    return receive
 
 
 @contextmanager
@@ -75,7 +95,7 @@ class _Lane:
                 with self.lock:
                     self.executor.spin_once(timeout_sec=0.02)
                     for port in list(self.ports.values()):
-                        if port.declaration["direction"] == "publish": port.flush_one()
+                        if port.declaration["direction"] in ("publish", "action", "service"): port.flush_one()
                 # Let endpoint lifecycle work acquire the lane between spins.
                 self.stop.wait(0.001)
         except Exception as exc:
@@ -161,7 +181,8 @@ class Ros2EnvironmentAdapter:
                 return
             binding = port.binding
             try:
-                cls = load_message(binding["message_type"])
+                direction = port.declaration['direction']
+                cls = (load_interface if direction in ('action', 'service') else load_message)(binding["message_type"])
                 qos = _qos_profile(binding["qos"])
                 from rclpy.validate_topic_name import validate_topic_name
                 validate_topic_name(binding["topic"])
@@ -180,14 +201,26 @@ class Ros2EnvironmentAdapter:
                         port.generation = generation
                         port.binding_generation += 1
                         epoch = port.binding_generation
-                        if port.declaration["direction"] == "subscribe":
-                            native = node.create_subscription(cls, binding["topic"],
-                                lambda message, p=port, g=generation, e=epoch: p.receive(message, g, e), qos)
+                        if direction == "subscribe":
+                            from rclpy.subscription import Subscription
+                            callback_type = getattr(Subscription, 'CallbackType', None)
+                            callback = _subscription_callback(port, generation, epoch,
+                                with_message_info=hasattr(callback_type, 'WithMessageInfo'))
+                            native = node.create_subscription(cls, binding["topic"], callback, qos)
+                        elif direction == "action":
+                            from rclpy.action import ActionClient
+                            native = ActionClient(node, cls, binding['topic'], feedback_sub_qos_profile=qos)
+                        elif direction == "service":
+                            native = node.create_client(cls, binding['topic'], qos_profile=qos)
                         else:
                             native = node.create_publisher(cls, binding["topic"], qos)
                         port.native, port.message_type = native, cls
-                        port.resolved_topic = native.topic_name
+                        port.resolved_topic = (node.resolve_topic_name(binding['topic'])
+                            if direction in ('action', 'service') else native.topic_name)
                         port.state, port.reason = "waiting_peer", None
+                        # A new native endpoint invalidates the previous binding's evidence;
+                        # the observation window restarts at this instant.
+                        port.mark_bound()
                     self._ports[port.endpoint_id] = (port, node, lane)
                     lane.ports[port.endpoint_id] = port
                 self._refresh.set()
@@ -209,6 +242,8 @@ class Ros2EnvironmentAdapter:
                     port.unavailable()
                     if native is not None:
                         if port.declaration["direction"] == "subscribe": node.destroy_subscription(native)
+                        elif port.declaration["direction"] == "action": native.destroy()
+                        elif port.declaration["direction"] == "service": node.destroy_client(native)
                         else: node.destroy_publisher(native)
                     self._ports.pop(port.endpoint_id, None)
                     key = (port.facade.owner_id, port.declaration["execution_lane"])
@@ -292,6 +327,17 @@ class Ros2EnvironmentAdapter:
                         try:
                             native = port.native
                             if native is None: continue
+                            direction = port.declaration['direction']
+                            if direction in ('action', 'service'):
+                                with _lane_lock(lane):
+                                    ready = bool(native.server_is_ready() if direction == 'action' else native.service_is_ready())
+                                with port.lock:
+                                    port.server_ready = ready
+                                    port.matched = int(ready)
+                                    port.graph_peers = int(ready)
+                                    if port.state != 'error':
+                                        port.state = 'ready' if ready else 'waiting_peer'
+                                continue
                             subscribe = port.declaration['direction'] == 'subscribe'
                             method = getattr(native, 'get_publisher_count' if subscribe else 'get_subscription_count', None)
                             try:
@@ -325,6 +371,8 @@ class Ros2EnvironmentAdapter:
                                             diagnostic['state'] = 'unknown'
                                             diagnostic['reason'] = 'Native match or delivery confirmed; static QoS comparison differs: ' + diagnostic['reason']
                                     incompatible = incompatible and not communicating
+                                    # Legacy state stays graph/match based; delivery health is
+                                    # reported separately through _Port.data_health.
                                     port.state = 'ready' if communicating else ('qos_incompatible' if incompatible else 'waiting_peer')
                                     port.reason_code = port.state if incompatible else None
                                     port.reason = '; '.join(d['reason'] for d in diagnostics if d['reason']) if incompatible else None

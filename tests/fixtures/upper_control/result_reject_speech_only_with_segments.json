@@ -1,0 +1,20 @@
+{
+  "case_id": "result_reject_speech_only_with_segments",
+  "expected_accept": false,
+  "expected_error": "invalid_result",
+  "kind": "result",
+  "note": "speech_only must not hide an execution paragraph.",
+  "payload": {
+    "public_text": "好的。",
+    "segments": [
+      {
+        "text": "寻找红色杯子。"
+      }
+    ],
+    "send_count": 1
+  },
+  "route": "speech_only",
+  "sides": [
+    "aeb"
+  ]
+}

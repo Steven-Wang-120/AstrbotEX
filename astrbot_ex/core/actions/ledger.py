@@ -9,14 +9,16 @@ import sqlite3
 import threading
 import uuid
 from concurrent.futures import Future
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from itertools import groupby
+from operator import itemgetter
 from pathlib import Path
 from typing import Any, Callable, TypeVar
 
 from .models import (
     ActionCommand, ActionStatus, CommandOperation, ContractError, ErrorCode,
     LEGAL_TRANSITIONS, MAX_ID_LEN, MAX_SEQUENCE, can_transition, measure_json_budget,
-    reject,
+    reject, validate_stop_evidence, validate_stop_scope,
 )
 
 T = TypeVar("T")
@@ -42,7 +44,7 @@ class OwnerBinding:
     generation: int
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, init=False)
 class StopEvidence:
     """Positive structured evidence supplied by the bound plugin after safe stop."""
 
@@ -50,6 +52,30 @@ class StopEvidence:
     stopped: bool
     source: str
     reference: str
+    _scope_json: str | None = field(repr=False)
+
+    def __init__(self, command_id: str, stopped: bool, source: str, reference: str,
+                 scope: dict[str, Any] | None = None) -> None:
+        # Keep an immutable snapshot across asynchronous reports. Returning a
+        # fresh dict below also prevents callers from changing stored bounds.
+        if scope is not None:
+            validate_stop_scope(scope)
+        scope_json = (None if scope is None else json.dumps(
+            scope, sort_keys=True, separators=(",", ":"), allow_nan=False))
+        for name, value in (("command_id", command_id), ("stopped", stopped),
+                            ("source", source), ("reference", reference),
+                            ("_scope_json", scope_json)):
+            object.__setattr__(self, name, value)
+
+    @property
+    def scope(self) -> dict[str, Any] | None:
+        return None if self._scope_json is None else json.loads(self._scope_json)
+
+    def to_dict(self) -> dict[str, Any]:
+        result = {"stopped": self.stopped, "source": self.source, "reference": self.reference}
+        if self._scope_json is not None:
+            result["scope"] = self.scope
+        return result
 
 
 @dataclass(frozen=True, slots=True)
@@ -57,6 +83,7 @@ class LedgerHealth:
     admission_blocked: bool
     closed: bool
     faulted: bool
+    sqlite_busy_errors: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -132,6 +159,7 @@ class ActionLedger:
         self._closed = False
         self._admission_blocked = False
         self._fault: BaseException | None = None
+        self._sqlite_busy_errors = 0
         ready: Future[None] = Future()
         self._thread = threading.Thread(target=self._run, args=(ready,), name="action-ledger", daemon=True)
         self._thread.start()
@@ -141,8 +169,10 @@ class ActionLedger:
         conn: sqlite3.Connection | None = None
         try:
             conn = sqlite3.connect(self._path, timeout=5, isolation_level=None)
+            # Admission must survive power loss before we permit a hardware command.
+            # WAL avoids rewriting the main database and rollback journal per event.
+            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA synchronous=FULL")
-            conn.execute("PRAGMA journal_mode=DELETE")
             conn.execute("PRAGMA foreign_keys=ON")
             self._initialize(conn)
             ready.set_result(None)
@@ -157,6 +187,12 @@ class ActionLedger:
                     result = operation(conn)
                 except sqlite3.Error as exc:
                     with self._guard:
+                        # The standard sqlite3 API reports persistent contention
+                        # after its busy timeout. Short waits resolved internally
+                        # are included in latency, but produce no result code.
+                        code = getattr(exc, "sqlite_errorcode", None)
+                        if code is not None and (code & 0xFF) in (sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED):
+                            self._sqlite_busy_errors += 1
                         self._fault = exc
                         self._admission_blocked = True
                     if conn.in_transaction:
@@ -210,13 +246,14 @@ class ActionLedger:
             );
             CREATE TABLE IF NOT EXISTS stop_evidence (
                 command_id TEXT PRIMARY KEY REFERENCES commands(command_id),
-                source TEXT NOT NULL, reference TEXT NOT NULL
+                source TEXT NOT NULL, reference TEXT NOT NULL, scope_json TEXT
             );
             CREATE INDEX IF NOT EXISTS events_command ON events(command_id, event_seq);
         """)
         # Legacy rows have no trusted task identity: leave them explicitly incomplete.
         for table, column, ddl in (("commands", "task_id", "TEXT NOT NULL DEFAULT ''"),
-                                   ("events", "event_id", "TEXT NOT NULL DEFAULT ''")):
+                                   ("events", "event_id", "TEXT NOT NULL DEFAULT ''"),
+                                   ("stop_evidence", "scope_json", "TEXT")):
             columns = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
             if column not in columns:
                 conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}")
@@ -292,7 +329,7 @@ class ActionLedger:
         """Cached gate state; does not access or wait for SQLite."""
         with self._guard:
             return LedgerHealth(self._admission_blocked or self._fault is not None or self._closed,
-                                self._closed, self._fault is not None)
+                                self._closed, self._fault is not None, self._sqlite_busy_errors)
 
     @staticmethod
     def _valid_id(value: Any) -> bool:
@@ -406,8 +443,7 @@ class ActionLedger:
         if status == ActionStatus.CANCELED or proven_failure:
             self._validate_stop(command_id, stop_evidence)
             payload = json.loads(encoded)
-            payload["stop_evidence"] = {"stopped": True, "source": stop_evidence.source,
-                                        "reference": stop_evidence.reference}
+            payload["stop_evidence"] = stop_evidence.to_dict()
             encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
         def work(conn: sqlite3.Connection) -> ActionSnapshot:
@@ -423,8 +459,8 @@ class ActionLedger:
                     conn.commit()
                     return current
                 if status == ActionStatus.CANCELED or proven_failure:
-                    conn.execute("INSERT INTO stop_evidence(command_id,source,reference) VALUES (?,?,?)",
-                                 (command_id, stop_evidence.source, stop_evidence.reference))
+                    conn.execute("INSERT INTO stop_evidence(command_id,source,reference,scope_json) VALUES (?,?,?,?)",
+                                 (command_id, stop_evidence.source, stop_evidence.reference, stop_evidence._scope_json))
                 seq = self._event(conn, command_id, status, reason_code, encoded)
                 conn.execute("UPDATE commands SET status=?,reason_code=?,details_json=?,event_seq=? WHERE command_id=?",
                              (status, reason_code, encoded, seq, command_id))
@@ -446,6 +482,7 @@ class ActionLedger:
                 or any(not ActionLedger._valid_id(value)
                        for value in (evidence.source, evidence.reference))):
             raise ValueError("positive structured stop evidence required")
+        validate_stop_evidence({"stop_evidence": evidence.to_dict()})
 
     def reconcile_stop(self, command_id: str, binding: OwnerBinding,
                        evidence: StopEvidence) -> Future[ActionSnapshot]:
@@ -462,11 +499,11 @@ class ActionLedger:
                 self._binding(current, binding)
                 if current.status not in (ActionStatus.UNKNOWN, ActionStatus.TIMED_OUT, ActionStatus.FAILED):
                     raise ValueError("reconciliation requires an uncertain terminal status")
-                proof = conn.execute("SELECT source,reference FROM stop_evidence WHERE command_id=?", (command_id,)).fetchone()
+                proof = conn.execute("SELECT source,reference,scope_json FROM stop_evidence WHERE command_id=?", (command_id,)).fetchone()
                 if proof is None:
-                    conn.execute("INSERT INTO stop_evidence(command_id,source,reference) VALUES (?,?,?)",
-                                 (command_id, evidence.source, evidence.reference))
-                elif proof != (evidence.source, evidence.reference):
+                    conn.execute("INSERT INTO stop_evidence(command_id,source,reference,scope_json) VALUES (?,?,?,?)",
+                                 (command_id, evidence.source, evidence.reference, evidence._scope_json))
+                elif proof != (evidence.source, evidence.reference, evidence._scope_json):
                     raise ValueError("conflicting stop evidence")
                 if current.held_resources:
                     conn.execute("DELETE FROM resources WHERE command_id=?", (command_id,))
@@ -488,9 +525,15 @@ class ActionLedger:
             if current is None:
                 raise KeyError(command_id)
             self._binding(current, binding)
-            row = conn.execute("SELECT source,reference FROM stop_evidence WHERE command_id=?",
+            row = conn.execute("SELECT source,reference,scope_json FROM stop_evidence WHERE command_id=?",
                                (command_id,)).fetchone()
-            return StopEvidence(command_id, True, *row) if row is not None else None
+            if row is None:
+                return None
+            source, reference, scope_json = row
+            proof = StopEvidence(command_id, True, source, reference,
+                                 None if scope_json is None else json.loads(scope_json))
+            self._validate_stop(command_id, proof)
+            return proof
         return self._submit(work)
 
     def get(self, command_id: str) -> Future[ActionSnapshot | None]:
@@ -501,9 +544,23 @@ class ActionLedger:
     def list_commands(self, *, after_id: str = "", limit: int = 100) -> Future[tuple[ActionSnapshot, ...]]:
         self._page(limit)
         def work(conn: sqlite3.Connection) -> tuple[ActionSnapshot, ...]:
-            ids = conn.execute("SELECT command_id FROM commands WHERE command_id>? ORDER BY command_id LIMIT ?",
-                               (after_id, limit)).fetchall()
-            return tuple(self._snapshot(conn, row[0]) for row in ids)
+            # Limit the commands first so a command owning several resources still
+            # occupies one pagination slot. One statement takes a consistent snapshot.
+            rows = conn.execute("""
+                SELECT page.*, r.name
+                  FROM (SELECT command_id, canonical, status, owner, generation,
+                               reason_code, details_json, event_seq
+                          FROM commands WHERE command_id > ?
+                         ORDER BY command_id LIMIT ?) AS page
+                  LEFT JOIN resources AS r ON r.command_id = page.command_id
+                 ORDER BY page.command_id, r.name
+            """, (after_id, limit))
+            page = []
+            for _, group in groupby(rows, itemgetter(0)):
+                first = next(group)
+                held = () if first[-1] is None else (first[-1], *(row[-1] for row in group))
+                page.append(ActionSnapshot(*first[:-1], held))
+            return tuple(page)
         return self._submit(work)
 
     def events(self, *, after_seq: int = 0, limit: int = 100,

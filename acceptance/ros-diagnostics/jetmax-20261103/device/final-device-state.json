@@ -1,0 +1,21 @@
+{
+  "at": 1793709563.539813,
+  "runtime": "idle",
+  "gate_open": false,
+  "mode": "ros2",
+  "enabled": [
+    "yolo"
+  ],
+  "checks": {
+    "runtime_idle": true,
+    "gate_closed": true,
+    "mode_restored": true,
+    "ros_config_restored": true,
+    "enabled_restored": true,
+    "camera_stopped": true,
+    "private_ex_stopped": true,
+    "original_service_pid_unchanged": true
+  },
+  "service_pid": "3542",
+  "result": "PASS"
+}

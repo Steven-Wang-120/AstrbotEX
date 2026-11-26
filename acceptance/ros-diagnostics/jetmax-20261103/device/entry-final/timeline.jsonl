@@ -1,0 +1,7 @@
+{"at": "2026-11-03T12:30:03Z", "kind": "entry_round", "round": 1, "checks": {"owned_process_group_cleaned": true, "duration": true, "new_rx": true, "new_consumption": true, "entry_exit_zero": true, "round_exit_idle_gate_closed": true}, "peak": {"rx_received": 84, "rx_consumed": 84}, "entry_pid": 28364, "elapsed_sec": 30.48360858299975, "exit_code": 0, "rx_delta": 26, "consume_delta": 26, "entry_log": "entry-1.log"}
+{"at": "2026-11-03T12:30:37Z", "kind": "entry_round", "round": 2, "checks": {"owned_process_group_cleaned": true, "duration": true, "new_rx": true, "new_consumption": true, "entry_exit_zero": true, "round_exit_idle_gate_closed": true}, "peak": {"rx_received": 113, "rx_consumed": 113}, "entry_pid": 30067, "elapsed_sec": 30.489534883000033, "exit_code": 0, "rx_delta": 26, "consume_delta": 26, "entry_log": "entry-2.log"}
+{"at": "2026-11-03T12:30:37Z", "kind": "restore", "step": "runtime_stop", "ok": true}
+{"at": "2026-11-03T12:30:37Z", "kind": "restore", "step": "mode_normal", "ok": true}
+{"at": "2026-11-03T12:30:37Z", "kind": "restore", "step": "bindings", "ok": true}
+{"at": "2026-11-03T12:30:37Z", "kind": "restore", "step": "config", "ok": true}
+{"at": "2026-11-03T12:30:37Z", "kind": "restore", "step": "plugin_enabled_restored", "ok": true}

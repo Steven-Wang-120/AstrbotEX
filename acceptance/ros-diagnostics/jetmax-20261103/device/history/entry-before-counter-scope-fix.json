@@ -1,0 +1,68 @@
+{
+  "scenario": "entry",
+  "url": "http://127.0.0.1:18765",
+  "domain": 0,
+  "duration_sec": 30,
+  "repeat": 2,
+  "with_observer": false,
+  "platform": "linux",
+  "result": "FAIL",
+  "reason": "",
+  "rounds": [
+    {
+      "round": 1,
+      "checks": {
+        "owned_process_group_cleaned": true,
+        "duration": true,
+        "new_rx": false,
+        "new_consumption": false,
+        "entry_exit_zero": true,
+        "round_exit_idle_gate_closed": true
+      },
+      "peak": {
+        "rx_received": 455,
+        "rx_consumed": 455
+      },
+      "entry_pid": 24463,
+      "elapsed_sec": 30.080021124000268,
+      "exit_code": 0,
+      "rx_delta": 0,
+      "consume_delta": 0,
+      "entry_log": "entry-1.log"
+    },
+    {
+      "round": 2,
+      "checks": {
+        "owned_process_group_cleaned": true,
+        "duration": true,
+        "new_rx": false,
+        "new_consumption": false,
+        "entry_exit_zero": true,
+        "round_exit_idle_gate_closed": true
+      },
+      "peak": {
+        "rx_received": 455,
+        "rx_consumed": 455
+      },
+      "entry_pid": 26018,
+      "elapsed_sec": 30.434002906999922,
+      "exit_code": 0,
+      "rx_delta": 0,
+      "consume_delta": 0,
+      "entry_log": "entry-2.log"
+    }
+  ],
+  "cleanup": {
+    "runtime_stop": true,
+    "mode_normal": true,
+    "bindings": true,
+    "config": true,
+    "plugin_enabled_restored": true,
+    "idle_gate_closed": true
+  },
+  "sse_frames": 287,
+  "sse_error": null,
+  "schema": "astrex.ros2_diagnostics_acceptance.v1",
+  "started_at": "2026-11-03T12:23:03Z",
+  "finished_at": "2026-11-03T12:24:11Z"
+}

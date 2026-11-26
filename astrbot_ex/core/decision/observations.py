@@ -1,6 +1,7 @@
 """Bounded, receive-stamped original TopicBus JSON. No business normalization."""
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import math
@@ -48,10 +49,10 @@ class ObservationStore:
         specs = {}
         for entry in entries:
             for source, spec in entry["manifest"].get("observation_sources", {}).items():
-                value = {**spec, "description_hash": hashlib.sha256(json.dumps(
+                value = {**copy.deepcopy(spec), "description_hash": hashlib.sha256(json.dumps(
                     [spec, entry["guide"]["content_hash"], entry["generation"]], sort_keys=True).encode()).hexdigest(),
                          "generation": entry["generation"], "owner": entry["owner"],
-                         "enabled": entry["enabled"]}
+                         "enabled": entry["enabled"] and entry["available"]}
                 if source in specs and specs[source] != value:
                     raise ValueError(f"ambiguous observation source ID: {source}")
                 specs[source] = value
@@ -62,6 +63,8 @@ class ObservationStore:
                 return
             for source in set(self._specs) | set(specs):
                 if self._specs.get(source) == specs.get(source):
+                    # Preserve subscription identity across semantic no-op refreshes.
+                    specs[source] = self._specs[source]
                     continue
                 unsubscribe = self._subscriptions.pop(source, None)
                 if unsubscribe:
@@ -72,13 +75,14 @@ class ObservationStore:
                 self._diagnostics.pop(source, None)
                 if source in specs and specs[source]["enabled"] and self.bus is not None:
                     self._subscriptions[source] = self.bus.subscribe(
-                        specs[source]["topic"], lambda msg, sid=source: self._receive(sid, msg))
+                        specs[source]["topic"], lambda msg, sid=source, bound=specs[source]:
+                        self._receive(sid, msg, bound))
             self._specs = specs
 
-    def _receive(self, source: str, message) -> None:
+    def _receive(self, source: str, message, bound_spec: dict) -> None:
         with self._lock:
             spec = self._specs.get(source)
-            if not spec:
+            if self._closed or spec is not bound_spec or not spec["enabled"]:
                 return
             if message.source != spec["owner"] and message.source != spec["topic"].split(".", 1)[0]:
                 self._diagnostics[source] = "source_mismatch"
@@ -89,13 +93,15 @@ class ObservationStore:
             epoch = epoch if epoch is not None else f'{spec["owner"]}:{spec["generation"]}'
         try:
             self.ingest(source, message.payload, source_epoch=epoch, seq=message.seq,
-                        source_timestamp=message.timestamp)
+                        source_timestamp=message.timestamp, _bound_spec=bound_spec)
         except (ValueError, TypeError):
             with self._lock:
-                self._diagnostics[source] = "invalid_payload"
+                if not self._closed and self._specs.get(source) is bound_spec:
+                    self._diagnostics[source] = "invalid_payload"
 
     def ingest(self, source: str, data: dict, *, source_epoch: str, seq: int,
-               source_timestamp: float | None, description_hash: str | None = None) -> bool:
+               source_timestamp: float | None, description_hash: str | None = None,
+               _bound_spec: dict | None = None) -> bool:
         budget = measure_json_budget(data)
         if not isinstance(data, dict) or budget is not None:
             raise ValueError(f"invalid JSON: {budget}")
@@ -118,6 +124,10 @@ class ObservationStore:
             if age < 0:
                 reason, age = "future_source_time", 0.0
         with self._lock:
+            # TopicBus captures callbacks before invoking them outside its lock.
+            # Recheck after JSON validation so retired subscriptions cannot commit.
+            if _bound_spec is not None and (self._closed or self._specs.get(source) is not _bound_spec):
+                return False
             if self._closed or source not in self._specs:
                 raise ValueError("source is not declared")
             spec = self._specs[source]
@@ -184,7 +194,7 @@ class ObservationStore:
         with self._lock:
             for old in observations:
                 spec = self._specs.get(old["source_id"])
-                if spec is None or not spec["enabled"]:
+                if self._closed or spec is None or not spec["enabled"]:
                     raise RuntimeError("request_observation_source_missing")
                 if spec["description_hash"] != old["description_hash"]:
                     raise RuntimeError("request_observation_description_changed")

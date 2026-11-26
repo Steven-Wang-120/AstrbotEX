@@ -1,0 +1,15 @@
+{
+  "case_id": "prob_reject_sum",
+  "expected_accept": false,
+  "expected_error": "invalid_probabilities",
+  "kind": "probabilities",
+  "note": "Sum 0.9 is outside the 0.001 tolerance.",
+  "payload": {
+    "action_only": 0.2,
+    "speech_and_action": 0.2,
+    "speech_only": 0.5
+  },
+  "sides": [
+    "aeb"
+  ]
+}

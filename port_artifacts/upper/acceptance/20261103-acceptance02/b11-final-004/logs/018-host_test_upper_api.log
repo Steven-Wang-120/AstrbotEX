@@ -1,0 +1,63 @@
+[32m[14:14:21.714][0m [Core] [33m[1m[WARN][0m [astrbot_plugin_astrbotex_interaction.upper_api:832]: [33m[1mupper api: settings save failed: revision_conflict[0m
+[32m[14:14:21.714][0m [Core] [33m[1m[WARN][0m [astrbot_plugin_astrbotex_interaction.upper_api:832]: [33m[1mupper api: action catalog failed: boom at C:\secret\path.py line 1[0m
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+  re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+  re_skip_default = re.compile("(\r\n|\s)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/finalseg/__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+  re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+test_absolute_path_action_id_is_rejected (test_upper_api.ActionEndpointTests.test_absolute_path_action_id_is_rejected) ... ok
+test_create_then_read_back_from_rebuilt_catalog (test_upper_api.ActionEndpointTests.test_create_then_read_back_from_rebuilt_catalog) ... ok
+test_delete_requires_known_reference_and_cas (test_upper_api.ActionEndpointTests.test_delete_requires_known_reference_and_cas) ... ok
+test_file_path_field_is_rejected (test_upper_api.ActionEndpointTests.test_file_path_field_is_rejected) ... ok
+test_get_actions_includes_catalog_version_and_ex_availability (test_upper_api.ActionEndpointTests.test_get_actions_includes_catalog_version_and_ex_availability) ... ok
+test_machine_schema_and_exec_permission_are_rejected (test_upper_api.ActionEndpointTests.test_machine_schema_and_exec_permission_are_rejected) ... ok
+test_markdown_is_stored_as_plain_data (test_upper_api.ActionEndpointTests.test_markdown_is_stored_as_plain_data) ... ok
+test_offline_ex_still_allows_local_editing (test_upper_api.ActionEndpointTests.test_offline_ex_still_allows_local_editing) ... ok
+test_parameter_execution_keys_are_rejected (test_upper_api.ActionEndpointTests.test_parameter_execution_keys_are_rejected) ... ok
+test_primitive_requires_action_id (test_upper_api.ActionEndpointTests.test_primitive_requires_action_id) ... ok
+test_save_action_revision_conflict_is_409 (test_upper_api.ActionEndpointTests.test_save_action_revision_conflict_is_409) ... ok
+test_skill_level_rejects_action_id (test_upper_api.ActionEndpointTests.test_skill_level_rejects_action_id) ... ok
+test_responder_delegates_to_host_helpers (test_upper_api.HostAdapterTests.test_responder_delegates_to_host_helpers) ... ok
+test_api_never_imports_pipeline_or_control_modules (test_upper_api.IsolationTests.test_api_never_imports_pipeline_or_control_modules) ... ok
+test_flat_settings_body_is_accepted (test_upper_api.IsolationTests.test_flat_settings_body_is_accepted) ... ok
+test_repository_conflict_code_maps_to_409 (test_upper_api.IsolationTests.test_repository_conflict_code_maps_to_409) ... ok
+test_responses_carry_no_stack_trace (test_upper_api.IsolationTests.test_responses_carry_no_stack_trace) ... ok
+test_invalid_cursor_is_rejected (test_upper_api.PlanEndpointTests.test_invalid_cursor_is_rejected) ... ok
+test_missing_plan_id_is_400 (test_upper_api.PlanEndpointTests.test_missing_plan_id_is_400) ... ok
+test_plan_detail_keeps_segment_boundaries_and_no_success_label (test_upper_api.PlanEndpointTests.test_plan_detail_keeps_segment_boundaries_and_no_success_label) ... ok
+test_plan_limit_bounds (test_upper_api.PlanEndpointTests.test_plan_limit_bounds) ... ok
+test_plan_limit_default_and_non_numeric (test_upper_api.PlanEndpointTests.test_plan_limit_default_and_non_numeric) ... ok
+test_plans_are_paged_with_bounded_limit (test_upper_api.PlanEndpointTests.test_plans_are_paged_with_bounded_limit) ... ok
+test_unknown_delivery_phase_maps_to_unknown (test_upper_api.PlanEndpointTests.test_unknown_delivery_phase_maps_to_unknown) ... ok
+test_unknown_plan_is_404 (test_upper_api.PlanEndpointTests.test_unknown_plan_is_404) ... ok
+test_prompt_override_switches_source (test_upper_api.PromptEndpointTests.test_prompt_override_switches_source) ... ok
+test_prompts_report_builtin_source_and_hashes (test_upper_api.PromptEndpointTests.test_prompts_report_builtin_source_and_hashes) ... ok
+test_save_prompt_conflict_is_409 (test_upper_api.PromptEndpointTests.test_save_prompt_conflict_is_409) ... ok
+test_save_prompt_empty_restores_default (test_upper_api.PromptEndpointTests.test_save_prompt_empty_restores_default) ... ok
+test_save_prompt_only_writes_its_own_field (test_upper_api.PromptEndpointTests.test_save_prompt_only_writes_its_own_field) ... ok
+test_save_prompt_rejects_other_kinds (test_upper_api.PromptEndpointTests.test_save_prompt_rejects_other_kinds) ... ok
+test_provider_api_unavailable_is_explicit (test_upper_api.ProviderEndpointTests.test_provider_api_unavailable_is_explicit) ... ok
+test_providers_are_listed_without_secrets (test_upper_api.ProviderEndpointTests.test_providers_are_listed_without_secrets) ... ok
+test_unknown_selected_provider_is_reported_as_stale (test_upper_api.ProviderEndpointTests.test_unknown_selected_provider_is_reported_as_stale) ... ok
+test_real_settings_snapshot_read_save_reload_and_prompts (test_upper_api.RealSettingsEndpointTests.test_real_settings_snapshot_read_save_reload_and_prompts) ... ok
+test_methods_are_upper_case_and_stable (test_upper_api.RegistrationTests.test_methods_are_upper_case_and_stable) ... ok
+test_registers_ten_prefixed_routes (test_upper_api.RegistrationTests.test_registers_ten_prefixed_routes) ... ok
+test_reregistration_replaces_instead_of_stacking (test_upper_api.RegistrationTests.test_reregistration_replaces_instead_of_stacking) ... ok
+test_control_port_does_not_collide_with_existing_channels (test_upper_api.SchemaTests.test_control_port_does_not_collide_with_existing_channels) ... ok
+test_new_features_default_to_off (test_upper_api.SchemaTests.test_new_features_default_to_off) ... ok
+test_schema_matches_setting_fields (test_upper_api.SchemaTests.test_schema_matches_setting_fields) ... ok
+test_get_settings_never_returns_secrets (test_upper_api.SettingsEndpointTests.test_get_settings_never_returns_secrets) ... ok
+test_get_settings_returns_values_revision_scope_and_runtime (test_upper_api.SettingsEndpointTests.test_get_settings_returns_values_revision_scope_and_runtime) ... ok
+test_get_settings_without_repository_is_503 (test_upper_api.SettingsEndpointTests.test_get_settings_without_repository_is_503) ... ok
+test_save_settings_persists_across_repository_rebuild (test_upper_api.SettingsEndpointTests.test_save_settings_persists_across_repository_rebuild) ... ok
+test_save_settings_rejects_bool_revision (test_upper_api.SettingsEndpointTests.test_save_settings_rejects_bool_revision) ... ok
+test_save_settings_rejects_unknown_field (test_upper_api.SettingsEndpointTests.test_save_settings_rejects_unknown_field) ... ok
+test_save_settings_rejects_wrong_types (test_upper_api.SettingsEndpointTests.test_save_settings_rejects_wrong_types) ... ok
+test_save_settings_revision_conflict_is_409 (test_upper_api.SettingsEndpointTests.test_save_settings_revision_conflict_is_409) ... ok
+test_save_settings_updates_revision_and_reports_scope (test_upper_api.SettingsEndpointTests.test_save_settings_updates_revision_and_reports_scope) ... ok
+
+----------------------------------------------------------------------
+Ran 50 tests in 0.037s
+
+OK

@@ -64,6 +64,7 @@ class ActionStorageTest(unittest.TestCase):
         self.assertEqual(prepare_action_ledger(self.root), self.target)
         self.assertNotIn(self.target.relative_to(self.root).parts[0], SNAPSHOT_ROOTS)
         self.assertFalse(self.legacy.exists())
+        self.assertEqual(list(self.target.parent.glob(".actions-init-*")), [])
         self.assertEqual(self.facts(self.target)["commands"], [])
         self.assertEqual(prepare_action_ledger(self.root), self.target)
 

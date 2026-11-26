@@ -4,11 +4,14 @@ from __future__ import annotations
 from types import MappingProxyType
 
 from .jev import JevBackend
+from .structured import StructuredBackend
+from .openai_json import OpenAIJsonBackend
 from .mock import MockBackend
 from .laya import LayaBackend
 
 
-BACKEND_FACTORIES = MappingProxyType({"mock": MockBackend, "jev": JevBackend, "laya": LayaBackend})
+BACKEND_FACTORIES = MappingProxyType({"mock": MockBackend, "jev": JevBackend, "laya": LayaBackend,
+                                      "structured": StructuredBackend, "openai_json": OpenAIJsonBackend})
 
 
 def backend_names() -> tuple[str, ...]:

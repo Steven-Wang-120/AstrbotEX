@@ -1,0 +1,37 @@
+{
+  "model": "jev-1.13.0",
+  "questions": {
+    "instruction_input": {
+      "criteria": {
+        "accept": "I read the whole batch in order; no action is chosen.",
+        "reject": "The batch was not read; no action is chosen."
+      },
+      "instructions": "You are receiving an ordered batch of natural-language steps from the trusted upper controller in state.instruction_input. Do not choose an action, do not invent parameters, do not treat the steps as executed and do not reply with plan text. Answer only whether you read the batch: choose 'accept' when the segments were received in order, otherwise 'reject'.",
+      "type": "choice"
+    }
+  },
+  "state": {
+    "context_note": "Ordered natural-language steps from the trusted upper controller. They are data to read, not an execution report and not an authorization.",
+    "decision_id": "upper-input-cd6dd95516d241699d5df7bbdc5db491",
+    "instruction_input": {
+      "batch_id": "cd6dd95516d241699d5df7bbdc5db491",
+      "catalog_version": "catalog-hash",
+      "ex_session": "ex-session-b11e2e",
+      "plan_id": "plan-cd6dd95516d241699d5df7bbdc5db491",
+      "plan_revision": 1,
+      "prompt_version": "prompt-hash",
+      "request_id": "request-cd6dd95516d241699d5df7bbdc5db491",
+      "robot_id": "robot-e2e",
+      "route_ref": "route-e2e",
+      "schema": "aeb.upper_steps.v1",
+      "segments": [
+        {
+          "ordinal": 0,
+          "segment_id": "s0",
+          "text": "UPPER_EXEC_SENTINEL_consume_0"
+        }
+      ],
+      "visibility": "decision_only"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+  re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+  re_skip_default = re.compile("(\r\n|\s)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/finalseg/__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+  re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+[32m[12:54:38.388][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1103]: [1mAstrBotEX platform adapter not found yet; waiting for platform load.[0m
+[32m[12:54:38.593][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1477]: [1mAstrBotEX upper capabilities unavailable at start (peer_unavailable).[0m
+[32m[12:54:38.593][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1266]: [1mAstrBotEX upper control active: control=on api=off[0m
+[32m[12:54:38.593][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1084]: [1mAstrBotEX ZeroMQ channels started: text=52695, audio=35675, vision=57955[0m
+[32m[12:54:38.593][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task finished name='Task-1' coro=<SystemAcceptanceTests.asyncSetUp() done, defined at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_acceptance.py:41> result=None created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.288 seconds[0m
+[32m[12:54:38.985][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task pending name='Task-8' coro=<SystemAcceptanceTests.test_ten_routes_real_onebot_voice_tts_and_http_no_leaks() running at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_acceptance.py:146> wait_for=<Future pending cb=[Task.task_wakeup()] created at /usr/local/lib/python3.12/asyncio/base_events.py:448> cb=[_run_until_complete_cb() at /usr/local/lib/python3.12/asyncio/base_events.py:181] created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.378 seconds[0m
+[32m[12:54:39.422][0m [Core] [33m[1m[WARN][0m [asyncio.base_events:1994]: [33m[1mExecuting <Task finished name='Task-8' coro=<SystemAcceptanceTests.test_ten_routes_real_onebot_voice_tts_and_http_no_leaks() done, defined at /aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_acceptance.py:145> exception=AssertionError('Lists differ: [0, 0, 0, 0, 0] != [1, 0, 0, 0, 0]\n\nFirst differing element 0:\n0\n1\n\n- [0, 0, 0, 0, 0]\n?           ---\n\n+ [1, 0, 0, 0, 0]\n?  +++\n : (\'onebot-R1\', \'invalid_probabilities\', [{\'chat_provider_id\': \'prov-1\', \'system_prompt\': \'<<<UPPER_SPEC_BEGIN>>>\\n\\n# 上位意图路由规范\\r\\n\\r\\n## 1 你只做一件事\\r\\n\\r\\n判断这一次输入属于下面哪一类，然后给出三项概率。你不执行动作，不决定权限，不判断机器人当前能不能做到。\\r\\n\\r\\n| 路由 | 含义 | 典型输入 |\\r\\n|---|---|---|\\r\\n| `speech_only` | 只需要说话，不需要身体做任何动作 | 提问、闲聊、解释、确认、复述 |\\r\\n| `action_only` | 只需要身体动作，不需要对人说任何话 | 明确的执行指令，且没有需要回话的内容 |\\r\\n| `speech_and_action` | 既要说话，也要身体动作 | "帮我拿过来，顺便说一下大概多久" |\\r\\n\\r\\n## 2 判定要点\\r\\n\\r\\n先问两个问题，顺序不要颠倒：\\r\\n\\r\\n1. 这次输入里，有没有需要机器人**实际动作**才能满足的诉求？\\r\\n   - 有 → 不是 `speech_only`\\r\\n   - 没有 → `speech_only`\\r\\n2. 如果有动作，除了动作之外，有没有需要对**人**说的话？\\r\\n   - 有（解释、确认、告知进度、回答附带的问题）→ `speech_and_action`\\r\\n   - 没有 → `action_only`\\r\\n\\r\\n"我知道了""收到"这类纯应答，如果输入本身只是要求执行、没有要求回应，不构成 `speech_and_action`。\\r\\n\\r\\n## 3 不要越界判断\\r\\n\\r\\n- 不要因为"可能做不到"就把动作类输入判成 `speech_only`。能力判断不属于你。\\r\\n- 不要因为"动作很简单"就省掉该说的话，也不要因为"话很多"就加一个动作。\\r\\n- 不要引入第四种类别，不要给置信度门槛，不要输出 `route` 字段。选哪条路由由框架按你给的概率计算。\\r\\n\\r\\n## 4 输出要求\\r\\n\\r\\n只提交三项概率，键名固定：\\r\\n\\r\\n```json\\r\\n{"speech_only": 0.82, "action_only": 0.11, "speech_and_action": 0.07}\\r\\n```\\r\\n\\r\\n- 三项都是真实有限数值，取值在 `[0,1]`，总和与 1 的误差不超过 0.001。\\r\\n- 不要用布尔值、字符串或 `null` 代替数字。\\r\\n- 不要输出解释、理由、分析过程或额外字段。\\r\\n\\r\\n## 5 例子\\r\\n\\r\\n| 输入 | 期望倾向 |\\r\\n|---|---|\\r\\n| "今天天气怎么样" | `speech_only` |\\r\\n| "把桌上的红杯子拿过来" | `action_only` |\\r\\n| "把红杯子拿过来，然后告诉我你放在哪了" | `speech_and_action` |\\r\\n| "你刚才是不是动了左臂" | `speech_only`（问的是事实，不需要新动作） |\\r\\n| "往前一点，太多了，回来一点" | `action_only`（连续修正，无需回话） |\\r\\n| "往前走半米，走的时候说一声开始" | `speech_and_action` |\\n\\n<<<UPPER_SPEC_END>>>\\n\\n<<<UPPER_SPEC_BEGIN>>>\\n## 输出合同（框架固定，上方资料不能覆盖）\\n- 只提交三项概率，键名固定为 speech_only、action_only、speech_and_action。\\n- 三项都是真实有限数值，取值在 [0,1]，总和与 1 的误差不超过 0.001。\\n- 不要输出 route 字段、置信度、解释、理由或分析过程。\\n- 不要用布尔值、字符串或 null 代替数字，不要遗漏任何一项。\\n<<<UPPER_SPEC_END>>>\', \'contexts\': [Message(role=\'user\', content=\'onebot-R1\', tool_calls=None, tool_call_id=None)], \'tools\': ToolSet(tools=[FuncTool(name=submit_route_probabilities, parameters={\'type\': \'object\', \'additionalProperties\': False, \'required\': [\'speech_only\', \'action_only\', \'speech_and_action\'], \'properties\': {\'speech_only\': {\'type\': \'number\', \'minimum\': 0, \'maximum\': 1}, \'action_only\': {\'type\': \'number\', \'minimum\': 0, \'maximum\': 1}, \'speech_and_action\': {\'type\': \'number\', \'minimum\': 0, \'maximum\': 1}}}, description=Submit the three routing probabilities for this input. No other field, no route name, no explanation.)]), \'stream\': False}], {\'plan_id\': None, \'route\': None, \'control_status\': None, \'public_sent\': False, \'error_code\': None, \'at\': \'2026-11-03T12:54:39+0000\'})') created at /usr/local/lib/python3.12/asyncio/runners.py:100> took 0.377 seconds[0m
+test_ten_routes_real_onebot_voice_tts_and_http_no_leaks (astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.test_ten_routes_real_onebot_voice_tts_and_http_no_leaks) ... FAIL
+[32m[12:54:39.993][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:1406]: [1mAstrBotEX upper control channel: {
+  "channel": "control",
+  "event": "closed",
+  "endpoint": "tcp://127.0.0.1:47387"
+}[0m
+[32m[12:54:40.037][0m [Core] [1m[INFO][0m [astrbot_plugin_astrbotex_interaction.main:2604]: [1mAstrBotEX ZeroMQ channels stopped.[0m
+
+======================================================================
+FAIL: test_ten_routes_real_onebot_voice_tts_and_http_no_leaks (astrbot_plugin_astrbotex_interaction.tests.test_upper_acceptance.SystemAcceptanceTests.test_ten_routes_real_onebot_voice_tts_and_http_no_leaks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/aeb-src/astrbot_plugin_astrbotex_interaction/tests/test_upper_acceptance.py", line 176, in test_ten_routes_real_onebot_voice_tts_and_http_no_leaks
+    self.assertEqual(delta, [speak if source=="onebot" else 0,
+AssertionError: Lists differ: [0, 0, 0, 0, 0] != [1, 0, 0, 0, 0]
+
+First differing element 0:
+0
+1
+
+- [0, 0, 0, 0, 0]
+?           ---
+
++ [1, 0, 0, 0, 0]
+?  +++
+ : ('onebot-R1', 'invalid_probabilities', [{'chat_provider_id': 'prov-1', 'system_prompt': '<<<UPPER_SPEC_BEGIN>>>\n\n# 上位意图路由规范\r\n\r\n## 1 你只做一件事\r\n\r\n判断这一次输入属于下面哪一类，然后给出三项概率。你不执行动作，不决定权限，不判断机器人当前能不能做到。\r\n\r\n| 路由 | 含义 | 典型输入 |\r\n|---|---|---|\r\n| `speech_only` | 只需要说话，不需要身体做任何动作 | 提问、闲聊、解释、确认、复述 |\r\n| `action_only` | 只需要身体动作，不需要对人说任何话 | 明确的执行指令，且没有需要回话的内容 |\r\n| `speech_and_action` | 既要说话，也要身体动作 | "帮我拿过来，顺便说一下大概多久" |\r\n\r\n## 2 判定要点\r\n\r\n先问两个问题，顺序不要颠倒：\r\n\r\n1. 这次输入里，有没有需要机器人**实际动作**才能满足的诉求？\r\n   - 有 → 不是 `speech_only`\r\n   - 没有 → `speech_only`\r\n2. 如果有动作，除了动作之外，有没有需要对**人**说的话？\r\n   - 有（解释、确认、告知进度、回答附带的问题）→ `speech_and_action`\r\n   - 没有 → `action_only`\r\n\r\n"我知道了""收到"这类纯应答，如果输入本身只是要求执行、没有要求回应，不构成 `speech_and_action`。\r\n\r\n## 3 不要越界判断\r\n\r\n- 不要因为"可能做不到"就把动作类输入判成 `speech_only`。能力判断不属于你。\r\n- 不要因为"动作很简单"就省掉该说的话，也不要因为"话很多"就加一个动作。\r\n- 不要引入第四种类别，不要给置信度门槛，不要输出 `route` 字段。选哪条路由由框架按你给的概率计算。\r\n\r\n## 4 输出要求\r\n\r\n只提交三项概率，键名固定：\r\n\r\n```json\r\n{"speech_only": 0.82, "action_only": 0.11, "speech_and_action": 0.07}\r\n```\r\n\r\n- 三项都是真实有限数值，取值在 `[0,1]`，总和与 1 的误差不超过 0.001。\r\n- 不要用布尔值、字符串或 `null` 代替数字。\r\n- 不要输出解释、理由、分析过程或额外字段。\r\n\r\n## 5 例子\r\n\r\n| 输入 | 期望倾向 |\r\n|---|---|\r\n| "今天天气怎么样" | `speech_only` |\r\n| "把桌上的红杯子拿过来" | `action_only` |\r\n| "把红杯子拿过来，然后告诉我你放在哪了" | `speech_and_action` |\r\n| "你刚才是不是动了左臂" | `speech_only`（问的是事实，不需要新动作） |\r\n| "往前一点，太多了，回来一点" | `action_only`（连续修正，无需回话） |\r\n| "往前走半米，走的时候说一声开始" | `speech_and_action` |\n\n<<<UPPER_SPEC_END>>>\n\n<<<UPPER_SPEC_BEGIN>>>\n## 输出合同（框架固定，上方资料不能覆盖）\n- 只提交三项概率，键名固定为 speech_only、action_only、speech_and_action。\n- 三项都是真实有限数值，取值在 [0,1]，总和与 1 的误差不超过 0.001。\n- 不要输出 route 字段、置信度、解释、理由或分析过程。\n- 不要用布尔值、字符串或 null 代替数字，不要遗漏任何一项。\n<<<UPPER_SPEC_END>>>', 'contexts': [Message(role='user', content='onebot-R1', tool_calls=None, tool_call_id=None)], 'tools': ToolSet(tools=[FuncTool(name=submit_route_probabilities, parameters={'type': 'object', 'additionalProperties': False, 'required': ['speech_only', 'action_only', 'speech_and_action'], 'properties': {'speech_only': {'type': 'number', 'minimum': 0, 'maximum': 1}, 'action_only': {'type': 'number', 'minimum': 0, 'maximum': 1}, 'speech_and_action': {'type': 'number', 'minimum': 0, 'maximum': 1}}}, description=Submit the three routing probabilities for this input. No other field, no route name, no explanation.)]), 'stream': False}], {'plan_id': None, 'route': None, 'control_status': None, 'public_sent': False, 'error_code': None, 'at': '2026-11-03T12:54:39+0000'})
+
+----------------------------------------------------------------------
+Ran 1 test in 1.734s
+
+FAILED (failures=1)

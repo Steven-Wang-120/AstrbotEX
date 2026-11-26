@@ -1,7 +1,29 @@
 const API_BASE = window.ASTRBOTEX_API_BASE || window.location.origin;
 let managementCredential = "";
 let managementCredentialEpoch = 0;
-const MAX_TRACE_EVENTS = 200;
+let lastEventId = null;
+let eventLogSeeded = false;
+const seenEventIds = new Set();
+const seenEventOrder = [];
+function validEventId(value) {
+  return typeof value === 'string' && value.length <= 128 && /^[A-Za-z0-9_.:-]{1,120}:[1-9][0-9]*$/.test(value);
+}
+function rememberEventId(id) {
+  if (!id) return false;
+  if (seenEventIds.has(id)) return true;
+  seenEventIds.add(id); seenEventOrder.push(id);
+  while (seenEventOrder.length > 2000) seenEventIds.delete(seenEventOrder.shift());
+  return false;
+}
+function resetEventLogState() {
+  lastEventId = null; eventLogSeeded = false;
+  seenEventIds.clear(); seenEventOrder.length = 0;
+  window.EXLogs?.destroy(); window.EXLogs?.mount();
+  if (typeof envView !== 'undefined') {
+    clearTimeout(envView.timer); envView.timer = null;
+    envView.diagnosticsSeq += 1;
+  }
+}
 const PLUGIN_CATEGORIES = ["vision", "perception", "control", "decision", "special", "interaction"];
 
 const CATEGORY_LABELS = {
@@ -19,17 +41,22 @@ const CONNECTION_FIELDS = {
   port: { label: "端口", type: "number", min: 1, max: 65535 },
   endpoint: { label: "连接地址", type: "text", placeholder: "tcp://127.0.0.1:8766" },
   identity: { label: "Identity", type: "text", placeholder: "astrbotex-main" },
-  channel: { label: "功能选择", type: "select", options: [["text", "文本"], ["audio", "语音"], ["vision", "视觉"]] },
+  channel: { label: "功能选择", type: "select", options: [["text", "文本"], ["audio", "语音"], ["vision", "视觉"], ["control", "上位步骤"]] },
   protocol_profile: { label: "协议配置", type: "select", options: [["raw", "原始消息"], ["astrbotex", "AstrBotEX ZMQ"]] },
   path: { label: "握手路径", type: "text", placeholder: "/" },
   url: { label: "服务地址", type: "text", placeholder: "ws://127.0.0.1:8780/" },
   token: { label: "访问令牌", type: "password", placeholder: "可选" },
   ping_interval_sec: { label: "心跳间隔（秒）", type: "number", min: 1, max: 3600 },
   reconnect_interval_sec: { label: "重连间隔（秒）", type: "number", min: 0.2, max: 3600, step: 0.1 },
+  upper_robot_id: { label: "绑定机器人 ID", type: "text", placeholder: "本地可信值，不采信对端声明" },
+  upper_route_refs: { label: "可信来源 route_ref", type: "text", placeholder: "逗号分隔，例如 route-1,route-2" },
+  upper_ex_session: { label: "固定会话（可选）", type: "text", placeholder: "留空则使用当前 ex_session" },
 };
 
+//: Identity anchors for the upper-step channel; only meaningful on control.
+const UPPER_FIELDS = new Set(["upper_robot_id", "upper_route_refs", "upper_ex_session"]);
+
 const state = {
-  events: [],
   eventSource: null,
   plugins: [],
   publishers: [],
@@ -39,7 +66,6 @@ const state = {
   activePluginCategory: null,
   activePluginTab: "all",
   toastTimer: null,
-  logAutoscroll: true,
   configDirty: false,
   pubsubDirty: false,
   uninstallArmed: false,
@@ -150,6 +176,7 @@ async function managementFetch(path, options = {}) {
   if (response.status === 401) {
     managementCredential = "";
     managementCredentialEpoch += 1;
+    resetEventLogState();
     window.DecisionPage?.credentialChanged();
     if (state.eventSource) state.eventSource.close();
     setText("managementCredentialStatus", "凭据无效或已失效，请重新输入。");
@@ -175,6 +202,7 @@ async function applyManagementCredential() {
   if (!value) throw new Error("请输入管理凭据。");
   managementCredential = value;
   managementCredentialEpoch += 1;
+  resetEventLogState();
   const epoch = managementCredentialEpoch;
   window.DecisionPage?.credentialChanged();
   input.value = "";
@@ -258,7 +286,10 @@ function writeHash(push = false) {
 }
 
 function switchPage(page, options = {}) {
-  if (state.activePage === "decision" && page !== "decision") window.DecisionPage?.leave();
+  if (state.activePage === "decision" && page !== "decision" && window.DecisionPage?.leave() === false) {
+    writeHash();
+    return;
+  }
   state.activePage = page;
   document.querySelectorAll(".page").forEach((el) => el.classList.toggle("active", el.id === `page-${page}`));
   document.querySelectorAll(".nav-item[data-page]").forEach((el) => {
@@ -271,7 +302,10 @@ function switchPage(page, options = {}) {
   if (page === "plugins") renderPluginGrid();
   if (page === "logs") renderEvents();
   if (page === "plugin") renderPluginDashboard();
-  if (page === "voice") refreshVoiceStatus().catch(() => {});
+  if (page === "voice") {
+    refreshVoiceStatus().catch(() => {});
+    refreshLiveVoice().catch(() => {});
+  }
   if (page === "connections") refreshConnections({ preserveForm: true }).catch(() => {});
   if (page === "environments") refreshEnvironment().catch(() => {});
   if (page === "connection") renderConnectionDetail({ preserveForm: state.connectionDirty });
@@ -482,10 +516,17 @@ function renderConnectionConfig(connection) {
   if (!form) return;
   const meta = connectionTypeMeta(connection.type);
   const allFields = Array.isArray(meta.fields) ? meta.fields : Object.keys(connection.config || {});
-  const fields = allFields.filter((key) => key !== "channel" || (
-    connection.type === "zmq_client" &&
-    String(connection.config?.protocol_profile ?? meta.defaults?.protocol_profile ?? "raw") === "astrbotex"
-  ));
+  const channel = String(connection.config?.channel ?? meta.defaults?.channel ?? "text");
+  const fields = allFields.filter((key) => {
+    if (key === "channel") {
+      return connection.type === "zmq_client" &&
+        String(connection.config?.protocol_profile ?? meta.defaults?.protocol_profile ?? "raw") === "astrbotex";
+    }
+    // The upper-step identity fields are local trust anchors; showing them on a
+    // text/audio/vision connection would suggest they do something there.
+    if (UPPER_FIELDS.has(key)) return channel === "control";
+    return true;
+  });
   form.dataset.connectionId = connection.id;
   form.innerHTML = fields.map((key) => {
     const field = CONNECTION_FIELDS[key] || { label: key, type: "text" };
@@ -501,8 +542,10 @@ function renderConnectionConfig(connection) {
   }).join("");
   form.querySelectorAll("input, select").forEach((input) => input.addEventListener("input", (event) => {
     markConnectionDirty();
-    if (event.currentTarget.dataset.connectionConfig === "protocol_profile") {
-      connection.config = { ...connection.config, ...collectConnectionConfig(), protocol_profile: event.currentTarget.value };
+    const changed = event.currentTarget.dataset.connectionConfig;
+    if (changed === "protocol_profile" || changed === "channel") {
+      // Both change which fields are relevant, so rebuild the form in place.
+      connection.config = { ...connection.config, ...collectConnectionConfig(), [changed]: event.currentTarget.value };
       renderConnectionConfig(connection);
     }
   }));
@@ -708,8 +751,13 @@ function renderStatus(status) {
 
   renderRuntimeToggleButton();
 
-  if (Array.isArray(status.recent_events) && state.events.length === 0) {
-    status.recent_events.forEach(pushEvent);
+  if (Array.isArray(status.recent_events) && !eventLogSeeded) {
+    window.EXLogs?.seed(status.recent_events);
+    for (const event of status.recent_events) {
+      const id = event?.data?.log?.event_id || event?.event_id;
+      if (validEventId(id)) rememberEventId(id);
+    }
+    eventLogSeeded = true;
   }
 }
 
@@ -754,120 +802,102 @@ function setEventConnection(ok, label) {
   window.DecisionPage?.connectionChanged(ok);
   setText("eventStatus", label);
   setText("stripSse", ok ? "LIVE" : "RETRY");
-  const pill = $("logConnectionPill");
-  if (!pill) return;
-  pill.classList.toggle("offline", !ok);
-  const labelEl = pill.querySelector("[data-label]");
-  if (labelEl) labelEl.textContent = label;
+  window.EXLogs?.setConnection(ok, label);
 }
 
 /* ============ EVENTS / LOGS ============ */
 
-function eventLevel(event) {
-  if (event.type === "fault" || event.type === "rule_rejected") return "ERROR";
-  if (event.type === "runtime_state" || event.type === "plugin") return "INFO";
-  return "DEBUG";
-}
-
-function pushEvent(event) {
-  state.events.push(event);
-  state.events = state.events.slice(-MAX_TRACE_EVENTS);
-  renderEvents();
-}
-
-function renderEvents() {
-  const consoleEl = $("logConsole");
-  if (!consoleEl) return;
-  consoleEl.innerHTML = "";
-  if (state.events.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "log-empty";
-    empty.textContent = "等待运行时事件";
-    consoleEl.appendChild(empty);
-    return;
-  }
-  state.events.forEach((event) => {
-    const detail = event.data && Object.keys(event.data).length > 0 ? ` ${JSON.stringify(event.data)}` : "";
-    const row = document.createElement("div");
-    row.className = "log-line";
-    row.innerHTML = `
-      <span class="log-time">${escapeHtml(formatTime(event.timestamp))}</span>
-      <span class="log-level log-level-${eventLevel(event).toLowerCase()}">[${escapeHtml(eventLevel(event))}]</span>
-      <span class="log-type">${escapeHtml(event.type || "event")}</span>
-      <span class="log-message">${escapeHtml(`${event.message || ""}${detail}`)}</span>
-    `;
-    consoleEl.appendChild(row);
-  });
-  if (state.logAutoscroll) {
-    consoleEl.scrollTop = consoleEl.scrollHeight;
-  }
-}
+function pushEvent(event, meta = {}) { window.EXLogs?.push(event, meta); }
+function renderEvents() { /* EXLogs owns its bounded cache and DOM. */ }
+function toggleLogAutoscroll() { window.EXLogs?.toggleAutoscroll(); }
+function clearLogs() { window.EXLogs?.clear(); }
 
 function connectEvents() {
   if (state.eventSource) state.eventSource.close();
-  if (!managementCredential) { setEventConnection(false, "等待凭据"); return; }
+  if (!managementCredential) { setEventConnection(false, '等待凭据'); return; }
   const controller = new AbortController();
   const epoch = managementCredentialEpoch;
   let retryTimer = null;
-  state.eventSource = { close: () => { controller.abort(); clearTimeout(retryTimer); } };
-  const receive = (name, lines) => {
-    if (name !== "event" || !lines.length) return;
-    try {
-      const event = JSON.parse(lines.join("\n"));
-      pushEvent(event);
-      if (event.type === "decision_changed") window.DecisionPage?.notify();
-      if (["environment", "environment_changed", "ros_graph_changed", "ros_endpoints_changed"].includes(event.type)) scheduleEnvironmentRefresh();
-    } catch { /* Ignore malformed events, as the old EventSource client did. */ }
+  const source = {
+    readyState: 0,
+    close: () => { source.readyState = 2; controller.abort(); clearTimeout(retryTimer); },
   };
+  state.eventSource = source;
+  function receive(name, lines, id) {
+    if (epoch !== managementCredentialEpoch || controller.signal.aborted || !lines.length) return;
+    const payload = JSON.parse(lines.join('\n'));
+    if (name === 'log_control') {
+      if (payload.kind === 'reset') {
+        lastEventId = null; // Stream IDs provide identity; retain bounded dedup across a cursor reset.
+      }
+      window.EXLogs?.control(payload);
+      return;
+    }
+    if (name !== 'event') return;
+    if (id && !validEventId(id)) throw new Error('SSE 游标无效');
+    if (!payload || typeof payload !== 'object') throw new Error('SSE 事件无效');
+    const duplicate = id && seenEventIds.has(id);
+    if (!duplicate) {
+      pushEvent(payload, id ? {eventId: id} : {});
+      rememberEventId(id);
+      if (payload.type === 'decision_changed') window.DecisionPage?.notify();
+      if (['environment', 'environment_changed', 'ros_graph_changed', 'ros_endpoints_changed', 'ros_diagnostic'].includes(payload.type)) scheduleEnvironmentRefresh();
+    }
+    // Advance only after successful parsing and dispatch. Duplicate old history
+    // must not move the cursor backwards after /status seeded a newer event.
+    if (id) {
+      const split = id.lastIndexOf(':');
+      const oldSplit = lastEventId ? lastEventId.lastIndexOf(':') : -1;
+      if (!lastEventId || id.slice(0, split) !== lastEventId.slice(0, oldSplit) ||
+          BigInt(id.slice(split + 1)) > BigInt(lastEventId.slice(oldSplit + 1))) lastEventId = id;
+    }
+  }
   async function readEvents() {
     let reader = null;
+    let retry = false;
     try {
-      const response = await managementFetch("/api/events", {
-        signal: controller.signal, headers: { Accept: "text/event-stream" },
-      });
+      source.readyState = 0;
+      const headers = {Accept: 'text/event-stream'};
+      if (lastEventId) headers['Last-Event-ID'] = lastEventId;
+      const response = await managementFetch('/api/events', {signal: controller.signal, headers});
       if (!response.ok || !response.body) throw new Error(`SSE ${response.status}`);
-      setEventConnection(true, "SSE 已连接");
+      if (controller.signal.aborted || epoch !== managementCredentialEpoch) return;
+      source.readyState = 1;
+      setEventConnection(true, 'SSE 已连接');
       scheduleEnvironmentRefresh();
       reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = "", name = "message", lines = [];
+      let buffer = '', name = 'message', lines = [], id = null, frameSize = 0;
       while (!controller.signal.aborted && epoch === managementCredentialEpoch) {
         const chunk = await reader.read();
-        if (chunk.done) throw new Error("SSE 已断开");
-        buffer += decoder.decode(chunk.value, { stream: true });
-        if (buffer.length > 131072) throw new Error("SSE 消息超出展示上限");
+        if (chunk.done) throw new Error('SSE 已断开');
+        buffer += decoder.decode(chunk.value, {stream: true});
         let end;
-        while ((end = buffer.indexOf("\n")) >= 0) {
-          const line = buffer.slice(0, end).replace(/\r$/, "");
+        while ((end = buffer.indexOf('\n')) >= 0) {
+          const line = buffer.slice(0, end).replace(/\r$/, '');
           buffer = buffer.slice(end + 1);
-          if (!line) { receive(name, lines); name = "message"; lines = []; }
-          else if (line.startsWith("event:")) name = line.slice(6).trimStart();
-          else if (line.startsWith("data:")) lines.push(line.slice(5).replace(/^ /, ""));
+          frameSize += line.length + 1;
+          if (frameSize > 131072) throw new Error('SSE 消息超出展示上限');
+          if (!line) {
+            receive(name, lines, id);
+            name = 'message'; lines = []; id = null; frameSize = 0;
+          } else if (line.startsWith('event:')) name = line.slice(6).trimStart();
+          else if (line.startsWith('data:')) lines.push(line.slice(5).replace(/^ /, ''));
+          else if (line.startsWith('id:')) id = line.slice(3).replace(/^ /, '');
         }
+        if (buffer.length + frameSize > 131072) throw new Error('SSE 消息超出展示上限');
       }
     } catch {
       if (controller.signal.aborted || epoch !== managementCredentialEpoch || !managementCredential) return;
-      setEventConnection(false, "SSE 重连中");
-      retryTimer = setTimeout(readEvents, 1000);
+      source.readyState = 0; setEventConnection(false, 'SSE 重连中'); retry = true;
     } finally {
       if (reader) await reader.cancel().catch(() => {});
+      if (retry && !controller.signal.aborted && epoch === managementCredentialEpoch && managementCredential) {
+        retryTimer = setTimeout(readEvents, 1000);
+      }
     }
   }
   readEvents();
-}
-
-function toggleLogAutoscroll() {
-  state.logAutoscroll = !state.logAutoscroll;
-  setText("logAutoscrollButton", `自动滚动: ${state.logAutoscroll ? "开" : "关"}`);
-  if (state.logAutoscroll) {
-    const consoleEl = $("logConsole");
-    if (consoleEl) consoleEl.scrollTop = consoleEl.scrollHeight;
-  }
-}
-
-function clearLogs() {
-  state.events = [];
-  renderEvents();
 }
 
 /* ============ RUNTIME TOGGLE ============ */
@@ -1716,8 +1746,6 @@ function bindActions() {
   });
   $("subscriptionAddButton").addEventListener("click", addSubscription);
 
-  $("logAutoscrollButton").addEventListener("click", toggleLogAutoscroll);
-  $("logClearButton").addEventListener("click", clearLogs);
 
   const voiceRefreshButton = $("voiceRefreshButton");
   if (voiceRefreshButton) {
@@ -1956,6 +1984,7 @@ async function testStt() {
 /* ============ BOOT ============ */
 
 async function boot() {
+  window.EXLogs?.mount();
   bindActions();
   renderEvents();
   renderRuntimeToggleButton();
@@ -1974,7 +2003,461 @@ async function boot() {
     if (state.activePage === "connections" || state.activePage === "connection") {
       refreshConnections({ preserveForm: true }).catch(() => {});
     }
+    if (state.activePage === "voice") refreshLiveVoice().catch(() => {});
   }, 2000);
 }
+
+const liveVoice = {
+  config: null, devices: [], fetching: false, initialized: false, busy: false,
+  pluginId: localStorage.getItem("exVoicePlugin") || "", installed: false, enabled: false,
+  profile: {}, seen: new Set(), messages: [], mode: "chat", lastUser: "", lastUserAt: 0,
+  // 清空时记下的时间水位：早于它的事件不再渲染（刷新页面后也保持清空）
+  clearBefore: Number(localStorage.getItem(`exVoiceClearBefore:${localStorage.getItem("exVoicePlugin") || ""}`) || 0),
+};
+function voiceStorageKey() { return `exVoiceClearBefore:${liveVoice.pluginId}`; }
+
+function voiceResetView() {
+  liveVoice.initialized = false;
+  liveVoice.installed = false;
+  liveVoice.enabled = false;
+  liveVoice.config = null;
+  liveVoice.profile = {};
+  liveVoice.devices = [];
+  liveVoice.seen.clear();
+  liveVoice.messages = [];
+  liveVoice.lastUser = "";
+  liveVoice.latestEventAt = 0;
+  liveVoice.clearBefore = Number(localStorage.getItem(voiceStorageKey()) || 0);
+  $("voiceChat").replaceChildren();
+  $("voiceRaw").textContent = "";
+  $("voiceLiveKey").value = "";
+  voiceBusy(false);
+}
+
+function voiceSelect(direction, selected) {
+  const element = $(direction === "input" ? "voiceLiveInput" : "voiceLiveOutput");
+  if (!element) return;
+  element.replaceChildren();
+  const add = (label, value, disabled = false) => {
+    const option = document.createElement("option");
+    option.textContent = label;
+    option.value = JSON.stringify(value);
+    option.disabled = disabled;
+    element.append(option);
+    return option;
+  };
+  add("系统默认", null);
+  for (const device of liveVoice.devices.filter((item) => item[`${direction}_channels`] > 0)) {
+    add(device.label || `${device.name} (${device.host_api})`, {
+      id: device.id,
+      name: device.name,
+      host_api: device.host_api,
+    }, device.selectable === false);
+  }
+  const identity = (value) => value && typeof value === "object" ? value.id : value;
+  const match = Array.from(element.options).find((option) => identity(JSON.parse(option.value)) === identity(selected));
+  if (match) match.selected = true;
+  else add("已保存设备暂不可用，请重选", selected).selected = true;
+}
+
+async function voiceCall(path, body) {
+  const query = body === undefined && liveVoice.pluginId ? `?plugin_id=${encodeURIComponent(liveVoice.pluginId)}` : "";
+  const result = await apiJson(`/api/v1/ex/voice/${path}${query}`, body === undefined ? undefined : {
+    method: "POST",
+    body: JSON.stringify({ ...body, plugin_id: liveVoice.pluginId || undefined }),
+  });
+  if (result.ok === false) throw new Error(result.error || result.message || "语音操作失败");
+  return result;
+}
+
+/* ===================================================================
+   连续语音：状态、配置与聊天渲染
+   =================================================================== */
+
+function voiceSetResult(id, text, ok) {
+  const node = $(id);
+  if (!node) return;
+  node.textContent = text || "";
+  node.className = "voice-inline-result" + (ok === true ? " ok" : ok === false ? " err" : "");
+}
+
+function voiceBusy(busy) {
+  liveVoice.busy = busy;
+  document.querySelectorAll(".voice-live-fields input, .voice-live-fields select, .voice-live-fields button").forEach((element) => {
+    element.disabled = busy || !liveVoice.installed;
+  });
+  if ($("voiceLiveStart")) $("voiceLiveStart").disabled = busy || !liveVoice.enabled;
+  if ($("voiceLiveStop")) $("voiceLiveStop").disabled = !busy;
+  if ($("voiceLiveSave")) $("voiceLiveSave").disabled = busy || !liveVoice.installed;
+  if ($("voiceLivePlugin")) $("voiceLivePlugin").disabled = busy;
+  for (const id of ["voiceLiveRefresh", "voiceLiveCheck"]) {
+    if ($(id)) $(id).disabled = busy || !liveVoice.enabled;
+  }
+  voiceLinkage();
+}
+
+const VOICE_PROTOCOLS = {
+  systemone: "systemone：typed state/questions，URL 可只填根地址，自动补 /v1/systemone。",
+  laya: "laya：分类模型，URL 填根地址即可，模型留空默认 multilingual。",
+  cloudflare: "cloudflare：需填完整 Workers AI URL（含账户 ID），模型通常是 clef。",
+  http_json: "http_json：自定义 JSON 接口，返回三项概率或严格布尔值。",
+  openai: "openai：OpenAI 兼容接口，必须指定分类模型。",
+};
+
+/* 决策模式 / 协议联动：topic 模式禁用 URL·Key·模型；http 模式给协议提示 */
+function voiceLinkage() {
+  const isHttp = ($("voiceLiveMode") || {}).value !== "topic";
+  for (const id of ["voiceLiveType", "voiceLiveUrl", "voiceLiveKey", "voiceLiveModel"]) {
+    if ($(id)) $(id).disabled = !isHttp || liveVoice.busy || !liveVoice.installed;
+  }
+  const type = $("voiceLiveType") ? $("voiceLiveType").value : "systemone";
+  let hint = isHttp
+    ? (VOICE_PROTOCOLS[type] || "")
+    : "topic 模式由 EX 消息总线裁决，URL / Key / 模型都不生效。";
+  const config = liveVoice.config || {};
+  if (isHttp && !String(config.decision_url || "").trim()) {
+    const profile = liveVoice.profile || {};
+    hint += ` URL 留空时由所选插件提供默认服务配置：${profile.type || "未报告"}${profile.model ? " · " + profile.model : ""}。`;
+  }
+  if (isHttp && $("voiceLiveKey") && !$("voiceLiveKey").value.trim()) {
+    hint += " Key 留空会保留已保存的凭据，或使用插件配置的环境变量。";
+  }
+  setText("voiceLiveHint", hint);
+}
+
+async function refreshLiveVoice() {
+  if (liveVoice.fetching || state.activePage !== "voice" || !$("voiceLiveState")) return;
+  liveVoice.fetching = true;
+  const requestedPlugin = liveVoice.pluginId;
+  try {
+    const result = await voiceCall("status");
+    if (requestedPlugin !== liveVoice.pluginId) return;
+    const chosen = result.plugin_id || "";
+    if (chosen !== liveVoice.pluginId) {
+      liveVoice.pluginId = chosen;
+      localStorage.setItem("exVoicePlugin", chosen);
+      voiceResetView();
+    }
+    liveVoice.installed = Boolean(result.installed);
+    liveVoice.enabled = Boolean(result.enabled && result.loaded);
+    const picker = $("voiceLivePlugin");
+    const options = [{ id: "", name: "选择外部语音插件" }, ...(result.providers || [])];
+    picker.replaceChildren(...options.map((provider) => {
+      const option = document.createElement("option");
+      option.value = provider.id;
+      option.textContent = provider.name;
+      return option;
+    }));
+    picker.value = chosen;
+    const status = result.status || {};
+    const profile = result.decision_profile || {};
+    liveVoice.profile = profile;
+    setText("voiceLiveState", !result.installed ? "请选择外部语音插件；未安装时可前往插件页安装。" : `EX: ${result.runtime_state || "--"} · 插件: ${result.enabled ? "已启用" : "未启用，请前往插件页启用"} · 语音: ${status.state || "stopped"} · 决策: ${profile.type || "--"} ${profile.model || ""}${status.last_error ? ` · ${status.last_error}` : ""}`);
+    const names = { stt: "语音识别", decision: "决策", chat: "对话", tts: "语音合成" };
+    setText("voiceLiveModels", Object.entries(names).map(([kind, label]) => {
+      const model = (result.models || {})[kind] || {};
+      const check = model.last_check_ok === true ? "实测通过" : model.last_check_ok === false ? "最近检测失败" : model.configured ? "已配置，未检测" : "未配置";
+      return `${label}：${model.model || "--"}（${check}）`;
+    }).join(" · "));
+    if ($("voiceLiveRuntime")) $("voiceLiveRuntime").hidden = result.runtime_state === "running";
+    voiceBusy(Boolean(status.streaming_enabled || status.worker_running));
+    if (!liveVoice.initialized) {
+      const config = result.config || {};
+      liveVoice.config = config;
+      [["Threshold", "decision_threshold", 0.4], ["Mode", "decision_mode", "http"],
+       ["Type", "decision_type", "systemone"], ["Url", "decision_url", ""],
+       ["Model", "decision_model", ""]].forEach(([id, key, fallback]) => {
+        const element = $(`voiceLive${id}`);
+        if (element) element.value = config[key] ?? fallback;
+      });
+      // URL 为空时，协议与模型实际来自本地 gate 配置，这里显示真实生效值
+      if (!config.decision_url && profile.type) $("voiceLiveType").value = profile.type;
+      if (!config.decision_url && !config.decision_model && profile.model) $("voiceLiveModel").value = profile.model;
+      $("voiceLiveKey").value = "";
+      $("voiceLiveKey").placeholder = config.decision_api_key_configured ? "已配置；留空保留" : "留空使用插件凭据配置";
+      voiceSelect("input", config.input_device ?? null);
+      voiceSelect("output", config.output_device ?? null);
+      liveVoice.initialized = true;
+      voiceLinkage();
+    }
+    // 事件过滤：只把完整消息渲染成气泡，原始事件进调试日志
+    voiceIngestEvents(result.events || []);
+  } catch (error) {
+    setText("voiceLiveState", error.message);
+  } finally {
+    liveVoice.fetching = false;
+  }
+}
+
+function voiceTime(ts) {
+  return new Date(ts ? ts * 1000 : Date.now()).toLocaleTimeString("zh-CN", { hour12: false });
+}
+
+/* ★ 过滤规则
+   partial / status(非「你：」) / gate_result(无文本) / error / audio_devices 全部丢弃，
+   只保留：用户整句（你：… 或 已确认对我说话：… / 背景记忆：…）与助手整句（reply partial=false）。 */
+function voiceExtract(event) {
+  const payload = event.payload || {};
+  if (event.type === "transcript" && payload.partial !== true && ["user", "assistant"].includes(payload.role)) {
+    const text = String(payload.text || "").trim();
+    return text ? { role: payload.role === "assistant" ? "ai" : "user", text, at: event.timestamp } : null;
+  }
+  if (event.type === "reply") {
+    if (payload.partial === true) return null;
+    const text = String(payload.text || "").trim();
+    return text ? { role: "ai", text, at: event.timestamp } : null;
+  }
+  if (event.type === "status") {
+    const message = String(payload.message || "");
+    if (message.startsWith("你：")) {
+      const text = message.slice(2).trim();
+      return text ? { role: "user", text, at: event.timestamp } : null;
+    }
+    return null;
+  }
+  if (event.type === "gate_result") {
+    const message = String(payload.message || "");
+    for (const [prefix, kind] of [["已确认对我说话：", "user"], ["背景记忆（不回答）：", "user-bg"]]) {
+      if (message.startsWith(prefix)) {
+        const text = message.slice(prefix.length).trim();
+        return text ? { role: "user", kind, text, at: event.timestamp } : null;
+      }
+    }
+    return null;
+  }
+  return null;
+}
+
+function voiceIngestEvents(events) {
+  for (const event of events) {
+    if (!event || typeof event !== "object") continue;
+    liveVoice.latestEventAt = Math.max(liveVoice.latestEventAt || 0, Number(event.timestamp) || 0);
+    // 清空水位之前的事件一律跳过，避免"清空后又冒出来"
+    if (event.timestamp && event.timestamp <= liveVoice.clearBefore) continue;
+    const key = event.id != null ? `id:${event.timestamp}:${event.id}` : `h:${event.type}:${event.timestamp}`;
+    if (liveVoice.seen.has(key)) continue;
+    liveVoice.seen.add(key);
+    voiceAppendRaw(event);
+    const message = voiceExtract(event);
+    if (message) voicePushMessage(message);
+  }
+  if (liveVoice.seen.size > 2000) liveVoice.seen = new Set([...liveVoice.seen].slice(-1000));
+}
+
+function voicePushMessage(message) {
+  if (message.role === "user") {
+    const now = performance.now();
+    if (message.text === liveVoice.lastUser && now - liveVoice.lastUserAt < 8000) return;
+    liveVoice.lastUser = message.text;
+    liveVoice.lastUserAt = now;
+  }
+  voiceAppendBubble(message);
+}
+
+async function voiceCopy(text, bubble) {
+  try {
+    await navigator.clipboard.writeText(text);
+    bubble.classList.add("copied");
+    setTimeout(() => bubble.classList.remove("copied"), 600);
+  } catch (_) {
+    /* 复制失败静默处理，仍可手动选择文本 */
+  }
+}
+
+function voiceAppendBubble(message) {
+  const empty = $("voiceChatEmpty");
+  if (empty) empty.remove();
+  liveVoice.messages.push(message);
+  const chat = $("voiceChat");
+  if (!chat) return;
+  const nearBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 60;
+  const wrap = document.createElement("div");
+  wrap.className = "voice-msg " + (message.role === "ai" ? "ai" : "user");
+  const bubble = document.createElement("div");
+  bubble.className = "voice-bubble";
+  bubble.textContent = message.text;
+  bubble.title = "点击复制";
+  bubble.addEventListener("click", () => voiceCopy(message.text, bubble));
+  wrap.append(bubble);
+  const meta = document.createElement("div");
+  meta.className = "voice-meta";
+  meta.textContent = (message.role === "ai" ? "🤖 助手" : "🗣 用户")
+    + (message.kind === "user-bg" ? " · 背景" : "") + " · " + voiceTime(message.at);
+  wrap.append(meta);
+  chat.append(wrap);
+  if (liveVoice.messages.length > 400) {
+    liveVoice.messages.shift();
+    chat.firstElementChild?.remove();
+  }
+  if (nearBottom) chat.scrollTop = chat.scrollHeight;
+}
+
+function voiceAppendRaw(event) {
+  const pre = $("voiceRaw");
+  if (!pre) return;
+  let payload = event.payload;
+  if (typeof payload !== "string") {
+    try { payload = JSON.stringify(payload); } catch (_) { payload = String(payload); }
+  }
+  if (payload && payload.length > 600) payload = payload.slice(0, 600) + "…";
+  pre.textContent += `[${voiceTime(event.timestamp)}] ${String(event.type).padEnd(15, " ")} ${payload}\n`;
+  const lines = pre.textContent.split("\n");
+  if (lines.length > 401) pre.textContent = lines.slice(-400).join("\n");
+  if (!pre.hidden) pre.scrollTop = pre.scrollHeight;
+}
+
+function voiceSetMode(mode) {
+  liveVoice.mode = mode;
+  const debug = mode === "debug";
+  if ($("voiceChat")) $("voiceChat").hidden = debug;
+  if ($("voiceRaw")) $("voiceRaw").hidden = !debug;
+  $("voiceChatTab").classList.toggle("active", !debug);
+  $("voiceDebugTab").classList.toggle("active", debug);
+  if (debug && $("voiceRaw")) $("voiceRaw").scrollTop = $("voiceRaw").scrollHeight;
+  else if ($("voiceChat")) $("voiceChat").scrollTop = $("voiceChat").scrollHeight;
+}
+
+function voiceClearChat() {
+  // 注意：这里不能清空 liveVoice.seen。
+  // /voice/status 每次轮询都会带回最近 80 条事件，一旦清掉去重记录，
+  // 下一次轮询会把它们当成新事件重新渲染 —— 表现就是"点了清空没反应"。
+  // 只有保留 seen，旧记录才会被永久压住；新事件 id 不同，照常显示。
+  liveVoice.messages = [];
+  liveVoice.lastUser = "";
+  liveVoice.lastUserAt = 0;
+  liveVoice.clearBefore = liveVoice.latestEventAt || liveVoice.clearBefore;
+  localStorage.setItem(voiceStorageKey(), String(liveVoice.clearBefore));
+  if ($("voiceRaw")) $("voiceRaw").textContent = "";
+  const chat = $("voiceChat");
+  if (chat) {
+    chat.replaceChildren();
+    const empty = document.createElement("p");
+    empty.className = "voice-chat-empty";
+    empty.id = "voiceChatEmpty";
+    empty.textContent = "已清空，等待新的语音…";
+    chat.append(empty);
+  }
+}
+
+function voiceExportChat() {
+  if (liveVoice.messages.length === 0) {
+    voiceSetResult("voiceLiveResult", "还没有对话可导出", false);
+    return;
+  }
+  const lines = ["AstrBotEX 语音对话记录", "导出时间：" + voiceTime(null), "-".repeat(40)];
+  for (const message of liveVoice.messages) {
+    const who = message.role === "ai" ? "助手" : (message.kind === "user-bg" ? "用户(背景)" : "用户");
+    lines.push(`[${voiceTime(message.at)}] ${who}：${message.text}`);
+  }
+  const blob = new Blob([lines.join("\n") + "\n"], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `voice-transcript-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.txt`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  voiceSetResult("voiceLiveResult", `已导出 ${liveVoice.messages.length} 条`, true);
+}
+
+async function voiceDevices() {
+  const selected = {
+    input: JSON.parse($("voiceLiveInput").value),
+    output: JSON.parse($("voiceLiveOutput").value),
+  };
+  const result = await voiceCall("devices");
+  liveVoice.devices = result.devices || [];
+  voiceSelect("input", selected.input);
+  voiceSelect("output", selected.output);
+  voiceSetResult("voiceDeviceResult", `已刷新 ${liveVoice.devices.length} 个端点`, true);
+}
+
+async function voiceSaveConfig() {
+  const threshold = Number($("voiceLiveThreshold").value);
+  if (!Number.isFinite(threshold) || threshold < 0 || threshold > 1) throw new Error("阈值须为0～1");
+  const config = {
+    input_device: JSON.parse($("voiceLiveInput").value),
+    output_device: JSON.parse($("voiceLiveOutput").value),
+    decision_threshold: threshold,
+    forward_threshold: threshold,
+    decision_mode: $("voiceLiveMode").value,
+    decision_type: $("voiceLiveType").value,
+    decision_url: $("voiceLiveUrl").value.trim(),
+    decision_model: $("voiceLiveModel").value.trim(),
+  };
+  const key = $("voiceLiveKey").value.trim();
+  if (key) config.decision_api_key = key;
+  await voiceCall("config", { config });
+  voiceSetResult("voiceLiveResult", "设置已保存", true);
+  liveVoice.initialized = false;
+  await refreshLiveVoice();
+}
+
+function setupLiveVoice() {
+  $("voiceLivePlugin").addEventListener("change", () => {
+    liveVoice.pluginId = $("voiceLivePlugin").value;
+    localStorage.setItem("exVoicePlugin", liveVoice.pluginId);
+    voiceResetView();
+    refreshLiveVoice();
+  });
+  const bind = (id, action) => {
+    const element = $(id);
+    if (!element) return;
+    element.addEventListener("click", async () => {
+      try { await action(); } catch (error) { voiceSetResult("voiceLiveResult", error.message, false); }
+    });
+  };
+  bind("voiceLiveRefresh", voiceDevices);
+  bind("voiceLiveCheck", async () => {
+    const result = await voiceCall("devices/check", {
+      input_device: JSON.parse($("voiceLiveInput").value),
+      output_device: JSON.parse($("voiceLiveOutput").value),
+    });
+    voiceSetResult("voiceDeviceResult", result.ok ? "格式检查通过" : "格式检查未通过", result.ok === true);
+  });
+  bind("voiceLiveSave", voiceSaveConfig);
+  bind("voiceLiveStart", async () => {
+    await voiceCall("streaming", { enabled: true });
+    voiceSetResult("voiceLiveActionResult", "已开启连续对话", true);
+    await refreshLiveVoice();
+  });
+  bind("voiceLiveStop", async () => {
+    await voiceCall("streaming", { enabled: false });
+    voiceSetResult("voiceLiveActionResult", "已停止连续对话", true);
+    await refreshLiveVoice();
+  });
+  bind("voiceLiveRuntime", async () => {
+    await apiJson("/api/v1/ex/runtime/start", { method: "POST", body: "{}" });
+    voiceSetResult("voiceLiveActionResult", "运行时已启动", true);
+    await refreshLiveVoice();
+  });
+  bind("voiceChatClear", voiceClearChat);
+  bind("voiceChatExport", voiceExportChat);
+  bind("voiceChatTab", () => voiceSetMode("chat"));
+  bind("voiceDebugTab", () => voiceSetMode("debug"));
+
+  $("voiceLiveMode").addEventListener("change", voiceLinkage);
+  $("voiceLiveType").addEventListener("change", () => {
+    const defaults = { laya: "multilingual", cloudflare: "clef" };
+    const model = $("voiceLiveModel");
+    if (model && !model.value.trim() && defaults[$("voiceLiveType").value]) {
+      model.value = defaults[$("voiceLiveType").value];
+    }
+    voiceLinkage();
+  });
+  $("voiceLiveKeyEye").addEventListener("click", () => {
+    const input = $("voiceLiveKey");
+    const hidden = input.type === "password";
+    input.type = hidden ? "text" : "password";
+    $("voiceLiveKeyEye").textContent = hidden ? "隐藏" : "显示";
+  });
+  $("voiceLiveUrl").addEventListener("input", voiceLinkage);
+
+  voiceSetMode("chat");
+  voiceLinkage();
+  refreshLiveVoice();
+}
+
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setupLiveVoice);
+else setupLiveVoice();
 
 boot();

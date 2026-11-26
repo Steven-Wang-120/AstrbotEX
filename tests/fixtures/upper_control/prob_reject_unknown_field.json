@@ -1,0 +1,16 @@
+{
+  "case_id": "prob_reject_unknown_field",
+  "expected_accept": false,
+  "expected_error": "invalid_probabilities",
+  "kind": "probabilities",
+  "note": "A fourth class or confidence hint must be refused, not ignored.",
+  "payload": {
+    "action_only": 0.3,
+    "confidence": 0.9,
+    "speech_and_action": 0.3,
+    "speech_only": 0.4
+  },
+  "sides": [
+    "aeb"
+  ]
+}

@@ -1,0 +1,21 @@
+✔ late initial reads keep editing locked until every draft is loaded (699.3679ms)
+✔ boots with four areas and the runtime status chips (121.0963ms)
+✔ creates an action, saves it, and it survives a reload (452.8898ms)
+✔ edits, disables and deletes an entry (419.8624ms)
+✔ skill level hides the executable id and previews text safely (224.3286ms)
+✔ prompts save independently and report their source (227.4516ms)
+✔ provider and channel saves flag the fields that need a reload (222.3771ms)
+✔ revision conflict keeps the draft and offers reload or copy (423.5336ms)
+✔ 503 and network failures keep every input (214.547ms)
+✔ records show delivery phases without claiming execution (219.2136ms)
+✔ layout holds at 1280px and 390px, in both themes (363.4214ms)
+✔ unsaved changes are guarded before switching areas (336.011ms)
+✔ captures the operator walkthrough with its API assertions (1794.9154ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5961.0935

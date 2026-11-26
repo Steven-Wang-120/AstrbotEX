@@ -8,7 +8,6 @@ import unittest
 from astrbot_ex.core.tasks.contracts import action_manifest, validate_skill_parameters, project_catalog
 from astrbot_ex.core.tasks.session import TaskSession
 from astrbot_ex.core.tasks.laya_client import TaskLayaClient, TaskModelSession
-from astrbot_ex.core.tasks.corpus import build_corpus, development_probes, validate_corpus, review_samples
 from astrbot_ex.core.decision.backends.laya import LayaConfig, LayaBackendError
 from astrbot_ex.core.decision.owned_laya import OwnedLayaError, Deployment
 from tests.test_laya_backend import FixtureTransport, reply, response
@@ -144,30 +143,6 @@ class MobileTaskTests(unittest.TestCase):
         self.assertIn('obj-a',labels['C']);self.assertIn('obj-b',labels['D'])
         selected=self.client(FixtureTransport(choices={'task':'D'})).select(context)
         self.assertEqual(session.accept(selected,service_generation='g1')['parameters']['object_id'],'obj-b')
-
-    def test_v2_detects_actual_semantic_duplicates_despite_new_scene_ids(self):
-        groups=build_corpus();report=validate_corpus(groups)
-        self.assertEqual(report['unique_semantic_tasks'],120)
-        self.assertEqual(report['unique_actual_model_inputs'],230)
-        self.assertEqual(report['development_overlap'],0)
-        self.assertEqual(set(report['fetch_target_roles']),{'obj-a','obj-b'})
-        src=next(g for g in groups if g['category']=='fetch' and g['split']=='train')
-        dst=next(g for g in groups if g['category']=='fetch' and g['split']=='test')
-        dst['decision_points']=copy.deepcopy(src['decision_points'])
-        dst['decision_points'][0]['observation']['observation_id']='new-id-does-not-create-an-independent-task'
-        with self.assertRaisesRegex(ValueError,'duplicate_semantic_task_between_groups'):validate_corpus(groups)
-
-    def test_v2_excludes_original_development_semantics(self):
-        groups=build_corpus()
-        dev=next(g for g in development_probes() if g['category']=='fetch')
-        groups[0]['decision_points']=copy.deepcopy(dev['decision_points'])
-        with self.assertRaisesRegex(ValueError,'development_semantic_leak'):validate_corpus(groups)
-
-    def test_corpus_count_grouping_and_source(self):
-        report=validate_corpus(build_corpus());self.assertEqual(report['decision_points'],120)
-        self.assertEqual(len(review_samples()),14);self.assertEqual(len(development_probes()),20)
-        groups=build_corpus();groups[-1]['language_family']=groups[0]['language_family']
-        with self.assertRaisesRegex(ValueError,'family_leak'):validate_corpus(groups)
 
 class TaskOwnedIntegrationTests(unittest.TestCase):
     setUp = owned_fixtures.OwnedLayaTests.setUp

@@ -1,0 +1,24 @@
+{
+  "case_id": "result_action_only_single_segment",
+  "expected_accept": true,
+  "expected_error": null,
+  "expected_send_count": 1,
+  "expected_texts": [
+    "寻找红色杯子。"
+  ],
+  "kind": "result",
+  "note": "Executing only: public_text must stay null, never read aloud.",
+  "payload": {
+    "public_text": null,
+    "segments": [
+      {
+        "text": "寻找红色杯子。"
+      }
+    ],
+    "send_count": 1
+  },
+  "route": "action_only",
+  "sides": [
+    "aeb"
+  ]
+}

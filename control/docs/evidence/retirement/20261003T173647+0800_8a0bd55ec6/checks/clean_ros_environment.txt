@@ -1,1 +1,0 @@
-{"ROS_DISTRO": "jazzy", "AMENT_PREFIX_PATH": "/opt/ros/jazzy", "retired_packages_absent": ["astrex_interfaces", "astrex_ros_bridge"]}

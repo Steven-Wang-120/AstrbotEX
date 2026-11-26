@@ -1,0 +1,24 @@
+test_input_key_never_collides_across_identity (test_upper_store.UpperContractGuardTests.test_input_key_never_collides_across_identity) ... ok
+test_payload_hash_is_stable_and_identity_free (test_upper_store.UpperContractGuardTests.test_payload_hash_is_stable_and_identity_free) ... ok
+test_payload_too_large_is_refused_not_truncated (test_upper_store.UpperContractGuardTests.test_payload_too_large_is_refused_not_truncated) ... ok
+test_probabilities_are_strict (test_upper_store.UpperContractGuardTests.test_probabilities_are_strict) ... ok
+test_route_field_combinations (test_upper_store.UpperContractGuardTests.test_route_field_combinations) ... ok
+test_action_only_has_no_public_exit (test_upper_store.UpperStoreTests.test_action_only_has_no_public_exit) ... ok
+test_crash_between_reserve_and_receipt_is_unresolved_not_retried (test_upper_store.UpperStoreTests.test_crash_between_reserve_and_receipt_is_unresolved_not_retried) ... ok
+test_delivery_unknown_is_terminal_and_never_resent (test_upper_store.UpperStoreTests.test_delivery_unknown_is_terminal_and_never_resent) ... ok
+test_identical_text_from_distinct_messages_stays_distinct (test_upper_store.UpperStoreTests.test_identical_text_from_distinct_messages_stays_distinct) ... ok
+test_legacy_tables_are_untouched_by_the_extension (test_upper_store.UpperStoreTests.test_legacy_tables_are_untouched_by_the_extension) ... ok
+test_mismatched_receipt_is_refused_and_leaves_state_intact (test_upper_store.UpperStoreTests.test_mismatched_receipt_is_refused_and_leaves_state_intact) ... ok
+test_projection_hides_production_context (test_upper_store.UpperStoreTests.test_projection_hides_production_context) ... ok
+test_public_reply_claims_once (test_upper_store.UpperStoreTests.test_public_reply_claims_once) ... ok
+test_received_does_not_advance_the_suffix (test_upper_store.UpperStoreTests.test_received_does_not_advance_the_suffix) ... ok
+test_same_message_never_produces_a_second_plan (test_upper_store.UpperStoreTests.test_same_message_never_produces_a_second_plan) ... ok
+test_speech_only_reserves_nothing (test_upper_store.UpperStoreTests.test_speech_only_reserves_nothing) ... ok
+test_stale_generation_is_rejected (test_upper_store.UpperStoreTests.test_stale_generation_is_rejected) ... ok
+test_three_segments_send_two_survive_restart_byte_identical (test_upper_store.UpperStoreTests.test_three_segments_send_two_survive_restart_byte_identical) ... ok
+test_twenty_concurrent_duplicate_claims_yield_one_plan_and_one_reservation (test_upper_store.UpperStoreTests.test_twenty_concurrent_duplicate_claims_yield_one_plan_and_one_reservation) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.452s
+
+OK

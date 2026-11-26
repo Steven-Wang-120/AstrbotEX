@@ -167,6 +167,16 @@ class GoalManager:
                 self._close_gate(reason)
                 self.phase = "awaiting_llm"
 
+    def reject_decision(self, revision: int, reason: str, *, goal_id: str) -> tuple | None:
+        """Revoke exactly the selected Goal; retirement still requires stop proof."""
+        with self._lock:
+            if (self.active is None or self.active.revision != revision or self.phase != "active"
+                    or self.active.payload()["goal_id"] != goal_id
+                    or self.pending_replace is not None or self._clock() >= self.active.expires_ns):
+                return None
+            self.stop(reason, terminal_status="failed")
+            return self._terminal_stop
+
     def expire(self) -> bool:
         with self._lock:
             goal = self.pending_replace or self.active

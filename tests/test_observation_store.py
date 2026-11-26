@@ -1,4 +1,7 @@
+import copy
+import threading
 import unittest
+from unittest.mock import patch
 
 from astrbot_ex.core.decision.observations import ObservationStore
 from astrbot_ex.core.topic_bus import TopicBus
@@ -165,6 +168,220 @@ class ObservationTests(unittest.TestCase):
         self.ingest(44, epoch="epoch-1", data=data | {"position": 1})
         missing = {"target_ref": ref | {"observation_id": self.frame()["observation_id"]}}
         self.assertEqual(self.store.relevant(action, missing)[1], "target_object_missing")
+
+    def test_unavailable_catalog_entries_never_subscribe_or_accept_frames(self):
+        original = list(make_catalog(observe=True).snapshot().entries)
+        self.ingest()
+        old = self.frame()
+        variants = [{"enabled": False}, {"state": "blocked", "available": False},
+                    {"state": "starting", "available": False},
+                    {"directory_status": "config_changed", "available": False},
+                    {"available": False, "unavailable_reason": "unavailable"}]
+        for variant in variants:
+            with self.subTest(variant=variant):
+                entries = copy.deepcopy(original)
+                entries[0].update(variant)
+                self.store.configure(entries)
+                self.assertEqual(self.store.snapshot(["arm_pose"]), [])
+                self.assertEqual(self.bus._subscribers.get("sensor.pose", {}), {})
+                self.assertFalse(self.ingest(100, epoch="unavailable"))
+                self.bus.publish_payload("sensor.pose", timestamp=100., source="sensor", seq=100,
+                                         payload={"position": "unavailable", "source_epoch": "unavailable"})
+                self.assertEqual(self.store.snapshot(["arm_pose"]), [])
+                with self.assertRaisesRegex(RuntimeError, "request_observation_source_missing"):
+                    self.store.request_observations([old])
+        self.store.configure(original)
+        self.assertEqual(self.store.snapshot(["arm_pose"]), [])
+        self.assertTrue(self.ingest(2))
+
+    def test_retired_topic_callback_cannot_adopt_new_generation_or_epoch(self):
+        old_callback = next(iter(self.bus._subscribers["sensor.pose"].values()))
+        self.bus.publish_payload("sensor.pose", timestamp=100., source="sensor", seq=40,
+                                 payload={"position": "old"})
+        old_request = self.frame()
+        entries = copy.deepcopy(make_catalog(observe=True).snapshot().entries)
+        entries[0]["generation"] = 2
+        self.store.configure(entries)
+        self.assertEqual(self.store.snapshot(["arm_pose"]), [])
+        with self.assertRaisesRegex(RuntimeError, "request_observation_description_changed"):
+            self.store.request_observations([old_request])
+        self.bus.publish_payload("sensor.pose", timestamp=100., source="sensor", seq=1,
+                                 payload={"position": "new"})
+        current = self.frame()
+        self.assertEqual(current["source_epoch"], "arm:2")
+        self.assertEqual(self.store.status()["sources"]["arm_pose"]["reason_code"], "source_restarted")
+        from astrbot_ex.core.topic_bus import TopicMessage
+        for data in ({"position": "late"}, {"position": "late", "source_epoch": "late-boot"},
+                     {"position": "bad", "source_epoch": None, "not_json": object()}):
+            old_callback(TopicMessage("sensor.pose", 100., "sensor", data, seq=999))
+            self.assertEqual(self.frame(), current)
+            self.assertEqual(self.store.status()["sources"]["arm_pose"]["reason_code"], "source_restarted")
+        self.bus.publish_payload("sensor.pose", timestamp=100., source="sensor", seq=2,
+                                 payload={"position": "current"})
+        self.assertEqual(self.frame()["data"], {"position": "current"})
+
+    def test_retired_callback_after_identical_reenable_or_remove_cannot_repopulate_cache(self):
+        from astrbot_ex.core.topic_bus import TopicMessage
+        entries = make_catalog(observe=True).snapshot().entries
+        for removed in ([], [{**entries[0], "enabled": False}]):
+            with self.subTest(removed=bool(removed)):
+                callback = next(iter(self.bus._subscribers["sensor.pose"].values()))
+                self.store.configure(removed)
+                self.assertEqual(self.bus._subscribers.get("sensor.pose", {}), {})
+                self.store.configure(entries)
+                callback(TopicMessage("sensor.pose", 100., "sensor", {"position": "late"}, seq=500))
+                self.assertEqual(self.store.snapshot(["arm_pose"]), [])
+                self.bus.publish_payload("sensor.pose", timestamp=100., source="sensor", seq=1,
+                                         payload={"position": "current", "source_epoch": f"boot-{bool(removed)}"})
+                self.assertEqual(self.frame()["data"]["position"], "current")
+
+    def test_callback_reconfigured_during_json_validation_cannot_commit(self):
+        import astrbot_ex.core.decision.observations as module
+        entered, release = threading.Event(), threading.Event()
+        original = module.measure_json_budget
+        errors = []
+        def validate(data):
+            if data.get("position") == "delayed":
+                entered.set()
+                if not release.wait(2):
+                    raise AssertionError("test callback was not released")
+            return original(data)
+        def publish():
+            try:
+                self.bus.publish_payload("sensor.pose", timestamp=100., source="sensor", seq=99,
+                                         payload={"position": "delayed", "source_epoch": "late-boot"})
+            except Exception as exc:
+                errors.append(exc)
+        with patch.object(module, "measure_json_budget", side_effect=validate):
+            worker = threading.Thread(target=publish)
+            worker.start()
+            try:
+                self.assertTrue(entered.wait(1))
+                entries = copy.deepcopy(make_catalog(observe=True).snapshot().entries)
+                entries[0]["generation"] = 2
+                self.store.configure(entries)
+                self.bus.publish_payload("sensor.pose", timestamp=100., source="sensor", seq=1,
+                                         payload={"position": "current"})
+                current = self.frame()
+            finally:
+                release.set()
+                worker.join(2)
+        self.assertFalse(worker.is_alive())
+        self.assertEqual(errors, [])
+        self.assertEqual(self.frame(), current)
+
+    def test_configure_noop_close_and_bus_latest_do_not_leak_or_replay(self):
+        entries = make_catalog(observe=True).snapshot().entries
+        callback = next(iter(self.bus._subscribers["sensor.pose"].values()))
+        for _ in range(4):
+            self.store.configure(entries)
+        self.assertEqual(list(self.bus._subscribers["sensor.pose"].values()), [callback])
+        self.bus.publish_payload("sensor.pose", timestamp=100., source="sensor", seq=1,
+                                 payload={"position": "before-disable"})
+        old = self.frame()
+        self.store.configure([])
+        self.store.configure(entries)
+        self.assertIsNotNone(self.bus.get_latest("sensor.pose"))
+        self.assertEqual(self.store.snapshot(["arm_pose"]), [])
+        self.bus.publish_payload("sensor.pose", timestamp=100., source="sensor", seq=2,
+                                 payload={"position": "after-enable"})
+        self.assertEqual(len(self.bus._subscribers["sensor.pose"]), 1)
+        self.store.close()
+        self.store.close()
+        self.store.configure(entries)
+        self.assertEqual(self.bus._subscribers.get("sensor.pose", {}), {})
+        self.assertEqual(self.store.snapshot(["arm_pose"]), [])
+        with self.assertRaisesRegex(RuntimeError, "request_observation_source_missing"):
+            self.store.request_observations([old])
+
+    def test_configure_detaches_source_constraints_from_caller_mutation(self):
+        entries = copy.deepcopy(make_catalog(observe=True).snapshot().entries)
+        self.store.configure(entries)
+        entries[0]["manifest"]["observation_sources"]["arm_pose"]["required_fields"].append("invented")
+        self.assertTrue(self.ingest())
+        self.assertEqual(self.frame()["health"]["status"], "ok")
+        self.assertEqual(self.store.relevant({"requires_observations": ["arm_pose"]}, {})[1], "")
+
+    def test_ambiguous_source_reconfigure_is_atomic_and_keeps_single_subscription(self):
+        self.ingest()
+        original = self.frame()
+        entries = list(copy.deepcopy(make_catalog(observe=True).snapshot().entries))
+        entries.append({**copy.deepcopy(entries[0]), "owner": "other"})
+        with self.assertRaisesRegex(ValueError, "ambiguous observation source ID"):
+            self.store.configure(entries)
+        self.assertEqual(self.frame(), original)
+        self.assertEqual(len(self.bus._subscribers["sensor.pose"]), 1)
+
+    def test_invalid_callback_reconfigured_during_validation_cannot_change_diagnostics(self):
+        import astrbot_ex.core.decision.observations as module
+        entered, release = threading.Event(), threading.Event()
+        original = module.measure_json_budget
+        def validate(data):
+            if data.get("position") == "delayed-invalid":
+                entered.set()
+                if not release.wait(2):
+                    raise AssertionError("test callback was not released")
+                raise ValueError("synthetic invalid old JSON")
+            return original(data)
+        with patch.object(module, "measure_json_budget", side_effect=validate):
+            worker = threading.Thread(target=lambda: self.bus.publish_payload(
+                "sensor.pose", timestamp=100., source="sensor", seq=99,
+                payload={"position": "delayed-invalid"}))
+            worker.start()
+            try:
+                self.assertTrue(entered.wait(1))
+                self.store.configure([])
+                self.store.configure(make_catalog(observe=True).snapshot().entries)
+                self.bus.publish_payload("sensor.pose", timestamp=100., source="sensor", seq=1,
+                                         payload={"position": "current"})
+                original_frame, original_status = self.frame(), self.store.status()
+            finally:
+                release.set()
+                worker.join(2)
+        self.assertFalse(worker.is_alive())
+        self.assertEqual(self.frame(), original_frame)
+        self.assertEqual(self.store.status(), original_status)
+
+    def test_topic_source_and_invalid_json_do_not_replace_current_frame(self):
+        from astrbot_ex.core.topic_bus import TopicMessage
+        self.bus.publish_payload("sensor.pose", timestamp=100., source="sensor", seq=1,
+                                 payload={"position": "original", "source_epoch": "boot"})
+        original = self.frame()
+        for source, data, reason in (("intruder", {"position": "wrong"}, "source_mismatch"),
+                                     ("sensor", {"position": float("nan")}, "invalid_payload"),
+                                     ("sensor", {"position": "bad", "source_epoch": ""}, "invalid_payload")):
+            self.bus.publish("sensor.pose", TopicMessage("sensor.pose", 100., source, data, seq=2))
+            self.assertEqual(self.frame(), original)
+            self.assertEqual(self.store.status()["sources"]["arm_pose"]["reason_code"], reason)
+        self.bus.publish_payload("undeclared.pose", timestamp=100., source="undeclared", seq=100,
+                                 payload={"position": "not-declared"})
+        self.assertEqual(self.frame(), original)
+        with self.assertRaisesRegex(ValueError, "source is not declared"):
+            self.store.ingest("not-declared", {}, source_epoch="boot", seq=1, source_timestamp=100.)
+
+    def test_topic_sequence_epoch_and_manifest_ttl_are_not_refreshed_by_replay(self):
+        def publish(seq, epoch, stamp=100., position="current"):
+            self.bus.publish_payload("sensor.pose", timestamp=stamp, source="sensor", seq=seq,
+                                     payload={"position": position, "source_epoch": epoch})
+        publish(50, "a")
+        original = self.frame()
+        publish(50, "a", position="duplicate")
+        publish(49, "a", position="older")
+        self.assertEqual(self.frame(), original)
+        publish(1, "b")
+        current = self.frame()
+        publish(51, "a", position="retired")
+        self.assertEqual(self.frame(), current)
+        publish(2, "b", stamp=101.)
+        self.assertEqual(self.frame()["health"]["reason_code"], "future_source_time")
+        publish(3, "b", stamp=99.)
+        self.assertEqual(self.frame()["health"]["reason_code"], "source_time_expired")
+        publish(4, "b")
+        self.now += 80_000_000
+        self.assertEqual(self.frame()["health"]["status"], "ok")
+        publish(4, "b", position="replay")
+        self.now += 1_000_000
+        self.assertEqual(self.frame()["health"]["reason_code"], "observation_expired")
 
     def test_target_binds_observation_frame_session_object(self):
         self.ingest(data={"position": 1, "frame_id": 4, "object_id": "cup"})

@@ -1,0 +1,83 @@
+....F...........................................................................................................................................................................................................................................................................................................................................................................................................................................----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 37288)
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/socketserver.py", line 683, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python3.10/socketserver.py", line 360, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python3.10/socketserver.py", line 747, in __init__
+    self.handle()
+  File "/usr/lib/python3.10/http/server.py", line 433, in handle
+    self.handle_one_request()
+  File "/usr/lib/python3.10/http/server.py", line 421, in handle_one_request
+    method()
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/astrbot_ex/core/api_server.py", line 175, in do_GET
+    if self._try_send_static():
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/astrbot_ex/core/api_server.py", line 1067, in _try_send_static
+    self.wfile.write(body)
+  File "/usr/lib/python3.10/socketserver.py", line 826, in write
+    self._sock.sendall(b)
+BrokenPipeError: [Errno 32] Broken pipe
+----------------------------------------
+.............................................................----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 38532)
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/socketserver.py", line 683, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python3.10/socketserver.py", line 360, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python3.10/socketserver.py", line 747, in __init__
+    self.handle()
+  File "/usr/lib/python3.10/http/server.py", line 433, in handle
+    self.handle_one_request()
+  File "/usr/lib/python3.10/http/server.py", line 421, in handle_one_request
+    method()
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/astrbot_ex/core/api_server.py", line 175, in do_GET
+    if self._try_send_static():
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/astrbot_ex/core/api_server.py", line 1067, in _try_send_static
+    self.wfile.write(body)
+  File "/usr/lib/python3.10/socketserver.py", line 826, in write
+    self._sock.sendall(b)
+BrokenPipeError: [Errno 32] Broken pipe
+----------------------------------------
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 38544)
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/socketserver.py", line 683, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python3.10/socketserver.py", line 360, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python3.10/socketserver.py", line 747, in __init__
+    self.handle()
+  File "/usr/lib/python3.10/http/server.py", line 433, in handle
+    self.handle_one_request()
+  File "/usr/lib/python3.10/http/server.py", line 421, in handle_one_request
+    method()
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/astrbot_ex/core/api_server.py", line 175, in do_GET
+    if self._try_send_static():
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/astrbot_ex/core/api_server.py", line 1067, in _try_send_static
+    self.wfile.write(body)
+  File "/usr/lib/python3.10/socketserver.py", line 826, in write
+    self._sock.sendall(b)
+BrokenPipeError: [Errno 32] Broken pipe
+----------------------------------------
+..........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+======================================================================
+FAIL: test_a03_actor_queue_full_and_oversize (test_action_dispatcher.DispatcherTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/tests/test_action_dispatcher.py", line 1085, in test_a03_actor_queue_full_and_oversize
+    self.wait_status("second", ActionStatus.ACCEPTED)
+  File "/home/jetmax/ros-diag-acceptance-20261103/source/tests/test_action_dispatcher.py", line 153, in wait_status
+    self.fail(f"{cid} never reached {status}: {snapshot}")
+AssertionError: second never reached accepted: ActionSnapshot(command_id='second', canonical_command='{"command":{"action_id":"arm.move.v2","command_id":"second","decision_id":"decision","ex_session":"session","goal_id":"goal","goal_revision":1,"lease_ms":900,"operation":"start","owner":"arm","params":{"meters":1},"plugin_generation":3,"schema_version":1},"resources":[]}', status='timed_out', owner='arm', generation=3, reason_code='action_deadline', details_json='{}', event_seq=6, held_resources=())
+
+----------------------------------------------------------------------
+Ran 967 tests in 281.479s
+
+FAILED (failures=1)
+SDK journal compatibility disabled {'starts': 1, 'cancels': [], 'epoch_before': 3, 'epoch_after': 3, 'gate': True, 'held_resources': ['shared'], 'stop_calls': 0}
+SDK journal compatibility shadow {'starts': 1, 'cancels': [], 'epoch_before': 5, 'epoch_after': 5, 'gate': True, 'held_resources': ['shared'], 'stop_calls': 0}
+blocked-subscriber tts {'voice': 0.062, 'stop': 0.718}
+blocked-subscriber text {'stop': 0.18, 'voice': 0.193}
+G04 event-latch gate+status n=20 p95_ms=0.466 max_ms=0.500; single_live_calls=1

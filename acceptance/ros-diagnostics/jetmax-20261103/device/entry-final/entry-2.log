@@ -1,0 +1,4 @@
+Camera + YOLO running. Ctrl+C stops this vision session.
+{"camera": "/dev/video0", "width": 640, "height": 480, "fps_limit": 1.0, "topic": "/camera/color/image_raw/compressed"}
+{"published": 29, "elapsed_seconds": 30.293}
+Vision session stopped.

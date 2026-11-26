@@ -1,0 +1,32 @@
+{
+  "cases": [
+    {
+      "case": "classify-timeout",
+      "error": "decision_error",
+      "calls": 1
+    },
+    {
+      "case": "generation-timeout",
+      "error": "generation_error",
+      "calls": 2
+    },
+    {
+      "case": "no-tool",
+      "error": "generation_error",
+      "calls": 2
+    },
+    {
+      "case": "invalid-provider",
+      "error": "decision_error",
+      "calls": 0
+    },
+    {
+      "case": "epoch-change",
+      "error": "decision_error",
+      "calls": 1
+    }
+  ],
+  "public_calls": 0,
+  "control_calls": 0,
+  "plans": 0
+}

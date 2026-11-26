@@ -1,0 +1,15 @@
+/AstrBot/astrbot/core/utils/tencent_record_helper.py:4: DeprecationWarning: 'audioop' is deprecated and slated for removal in Python 3.13
+  import audioop
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+  re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+  re_skip_default = re.compile("(\r\n|\s)", re.U)
+/usr/local/lib/python3.12/site-packages/jieba/finalseg/__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+  re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+/aeb-src/astrbot_plugin_astrbotex_interaction/main.py:908: DeprecationWarning: The 'register_star' decorator is deprecated and will be removed in a future version.
+  @star.register(
+.
+----------------------------------------------------------------------
+Ran 1 test in 4.208s
+
+OK

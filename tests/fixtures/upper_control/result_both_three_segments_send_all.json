@@ -1,0 +1,33 @@
+{
+  "case_id": "result_both_three_segments_send_all",
+  "expected_accept": true,
+  "expected_deferred": [],
+  "expected_error": null,
+  "expected_send_count": 3,
+  "expected_texts": [
+    "寻找红色杯子，并保留目标引用。",
+    "接近并对齐刚才的同一个目标。",
+    "按已配置方案抓取同一个目标。"
+  ],
+  "kind": "result",
+  "note": "send_count equals len(segments): nothing is deferred.",
+  "payload": {
+    "public_text": "收到，三段一起下发。",
+    "segments": [
+      {
+        "text": "寻找红色杯子，并保留目标引用。"
+      },
+      {
+        "text": "接近并对齐刚才的同一个目标。"
+      },
+      {
+        "text": "按已配置方案抓取同一个目标。"
+      }
+    ],
+    "send_count": 3
+  },
+  "route": "speech_and_action",
+  "sides": [
+    "aeb"
+  ]
+}

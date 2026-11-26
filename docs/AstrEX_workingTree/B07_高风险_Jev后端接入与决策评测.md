@@ -1,4 +1,4 @@
-> 2026-10-02 集成说明：本文保留原施工任务和历史验收边界；已完成的 B04/B07/B08/B09 以 [当前集成报告](../LOCAL_DEVELOPMENT_INTEGRATION_RESULT.md) 为准，不重复开发。
+> 下文评测门槛是设计目标，不是运行结果。固定 Jev `jev-1.13.0`、schema v2 连接、live HTTP gate 与 wait-only probe 见 [后端说明](../B07-LAYA-BACKEND.md)；管理和验证见 [B08](../B08-DECISION-MANAGEMENT.md)、[复验入口](../LOCAL_DEVELOPMENT_INTEGRATION_RESULT.md)。低置信保持原 choice/score、dispatch 前拒绝，经实际停止/持久化退役反馈重新规划未完成后缀，不重放完成前缀。
 
 # B07｜高风险｜Jev后端接入与决策评测
 
@@ -31,7 +31,7 @@ Jev对数值精度、长杂乱上下文和恶意state存在限制，不能承担
 | 3 | 响应解析/option验证；缺失问题、未知ID、无效概率拒绝 | 无法解析时零下发，无“选第一项”兜底 |
 | 4 | 超时、429、网络错误、SDK默认重试管理 | 总deadline可控；不能后台重试到goal早已变化 |
 | 5 | 配置限频和单live请求，影子模式只记录不执行 | shadow下动作计数=0；latest快照合并不积压 |
-| 6 | confidence门槛由评测确定；低置信wait/请求LLM | 不把confidence当安全概率；不让低置信盲试 |
+| 6 | confidence 门槛由评测确定；EX dispatch 前低置信拒绝 | 保留原 choice/score；实际停止/退役反馈，不隐式 wait，不把 confidence 当安全概率 |
 | 7 | 状态/日志记录真实model、耗时、拒绝原因、输入hash | 不记录key；当前提示展示与实际请求相符 |
 | 8 | 冻结评测集，与确定性规则和LLM直接选择做对照 | 分清模型质量与EX安全门禁的贡献 |
 

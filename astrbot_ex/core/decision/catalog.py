@@ -60,6 +60,13 @@ class CapabilityCatalog:
         with self._lock:
             return CapabilitySnapshot(self._revision, copy.deepcopy(self._entries))
 
+    def snapshot_if_changed(self, revision: int) -> CapabilitySnapshot | None:
+        """Return a detached snapshot only when the caller has an older revision."""
+        with self._lock:
+            if revision == self._revision:
+                return None
+            return self.snapshot()
+
     def refresh(self, records: Iterable[CapabilityInput]) -> CapabilitySnapshot:
         items = list(records)
         if len(items) > 256:

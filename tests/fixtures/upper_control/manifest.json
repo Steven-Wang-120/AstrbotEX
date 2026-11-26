@@ -1,0 +1,175 @@
+{
+  "schema": "upper_control.fixtures.v1",
+  "contract": "C01_接口数据与下发合同.md",
+  "note": "Byte-identical on both ends. 'sides' lists the parsers that consume a case; every shared (aeb+ex) case must yield the same accept/error and, when accepted, the same payload hash.",
+  "files": [
+    {
+      "name": "prob_speech_only.json",
+      "sha256": "bb34bdf6bf08eca7d3177e6de34368eae7d9649477d0ce610796475e1a973705"
+    },
+    {
+      "name": "prob_action_only.json",
+      "sha256": "e8a9d4c704ec84e1c22654166e5af14458de3da3ff7bd329c4f79f765af23c32"
+    },
+    {
+      "name": "prob_speech_and_action.json",
+      "sha256": "b6274f5d257a6f5fc04009465acd98b237f4e42f40a3e61dacce9158b9065a30"
+    },
+    {
+      "name": "prob_tie_speech_only_wins.json",
+      "sha256": "99e8a9818f1f84f06af9baa79145e908c6a9a2286445cd734ae8615319184bcb"
+    },
+    {
+      "name": "prob_tie_speech_and_action_before_action_only.json",
+      "sha256": "c3e2f33bc95761e69e5807a905d388de4206c1b10777f1205f2da0ea252b31a5"
+    },
+    {
+      "name": "prob_reject_bool.json",
+      "sha256": "592dacb92e5238f03d38dfc06d3eafd4242e80895c7052ab6d00e48fd2f1ee2e"
+    },
+    {
+      "name": "prob_reject_string.json",
+      "sha256": "c2b22ebcb311d6b955b0c0f16f95fab9ec2d48010cbaa28b65c2b556b720b47a"
+    },
+    {
+      "name": "prob_reject_sum.json",
+      "sha256": "19992279de4fbbfc9831ff858eb59345b54e3c6df28c50a45a7f360356faaf58"
+    },
+    {
+      "name": "prob_reject_out_of_range.json",
+      "sha256": "bd9ca81cdacad47b2505d3f15a1a607c157a3c3e5b07b0f01db6f72eebdac115"
+    },
+    {
+      "name": "prob_reject_missing_key.json",
+      "sha256": "cc5354bd84037c57b7d9d4993bae7639a11d7bca2a14c75c8cb3ca5b8104f9c1"
+    },
+    {
+      "name": "prob_reject_unknown_field.json",
+      "sha256": "1e01cfb0336f6e0ca17dc591de59efd01e3e6d8954a3f7e80fb3199498087d2f"
+    },
+    {
+      "name": "result_speech_only.json",
+      "sha256": "635da9a96a838dde138b9d9441fe8cc3899bad5bfea7cf01771c361c378e929a"
+    },
+    {
+      "name": "result_action_only_single_segment.json",
+      "sha256": "c1a75b0ab3db4313be4b7c1176647856c55f1e6b02425f77cb3865de71470680"
+    },
+    {
+      "name": "result_both_single_segment.json",
+      "sha256": "24c7f39eb0b131e00b8690ee4b007bf6120cb74ed4772f98e93158bb8dd777ac"
+    },
+    {
+      "name": "result_both_three_segments_send_one.json",
+      "sha256": "e937c62e34fbee3301d69863071391ea443aa7e6e76537eed0f028a221b54c1f"
+    },
+    {
+      "name": "result_both_three_segments_send_all.json",
+      "sha256": "2438e352cac27a8c589ba913ad6f96e928b2f47af527610b19f45c705d18439d"
+    },
+    {
+      "name": "result_reject_action_only_with_text.json",
+      "sha256": "6da911f4b16f4d225806d55d1e9261e034ec768ab8de043bff912b27b654c57b"
+    },
+    {
+      "name": "result_reject_speech_only_with_segments.json",
+      "sha256": "240d54b21c69e693e73e2661b68f3b0519a54c9407a40e7a1cc44fd5bfa685fa"
+    },
+    {
+      "name": "result_reject_send_count_exceeds_segments.json",
+      "sha256": "c1cb5db33f656805ed1cfe2dd37098328e06732ce79f2fd05384fe948159cb43"
+    },
+    {
+      "name": "result_reject_model_supplied_identity.json",
+      "sha256": "b61818ce52202631d54b1689d80b7dc408a25339e30a5d9377b3f9980936aa9f"
+    },
+    {
+      "name": "result_reject_bool_send_count.json",
+      "sha256": "14ebde29905f4b02c6a267a858747d9d7c4434377219ae2bbfdf1e8a6e951b21"
+    },
+    {
+      "name": "result_reject_blank_segment.json",
+      "sha256": "f03d96c42a2d744039d41e0db8bdaa47e99e01e5899c65c27991c4606ca9b22c"
+    },
+    {
+      "name": "batch_single_segment.json",
+      "sha256": "b239933a489880b5272444cfc612f27510a6de65a99b71fd5aaf17a1bd38df0c"
+    },
+    {
+      "name": "batch_multi_segment_emoji.json",
+      "sha256": "3e093df151278c3790658601086b6726c86d9f0658a978a85a16ef9d9bb221fa"
+    },
+    {
+      "name": "batch_prefix_only.json",
+      "sha256": "fa410638615a2455ebc8685ff96b84a025b70be8bcb99aed5ab02254e4fc214b"
+    },
+    {
+      "name": "batch_wrong_unit_wording_preserved.json",
+      "sha256": "89b849bd7f7e48c978e5ff67bb5cc3080309f9a138b30dc5a8f34bfe16d77968"
+    },
+    {
+      "name": "batch_suffix_ordinals.json",
+      "sha256": "5792c64e994824e2922891030b47d4c7b0cf4b9204a01c59bb6449d4600c6598"
+    },
+    {
+      "name": "batch_reject_oversize.json",
+      "sha256": "91d06ececef4ea4e8201daa3e68c8a42ce761746db62897ed07eb0e91b6c14fd"
+    },
+    {
+      "name": "batch_reject_duplicate_segment_id.json",
+      "sha256": "b8f7c6d451580af36abe127180970c719f65954de557698ab1f81b5997794d7c"
+    },
+    {
+      "name": "batch_reject_unknown_field.json",
+      "sha256": "1b04d19d73351531f903d4340a6a2bd2a36a4146132f02e74a9b2a7e7b6c5128"
+    },
+    {
+      "name": "batch_reject_public_text_leak.json",
+      "sha256": "13406e15b345d2e970697fd1c36e1f1ddb41bd5a5b52f0124aedb4936fcec4c5"
+    },
+    {
+      "name": "batch_reject_wrong_schema.json",
+      "sha256": "8574dfb469a9a66bb5674d5c344a5c42617b2045a5298cc18d8ce36348ccfe0c"
+    },
+    {
+      "name": "batch_reject_visibility_user.json",
+      "sha256": "a7ac54360afdbb9234cd932825d6cd083e8098b6ae6e9082e92f9d8b6674dab9"
+    },
+    {
+      "name": "batch_reject_ordinal_gap.json",
+      "sha256": "55c207373a554066d18bba0c28595b4635578145e6f83b314620f789409c4d50"
+    },
+    {
+      "name": "batch_reject_bool_revision.json",
+      "sha256": "16c4422fcccc5a110d031a10c909b3695e3d73543dd09f644b985ee4c3b6ce03"
+    },
+    {
+      "name": "batch_reject_zero_revision.json",
+      "sha256": "3b6633e3421ac85851e867e94d1eac8cdcfa89fbadaf19505f9337f4d945125b"
+    },
+    {
+      "name": "batch_reject_empty_segments.json",
+      "sha256": "c06483064c3d21b1eb20cc996f0ecb11452d7aff2e370f5a61b645bca58b5e44"
+    },
+    {
+      "name": "batch_reject_path_traversal_id.json",
+      "sha256": "510b8f4999088a880ce31ec69c4cf9e821ec164371976770930b05ecd9eb62e3"
+    },
+    {
+      "name": "batch_stale_session.json",
+      "sha256": "0104b2a6d3fbccaaf31a820f1f3b541f945c5ac189654388b85279e0a14f3dec"
+    },
+    {
+      "name": "batch_route_mismatch.json",
+      "sha256": "03b051fef62392ed9ee906e06d5e20e9d699085a6cfe211546b3e49a2f83b69f"
+    },
+    {
+      "name": "batch_replay_identical.json",
+      "sha256": "6b1c4f3e8ba94aa78b00532d72d787ff91a668f010468b301a2cca27356c677d"
+    },
+    {
+      "name": "batch_replay_conflict.json",
+      "sha256": "c61b2c807b0ffeead26329fcc4db65df8e9ffde78a43952069496759973200cd"
+    }
+  ]
+}

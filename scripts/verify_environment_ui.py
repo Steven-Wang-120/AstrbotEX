@@ -2,14 +2,22 @@
 import argparse
 import json
 from pathlib import Path
+from urllib.parse import urlparse
 from playwright.sync_api import sync_playwright, expect
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--url', default='http://127.0.0.1:8765')
+    parser.add_argument('--token-file', type=Path, required=True)
     parser.add_argument('--output', default='acceptance/ui')
     args = parser.parse_args()
+    address = urlparse(args.url)
+    if address.scheme != 'http' or address.hostname not in ('127.0.0.1', 'localhost') or address.username or address.password or address.query or address.fragment or address.path not in ('', '/'):
+        parser.error('--url must be a loopback HTTP origin')
+    token = args.token_file.read_text(encoding='utf-8').strip()
+    if not token: parser.error('credential file is empty')
+    args.url = args.url.rstrip('/')
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
     errors, mode_requests, passed = [], [], []
@@ -21,6 +29,8 @@ def main():
         page.on('request', lambda request: mode_requests.append(request.url)
                 if request.method == 'POST' and request.url.endswith('/environments/select') else None)
         page.goto(args.url + '/#/environments')
+        page.locator('#managementCredential').fill(token)
+        page.locator('#managementCredentialApply').click()
         expect(page.locator('#page-environments')).to_be_visible()
         expect(page.locator('#environmentActiveMode')).to_have_text('普通环境')
         expect(page.locator('[data-page="environments"] .nav-num')).to_have_text('06')
@@ -53,6 +63,8 @@ def main():
         expect(page.locator('#page-environments')).to_be_visible()
         expect(page.locator('#environmentActiveMode')).to_have_text('普通环境')
         page.reload()
+        page.locator('#managementCredential').fill(token)
+        page.locator('#managementCredentialApply').click()
         expect(page.locator('#page-environments')).to_be_visible()
         expect(page.locator('#environmentActiveMode')).to_have_text('普通环境')
         assert not mode_requests, mode_requests

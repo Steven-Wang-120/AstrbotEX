@@ -91,6 +91,9 @@ def prepare_action_ledger(data_root: str | Path) -> Path:
         else:
             ledger = ActionLedger(stage)
             ledger.close()
+            # Publish a standalone file, independent of the staging basename.
+            with closing(sqlite3.connect(stage)) as connection:
+                connection.execute("PRAGMA journal_mode=DELETE")
         _validate_database(stage)
         with stage.open("r+b") as database:
             os.fsync(database.fileno())

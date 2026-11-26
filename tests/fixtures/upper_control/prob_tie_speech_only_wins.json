@@ -1,0 +1,16 @@
+{
+  "case_id": "prob_tie_speech_only_wins",
+  "expected_accept": true,
+  "expected_error": null,
+  "expected_route": "speech_only",
+  "kind": "probabilities",
+  "note": "Exact tie speech_only/action_only: C01 order puts speech_only first.",
+  "payload": {
+    "action_only": 0.5,
+    "speech_and_action": 0.0,
+    "speech_only": 0.5
+  },
+  "sides": [
+    "aeb"
+  ]
+}

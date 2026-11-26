@@ -1,0 +1,14 @@
+{
+  "case_id": "prob_reject_missing_key",
+  "expected_accept": false,
+  "expected_error": "invalid_probabilities",
+  "kind": "probabilities",
+  "note": "A missing class is not a zero.",
+  "payload": {
+    "action_only": 0.5,
+    "speech_only": 0.5
+  },
+  "sides": [
+    "aeb"
+  ]
+}

@@ -1,0 +1,31 @@
+test_fixture_cases (test_upper_contracts.BatchTests.test_fixture_cases) ... ok
+test_hash_covers_text_and_order (test_upper_contracts.BatchTests.test_hash_covers_text_and_order) ... ok
+test_ingress_rejects_a_format_valid_but_foreign_robot (test_upper_contracts.BatchTests.test_ingress_rejects_a_format_valid_but_foreign_robot) ... ok
+test_payload_hash_is_stable_and_key_order_independent (test_upper_contracts.BatchTests.test_payload_hash_is_stable_and_key_order_independent) ... ok
+test_identity_comes_from_trusted_input_only (test_upper_contracts.BuildBatchTests.test_identity_comes_from_trusted_input_only) ... ok
+test_suffix_batch_continues_ordinals (test_upper_contracts.BuildBatchTests.test_suffix_batch_continues_ordinals) ... ok
+test_published_codes_are_classified (test_upper_contracts.ErrorTableTests.test_published_codes_are_classified) ... ok
+test_every_case_declares_expected_outcome (test_upper_contracts.FixtureIntegrityTests.test_every_case_declares_expected_outcome) ... ok
+test_every_case_file_matches_its_recorded_sha256 (test_upper_contracts.FixtureIntegrityTests.test_every_case_file_matches_its_recorded_sha256) ... ok
+test_manifest_lists_every_case_file (test_upper_contracts.FixtureIntegrityTests.test_manifest_lists_every_case_file) ... ok
+test_bool_is_not_a_probability_or_an_integer (test_upper_contracts.ProbabilityTests.test_bool_is_not_a_probability_or_an_integer) ... ok
+test_fixture_cases (test_upper_contracts.ProbabilityTests.test_fixture_cases) ... ok
+test_non_finite_numbers_are_rejected (test_upper_contracts.ProbabilityTests.test_non_finite_numbers_are_rejected) ... ok
+test_route_is_never_taken_from_the_payload (test_upper_contracts.ProbabilityTests.test_route_is_never_taken_from_the_payload) ... ok
+test_sum_tolerance_accepts_rounding_noise (test_upper_contracts.ProbabilityTests.test_sum_tolerance_accepts_rounding_noise) ... ok
+test_fixture_cases (test_upper_contracts.ResultTests.test_fixture_cases) ... ok
+test_result_carries_no_identity (test_upper_contracts.ResultTests.test_result_carries_no_identity) ... ok
+test_route_must_be_known (test_upper_contracts.ResultTests.test_route_must_be_known) ... ok
+test_segment_count_limit (test_upper_contracts.ResultTests.test_segment_count_limit) ... ok
+test_segment_length_limit (test_upper_contracts.ResultTests.test_segment_length_limit) ... ok
+test_text_is_preserved_verbatim (test_upper_contracts.ResultTests.test_text_is_preserved_verbatim) ... ok
+test_shared_case_count_is_not_trivial (test_upper_contracts.SharedFixtureTests.test_shared_case_count_is_not_trivial) ... ok
+test_shared_cases_are_batch_cases (test_upper_contracts.SharedFixtureTests.test_shared_cases_are_batch_cases) ... ok
+test_cannot_be_built_from_a_dict (test_upper_contracts.TrustedInputTests.test_cannot_be_built_from_a_dict) ... ok
+test_issue_accepts_a_framework_identity (test_upper_contracts.TrustedInputTests.test_issue_accepts_a_framework_identity) ... ok
+test_issue_rejects_a_path_like_id (test_upper_contracts.TrustedInputTests.test_issue_rejects_a_path_like_id) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 0.793s
+
+OK

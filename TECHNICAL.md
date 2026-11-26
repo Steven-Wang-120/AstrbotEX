@@ -2,9 +2,7 @@
 
 本文面向 AstrBotEX 的开发、集成与部署人员，记录当前代码中的接口契约、核心实现机制和配置项。项目定位、功能概览、启动方法与目录说明见 `README.md`，本文不重复这些入门内容。
 
-> 基准版本：`pyproject.toml` 中的 `0.1.0`  
-> 文档核对日期：2026-08-30（对齐 HEAD `36c00a9`）  
-> 行为依据：当前源码、测试、profile，以及 AstrBot/A.E.B/EXplugin 跨仓库契约。旧版无版本接口仍有兼容实现，新集成应优先使用 `/api/v1/ex` 路径。
+> 行为依据：源码、测试与跨仓库契约。旧 runtime/profile 章节保留 legacy 技术背景；decision 模式见下文及 [Laya 协议](docs/B07-LAYA-BACKEND.md)、[管理/页面](docs/B08-DECISION-MANAGEMENT.md)。旧无版本接口仅兼容，新集成优先 `/api/v1/ex`；所有 `/api/` 须管理 Bearer、loopback Host/同源 Origin，不能按旧样例推断匿名访问。
 
 ## API 文档
 
@@ -178,6 +176,56 @@ YOLO 等视觉转发插件应把结构化 JSON 字段通过 `8766` 的 `vision.j
 恢复流程是**先暂存、再替换、失败回滚**：解压到 `backups/.staging-<uuid>/` 校验通过后才替换目标目录，并通过 `before_replace` / `after_replace` / `after_rollback` 回调让调用方停机与重载。`SnapshotService` 内有 `RLock`，创建与恢复互斥。
 
 改这里要同时检查 `tests/test_backup.py`，以及 Dashboard 的备份面板调用方。
+
+## 决策 v2
+
+### 当前 Goal、HostTask 与候选目录
+
+`HostTask` 是 Host/A.E.B 的多步骤计划；EX 只持有一个 `currentGoal` 和至多一个待替代 Goal。当前步骤的动作及参数由 Host 绑定，Jev/Laya 只从 EX 本轮候选中选择，不生成参数或下一步骤。
+
+`LocalPluginManager.refresh_capabilities()` 捕获实际已加载的 v2 manifest/config、插件 generation/state，并比较当前目录的 manifest/version/config；目录缺失或变化标记 unavailable，不把磁盘更新假装成已加载实例。guide 限 UTF-8 纯文本、8192 B，保留 hash/status/reason；disabled、非 ready、目录变化或 guide unavailable/rejected 均不能进入可执行目录。Catalog 深复制、语义变化才增 revision；legacy 插件不因此获得 v2 动作资格。
+
+### Host 工具与公开回复边界
+
+同一普通聊天 LLM 自行选择直接回复、澄清或 `manage_astrbotex_task`，不新增 router 模型、admin-only 或逐任务审批。工具只放入当前请求的 ToolSet，decision 模式移除旧 proposal tool；private planning/反馈不重复注入。工具只接受 create/update 的业务文本或 cancel/review 操作，不接受模型自报 task/user/session/robot/route 或物理命令。Host 从可信 event、已绑定 peer/route、EX session 和最新 capabilities 构造上下文，调用时重新校验。
+
+create 要求 EX decision/execute、runtime running、合法生产 gate、可用动作和规划 provider；本人已有任务的 update/cancel/review 不要求 execution-ready 或规划 provider。控制仍须当前 peer/身份、唯一 owned task 与相应 session 校验；只有显式 review 可经既有停止证明流程核对旧 EX 会话，disabled 不等于可以绕过归属或停止证明。
+
+`TaskStore` 在异步网络/规划前写入受理或操作 claim，重复 trusted Host message 只能取原回执；崩溃后的 unresolved claim 不成为重试许可。`claim_host_reply` 在公开结果发送前持久化，普通 buffered Host 的重复逻辑结果被丢弃，闲聊不受压制，受理本身不生成“已完成”或占位回复。去重依据可信消息身份而非 tool-call/network ID。
+
+受支持的正常消息路径在 Host 选择 streaming 前使用公开消息 hook 缓冲，在公开 result decoration hook 消费回复回执。已有持久化 public claim 时，`_suppress_host_reply_replay()` 在公开消息 hook（并在请求 hook 复核）按可信身份停止重复 event，早于默认 agent 与工具状态输出；已加载 TaskStore 后不依赖 capabilities/provider 在线，重启也不重新授权。原首个待发送结果、无受理回执的闲聊及 private planning/反馈不被该规则压制。
+
+它提供一个逻辑结果的 at-most-once，而非保证送达或每个物理 packet 恰好一次；Host 分段/TTS 可能形成多个包。第三方强制 live/streaming、主动 `send_by_session`、直接 `event.send`、并发 public claim 前的工具状态输出及其他绕过公开 hook 的路径不构成通用去重保证。
+
+源入口：A.E.B 的 `main.py`（`ManageAstrBotEXTaskTool`、`prepare_host_task_output`、`guard_host_task_reply`）、`host_tasks.py`、`task_store.py`；具名回归为 `test_chat_tasks.py`、`test_task_admission.py`、`test_host_chat_routing.py`、`test_host_foundation.py`、`test_decision_replan.py`。
+
+### Provider 配置、probe 与平台边界
+
+`DecisionConfigStore` 持久化 `{schema_version:2,revision,config}`，saved 与 effective 分离；严格字段校验和 session/revision CAS，不从保存动作启动服务或执行 Goal。
+
+- Jev 的 `service_connection` 固定 `model=jev-1.13.0`、`auth_mode=bearer`，默认 `https://api.typesafe.ai`；未核对 alias 拒绝。
+- Laya 固定 `typed-decisions`；默认 external/deployment=null，不检查本地 Python/cache/CUDA，也不认领或结束外部服务。owned 仅可信 subprocess 部署与 `http://127.0.0.1:<配置端口>`，使用当前 Popen/generation guard，不能凭旧 PID、端口或进程名认领。
+- URL path 前缀追加供应商路径；拒绝嵌入凭据、query/fragment 和重定向；HTTPS 使用正常 TLS 验证，明文 HTTP 仅 loopback。Jev 与 Laya secret 引用各自独立，不混用管理凭据。
+- key `keep` 不写文件/增版本，`set/clear` 发布新 CAS；空 set 或 keep/clear 携 value 拒绝。配置原子存储采用同目录暂存、文件 fsync、发布与恢复 fence；POSIX 另做目录 fsync。不确定发布保留 marker 并拒绝后续写入/后端映射，清理失败可能发生在 CAS 已提交后，不能盲重试旧 revision。
+- Windows 已有可选 fchmod/正确 fd 关闭及 `.exe` owned preflight，不再笼统称 provider 不支持 Windows；POSIX mode 不证明 Windows ACL，Windows 文件发布也不提供 POSIX 目录 fsync 的同等保证。父句柄退出不证明整个子孙进程树或 GPU 工作停止。
+
+生产执行须配置 gate 与内置 live transport 同时允许；注入 transport 默认不可执行，可信 fixture 的 `allow_test_execution` 不可经 HTTP/config 开启。Jev/Laya `probe()` 使用固定 wait-only 合成快照和生产 decoder，不提交业务 Goal、Action、Actor 或 Ledger；Laya `health_probe()` 与最小真实推理分开。probe 不保存配置、推进 CAS、启用执行或解除 `restart_required`。连接测试只证明供应商协议，不证明模型质量或机器人任务成功。
+
+### 低置信拒绝、真实停止与 Goal 退役
+
+`DecisionService._apply()` 在 execute 下先验证原响应与快照；任一 choice 低于后端 `min_confidence` 时以 `low_confidence` 拒绝整轮，选择 `request_replan` 时以 `backend_requested_replan` 拒绝整轮，均不进入新 Action dispatch。choice/score 原值进入有界 `decision_rejection`，不改成 wait、不默认第一项；达到阈值的正常 wait 保持当前 Goal，shadow 只记录选择。
+
+拒绝先撤销授权、关闭 gate；已有动作须取得实际 Actor/Ledger `StopEvidence` 并复核当前 Dispatcher epoch、资源释放和终态。Controller/FeedbackJournal 在安全锁外收集前序账本事实、持久化 completion draft，然后在当前 Goal/revision/epoch 的 CAS 成功后退役并发布唯一 failed 事实。draft 不是已发布完成事实，重启不能自动提升为事实；存储或发布失败关闭执行，缺停止证明、unknown/timed_out 或迟到旧证据不得产生重规划许可或任务成功。
+
+停止回执必须匹配 `operation_id + state=proven`；HTTP 返回、本地 cancel/close、健康或新客户端不等于证明。模型 `restart_required` 与 Actor 停止证据独立，owned/external 恢复边界见 [B07](docs/B07-LAYA-BACKEND.md)。退役反馈交回 Host 后只允许重规划未完成后缀，完成前缀不可重放；取消不自动规划，unknown/timed_out 转 resume_review。源入口为 `service.py`、`controller.py`、`feedback_journal.py`，回归为 `tests/test_decision_replanning.py`（EX 单元）及 [AstrBotVLA-tests](https://github.com/Steven-Wang-120/AstrBotVLA-tests/blob/main/docs/PR-REMEDIATION-20261007.md) 的 `validation_tests/integration/test_decision_aeb_replanning.py`（六项跨仓集成，原用例 ID 映射保留）。
+
+### 管理激活与完整停止
+
+`DecisionManagement._mode()` 的 execute 是真实激活操作：应用所选配置，owned 才启动/复用受守护的自有代次，经 RuntimeController 切 decision control mode、启动 runtime，再开启 decision execute。running 要同时满足这些状态与 production backend gate；无 Goal 时 Dispatcher 动作 gate 仍可关闭，不能把零工作误判为后端不可执行。Start 不提交 Goal、不自动再做外部供应商推理；失败撤授权并保留 failed/uncertain，不回退 legacy。
+
+Stop 先撤销新执行、等待匹配框架停止证明，再停 runtime，并核对 registry 的 stop_error/state/runtime_started/runtime_starting/stop_proven 及 plugin_fault/fault 事件。仅 runtime IDLE 不够证明组件已停；证明失败显示 uncertain、拒绝重启，必须后续真实 Stop 成功。只有可证明归属的 owned 句柄才被结束，外部服务不被认领或 kill；runtime 关闭失败也继续尝试结束自有模型进程。框架组件关闭证据不是硬件物理停车证据。
+
+激活/清理按 apply→service 顺序串行化，旧操作的清理不能结束已由新操作接管的 generation；恢复启动释放 service 锁后再取 apply→service，避免反向锁顺序。owned manager 捕获当前 key 引用和值；只有原代次确认退出、请求空闲且无 quarantine/ownership_unknown 才能换 manager/凭据，新 key 不清隔离。具体字段和验证入口见 [管理说明](docs/B08-DECISION-MANAGEMENT.md)。
 
 ## 内部实现
 

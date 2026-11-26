@@ -1,0 +1,9 @@
+test_kill_after_ex_consumption_starts (test_upper_crash_recovery.ForcedCrashRecoveryTests.test_kill_after_ex_consumption_starts) ... ok
+test_kill_after_public_send_before_confirmation (test_upper_crash_recovery.ForcedCrashRecoveryTests.test_kill_after_public_send_before_confirmation) ... ok
+test_kill_after_reserve_before_send (test_upper_crash_recovery.ForcedCrashRecoveryTests.test_kill_after_reserve_before_send) ... ok
+test_kill_after_send_before_receipt (test_upper_crash_recovery.ForcedCrashRecoveryTests.test_kill_after_send_before_receipt) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 15.772s
+
+OK

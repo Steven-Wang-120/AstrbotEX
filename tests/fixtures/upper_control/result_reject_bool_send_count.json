@@ -1,0 +1,20 @@
+{
+  "case_id": "result_reject_bool_send_count",
+  "expected_accept": false,
+  "expected_error": "invalid_result",
+  "kind": "result",
+  "note": "true is not the integer 1.",
+  "payload": {
+    "public_text": "收到。",
+    "segments": [
+      {
+        "text": "第一步。"
+      }
+    ],
+    "send_count": true
+  },
+  "route": "speech_and_action",
+  "sides": [
+    "aeb"
+  ]
+}

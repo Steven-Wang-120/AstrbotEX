@@ -1,0 +1,54 @@
+{
+  "before_counts": {
+    "upper_inputs": 0,
+    "upper_batches": 0,
+    "upper_public_replies": 0
+  },
+  "plan": {
+    "plan_id": "654e211aba4445bca4305652ce71fd5c",
+    "request_id": "406bdaa8c0564e6cb56451ace7f949b0",
+    "input_key": "ui-record-fixture-acceptance02",
+    "route": "action_only",
+    "probabilities": {
+      "action_only": 0.9,
+      "speech_and_action": 0.05,
+      "speech_only": 0.05
+    },
+    "public_text": null,
+    "send_count": 2,
+    "segment_count": 3,
+    "result_hash": "96855f47943293f3c6899c8bb7d4910190f1c5c569e17f2a1e5765dcaba2a45f",
+    "plan_revision": 1,
+    "generation": 1,
+    "status": "planned",
+    "settings_hash": "ui-settings-hash",
+    "catalog_hash": "ui-catalog-hash",
+    "prompt_hash": "ui-prompt-hash",
+    "created_at": 1793713949.7755833,
+    "updated_at": 1793713949.7755833,
+    "input_status": "planned",
+    "segments": [
+      {
+        "segment_id": "43dc4414ca2f4798be5d7d9b0311f733",
+        "ordinal": 0,
+        "text": "UI_FIXTURE_UNSENT_0",
+        "status": "pending"
+      },
+      {
+        "segment_id": "c56abc34f3594b16892889935583b96c",
+        "ordinal": 1,
+        "text": "UI_FIXTURE_UNSENT_1",
+        "status": "pending"
+      },
+      {
+        "segment_id": "174c4e372d374b7d8859155b70223da0",
+        "ordinal": 2,
+        "text": "UI_FIXTURE_UNSENT_2",
+        "status": "pending"
+      }
+    ],
+    "batch": null,
+    "public_reply": null
+  },
+  "fixture_kind": "unsent; no external IO"
+}

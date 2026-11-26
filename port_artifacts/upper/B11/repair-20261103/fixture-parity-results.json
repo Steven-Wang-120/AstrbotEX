@@ -1,0 +1,229 @@
+{
+  "compared": 20,
+  "fixture_bytes_identical": true,
+  "mismatches": [],
+  "records": [
+    {
+      "case": "batch_single_segment",
+      "b00_contract": {
+        "accepted": true
+      },
+      "b09_actual_ingress": {
+        "accepted": true
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_multi_segment_emoji",
+      "b00_contract": {
+        "accepted": true
+      },
+      "b09_actual_ingress": {
+        "accepted": true
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_prefix_only",
+      "b00_contract": {
+        "accepted": true
+      },
+      "b09_actual_ingress": {
+        "accepted": true
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_wrong_unit_wording_preserved",
+      "b00_contract": {
+        "accepted": true
+      },
+      "b09_actual_ingress": {
+        "accepted": true
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_suffix_ordinals",
+      "b00_contract": {
+        "accepted": true
+      },
+      "b09_actual_ingress": {
+        "accepted": true
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_reject_oversize",
+      "b00_contract": {
+        "accepted": false,
+        "error_code": "payload_too_large"
+      },
+      "b09_actual_ingress": {
+        "accepted": false,
+        "error_code": "payload_too_large"
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_reject_duplicate_segment_id",
+      "b00_contract": {
+        "accepted": false,
+        "error_code": "id_conflict"
+      },
+      "b09_actual_ingress": {
+        "accepted": false,
+        "error_code": "id_conflict"
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_reject_unknown_field",
+      "b00_contract": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "b09_actual_ingress": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_reject_public_text_leak",
+      "b00_contract": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "b09_actual_ingress": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_reject_wrong_schema",
+      "b00_contract": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "b09_actual_ingress": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_reject_visibility_user",
+      "b00_contract": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "b09_actual_ingress": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_reject_ordinal_gap",
+      "b00_contract": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "b09_actual_ingress": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_reject_bool_revision",
+      "b00_contract": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "b09_actual_ingress": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_reject_zero_revision",
+      "b00_contract": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "b09_actual_ingress": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_reject_empty_segments",
+      "b00_contract": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "b09_actual_ingress": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_reject_path_traversal_id",
+      "b00_contract": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "b09_actual_ingress": {
+        "accepted": false,
+        "error_code": "invalid_batch"
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_stale_session",
+      "b00_contract": {
+        "accepted": true
+      },
+      "b09_actual_ingress": {
+        "accepted": true
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_route_mismatch",
+      "b00_contract": {
+        "accepted": true
+      },
+      "b09_actual_ingress": {
+        "accepted": true
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_replay_identical",
+      "b00_contract": {
+        "accepted": true
+      },
+      "b09_actual_ingress": {
+        "accepted": true
+      },
+      "acceptance_matches": true
+    },
+    {
+      "case": "batch_replay_conflict",
+      "b00_contract": {
+        "accepted": true
+      },
+      "b09_actual_ingress": {
+        "accepted": true
+      },
+      "acceptance_matches": true
+    }
+  ]
+}

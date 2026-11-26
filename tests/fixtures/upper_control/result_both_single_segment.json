@@ -1,0 +1,24 @@
+{
+  "case_id": "result_both_single_segment",
+  "expected_accept": true,
+  "expected_error": null,
+  "expected_send_count": 1,
+  "expected_texts": [
+    "寻找红色杯子，并保留目标引用。"
+  ],
+  "kind": "result",
+  "note": "The C01 worked example with one segment.",
+  "payload": {
+    "public_text": "收到，我来处理。",
+    "segments": [
+      {
+        "text": "寻找红色杯子，并保留目标引用。"
+      }
+    ],
+    "send_count": 1
+  },
+  "route": "speech_and_action",
+  "sides": [
+    "aeb"
+  ]
+}
