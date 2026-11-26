@@ -1,0 +1,272 @@
+{
+  "id": "mobile_manipulation",
+  "name": "Simulation mobile manipulation",
+  "version": "0.1.0",
+  "entry": "main.py",
+  "enabled_default": false,
+  "provides": [
+    "action_owner"
+  ],
+  "action_api_version": 2,
+  "observation_guide": "guide.md",
+  "actions": [
+    {
+      "action_id": "mobile_manipulation.move.v1",
+      "description": "Move base to a named region and stop.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target_region_id": {
+            "type": "string",
+            "enum": [
+              "table_dock",
+              "home"
+            ]
+          },
+          "position_tolerance_m": {
+            "type": "number",
+            "enum": [
+              0.1,
+              0.05
+            ]
+          },
+          "yaw_tolerance_rad": {
+            "type": "number",
+            "enum": [
+              0.17453292519943295,
+              0.08726646259971647
+            ]
+          },
+          "success_template": {
+            "type": "string",
+            "enum": [
+              "move.arrive_and_stop.v1"
+            ]
+          }
+        },
+        "required": [
+          "target_region_id",
+          "position_tolerance_m",
+          "yaw_tolerance_rad",
+          "success_template"
+        ],
+        "additionalProperties": false
+      },
+      "resources": [
+        "mobile.base",
+        "mobile.arm",
+        "mobile.gripper"
+      ],
+      "operations": [
+        "start",
+        "cancel"
+      ],
+      "requires_runtime_state": [],
+      "requires_observations": [],
+      "danger": "high",
+      "max_duration_ms": 120000,
+      "cancel_timeout_ms": 5000
+    },
+    {
+      "action_id": "mobile_manipulation.fetch.v1",
+      "description": "With base stopped, pick the named object and place it in the named tray.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "object_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "place_region_id": {
+            "type": "string",
+            "enum": [
+              "tray_left",
+              "tray_right"
+            ]
+          },
+          "placement_tolerance_m": {
+            "type": "number",
+            "enum": [
+              0.02,
+              0.01
+            ]
+          },
+          "orientation_mode": {
+            "type": "string",
+            "enum": [
+              "free",
+              "yaw"
+            ]
+          },
+          "yaw_tolerance_rad": {
+            "type": "number",
+            "enum": [
+              0.08726646259971647
+            ]
+          },
+          "success_template": {
+            "type": "string",
+            "enum": [
+              "fetch.pick_place_stable.v1"
+            ]
+          }
+        },
+        "required": [
+          "object_id",
+          "place_region_id",
+          "placement_tolerance_m",
+          "orientation_mode",
+          "yaw_tolerance_rad",
+          "success_template"
+        ],
+        "additionalProperties": false
+      },
+      "resources": [
+        "mobile.base",
+        "mobile.arm",
+        "mobile.gripper"
+      ],
+      "operations": [
+        "start",
+        "cancel"
+      ],
+      "requires_runtime_state": [],
+      "requires_observations": [],
+      "danger": "high",
+      "max_duration_ms": 120000,
+      "cancel_timeout_ms": 5000
+    }
+  ],
+  "ros2": {
+    "schema_version": 1,
+    "ports": [
+      {
+        "id": "command",
+        "direction": "publish",
+        "message_types": [
+          "std_msgs/msg/String"
+        ],
+        "default_topic": "/astrex/mobile_mvp/command",
+        "execution_lane": "control",
+        "requires_runtime_running": true,
+        "qos_preset": "reliable_volatile",
+        "queue": {
+          "capacity": 4,
+          "overflow": "reject_new",
+          "max_age_ms": 200,
+          "max_message_bytes": 131072,
+          "max_bytes": 524288
+        }
+      },
+      {
+        "id": "lease",
+        "direction": "publish",
+        "message_types": [
+          "std_msgs/msg/String"
+        ],
+        "default_topic": "/astrex/mobile_mvp/lease",
+        "execution_lane": "control",
+        "requires_runtime_running": true,
+        "qos_preset": "reliable_volatile",
+        "queue": {
+          "capacity": 4,
+          "overflow": "reject_new",
+          "max_age_ms": 200,
+          "max_message_bytes": 131072,
+          "max_bytes": 524288
+        }
+      },
+      {
+        "id": "cancel",
+        "direction": "publish",
+        "message_types": [
+          "std_msgs/msg/String"
+        ],
+        "default_topic": "/astrex/mobile_mvp/cancel",
+        "execution_lane": "control",
+        "requires_runtime_running": true,
+        "qos_preset": "reliable_volatile",
+        "queue": {
+          "capacity": 4,
+          "overflow": "reject_new",
+          "max_age_ms": 200,
+          "max_message_bytes": 131072,
+          "max_bytes": 524288
+        }
+      },
+      {
+        "id": "ack",
+        "direction": "subscribe",
+        "message_types": [
+          "std_msgs/msg/String"
+        ],
+        "default_topic": "/astrex/mobile_mvp/ack",
+        "execution_lane": "general",
+        "requires_runtime_running": false,
+        "qos_preset": "reliable_volatile",
+        "queue": {
+          "capacity": 8,
+          "overflow": "reject_new",
+          "max_age_ms": 1000,
+          "max_message_bytes": 131072,
+          "max_bytes": 524288
+        }
+      },
+      {
+        "id": "feedback",
+        "direction": "subscribe",
+        "message_types": [
+          "std_msgs/msg/String"
+        ],
+        "default_topic": "/astrex/mobile_mvp/feedback",
+        "execution_lane": "general",
+        "requires_runtime_running": false,
+        "qos_preset": "reliable_volatile",
+        "queue": {
+          "capacity": 8,
+          "overflow": "reject_new",
+          "max_age_ms": 1000,
+          "max_message_bytes": 131072,
+          "max_bytes": 524288
+        }
+      },
+      {
+        "id": "result",
+        "direction": "subscribe",
+        "message_types": [
+          "std_msgs/msg/String"
+        ],
+        "default_topic": "/astrex/mobile_mvp/result",
+        "execution_lane": "general",
+        "requires_runtime_running": false,
+        "qos_preset": "reliable_volatile",
+        "queue": {
+          "capacity": 8,
+          "overflow": "reject_new",
+          "max_age_ms": 1000,
+          "max_message_bytes": 131072,
+          "max_bytes": 524288
+        }
+      },
+      {
+        "id": "status",
+        "direction": "subscribe",
+        "message_types": [
+          "std_msgs/msg/String"
+        ],
+        "default_topic": "/astrex/mobile_mvp/status",
+        "execution_lane": "general",
+        "requires_runtime_running": false,
+        "qos_preset": "reliable_volatile",
+        "queue": {
+          "capacity": 8,
+          "overflow": "reject_new",
+          "max_age_ms": 1000,
+          "max_message_bytes": 131072,
+          "max_bytes": 524288
+        }
+      }
+    ]
+  }
+}

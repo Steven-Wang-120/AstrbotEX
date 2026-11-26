@@ -45,6 +45,20 @@ class CapabilityCatalogTest(unittest.TestCase):
         self.assertEqual(catalog.snapshot().revision, 4)
         self.assertEqual(catalog.refresh([]).revision, 5)
 
+    def test_revision_check_avoids_copy_and_returns_detached_changes(self):
+        catalog = CapabilityCatalog()
+        first = catalog.refresh([record()])
+        with patch.object(catalog, "snapshot", side_effect=AssertionError("unnecessary copy")):
+            self.assertIsNone(catalog.snapshot_if_changed(first.revision))
+        catalog.refresh([record(generation=2)])
+        changed = catalog.snapshot_if_changed(first.revision)
+        self.assertEqual(changed.entries[0]["generation"], 2)
+        changed.entries[0]["config"].clear()
+        self.assertEqual(catalog.snapshot().entries[0]["config"], {"settings": [1]})
+        empty = catalog.refresh([])
+        self.assertEqual(catalog.snapshot_if_changed(changed.revision).entries, ())
+        self.assertIsNone(catalog.snapshot_if_changed(empty.revision))
+
     def test_unavailable_and_disabled_are_explicit(self):
         catalog = CapabilityCatalog()
         unavailable = record("missing")

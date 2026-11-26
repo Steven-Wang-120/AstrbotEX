@@ -28,6 +28,7 @@ class RosReceivedMessage:
     binding_generation: int = 0
     size_bytes: int = 0
     stop_token: str | None = None
+    source_id: str | None = None
 
 
 DATA_HEALTH = ("not_monitored", "disabled", "paused", "unavailable", "warming_up",
@@ -268,7 +269,7 @@ class _Port:
             self.monitoring_started_monotonic_ns = None
             self._reset_window_evidence()
 
-    def receive(self, message, generation, binding_generation=None):
+    def receive(self, message, generation, binding_generation=None, source_id=None):
         with self.lock:
             if self.closed or self.native is None or self.generation != generation: return
             if binding_generation is not None and binding_generation != self.binding_generation: return
@@ -280,7 +281,8 @@ class _Port:
             self.last_receive_monotonic_ns = now_ns
             self.last_message_at = time.time()
             size = message_size(message, self.declaration['queue']['max_message_bytes'])
-            self._enqueue(RosReceivedMessage(message, now_ns, generation, self.binding_generation, size))
+            self._enqueue(RosReceivedMessage(message, now_ns, generation, self.binding_generation,
+                                            size, source_id=source_id))
 
     def discard_queue(self):
         with self.lock:
@@ -422,6 +424,358 @@ class RosPublisherHandle:
     def status(self): return self._port.status()
     def close(self): self._port.close()
 
+
+_COMMAND_TERMINAL = frozenset(("succeeded", "aborted", "canceled", "rejected",
+                               "unavailable", "expired", "unknown"))
+
+
+class RosCommandOperation:
+    """Pollable protocol evidence, never a claim of physical motion or stopping."""
+    def __init__(self, port):
+        self._port = port
+        self.operation_id = uuid.uuid4().hex
+        self.goal_id = uuid.uuid4().hex if port.declaration['direction'] == 'action' else None
+        self.generation = port.generation
+        self.binding_generation = port.binding_generation
+        self.state = 'queued'
+        self.accepted = None
+        self.result_status = None
+        self.reason = None
+        self.cancel_state = None
+        self.feedback_count = 0
+        self.last_feedback_monotonic_ns = None
+        self._feedback = self._result = self._goal_handle = None
+        self._submitted_at = None
+        self._stop_token = None
+        self._cancel_token = None
+        self._cancel_requested = False
+
+    def snapshot(self):
+        with self._port.lock:
+            return dict(operation_id=self.operation_id, goal_id=self.goal_id,
+                state=self.state, accepted=self.accepted, result_status=self.result_status,
+                reason=self.reason, done=self.state in _COMMAND_TERMINAL,
+                submitted=self._submitted_at is not None,
+                environment_generation=self.generation, binding_generation=self.binding_generation,
+                cancel_state=self.cancel_state, feedback_count=self.feedback_count,
+                last_feedback_monotonic_ns=self.last_feedback_monotonic_ns,
+                physical_stop_confirmed=False)
+
+    def result(self):
+        with self._port.lock:
+            return self._result
+
+    def take_feedback(self):
+        with self._port.lock:
+            result, self._feedback = self._feedback, None
+            return result
+
+    def cancel(self):
+        return self._port.cancel_operation(self)
+
+
+class _CommandPort(_Port):
+    """Action/service clients share the framework lane and binding lifetime.
+
+    Plugin calls enqueue bounded work. Only flush_one and native callbacks on the
+    existing lane interact with ROS futures; no plugin callback runs on that lane.
+    """
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.operations = {}
+        self.server_ready = None
+
+    def status(self):
+        result = super().status()
+        with self.lock:
+            result.update(server_ready=self.server_ready,
+                pending_commands=sum(op.state not in _COMMAND_TERMINAL for op in self.operations.values()),
+                unresolved_commands=sum(op.state == 'unknown' for op in self.operations.values()))
+        return result
+
+    def new_message(self):
+        with self.lock:
+            if self.native is None or self.closed:
+                raise RosUnavailableError(self.reason or self.state)
+            return (self.message_type.Goal if self.declaration['direction'] == 'action'
+                    else self.message_type.Request)()
+
+    def _valid(self, op):
+        return (not self.closed and self.native is not None and
+                self.generation == op.generation and self.binding_generation == op.binding_generation and
+                op.state not in _COMMAND_TERMINAL)
+
+    def _finish(self, op, state, reason=None):
+        op.state, op.reason = state, reason
+        op._goal_handle = None
+        # An ambiguous write blocks further commands on this binding. Clearing a
+        # runtime gate is not permission to retry a command of unknown outcome.
+        if state != 'unknown':
+            self.operations.pop(op.operation_id, None)
+
+    def discard_queue(self):
+        with self.lock:
+            for item in self.queue:
+                op = item.message[0]
+                if op.state == 'queued':
+                    self._finish(op, 'expired', 'queue_discarded_before_submission')
+            super().discard_queue()
+
+    def unavailable(self, reason='waiting_environment'):
+        with self.lock:
+            for op in list(self.operations.values()):
+                if op.state not in _COMMAND_TERMINAL:
+                    self._finish(op, 'expired' if op.state == 'queued' else 'unknown',
+                                 'binding_revoked_before_submission' if op.state == 'queued' else 'binding_revoked')
+                    if op.cancel_state in ('queued', 'requested'):
+                        op.cancel_state = 'unknown'
+            self.operations.clear()
+            self.server_ready = None
+            super().unavailable(reason)
+
+    def submit(self, request):
+        with self.lock:
+            op = RosCommandOperation(self)
+            manager = self.facade.environment_manager
+            safety = self.declaration.get('safety_stop', False)
+            token = manager.stop_permission(self.facade) if safety and manager else None
+            if self.closed or self.native is None or not manager or (not manager.accepting and not token):
+                self._finish(op, 'unavailable', 'environment_unavailable')
+                return op
+            if not safety and self.declaration['requires_runtime_running'] and not manager.runtime_running():
+                self.stats['rejected'] += 1
+                self._finish(op, 'rejected', 'runtime_inactive')
+                return op
+            cls = self.message_type.Goal if self.declaration['direction'] == 'action' else self.message_type.Request
+            if not isinstance(request, cls):
+                self.stats['rejected'] += 1
+                self._finish(op, 'rejected', 'invalid_type')
+                return op
+            if any(previous.state == 'unknown' for previous in self.operations.values()):
+                self.stats['rejected'] += 1
+                self._finish(op, 'rejected', 'previous_command_outcome_unknown')
+                return op
+            if len(self.operations) >= self.declaration['queue']['capacity']:
+                self.stats['rejected'] += 1
+                self._finish(op, 'rejected', 'command_capacity_reached')
+                return op
+            size = message_size(request, self.declaration['queue']['max_message_bytes'])
+            if size > self.declaration['queue']['max_message_bytes']:
+                self.stats['rejected'] += 1
+                self.stats['oversized'] += 1
+                self._finish(op, 'rejected', 'rejected_size')
+                return op
+            # The caller may reuse its message after return; the queued command is
+            # an owned snapshot and cannot silently change before transmission.
+            owned = copy.deepcopy(request)
+            op._stop_token = token
+            if not self._enqueue(RosReceivedMessage((op, owned), time.monotonic_ns(),
+                    self.generation, self.binding_generation, size, token)):
+                self._finish(op, 'rejected', 'rejected_full')
+                self.stats['rejected'] += 1
+                return op
+            self.operations[op.operation_id] = op
+            self.stats['tx_queued'] += 1
+            return op
+
+    def cancel_operation(self, op):
+        with self.lock:
+            if self.declaration['direction'] != 'action':
+                return RosPublishResult('unsupported', 'service requests cannot be recalled')
+            if not self._valid(op):
+                return RosPublishResult('unavailable', op.reason or op.state)
+            manager = self.facade.environment_manager
+            token = manager.stop_permission(self.facade) if manager else None
+            if op._cancel_requested:
+                # An already queued cancellation may enter the quiesce hook
+                # before its ACK arrives. Transfer the current stop permission
+                # without issuing a second native cancellation.
+                if op.cancel_state == 'queued' and token:
+                    op._cancel_token = token
+                return RosPublishResult('queued', 'cancel already requested')
+            if op.state == 'queued':
+                self._finish(op, 'canceled', 'canceled_before_submission')
+                op.accepted = False
+                op.cancel_state = 'accepted'
+                # Remove the unsent goal immediately, preserving other requests.
+                retained = [item for item in self.queue if item.message[0] is not op]
+                self.queue.clear()
+                self.queue.extend(retained)
+                self.queue_bytes = sum(item.size_bytes for item in retained)
+                return RosPublishResult('queued', 'goal removed before submission')
+            if not manager or (not manager.accepting and not token):
+                return RosPublishResult('unavailable', 'environment_unavailable')
+            op._cancel_requested = True
+            op._cancel_token = token
+            op.cancel_state = 'queued'
+            return RosPublishResult('queued')
+
+    def _authorized(self, token, safety=False):
+        manager = self.facade.environment_manager
+        if not manager:
+            return False
+        if token:
+            return manager.stop_token_valid(token, self.facade.owner_id)
+        if not manager.accepting:
+            return False
+        return safety or not self.declaration['requires_runtime_running'] or manager.runtime_running()
+
+    def flush_one(self):
+        # Called on the same framework lane as subscriptions/publishers.
+        with self.lock:
+            if self.closed or self.native is None:
+                self.discard_queue()
+                return
+            now = time.monotonic()
+            for op in list(self.operations.values()):
+                if not self._valid(op):
+                    continue
+                if op._submitted_at is not None and now - op._submitted_at >= self.declaration['response_timeout_sec']:
+                    self._finish(op, 'unknown', 'response_timeout')
+                    if op.cancel_state in ('queued', 'requested'):
+                        op.cancel_state = 'unknown'
+                    continue
+                if op._cancel_requested and op.cancel_state == 'queued' and op._goal_handle is not None:
+                    if not self._authorized(op._cancel_token, safety=True):
+                        op.cancel_state = 'rejected'
+                        op.reason = 'cancel_permission_expired'
+                        continue
+                    try:
+                        future = op._goal_handle.cancel_goal_async()
+                        op.cancel_state = 'requested'
+                        future.add_done_callback(lambda f, o=op: self._cancel_done(o, f))
+                    except Exception as exc:
+                        op.cancel_state = 'unknown'
+                        op.reason = 'cancel_send_failed: ' + str(exc)
+                        self.stats['error_count'] += 1
+            if not self.queue:
+                return
+            item = self._pop()
+            op, request = item.message
+            if not self._valid(op):
+                return
+            if any(previous.state == 'unknown' for previous in self.operations.values()):
+                self._finish(op, 'rejected', 'previous_command_outcome_unknown')
+                self.stats['rejected'] += 1
+                return
+            if self.expired(item):
+                self._finish(op, 'expired', 'queue_age_exceeded')
+                self.stats['expired'] += 1
+                return
+            if not self._authorized(op._stop_token, safety=self.declaration.get('safety_stop', False)):
+                self._finish(op, 'rejected', 'runtime_or_environment_inactive')
+                self.stats['rejected'] += 1
+                return
+            self.in_flight += 1
+            try:
+                ready = self.native.server_is_ready() if self.declaration['direction'] == 'action' else self.native.service_is_ready()
+                self.server_ready = bool(ready)
+                if not ready:
+                    self._finish(op, 'unavailable', 'server_not_ready')
+                    return
+                op.state = 'submitted'
+                op._submitted_at = now
+                if self.declaration['direction'] == 'action':
+                    from .ros2.interfaces import goal_uuid_message
+                    future = self.native.send_goal_async(request,
+                        goal_uuid=goal_uuid_message(op.goal_id),
+                        feedback_callback=lambda msg, o=op: self._receive_feedback(o, msg))
+                    future.add_done_callback(lambda f, o=op: self._goal_done(o, f))
+                else:
+                    future = self.native.call_async(request)
+                    future.add_done_callback(lambda f, o=op: self._service_done(o, f))
+                self.stats['tx_published'] += 1
+                self.last_message_at = time.time()
+            except Exception as exc:
+                self.stats['error_count'] += 1
+                self._finish(op, 'unknown', 'send_failed: ' + str(exc))
+            finally:
+                self.in_flight -= 1
+
+    def _goal_done(self, op, future):
+        with self.lock:
+            if not self._valid(op):
+                return
+            try:
+                handle = future.result()
+                if bytes(handle.goal_id.uuid).hex() != op.goal_id:
+                    self._finish(op, 'unknown', 'goal_ack_identity_mismatch')
+                    return
+                op.accepted = bool(handle.accepted)
+                if not handle.accepted:
+                    self._finish(op, 'rejected', 'goal_rejected_by_server')
+                    return
+                op._goal_handle = handle
+                op.state = 'accepted'
+                handle.get_result_async().add_done_callback(lambda f: self._result_done(op, f))
+            except Exception as exc:
+                self._finish(op, 'unknown', 'goal_ack_failed: ' + str(exc))
+
+    def _receive_feedback(self, op, packet):
+        with self.lock:
+            if not self._valid(op):
+                return
+            value = packet.feedback
+            if message_size(value, self.declaration['queue']['max_message_bytes']) > self.declaration['queue']['max_message_bytes']:
+                self.stats['oversized'] += 1
+                return
+            op._feedback = value
+            op.feedback_count += 1
+            op.last_feedback_monotonic_ns = time.monotonic_ns()
+
+    def _result_done(self, op, future):
+        with self.lock:
+            if not self._valid(op):
+                return
+            try:
+                response = future.result()
+                op.result_status = int(response.status)
+                op._result = response.result
+                state = {4: 'succeeded', 5: 'canceled', 6: 'aborted'}.get(op.result_status, 'unknown')
+                self._finish(op, state, None if state != 'unknown' else 'unexpected_result_status')
+            except Exception as exc:
+                self._finish(op, 'unknown', 'result_failed: ' + str(exc))
+
+    def _cancel_done(self, op, future):
+        with self.lock:
+            if not self._valid(op):
+                return
+            try:
+                response = future.result()
+                # Cancel acceptance is not a terminal result or physical stop.
+                matches = any(bytes(item.goal_id.uuid).hex() == op.goal_id for item in response.goals_canceling)
+                op.cancel_state = 'accepted' if response.return_code == 0 and matches else 'rejected'
+            except Exception as exc:
+                op.cancel_state = 'unknown'
+                op.reason = 'cancel_response_failed: ' + str(exc)
+
+    def _service_done(self, op, future):
+        with self.lock:
+            if not self._valid(op):
+                return
+            try:
+                op._result = future.result()
+                self._finish(op, 'succeeded')
+            except Exception as exc:
+                self._finish(op, 'unknown', 'service_response_failed: ' + str(exc))
+
+
+class RosActionClientHandle:
+    def __init__(self, port): self._port = port
+    def new_goal(self): return self._port.new_message()
+    def send_goal(self, goal): return self._port.submit(goal)
+    def status(self): return self._port.status()
+    def close(self): self._port.close()
+
+
+class RosServiceClientHandle:
+    def __init__(self, port): self._port = port
+    def new_request(self): return self._port.new_message()
+    def call(self, request): return self._port.submit(request)
+    def status(self): return self._port.status()
+    def close(self): self._port.close()
+
+
 class PluginRosFacade:
     def __init__(self, *, plugin_id, topic_bus=None, environment_manager=None, ports=None, bindings=None):
         self.plugin_id = plugin_id
@@ -447,14 +801,18 @@ class PluginRosFacade:
                 if port["direction"] != direction: raise RosBindingError(f"{port_id}: incorrect direction")
                 existing = self._handles.get(port_id)
                 if existing: return existing
-                endpoint = _Port(self, port, self.bindings_config[port_id])
-                handle = RosSubscriptionHandle(endpoint) if direction == "subscribe" else RosPublisherHandle(endpoint)
+                port_class = _CommandPort if direction in ('action', 'service') else _Port
+                endpoint = port_class(self, port, self.bindings_config[port_id])
+                handle = {'subscribe': RosSubscriptionHandle, 'publish': RosPublisherHandle,
+                          'action': RosActionClientHandle, 'service': RosServiceClientHandle}[direction](endpoint)
                 self._handles[port_id] = handle
             if manager: manager.attach_port(endpoint)
             return handle
 
     def subscribe(self, port_id): return self._handle(port_id, "subscribe")
     def publisher(self, port_id): return self._handle(port_id, "publish")
+    def action_client(self, port_id): return self._handle(port_id, "action")
+    def service_client(self, port_id): return self._handle(port_id, "service")
     def ports(self):
         with self._lock: return [h._port for h in self._handles.values()]
     def status(self): return {"owner_id": self.owner_id, "closed": self.closed, "endpoints": [p.status() for p in self.ports()]}

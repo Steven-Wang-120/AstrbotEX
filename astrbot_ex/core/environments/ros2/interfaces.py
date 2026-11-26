@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ..contracts import TYPE_NAME
+from ..contracts import TYPE_NAME, INTERFACE_TYPE
 from pathlib import Path
 from xml.etree import ElementTree
 
@@ -12,14 +12,30 @@ def load_message(message_type):
     check_for_type_support(cls)
     return cls
 
+def load_interface(interface_type):
+    """Resolve only the declared interface kind; no ROS import at module load."""
+    if not isinstance(interface_type, str) or not INTERFACE_TYPE.fullmatch(interface_type):
+        raise ValueError("interface type must be package/msg|action|srv/Type")
+    from rosidl_runtime_py import utilities
+    from rclpy.type_support import check_for_type_support
+    kind = interface_type.split('/')[1]
+    cls = getattr(utilities, {'msg': 'get_message', 'action': 'get_action', 'srv': 'get_service'}[kind])(interface_type)
+    check_for_type_support(cls)
+    return cls
+
+def goal_uuid_message(hex_value):
+    from unique_identifier_msgs.msg import UUID
+    return UUID(uuid=list(bytes.fromhex(hex_value)))
+
 def check_message(message_type):
-    if not isinstance(message_type, str) or not TYPE_NAME.fullmatch(message_type):
-        raise ValueError("message_type must be package/msg/Type")
+    if not isinstance(message_type, str) or not INTERFACE_TYPE.fullmatch(message_type):
+        raise ValueError("message_type must be package/msg|action|srv/Type")
     result = {"message_type": message_type, "package": message_type.split("/")[0], "available": False,
               "python_import": False, "typesupport": False, "restart_required": False}
     try:
-        from rosidl_runtime_py.utilities import get_message
-        cls = get_message(message_type)
+        from rosidl_runtime_py import utilities
+        kind = message_type.split('/')[1]
+        cls = getattr(utilities, {'msg': 'get_message', 'action': 'get_action', 'srv': 'get_service'}[kind])(message_type)
         result["python_import"] = True
         from rclpy.type_support import check_for_type_support
         check_for_type_support(cls)

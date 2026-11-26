@@ -4,7 +4,8 @@ The control channel delivers one ordered, immutable batch of natural-language
 segments.  This module validates it, records a durable receipt, and hands it to
 the decision backend input adapter.  It is a receipt ledger, not a second task
 coordinator: there is no retry loop, no suffix auto-send and no execution
-feedback.
+feedback in the receipt. The optional primitive pipeline exposes execution
+separately through ``upper.primitives.get``.
 
 Phases, and what they do *not* prove:
 
@@ -37,13 +38,13 @@ from astrbot_ex.core.decision.instruction_input import (
     DecisionInstructionInput,
     InstructionBatch,
     InstructionInputError,
-    StepSegment,
     measure_bytes,
 )
 
 METHOD_CAPABILITIES = "upper.capabilities.get"
 METHOD_INJECT = "upper.steps.inject"
-METHODS = (METHOD_CAPABILITIES, METHOD_INJECT)
+METHOD_PRIMITIVES = "upper.primitives.get"
+METHODS = (METHOD_CAPABILITIES, METHOD_INJECT, METHOD_PRIMITIVES)
 
 _BATCH_KEYS = frozenset(
     {
@@ -142,8 +143,7 @@ def parse_injection_batch(payload: Any) -> InstructionBatch:
         plan_revision=batch.plan_revision, batch_id=batch.batch_id,
         robot_id=batch.robot_id, route_ref=batch.route_ref, ex_session=batch.ex_session,
         catalog_version=batch.catalog_version, prompt_version=batch.prompt_version,
-        segments=tuple(StepSegment(segment_id=item.segment_id, ordinal=item.ordinal,
-                                   text=item.text) for item in batch.segments),
+        segments=batch.segments,
     )
 
 
@@ -390,6 +390,7 @@ class StepInputIngress:
         adapter: DecisionInstructionInput,
         trusted_context: Callable[[str], TrustedControlContext | None],
         catalog_summary: Callable[[], Mapping[str, Any]] | None = None,
+        primitive_status: Callable[[], Mapping[str, Any]] | None = None,
         queue_capacity: int = 32,
         request_budget_sec: float = 1.5,
         worker_budget_sec: float = 10.0,
@@ -399,6 +400,7 @@ class StepInputIngress:
         self.adapter = adapter
         self._trusted_context = trusted_context
         self._catalog_summary = catalog_summary
+        self._primitive_status = primitive_status
         self._queue: queue.Queue[InstructionBatch | None] = queue.Queue(
             maxsize=max(1, int(queue_capacity))
         )
@@ -458,6 +460,12 @@ class StepInputIngress:
             return self._capabilities(connection_id), None
         if method == METHOD_INJECT:
             return self._inject(connection_id, payload, binary), None
+        if method == METHOD_PRIMITIVES:
+            trusted = self._safe_trusted(connection_id)
+            if _trust_reason(trusted):
+                return _error_response('session_mismatch', 'control connection unavailable'), None
+            value = dict(self._primitive_status() or {}) if callable(self._primitive_status) else {}
+            return {'ok': True, 'ex_session': trusted.ex_session, 'primitives': value}, None
         return _error_response("unsupported_method", f"未知方法: {method}"), None
 
     def _capabilities(self, connection_id: str) -> dict[str, Any]:
@@ -494,6 +502,8 @@ class StepInputIngress:
             "max_bytes": MAX_PAYLOAD_BYTES,
             "catalog_version": summary.get("catalog_version"),
             "actions": list(summary.get("actions") or []),
+            "primitive_catalog": summary.get('primitive_catalog'),
+            "primitive_tools": summary.get('primitive_tools', []),
         }
 
     def _safe_trusted(self, connection_id: str) -> TrustedControlContext | None:

@@ -52,6 +52,23 @@ class LedgerTests(unittest.TestCase):
             self.ledger.close()
             self.ledger = None
 
+    def test_legacy_delete_mode_migrates_to_wal_without_losing_admission(self):
+        self.admit(command("reserved"), ["arm"], BINDING).result()
+        self._close()
+        conn = sqlite3.connect(self.path)
+        try:
+            self.assertEqual(conn.execute("PRAGMA journal_mode=DELETE").fetchone(), ("delete",))
+        finally:
+            conn.close()
+        self.ledger = ActionLedger(self.path)
+        modes = self.ledger._submit(lambda db: (
+            db.execute("PRAGMA journal_mode").fetchone()[0],
+            db.execute("PRAGMA synchronous").fetchone()[0],
+        )).result()
+        self.assertEqual(modes, ("wal", 2))
+        self.assertFalse(self.admit(command("reserved"), ["arm"], BINDING).result().admitted_new)
+        self.assertEqual(self.ledger.get("reserved").result().held_resources, ("arm",))
+
     def test_duplicate_ten_retries_and_changed_payload_or_reservation_conflict(self) -> None:
         first = self.admit(command("one"), ["arm"], BINDING).result()
         self.assertTrue(first.admitted_new)
@@ -301,6 +318,21 @@ class LedgerTests(unittest.TestCase):
         self.assertEqual(len(page), 17)
         self.assertGreater(self.ledger.list_commands(after_id=page[-1].command_id, limit=17).result()[0].command_id,
                            page[-1].command_id)
+
+    def test_sqlite_busy_health_reports_real_busy_result_code(self) -> None:
+        self.ledger._submit(lambda db: db.execute("PRAGMA busy_timeout=0").fetchall()).result(2)
+        other = sqlite3.connect(self.path)
+        try:
+            other.execute("BEGIN IMMEDIATE")
+            with self.assertRaises(LedgerFault):
+                self.admit(command("contended"), ["arm"], BINDING).result(2)
+        finally:
+            other.close()
+        self.assertEqual(self.ledger.health.sqlite_busy_errors, 1)
+        self.assertTrue(self.ledger.health.admission_blocked)
+        with self.assertRaises(LedgerFault):
+            self.ledger.close()
+        self.ledger = None
 
     def test_real_sqlite_write_failure_blocks_admission(self) -> None:
         # SQLite's query_only switch gives a deterministic storage write error.

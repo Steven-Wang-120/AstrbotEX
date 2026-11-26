@@ -80,15 +80,20 @@ class PluginActor:
         action_max_bytes: int = 1_048_576,
         cancel_max_count: int = 16,
         cancel_max_bytes: int = 65_536,
-        action_callback_budget_ms: float = 20.0,
+        action_callback_budget_ms: float | None = None,
     ) -> None:
         action_max_count = _require_positive_int(action_max_count, "action_max_count", _MAX_ACTION_QUEUE_COUNT)
         cancel_max_count = _require_positive_int(cancel_max_count, "cancel_max_count", _MAX_ACTION_QUEUE_COUNT)
         action_max_bytes = _require_positive_int(action_max_bytes, "action_max_bytes", _MAX_ACTION_QUEUE_BYTES)
         cancel_max_bytes = _require_positive_int(cancel_max_bytes, "cancel_max_bytes", _MAX_ACTION_QUEUE_BYTES)
-        action_callback_budget_ms = _require_finite_positive_number(
-            action_callback_budget_ms, "action_callback_budget_ms", _MAX_ACTION_CALLBACK_BUDGET_MS
-        )
+        if action_callback_budget_ms is not None:
+            _require_finite_positive_number(action_callback_budget_ms, "action_callback_budget_ms",
+                                            _MAX_ACTION_CALLBACK_BUDGET_MS)
+        interval = getattr(plugin, "worker_interval_s", 0)
+        if type(interval) not in (int, float) or not math.isfinite(interval) or not 0 <= interval <= 60:
+            raise ValueError("worker_interval_s must be between 0 and 60 seconds")
+        self._worker_interval_s = interval
+        self._next_worker_at = 0.0
         self.plugin = plugin
         self.call_timeout = call_timeout
         plugin_id = getattr(plugin, "id", plugin.__class__.__name__)
@@ -312,6 +317,8 @@ class PluginActor:
                 elif not self._closing and self._worker_step_enabled():
                     try:
                         self._invoke("on_worker_step", (), {})
+                        if self._worker_interval_s:
+                            self._next_worker_at = time.monotonic() + self._worker_interval_s
                     except Exception as exc:
                         self.last_error = str(exc)
                         self._runtime_active = False
@@ -343,8 +350,14 @@ class PluginActor:
                     return self._mailbox.get_nowait()
                 except queue.Empty:
                     if self._worker_step_enabled():
-                        return None
-                    self._action_condition.wait(timeout=0.1)
+                        delay = self._next_worker_at - time.monotonic() if self._worker_interval_s else 0
+                        if delay <= 0:
+                            return None
+                        # Mailbox, action, cancel and lifecycle notifications wake
+                        # this condition immediately and retain their priority.
+                        self._action_condition.wait(timeout=delay)
+                    else:
+                        self._action_condition.wait(timeout=0.1)
 
     def _execute_action(self, invocation: _ActionInvocation) -> None:
         future = invocation.future
@@ -386,10 +399,9 @@ class PluginActor:
             self._last_action_duration_ms = duration
             if fault is not None:
                 self._last_action_fault = fault
-            if duration > self._action_callback_budget_ms:
+            # Optional latency telemetry does not change the action result.
+            if self._action_callback_budget_ms is not None and duration > self._action_callback_budget_ms:
                 self._action_budget_exceeded += 1
-                if fault is None:
-                    self._last_action_fault = f"action callback exceeded {self._action_callback_budget_ms:g}ms: {duration:.2f}ms"
 
     def _execute(self, invocation: _Invocation) -> None:
         if invocation.future is not None and not invocation.future.set_running_or_notify_cancel():

@@ -256,10 +256,12 @@ class EnvironmentManager:
                     raise EnvironmentBusyError('plugin refused environment deactivation')
             if self.action_service is not None and not self.action_service.await_stop_proof(reason):
                 raise EnvironmentBusyError(self.action_service.status()['error'] or 'action stop not proven')
-            while any(port.status()['queue_depth'] or port.status()['in_flight'] for port in ports
-                      if port.declaration['direction'] == 'publish'):
+            while any((row['queue_depth'] or row['in_flight'] or
+                       row.get('pending_commands', 0) or row.get('unresolved_commands', 0))
+                      for port in ports if port.declaration['direction'] in ('publish', 'action', 'service')
+                      for row in [port.status()]):
                 if time.monotonic() >= self._stop_deadline:
-                    raise EnvironmentBusyError('quiesce deadline: stop publication did not finish')
+                    raise EnvironmentBusyError('quiesce deadline: stop publication or command outcome unresolved')
                 time.sleep(0.005)
             if self._stop_errors:
                 raise EnvironmentBusyError('; '.join(self._stop_errors))
@@ -420,6 +422,7 @@ class EnvironmentManager:
         snapshot = self.snapshot()
         return {"received": [r for r in rows if r["direction"] == "subscribe"],
                 "sent": [r for r in rows if r["direction"] == "publish"],
+                "commands": [r for r in rows if r["direction"] in ('action', 'service')],
                 "refreshed_at": time.time(), "environment": snapshot, "generation": snapshot["generation"]}
 
     def configure_ros2(self, raw, *, expected_revision=None, expected_session=None):
@@ -455,8 +458,8 @@ class EnvironmentManager:
         return {"packages": [], "checks": [], "state": "waiting_environment", "restart_required_for_new_packages": True}
 
     def check_interface(self, message_type):
-        from .contracts import TYPE_NAME
-        if not isinstance(message_type, str) or not TYPE_NAME.fullmatch(message_type): raise ValueError("invalid message_type")
+        from .contracts import INTERFACE_TYPE
+        if not isinstance(message_type, str) or not INTERFACE_TYPE.fullmatch(message_type): raise ValueError("invalid message_type")
         if self._snapshot.active_mode != "ros2":
             return {"message_type": message_type, "available": False, "code": "waiting_environment", "message": "请先启用 ROS 2 环境"}
         return self._adapter.check_interface(message_type)

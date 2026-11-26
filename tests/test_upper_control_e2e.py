@@ -55,6 +55,7 @@ try:  # B09 is a separate task; its absence is a dependency gap, not a failure.
     from astrbot_ex.core.step_input import (
         METHOD_CAPABILITIES,
         METHOD_INJECT,
+        METHOD_PRIMITIVES,
         StepInputIngress,
         StepInputLog,
         build_trusted_context,
@@ -250,8 +251,7 @@ class UpperControlCrossEndTests(unittest.TestCase):
             reply = self.replies.pop(0) if self.replies else instruction_ack(self.choice)
             return jev.HTTPReply(200, reply)
 
-        # The production backend pins one model; a different value is refused at
-        # construction, which is exactly the guarantee we want to keep.
+        # Exercise the default alias with a concrete model ID in the reply.
         config = jev.JevConfig(mode="shadow", min_interval_ms=0)
         backend = jev.JevBackend(
             config,
@@ -340,7 +340,7 @@ class UpperControlCrossEndTests(unittest.TestCase):
         self.assertTrue(body["ok"])
         self.assertEqual(body["schema"], SCHEMA)
         self.assertEqual(body["visibility"], "decision_only")
-        self.assertEqual(body["methods"], [METHOD_CAPABILITIES, METHOD_INJECT])
+        self.assertEqual(body["methods"], [METHOD_CAPABILITIES, METHOD_INJECT, METHOD_PRIMITIVES])
         self.assertTrue(body["input_ready"], body.get("input_ready_reason"))
         self.assertEqual(body["ex_session"], SESSION)
         self.assertEqual(body["backend"], "JevBackend")
@@ -349,6 +349,27 @@ class UpperControlCrossEndTests(unittest.TestCase):
         self.assertEqual(body["limits"]["max_segment_chars"], 4096)
 
     # -- the batch really crosses ------------------------------------------
+
+    def test_structured_wire_batch_bypasses_model_and_replays_receipt_only(self):
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        provider = Mock(catalog={"actions": []}, status_fields={})
+        action = {"joint": "arm", "action_id": "arm.move.v1", "params": {"meters": 3}}
+        provider.bind_structured.return_value = {"state": "ready", **action}
+        self.service.set_primitive_owner(SimpleNamespace(create_primitive_provider=lambda *_: provider), None)
+        peer = self.start_control()
+        payload = upper_batch(["Move arm"])
+        payload["segments"][0]["structured_action"] = action
+        first, _ = self.call(peer, METHOD_INJECT, payload)
+        self.assertEqual(first["phase"], "injected")
+        repeat, _ = self.call(peer, METHOD_INJECT, payload)
+        self.assertTrue(repeat["duplicate"])
+        payload["segments"][0]["structured_action"]["params"]["meters"] = 4
+        conflict, _ = self.call(peer, METHOD_INJECT, payload)
+        self.assertEqual(conflict["error_code"], "id_conflict")
+        self.assertEqual(provider.bind_structured.call_count, 1)
+        self.assertEqual(self.captured, [])
+        self.assertEqual(self.service.primitives.status()["phase"], "bound")
 
     def test_three_segments_reach_the_real_backend_request_in_order(self) -> None:
         peer = self.start_control()
@@ -370,7 +391,7 @@ class UpperControlCrossEndTests(unittest.TestCase):
         # Exactly one request, built by the real backend serializer.
         self.assertEqual(len(self.captured), 1)
         request = self.captured_request()
-        self.assertEqual(request["model"], jev.PINNED_MODEL)
+        self.assertEqual(request["model"], jev.DEFAULT_MODEL)
         self.assertEqual(set(request), {"model", "state", "questions"})
 
         delivered = request["state"]["instruction_input"]
@@ -408,6 +429,20 @@ class UpperControlCrossEndTests(unittest.TestCase):
         self.assertTrue(body["ok"], body.get("error"))
         delivered = self.captured_request()["state"]["instruction_input"]
         self.assertEqual(delivered["segments"], payload["segments"])
+
+    def test_single_suffix_segment_keeps_its_plan_ordinal(self) -> None:
+        peer = self.start_control()
+        payload = upper_batch(["继续原计划中的第三步。"])
+        payload["segments"][0].update(segment_id="s2", ordinal=2)
+
+        body, _ = self.call(peer, METHOD_INJECT, payload)
+
+        self.assertTrue(body["ok"], body.get("error"))
+        self.assertEqual(body["phase"], "injected")
+        self.assertEqual(len(self.captured), 1)
+        self.assertEqual(self.captured_request()["state"]["instruction_input"],
+                         parse_injection_batch(payload).to_wire())
+        self.assert_no_execution()
 
     # -- idempotence and conflict ------------------------------------------
 
@@ -627,7 +662,7 @@ class BackendTransportCaptureTests(unittest.TestCase):
         self.assertTrue(outcome["accepted"], outcome)
         self.assertEqual(len(self.bodies), 1, "the capture saw no request")
         request = json.loads(self.bodies[0])
-        self.assertEqual(request["model"], jev.PINNED_MODEL)
+        self.assertEqual(request["model"], jev.DEFAULT_MODEL)
         self.assertEqual(request["state"]["instruction_input"], batch.to_wire())
         self.assertEqual(
             [segment["text"] for segment in request["state"]["instruction_input"]["segments"]],

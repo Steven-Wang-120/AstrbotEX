@@ -800,6 +800,12 @@
                   <button type="button" class="decision-provider" id="decisionProviderlaya" aria-haspopup="dialog" aria-controls="decisionModal" aria-pressed="false">
                     <strong>Laya</strong><span>外部服务或 EX 自启</span><small id="decisionProviderStatelaya">点击配置</small>
                   </button>
+                  <button type="button" class="decision-provider" id="decisionProviderstructured" aria-haspopup="dialog" aria-controls="decisionModal" aria-pressed="false">
+                    <strong>上层结构化动作</strong><span>直接执行已校验的动作参数</span><small id="decisionProviderStatestructured">点击配置</small>
+                  </button>
+                  <button type="button" class="decision-provider" id="decisionProvideropenai_json" aria-haspopup="dialog" aria-controls="decisionModal" aria-pressed="false">
+                    <strong>结构化模型</strong><span>云端或内网模型，一次请求填参</span><small id="decisionProviderStateopenai_json">点击配置</small>
+                  </button>
                 </div>
                 <p class="decision-muted" id="decisionConnection">连接暂不可确认</p>
               </section>
@@ -819,6 +825,11 @@
                 <p id="decisionTaskGoal" class="decision-muted"></p>
                 <p id="decisionTaskProgress" class="decision-muted"></p>
               </section>
+              <section class="panel decision-wide" id="decision-task-panel">
+                <div class="panel-head"><span class="panel-num">08.D</span><h2>任务选择模型 Jev</h2></div>
+                <p class="decision-muted">任务入口追踪。这里显示模型选择与观测绑定；当前任务状态见上方。</p>
+                <div id="decisionTaskSelection"><p class="decision-muted">未接入</p></div>
+              </section>
             </div>
             <dialog id="decisionModal" class="decision-modal" aria-labelledby="decisionModalTitle" aria-describedby="decisionServiceHint">
               <div class="decision-modal-head"><h2 id="decisionModalTitle">供应商配置</h2>
@@ -827,6 +838,15 @@
               <form id="decisionConfigForm">
                 <label class="connection-field"><span>服务地址</span><input id="decisionAddress" class="config-input" type="url" required autocomplete="off" spellcheck="false" /></label>
                 <label class="connection-field"><span>支持的模型</span><select id="decisionModel" class="config-input" required></select></label>
+                <div id="decisionJsonFields" hidden>
+                  <button type="button" class="btn btn-ghost btn-sm" id="decisionSiliconFlow">使用硅基流动 Qwen3-VL-8B</button>
+                  <label class="connection-field"><span>模型标识</span><input id="decisionJsonModel" class="config-input" autocomplete="off" spellcheck="false" /></label>
+                  <label class="connection-field"><span>输出格式</span><select id="decisionJsonFormat" class="config-input">
+                    <option value="json_schema">JSON Schema</option><option value="json_object">JSON Object</option></select></label>
+                  <label class="connection-field"><span>认证</span><select id="decisionJsonAuth" class="config-input">
+                    <option value="none">无需认证</option><option value="bearer">Bearer 密钥</option></select></label>
+                  <label class="decision-clear"><input id="decisionJsonImage" type="checkbox" /> 每条指令附实时相机原图</label>
+                </div>
                 <div id="decisionLayaFields" hidden>
                   <label class="connection-field"><span>服务方式</span><select id="decisionLayaMode" class="config-input">
                     <option value="external">连接已启动服务</option><option value="owned">由 EX 自启</option></select></label>
@@ -845,7 +865,7 @@
                 <label class="decision-clear"><input id="decisionSecretClear" type="checkbox" /> 明确清除已保存密钥</label>
                 <p class="decision-draft" id="decisionConfigNote"></p>
                 <button type="button" class="btn btn-ghost btn-sm" id="decisionReviewConfig" hidden>核对当前配置，保留修改</button>
-                <p class="decision-muted">测试当前草稿会调用一次最小模型推理，可能产生费用或加载开销；不会保存配置或启动任务。</p>
+                <p class="decision-muted" id="decisionProbeHint"></p>
                 <p id="decisionTestResult" class="decision-test-result" role="status" aria-live="polite"></p>
                 <div class="decision-buttons">
                   <button type="button" class="btn btn-ghost" id="decisionTest">测试当前草稿</button>

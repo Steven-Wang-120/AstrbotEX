@@ -55,10 +55,14 @@ class Deployment:
             raise OwnedLayaError("invalid_deployment")
         if self.device not in {"cuda", "cpu"} or self.auth_mode not in {"none", "bearer"}:
             raise OwnedLayaError("invalid_deployment")
-        for value in (self.startup_timeout_s, self.terminate_timeout_s, self.kill_timeout_s):
+        # Cold checkpoint loading can wait on storage. Its trusted deployment
+        # budget is separate from hot inference and process-stop budgets.
+        if type(self.startup_timeout_s) not in (int, float) or not 0 < self.startup_timeout_s <= 3600:
+            raise OwnedLayaError("invalid_deployment")
+        for value in (self.terminate_timeout_s, self.kill_timeout_s):
             if type(value) not in (int, float) or not 0 < value <= 300:
                 raise OwnedLayaError("invalid_deployment")
-        if type(self.warmup_deadline_ms) is not int or not 1 <= self.warmup_deadline_ms <= 60000:
+        if type(self.warmup_deadline_ms) is not int or not 1 <= self.warmup_deadline_ms <= 3600000:
             raise OwnedLayaError("invalid_deployment")
 
 
@@ -75,6 +79,19 @@ class Deployment:
             raise OwnedLayaError("model_cache_missing")
         if not os.access(self.cache, os.R_OK | os.W_OK):
             raise OwnedLayaError("model_cache_unavailable")
+
+
+class _ColdWarmupBackend(LayaBackend):
+    """Trusted startup-only wait; public/hot LayaConfig limits stay unchanged."""
+
+    def __init__(self, config, budget_ms, *, secret_provider=None):
+        super().__init__(config, secret_provider=secret_provider)
+        self._cold_budget_ms = budget_ms
+
+    def _begin(self, started, *, probe=False, inference_probe=False):
+        call = super()._begin(started, probe=probe, inference_probe=inference_probe)
+        call.deadline = started + self._cold_budget_ms / 1000
+        return call
 
 
 def fixed_warmup_snapshot():
@@ -231,7 +248,9 @@ class OwnedLayaService:
                 raise OwnedLayaError("storage_write_uncertain") from None
             raise OwnedLayaError("service_state_write_failed") from None
 
-    def _probe_backend(self, config):
+    def _probe_backend(self, config, *, cold_budget_ms=None):
+        if self._probe_factory is LayaBackend and cold_budget_ms is not None and cold_budget_ms > 60000:
+            return _ColdWarmupBackend(config, cold_budget_ms, secret_provider=self._secret_provider)
         if config.auth_mode == "bearer":
             return self._probe_factory(config, secret_provider=self._secret_provider)
         return self._probe_factory(config)
@@ -407,7 +426,10 @@ class OwnedLayaService:
                 probe_backend.close()
                 probe_backend = None
                 if warmup:
-                    cold = self._probe_backend(replace(config, deadline_ms=self.deployment.warmup_deadline_ms))
+                    cold = self._probe_backend(
+                        replace(config, deadline_ms=min(60000, self.deployment.warmup_deadline_ms)),
+                        cold_budget_ms=self.deployment.warmup_deadline_ms,
+                    )
                     probe_backend = cold
                     self._set_startup_backend(cold, intent)
                     self._check_intent(intent, cancel, is_current)

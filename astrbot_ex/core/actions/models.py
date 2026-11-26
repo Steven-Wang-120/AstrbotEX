@@ -129,6 +129,11 @@ def _string_json_size(value: str, limit: int | None = None) -> int | None:
     size = 2
     if limit is not None and size > limit:
         return -1
+    # Most wire keys and identifiers are short, printable ASCII. Keep the
+    # incremental path for long inputs so oversized strings still exit early.
+    if len(value) <= 256 and value.isascii() and value.isprintable():
+        size += len(value) + value.count('"') + value.count(chr(92))
+        return -1 if limit is not None and size > limit else size
     for char in value:
         codepoint = ord(char)
         if codepoint < 0x20:
@@ -1431,6 +1436,23 @@ class ActionCommand:
         }
 
 
+def validate_stop_scope(value: Any, path: str = "scope") -> None:
+    """Validate the stated observation bounds without inventing thresholds."""
+    scope = require_object(value, path)
+    for key in scope:
+        if key not in {"load", "window_ms", "range_raw"}:
+            reject(ErrorCode.UNKNOWN_FIELD, f"{path}.{key}", "unknown stop scope field")
+    for key in ("load", "window_ms", "range_raw"):
+        if key not in scope:
+            reject(ErrorCode.MISSING_FIELD, f"{path}.{key}", "is required")
+    if type(scope["load"]) is not str or scope["load"] not in {"unloaded", "loaded"}:
+        reject(ErrorCode.ENUM_VIOLATION, f"{path}.load", "must be unloaded or loaded")
+    if type(scope["window_ms"]) is not int or scope["window_ms"] <= 0:
+        reject(ErrorCode.INVALID_TYPE, f"{path}.window_ms", "must be a positive integer")
+    if type(scope["range_raw"]) is not int or scope["range_raw"] < 0:
+        reject(ErrorCode.INVALID_TYPE, f"{path}.range_raw", "must be a nonnegative integer")
+
+
 def validate_stop_evidence(details: dict[str, Any], path: str = "details") -> None:
     """A canceled report needs explicit positive plugin stop evidence."""
     if "stop_evidence" not in details:
@@ -1442,10 +1464,14 @@ def validate_stop_evidence(details: dict[str, Any], path: str = "details") -> No
     if not stopped:
         reject(ErrorCode.ENUM_VIOLATION, f"{path}.stop_evidence.stopped", "must be true")
     for key in evidence:
-        if key not in {"stopped", "source", "reference"}:
+        if key not in {"stopped", "source", "reference", "scope"}:
             reject(ErrorCode.UNKNOWN_FIELD, f"{path}.stop_evidence.{key}", "unknown evidence field")
         if key in {"source", "reference"}:
             require_id(evidence[key], f"{path}.stop_evidence.{key}")
+    if evidence.get("source") == "stop_window" and "scope" not in evidence:
+        reject(ErrorCode.MISSING_FIELD, f"{path}.stop_evidence.scope", "stop_window requires scope")
+    if "scope" in evidence:
+        validate_stop_scope(evidence["scope"], f"{path}.stop_evidence.scope")
 
 
 @dataclass(slots=True)

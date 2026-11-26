@@ -114,11 +114,17 @@ class ProviderConfigTests(unittest.TestCase):
         self.assertEqual(deployment.auth_mode, "bearer")
         deployment.preflight()
 
+    def test_jev_rolling_alias_and_pinned_release(self):
+        for model in ("jev-latest", "jev-1.14.0"):
+            saved = self.store.get()["saved"]
+            saved["jev"]["service_connection"]["model"] = model
+            self.assertEqual(self.store.backend_config("jev", saved).model, model)
+
     def test_invalid_configs_and_mapping_reject_without_write(self):
         changes = [
             lambda x: x["laya"]["service_connection"].update(base_url="http://remote.example.invalid"),
-            lambda x: x["jev"]["service_connection"].update(model="jev-latest"),
-            lambda x: x["jev"]["service_connection"].update(model="jev-1.14.0"),
+            lambda x: x["jev"]["service_connection"].update(model="unsupported-alias"),
+            lambda x: x["jev"]["service_connection"].update(model="jev-1.14"),
             lambda x: x["laya"]["service_connection"].update(model="english"),
             lambda x: x["laya"].update(allow_test_execution=True),
             lambda x: x["jev"].update(allow_test_execution=True),

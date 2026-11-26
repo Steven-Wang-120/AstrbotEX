@@ -22,6 +22,7 @@ from ..serialization import to_jsonable
 from ..contracts import require_id, require_sequence
 from ..actions.ledger import OwnerBinding
 from .backends.registry import create_backend
+from .config import SECRET_KEYS
 from .backends.jev import API_HOST, API_PATH
 from .backends.connection import bearer_headers
 from .config import DecisionConfigStore, ManagementError
@@ -61,6 +62,7 @@ class ManagementSettings:
     operation_timeout_s: float = 15
     max_active_operations: int = 8
     public_origin: str | None = None
+    task_selection_provider: object = None
 
 
 class ManagedLayaBackend:
@@ -144,6 +146,8 @@ class DecisionManagement:
         self._installed_backend_binding = None
         self._projection_sequence = 0
         self._projection_identity = None
+        self.task_selection_provider = self.settings.task_selection_provider
+        self.task_source_instance_id = uuid.uuid4().hex
         self._executor = ThreadPoolExecutor(max_workers=3, thread_name_prefix="decision-management")
         self.history = RequestHistory(notify=self._history_notice, redact=self.store.secrets.redact)
         self.service.configure_management_trace(self.history.queue)
@@ -279,11 +283,11 @@ class DecisionManagement:
     def _public(operation):
         return copy.deepcopy({key: value for key, value in operation.items() if not key.startswith("_")})
 
-    def _probe_binding(self, operation, config, credential):
+    def _probe_binding(self, operation, config, credential, *, probe_result=None):
         saved = self.store.saved
         name = config["backend"]
-        reference = saved.get("secret_ref" if name == "jev" else "laya_secret_ref")
-        saved_key = self.store.secrets.read(reference) if name != "mock" else ""
+        reference = saved.get(SECRET_KEYS.get(name))
+        saved_key = self.store.secrets.read(reference) if name in SECRET_KEYS else ""
         binding = {"config_matches_saved": config == saved,
                    "session_matches": operation["ex_session"] == self.store.ex_session == self.service.goals.ex_session,
                    "provider_matches_saved": name == saved["backend"],
@@ -291,9 +295,10 @@ class DecisionManagement:
                        (credential or "").encode(), (saved_key or "").encode()),
                    "current": self._current(operation) and not self.store.storage_uncertain and
                               operation.get("_probe_sequence") == self._probe_sequence}
-        result = operation.get("result") or {}
-        binding["current_config_verified"] = (name != "mock" and result.get("ok") is True and
-            result.get("inference_ok") is True and all(binding.values()) and self._provider_fault() is None)
+        result = (operation.get("result") or {}) if probe_result is None else probe_result
+        verified = name == "structured" or (name != "mock" and result.get("inference_ok") is True)
+        binding["current_config_verified"] = (result.get("ok") is True and verified and
+                                              all(binding.values()) and self._provider_fault() is None)
         return binding
 
     def operation(self, operation_id):
@@ -435,6 +440,8 @@ class DecisionManagement:
 
     def _make_backend(self, config, *, probe=False, secret=None):
         name = config["backend"]
+        if name == "structured":
+            return create_backend("structured")
         if name == "mock":
             return create_backend("mock", **config["mock"])
         if probe:
@@ -445,7 +452,7 @@ class DecisionManagement:
                 config = copy.deepcopy(config)
                 config["laya"].update(enabled=False, execution_enabled=False)
         backend_config = self.store.backend_config(name, config)
-        reference = config["secret_ref" if name == "jev" else "laya_secret_ref"]
+        reference = config[SECRET_KEYS[name]]
         credential = self.store.secrets.read(reference) if secret is None else secret
         kwargs = {"config": backend_config, "secret_provider": lambda: credential}
         if name == "laya":
@@ -479,8 +486,8 @@ class DecisionManagement:
                 self.laya.guard(self.laya.generation)
         gate_epoch, revision = context or (operation["_gate_epoch"], operation["framework_config_revision"])
         name = config["backend"]
-        reference = config.get("secret_ref" if name == "jev" else "laya_secret_ref")
-        credential = self.store.secrets.read(reference) if name in {"jev", "laya"} else None
+        reference = config.get(SECRET_KEYS.get(name))
+        credential = self.store.secrets.read(reference) if name in SECRET_KEYS else None
         def factory():
             self._assert_current(operation)
             return self._make_backend(config, secret=credential)
@@ -552,8 +559,8 @@ class DecisionManagement:
     def _effective_config(config, mode):
         config = copy.deepcopy(config)
         if mode == "execute":
-            if config["backend"] == "jev":
-                config["jev"].update(mode="execute", allow_live_http=True)
+            if config["backend"] in {"jev", "openai_json"}:
+                config[config["backend"]].update(mode="execute", allow_live_http=True)
             elif config["backend"] == "laya":
                 config["laya"].update(enabled=True, execution_enabled=True, allow_live_http=True)
         return config
@@ -571,8 +578,8 @@ class DecisionManagement:
                     if self.controller is None:
                         raise ManagementError("runtime_controller_unavailable")
                     name = config["backend"]
-                    if name in {"jev", "laya"}:
-                        reference = config["secret_ref" if name == "jev" else "laya_secret_ref"]
+                    if name in SECRET_KEYS:
+                        reference = config[SECRET_KEYS[name]]
                         try:
                             bearer_headers(config[name]["service_connection"]["auth_mode"],
                                            lambda: self.store.secrets.read(reference))
@@ -739,7 +746,7 @@ class DecisionManagement:
         self._assert_current(operation)
         name = config["backend"]
         probe_config = copy.deepcopy(config)
-        if name != "mock":
+        if name in SECRET_KEYS:
             # Explicit test authorization is temporary and cannot open execution.
             probe_config[name]["allow_live_http"] = True
         backend = self._make_backend(probe_config, probe=True, secret=credential)
@@ -753,12 +760,9 @@ class DecisionManagement:
                     raise ManagementError("operation_superseded")
                 operation["_probe_config"] = copy.deepcopy(config)
                 operation["_probe_credential"] = credential
-                binding = self._probe_binding(operation, config, credential)
-                binding["current_config_verified"] = (name != "mock" and result.get("ok") is True and
-                    result.get("inference_ok") is True and all(v for k, v in binding.items()
-                                                               if k != "current_config_verified"))
+                binding = self._probe_binding(operation, config, credential, probe_result=result)
                 code = result.get("error_code")
-                return {**result, "provider": name, "scope": "fixed_wait_inference" if name != "mock" else "local_constructor",
+                return {**result, "provider": name, "scope": "fixed_wait_inference" if name in SECRET_KEYS else "local_constructor",
                         "error_category": "authentication" if code in {"http_401", "http_403", "missing_secret", "missing_or_invalid_secret"} else
                                           "inference" if code else None,
                         "binding": binding}
@@ -883,8 +887,8 @@ class DecisionManagement:
                 effective not in (saved, self._effective_config(saved, "execute"))):
             return None
         name = saved["backend"]
-        if name in {"jev", "laya"}:
-            reference = saved["secret_ref" if name == "jev" else "laya_secret_ref"]
+        if name in SECRET_KEYS:
+            reference = saved[SECRET_KEYS[name]]
             current_credential = self.store.secrets.read(reference)
             if not hmac.compare_digest((credential or "").encode(), (current_credential or "").encode()):
                 return None
@@ -943,7 +947,7 @@ class DecisionManagement:
                      "failed" if quarantine or fault or provider_fault else "running" if self._running() else
                      "failed" if self._activation_error else "disabled")
             runtime_live = self.controller is not None and self.controller.runtime.state.value != "idle"
-            can_start = (self.store.saved["backend"] in {"jev", "laya"} and state in {"disabled", "failed"} and
+            can_start = (self.store.saved["backend"] in {*SECRET_KEYS, "structured"} and state in {"disabled", "failed"} and
                          status["mode"] == "disabled" and not runtime_live and not status["blocked"] and
                          not quarantine and not fault and provider_fault not in {"restart_required", "ownership_unknown"})
             return {"schema_version": 1, "ex_session": self.store.ex_session, "revision": self.store.revision,
@@ -969,7 +973,10 @@ class DecisionManagement:
                 {"name": "laya", "probe": "health and fixed wait-only inference",
                  "model": defaults["laya"]["service_connection"]["model"],
                  "revision": defaults["laya"]["revision"], "connection_modes": ["external", "owned"],
-                 "execution_requires": "production backend gate; generation guard for owned"}]
+                 "execution_requires": "production backend gate; generation guard for owned"},
+                {"name": "structured", "probe": "local, no inference", "input": "structured_action"},
+                {"name": "openai_json", "probe": "fixed non-action JSON inference",
+                 "response_formats": ["json_schema", "json_object"], "input": "single primitive"}]
 
     def actions(self, query):
         limit = self._page_int(query, "limit", 20, maximum=100)
@@ -1049,6 +1056,36 @@ class DecisionManagement:
         except Exception:
             raise ManagementError("invalid_json", 400) from None
 
+    def task_selection(self):
+        """Read-only local task trace; never substitutes for the Host task projection."""
+        disconnected = {
+            "connected": False, "source_instance_id": self.task_source_instance_id,
+            "ex_session": self.store.ex_session, "task_session": None,
+            "sequence": 0, "updated_at": None,
+        }
+        if self.task_selection_provider is None:
+            return self.response(task_selection=disconnected)
+        try:
+            value = self.sanitize(self.task_selection_provider())
+            if not isinstance(value, dict):
+                raise ValueError("invalid_task_trace")
+            for key in ("source_instance_id", "ex_session", "task_session"):
+                if not isinstance(value.get(key), str) or not value[key] or len(value[key]) > 256:
+                    raise ValueError("invalid_task_identity")
+            if value["ex_session"] != self.store.ex_session:
+                raise ValueError("wrong_ex_instance")
+            if type(value.get("sequence")) is not int or value["sequence"] < 0 or type(value.get("connected")) is not bool:
+                raise ValueError("invalid_task_trace")
+            from datetime import datetime
+            stamp = datetime.fromisoformat(value["updated_at"])
+            if stamp.tzinfo is None:
+                raise ValueError("invalid_task_time")
+            if len(json.dumps(value, ensure_ascii=False, allow_nan=False).encode()) > 262144:
+                raise ValueError("task_trace_too_large")
+        except Exception:
+            return self.response(task_selection={**disconnected, "error": "task_trace_unavailable"})
+        return self.response(task_selection=value)
+
     def handle_http(self, handler):
         path = handler._path()
         if path != PREFIX and not path.startswith(PREFIX + "/"):
@@ -1061,6 +1098,12 @@ class DecisionManagement:
                     raise ManagementError("duplicate_query_field", 400)
                 if subpath == "/view":
                     result = self.view()
+                elif subpath == "/task-selection":
+                    result = self.task_selection()
+                elif subpath == '/primitives':
+                    pipeline = self.service.primitives
+                    result = self.response(primitives=pipeline.status() if pipeline else None,
+                                           catalog=pipeline.catalog if pipeline else None)
                 elif subpath == "/status":
                     result = self.status()
                 elif subpath == "/config":
@@ -1114,7 +1157,7 @@ class DecisionManagement:
                 return True
             if subpath == "/secret":
                 provider = body.get("provider", "jev")
-                if not isinstance(provider, str) or provider not in {"jev", "laya"}:
+                if not isinstance(provider, str) or provider not in SECRET_KEYS:
                     raise ManagementError("invalid_secret_provider", 400)
                 with self._apply_serial, self._lock:
                     self._idle()
@@ -1134,16 +1177,21 @@ class DecisionManagement:
                     config = self.store.validate(body["config"] if "config" in body else self.store.saved)
                     if "provider" in body:
                         provider = body["provider"]
-                        if not isinstance(provider, str) or provider not in {"jev", "laya"}:
-                            raise ManagementError("invalid_secret_provider", 400)
+                        if not isinstance(provider, str) or provider not in {*SECRET_KEYS, "structured"}:
+                            raise ManagementError("invalid_test_provider", 400)
                         config["backend"] = provider
                     provider = config["backend"]
                     credential = body.get("value")
+                    if credential is not None and provider not in SECRET_KEYS:
+                        raise ManagementError("invalid_secret_provider", 400)
                     if credential is not None:
                         credential = self.store.secrets.remember(credential)
                     else:
-                        reference = config["secret_ref" if provider == "jev" else "laya_secret_ref"]
-                        credential = self.store.secrets.read(reference) if provider != "mock" else ""
+                        reference = config.get(SECRET_KEYS.get(provider))
+                        credential = self.store.secrets.read(reference) if provider in SECRET_KEYS else ""
+                        if (provider == "openai_json" and config[provider]["service_connection"]["base_url"]
+                                != self.store.saved[provider]["service_connection"]["base_url"]):
+                            credential = ""
                     sequence = self._probe_sequence + 1
                     result = self._submit("test", lambda op: self._test(op, config, credential, sequence),
                                           supersede=False, probe_sequence=sequence)
