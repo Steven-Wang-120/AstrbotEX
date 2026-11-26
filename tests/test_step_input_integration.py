@@ -39,6 +39,7 @@ from astrbot_ex.core.plugin_actor import PluginActor
 from astrbot_ex.core.step_input import (
     METHOD_CAPABILITIES,
     METHOD_INJECT,
+    METHOD_PRIMITIVES,
     SCHEMA,
     StepInputIngress,
     StepInputLog,
@@ -113,8 +114,7 @@ class BackendRequestCaptureTest(unittest.TestCase):
         self.replies: list[bytes] = []
 
     def backend(self, *, model: str | None = None, choice: str = "accept"):
-        # The production backend pins one model; "keeps the configured value"
-        # therefore means exactly PINNED_MODEL and nothing else.
+        # This fixture explicitly requests a concrete model ID.
         model = model or jev.PINNED_MODEL
 
         def transport(body, headers, deadline, cancel, limit):
@@ -159,6 +159,40 @@ class BackendRequestCaptureTest(unittest.TestCase):
         self.assertEqual(request["state"]["instruction_input"]["segments"],
                          [{"segment_id": "s0", "ordinal": 0, "text": "只发一段。"}])
         self.assertEqual(request["model"], config.model)
+
+    def test_suffix_ordinals_reach_the_model_without_renumbering(self) -> None:
+        backend, _ = self.backend()
+        fixture = json.loads((Path(__file__).parent / "fixtures" / "upper_control" /
+                              "batch_suffix_ordinals.json").read_text(encoding="utf-8"))
+        batch = parse_injection_batch(fixture["payload"])
+
+        result = backend.consume_instruction(batch)
+
+        self.assertTrue(result["accepted"])
+        self.assertEqual(len(self.captured), 1)
+        delivered = json.loads(self.captured[0])["state"]["instruction_input"]
+        self.assertEqual(delivered, batch.to_wire())
+        self.assertEqual([segment["ordinal"] for segment in delivered["segments"]], [2, 3])
+
+    def test_invalid_absolute_ordinals_never_reach_transport(self) -> None:
+        backend, _ = self.backend()
+
+        class UnparsedBatch:
+            def __init__(self, ordinals):
+                self.wire = payload(segments=[
+                    {"segment_id": f"s{index}", "ordinal": ordinal, "text": "继续。"}
+                    for index, ordinal in enumerate(ordinals)
+                ])
+
+            def to_wire(self):
+                return self.wire
+
+        for ordinals in ([-1], [True], ["2"], [2.0], [2, 2], [2, 4], [3, 2], [2, True]):
+            with self.subTest(ordinals=ordinals):
+                with self.assertRaises(jev.JevBackendError) as caught:
+                    backend.consume_instruction(UnparsedBatch(ordinals))
+                self.assertEqual(caught.exception.code, "invalid_batch")
+                self.assertEqual(self.captured, [])
 
     def test_model_is_never_substituted(self) -> None:
         backend, config = self.backend()
@@ -452,7 +486,7 @@ class ControlLoopbackTest(unittest.TestCase):
         self.assertEqual(body["schema"], SCHEMA)
         self.assertTrue(body["input_ready"])
         self.assertEqual(body["ex_session"], SESSION)
-        self.assertEqual(body["methods"], [METHOD_CAPABILITIES, METHOD_INJECT])
+        self.assertEqual(body["methods"], [METHOD_CAPABILITIES, METHOD_INJECT, METHOD_PRIMITIVES])
 
     def test_three_segments_arrive_verbatim_in_order(self) -> None:
         peer = self._start()

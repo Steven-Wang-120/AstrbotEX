@@ -19,6 +19,8 @@ import json
 from dataclasses import dataclass
 from typing import Any, Mapping, Protocol, runtime_checkable
 
+from ..step_input_contracts import StepSegment
+
 SCHEMA = "aeb.upper_steps.v1"
 VISIBILITY = "decision_only"
 
@@ -58,16 +60,6 @@ class InstructionInputError(Exception):
         self.code = code
         self.detail = detail
         super().__init__(code)
-
-
-@dataclass(frozen=True, slots=True)
-class StepSegment:
-    segment_id: str
-    ordinal: int
-    text: str
-
-    def to_wire(self) -> dict[str, Any]:
-        return {"segment_id": self.segment_id, "ordinal": self.ordinal, "text": self.text}
 
 
 @dataclass(frozen=True, slots=True)

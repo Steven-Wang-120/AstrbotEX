@@ -23,6 +23,7 @@ from astrbot_ex.core.decision.instruction_input import (
 from astrbot_ex.core.step_input import (
     METHOD_CAPABILITIES,
     METHOD_INJECT,
+    METHOD_PRIMITIVES,
     SCHEMA,
     StepInputError,
     StepInputIngress,
@@ -361,7 +362,7 @@ class IngressTest(unittest.TestCase):
         self.assertIsNone(binary)
         self.assertTrue(result["ok"])
         self.assertEqual(result["schema"], SCHEMA)
-        self.assertEqual(result["methods"], [METHOD_CAPABILITIES, METHOD_INJECT])
+        self.assertEqual(result["methods"], [METHOD_CAPABILITIES, METHOD_INJECT, METHOD_PRIMITIVES])
         self.assertTrue(result["input_ready"])
         self.assertEqual(result["ex_session"], "current-ex-session")
         self.assertEqual(result["limits"]["max_segments"], 64)

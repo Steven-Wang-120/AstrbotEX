@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import http.client
+from contextlib import closing
 import json
 import math
 import queue
@@ -25,7 +26,7 @@ from astrbot_ex.core.decision.models import (
     BackendDecision, DecisionSnapshot, validate_backend_selection,
 )
 
-from .connection import bearer_headers, endpoint, open_connection, probe_snapshot, service_url
+from .connection import ConnectionPool, bearer_headers, endpoint, open_connection, probe_snapshot, service_url
 
 BUNDLE_SHA = "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
 PINNED_MODEL = "typed-decisions"
@@ -129,11 +130,14 @@ def _remaining(deadline, cancel):
 
 
 def _http_transport(port, method, path, body, deadline, cancel, max_bytes, *, on_written=None,
-                    base_url=None, headers=None):
+                    base_url=None, headers=None, pool=None):
     """Verified TLS when remote; HTTPConnection never follows a redirect."""
     url = base_url or f"http://127.0.0.1:{port}"
-    connection = open_connection(url, _remaining(deadline, cancel))
-    try:
+    timeout = _remaining(deadline, cancel)
+    lease = (pool.connection(url, timeout) if pool is not None
+             else closing(open_connection(url, timeout)))
+    with lease as connection:
+        _remaining(deadline, cancel)
         headers = dict(headers or {"Accept": "application/json"})
         if body is not None:
             headers["Content-Type"] = "application/json"
@@ -167,8 +171,6 @@ def _http_transport(port, method, path, body, deadline, cancel, max_bytes, *, on
         timing = response.getheader("X-Inference-Time-Ms")
         return HTTPReply(response.status, b"".join(chunks),
                          {"X-Inference-Time-Ms": timing} if timing is not None else {})
-    finally:
-        connection.close()
 
 
 def _json_bytes(value):
@@ -244,6 +246,7 @@ class LayaBackend:
         self._trace_dropped = 0
         self._injected_transport = transport is not None
         self._transport = transport
+        self._pool = ConnectionPool()
         self._allow_execution = allow_test_execution
         self._lock = threading.Lock()
         self._closed = False
@@ -332,6 +335,7 @@ class LayaBackend:
             if self._closed:
                 return
             self._closed = True
+            self._pool.close()
             self._epoch += 1
             if self._active is not None:
                 self._active.cancel.set()
@@ -441,7 +445,7 @@ class LayaBackend:
                     raise LayaBackendError("missing_or_invalid_secret") from None
                 reply = _http_transport(
                     self._config.port, method, path, body, call.deadline, call.cancel,
-                    self._config.max_response_bytes, base_url=self._config.base_url, headers=headers,
+                    self._config.max_response_bytes, base_url=self._config.base_url, headers=headers, pool=self._pool,
                     on_written=lambda: self._record_update(call, post_written_to_socket=True),
                 )
         except LayaBackendError:

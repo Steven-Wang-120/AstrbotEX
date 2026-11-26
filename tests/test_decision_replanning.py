@@ -247,6 +247,12 @@ class DecisionReplanningTests(WiringFixture):
         self.assertEqual(self.c.journal.snapshot()["goal_summaries"], [])
         self.assertFalse(self.c.state()["execution"]["stop_proven"])
         self.assertEqual(len(self.owners["arm"].commands), 1)
+        # This case deliberately withholds the mock owner's cancellation proof.
+        # Supply late, explicit cleanup evidence without replaying its stop call.
+        self.server.action_dispatcher.reconcile_stop(cid, OwnerBinding("arm", 1),
+            StopEvidence(cid, True, "arm", "unknown-test-cleanup")).result(1)
+        self.assertEqual(self.s.goals.phase, "blocked")
+        self.assertEqual(self.c.journal.snapshot()["goal_summaries"], [])
 
     def test_low_confidence_shadow_only_records_original_choice(self):
         self.execute()

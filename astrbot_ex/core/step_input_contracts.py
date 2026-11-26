@@ -267,13 +267,21 @@ class StepSegment:
     segment_id: str
     ordinal: int
     text: str
+    structured_action_json: str | None = None
+
+    @property
+    def structured_action(self) -> dict | None:
+        # The receipt digest and subsequent execution refer to one frozen value.
+        return json.loads(self.structured_action_json) if self.structured_action_json is not None else None
 
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "segment_id": self.segment_id,
-            "ordinal": self.ordinal,
-            "text": self.text,
-        }
+        wire = {"segment_id": self.segment_id, "ordinal": self.ordinal, "text": self.text}
+        if self.structured_action_json is not None:
+            wire["structured_action"] = self.structured_action
+        return wire
+
+    def to_wire(self) -> dict[str, Any]:
+        return self.to_dict()
 
 
 _BATCH_KEYS = frozenset(
@@ -364,7 +372,13 @@ class InjectionBatch:
         for index, raw in enumerate(raw_segments):
             path = f"$.segments[{index}]"
             item = _require_object(raw, path, ErrorCode.INVALID_BATCH)
-            _require_exact_keys(item, _SEGMENT_KEYS, path, ErrorCode.INVALID_BATCH)
+            action_json = None
+            keys = _SEGMENT_KEYS
+            if "structured_action" in item:
+                action = _require_object(item["structured_action"], f"{path}.structured_action", ErrorCode.INVALID_BATCH)
+                action_json = canonical(action)
+                keys = keys | {"structured_action"}
+            _require_exact_keys(item, keys, path, ErrorCode.INVALID_BATCH)
             segment_id = _require_wire_id(
                 item["segment_id"], f"{path}.segment_id", ErrorCode.INVALID_BATCH
             )
@@ -390,7 +404,7 @@ class InjectionBatch:
                 max_len=MAX_SEGMENT_CHARS,
             )
             segments.append(
-                StepSegment(segment_id=segment_id, ordinal=ordinal, text=text)
+                StepSegment(segment_id=segment_id, ordinal=ordinal, text=text, structured_action_json=action_json)
             )
 
         return cls(

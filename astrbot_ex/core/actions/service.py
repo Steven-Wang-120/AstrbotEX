@@ -128,8 +128,12 @@ class ActionService:
             proof_epoch = getattr(self.dispatcher, "_epoch", -1)
         unproven = {}
         try:
+            # These immutable terminal rows already constitute positive proof in
+            # the committed page. Other statuses require a current read and, when
+            # applicable, the separate durable stop record.
             rows = [row for row in self._commands(deadline)
-                    if binding is None or (row.owner, row.generation) == (binding.owner, binding.generation)]
+                    if getattr(row, "status", None) not in (ActionStatus.SUCCEEDED, ActionStatus.REJECTED)
+                    and (binding is None or (row.owner, row.generation) == (binding.owner, binding.generation))]
             while True:
                 self._remaining(deadline)
                 unproven = dict.fromkeys(row.command_id for row in rows)
@@ -210,7 +214,7 @@ class ActionService:
         uncertain = []
         try:
             unresolved = [row for row in self._commands(deadline)
-                         if row.status not in (ActionStatus.SUCCEEDED, ActionStatus.REJECTED)]
+                         if getattr(row, "status", None) not in (ActionStatus.SUCCEEDED, ActionStatus.REJECTED)]
             uncertain = [row for row in unresolved if row.status in (
                 ActionStatus.UNKNOWN, ActionStatus.TIMED_OUT, ActionStatus.FAILED)
                          and not self._proven(row, deadline)]

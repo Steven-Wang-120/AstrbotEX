@@ -9,12 +9,14 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
 from pathlib import Path
 from dataclasses import replace
 from unittest.mock import patch
 
 from astrbot_ex.core.decision.owned_laya import Deployment, OwnedLayaError, OwnedLayaService
+from astrbot_ex.core.decision.backends.laya import LayaBackendError, LayaConfig
 
 
 class FakeProcess:
@@ -121,6 +123,90 @@ class OwnedLayaTests(unittest.TestCase):
         self.assertNotIn("LAYA_API_KEY", captured["env"])
         self.assertEqual(service.stop()["exit_confirmed"], True)
         self.assertEqual(service.status()["state"], "stopped")
+
+    def test_cold_budgets_do_not_relax_hot_or_process_stop_limits(self):
+        deployment = replace(self.deployment, startup_timeout_s=3600, warmup_deadline_ms=3600000)
+        self.assertEqual(deployment.startup_timeout_s, 3600)
+        self.assertEqual(deployment.warmup_deadline_ms, 3600000)
+        for changes in ({"startup_timeout_s": 3601}, {"startup_timeout_s": float("nan")},
+                        {"warmup_deadline_ms": 3600001}, {"warmup_deadline_ms": True},
+                        {"terminate_timeout_s": 301}, {"kill_timeout_s": 301}):
+            with self.subTest(changes=changes):
+                self.assert_code("invalid_deployment", lambda: replace(self.deployment, **changes))
+        with self.assertRaises(LayaBackendError) as caught:
+            LayaConfig(deadline_ms=60001)
+        self.assertEqual(caught.exception.code, "invalid_limits")
+
+    def test_long_cold_warmup_retains_bearer_auth_and_wait_only_request(self):
+        from tests.test_laya_backend import FixtureTransport
+        fixture = FixtureTransport()
+        requests = []
+        secret = "long-warmup-fixture-only"
+        deployment = replace(self.deployment, startup_timeout_s=3600,
+                             warmup_deadline_ms=120000, auth_mode="bearer")
+        service = OwnedLayaService(deployment, process_factory=lambda *a, **k: FakeProcess(),
+                                   secret_provider=lambda: secret)
+        self.services.append(service)
+
+        def transport(port, method, path, body, deadline, cancel, max_bytes, **kwargs):
+            requests.append({"method": method, "remaining": deadline - time.monotonic(),
+                             "headers": kwargs["headers"]})
+            return fixture(method, path, body, deadline, cancel, max_bytes)
+
+        with patch("astrbot_ex.core.decision.backends.laya._http_transport", side_effect=transport):
+            config = service.start()
+        self.assertEqual(service.status()["state"], "ready")
+        self.assertEqual([r["method"] for r in requests], ["GET", "GET", "POST"])
+        self.assertLessEqual(requests[0]["remaining"], 1.5)
+        for request in requests[1:]:
+            self.assertGreater(request["remaining"], 60)
+            self.assertLessEqual(request["remaining"], 120)
+        self.assertTrue(all(r["headers"]["Authorization"] == "Bearer " + secret for r in requests))
+        self.assertEqual(config.deadline_ms, 1500)
+        self.assertEqual(service.history[-1]["warmup"]["deadline_ms"], 120000)
+        state = json.loads(fixture.requests[0]["state"])
+        self.assertEqual(state["allowed_actions"], [])
+        self.assertEqual(fixture.requests[0]["questions"]["q0"]["criteria"], {"A": "Wait"})
+        self.assertNotIn(secret, json.dumps(service.status()))
+
+    def test_long_cold_warmup_remains_interruptible(self):
+        from tests.test_laya_backend import FixtureTransport
+        fixture = FixtureTransport()
+        entered, canceled = threading.Event(), threading.Event()
+        errors = []
+        child = FakeProcess()
+        service = OwnedLayaService(replace(self.deployment, warmup_deadline_ms=120000),
+                                   process_factory=lambda *a, **k: child)
+        self.services.append(service)
+
+        def transport(port, method, path, body, deadline, cancel, max_bytes, **kwargs):
+            if method == "POST":
+                entered.set()
+                if cancel.wait(2):
+                    canceled.set()
+            return fixture(method, path, body, deadline, cancel, max_bytes)
+
+        def start():
+            try:
+                service.start()
+            except OwnedLayaError as exc:
+                errors.append(exc.code)
+
+        with patch("astrbot_ex.core.decision.backends.laya._http_transport", side_effect=transport):
+            worker = threading.Thread(target=start)
+            worker.start()
+            try:
+                self.assertTrue(entered.wait(2))
+                service.interrupt()
+                worker.join(2)
+                self.assertFalse(worker.is_alive())
+                self.assertTrue(canceled.is_set())
+                self.assertEqual(errors, ["canceled"])
+                self.assertEqual(service.status()["state"], "restart_required")
+                self.assertIsNotNone(child.poll())
+            finally:
+                service.interrupt()
+                worker.join(2)
 
     def test_history_is_copied_and_state_mode_restricted(self):
         service = self.manager()

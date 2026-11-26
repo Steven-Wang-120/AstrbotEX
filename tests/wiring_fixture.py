@@ -66,10 +66,13 @@ class WiringFixture(unittest.TestCase):
                 proof = ledger.stop_proof(row.command_id, OwnerBinding(row.owner, row.generation)).result(1)
                 if proof is not None and proof.stopped is True and not row.held_resources:
                     continue
-                actor = next(actor for actor in actors if actor.plugin is owner)
-                # Invoke the actual mock controller's stop through its Actor.
-                actor.submit_action_cancel(row.command_id, "fixture cleanup").result(2)
-                dispatcher._enqueue(lambda: None, priority=True).result(1)
+                # Register the stop before the mock controller can report CANCELED.
+                # DecisionService.request_stop queues work asynchronously.
+                dispatcher.cancel(row.command_id, OwnerBinding(row.owner, row.generation),
+                                  "fixture cleanup").result(2)
+                self.assertTrue(wait_for(lambda: ledger.stop_proof(
+                    row.command_id, OwnerBinding(row.owner, row.generation)).result(1) is not None),
+                    self.diagnostics())
                 proof = ledger.stop_proof(row.command_id, OwnerBinding(row.owner, row.generation)).result(1)
                 self.assertIsNotNone(proof, self.diagnostics())
                 self.assertTrue(proof.stopped, self.diagnostics())

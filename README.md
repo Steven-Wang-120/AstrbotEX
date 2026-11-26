@@ -225,7 +225,11 @@ D:\Code\AstrBotEX
 
 ### 插件说明
 
-`plugins/` 目录包含六个分类目录，当前仅内置一个 YOLO 视觉插件（`astrbotex_embedded_yolo_vision_plugin`），默认不启用。其他插件需要从 EXplugin 项目部署或自行开发。
+内置的 `mobile_manipulation` 插件提供移动和抓取任务接口，默认关闭。启用后通过 ROS 发布 `command`、`lease`、`cancel`，接收 `ack`、`feedback`、`result` 和 `status`。动作参数和网关协议见 [移动抓取插件](plugins/control/mobile_manipulation/guide.md)。
+
+外部机器人插件通过 `create_primitive_provider(observations, registry)` 提供动作目录及参数绑定。在插件管理中安装 ZIP、配置 ROS 端口并启用。JetMax 的四个元动作和 ROS 包由 [JetMax-Control](https://github.com/sssxy-Mr2p5pi/jetmax_control) 维护。
+
+已有上层结构化动作时，选择 `structured` 后端，通过 A.E.B 在指令段中传入 `structured_action`。使用模型从文本填参时，选择 `openai_json` 并配置兼容的服务地址、模型和凭据。两条路径均由已启用的元动作插件校验参数，再交给 EX 执行。
 
 ## 开发与测试
 

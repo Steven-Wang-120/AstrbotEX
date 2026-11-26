@@ -17,7 +17,7 @@ FIXTURE = json.loads((Path(__file__).parent / "fixtures/decision/jev/normal.json
 class BackendContractTests(unittest.TestCase):
     def test_static_registry_no_dynamic_import_or_plugin_lookup(self):
         from astrbot_ex.core.decision.backends.mock import MockBackend
-        self.assertEqual(backend_names(), ("mock", "jev", "laya"))
+        self.assertEqual(backend_names(), ("mock", "jev", "laya", "structured", "openai_json"))
         self.assertIs(BACKEND_FACTORIES["mock"], MockBackend)
         mock = create_backend("mock")
         self.assertTrue(mock.execution_allowed)
@@ -93,7 +93,7 @@ class BackendContractTests(unittest.TestCase):
         with self.assertRaises(AttributeError):
             backend.config = JevConfig()
         with self.assertRaises(JevBackendError):
-            backend.reconfigure(replace(backend.config, model="jev-1.14.0"))
+            backend.reconfigure(replace(backend.config, model="jev-1.14"))
         self.assertEqual(backend._epoch, 0)
         backend.reconfigure(replace(backend.config, base_url="https://gateway.example.invalid/prefix"))
         self.assertEqual(backend.config.base_url, "https://gateway.example.invalid/prefix")

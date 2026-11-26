@@ -5,6 +5,7 @@ import math
 import re
 
 TYPE_NAME = re.compile(r"[A-Za-z][A-Za-z0-9_]*/msg/[A-Za-z][A-Za-z0-9_]*\Z")
+INTERFACE_TYPE = re.compile(r"[A-Za-z][A-Za-z0-9_]*/(?:msg|action|srv)/[A-Za-z][A-Za-z0-9_]*\Z")
 TOKEN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
 PRESETS = {
     "sensor_data": {"reliability": "best_effort", "durability": "volatile", "history": "keep_last", "depth": 5},
@@ -77,17 +78,27 @@ def parse_ports(raw):
         if not isinstance(name, str) or not TOKEN.fullmatch(name) or name in seen:
             raise ValueError(f"invalid or duplicate ROS port id: {name}")
         seen.add(name)
-        if port.get("direction") not in ("subscribe", "publish"): raise ValueError(f"{name}: invalid direction")
+        if port.get("direction") not in ("subscribe", "publish", "action", "service"): raise ValueError(f"{name}: invalid direction")
+        direction = port["direction"]
+        kind = {"action": "action", "service": "srv"}.get(direction, "msg")
         types = port.get("message_types")
-        if not isinstance(types, list) or not types or any(not isinstance(t, str) or not TYPE_NAME.fullmatch(t) for t in types):
-            raise ValueError(f"{name}: message_types must list package/msg/Type")
+        if not isinstance(types, list) or not types or any(not isinstance(t, str) or not INTERFACE_TYPE.fullmatch(t) or t.split('/')[1] != kind for t in types):
+            raise ValueError(f"{name}: message_types must list package/{kind}/Type")
+        safety_stop = port.get("safety_stop", False)
+        if not isinstance(safety_stop, bool) or (safety_stop and direction != "service"):
+            raise ValueError(f"{name}: safety_stop is only supported by service ports")
+        if direction in ("action", "service"):
+            port["safety_stop"] = safety_stop
+            port["response_timeout_sec"] = number(port.get("response_timeout_sec", 60.0), f"{name}.response_timeout_sec", 0.1, 3600.0)
         port["default_topic"] = topic_name(port.get("default_topic", "/" + name))
         # Declaring nothing keeps legacy manifests working; policy is never a binding field.
         port["diagnostics"] = diagnostics_policy(port.get("diagnostics"), port["direction"])
-        port.setdefault("execution_lane", "sensor" if port["direction"] == "subscribe" else "general")
+        port.setdefault("execution_lane", "sensor" if direction == "subscribe" else ("control" if direction in ("action", "service") else "general"))
         if port["execution_lane"] not in ("sensor", "control", "general"): raise ValueError(f"{name}: invalid lane")
         gate = port.setdefault("requires_runtime_running", port["execution_lane"] == "control")
         if not isinstance(gate, bool): raise ValueError(f"{name}: invalid runtime gate")
+        if direction == "action" and not gate:
+            raise ValueError(f"{name}: action goals require the runtime gate")
         port.setdefault("qos_preset", "sensor_data" if port["direction"] == "subscribe" else "reliable_volatile")
         qos_config(preset=port["qos_preset"])
         queue = port.setdefault("queue", {})
@@ -105,6 +116,8 @@ def parse_ports(raw):
             raise ValueError(f"{name}: max_message_bytes exceeds queue byte budget")
         if gate and queue["max_age_ms"] == 0: raise ValueError(f"{name}: control outputs require a finite max_age_ms")
         if queue["overflow"] not in ("keep_latest", "reject_new"): raise ValueError(f"{name}: invalid overflow policy")
+        if direction in ("action", "service") and queue["overflow"] != "reject_new":
+            raise ValueError(f"{name}: command queues must reject_new, never silently replace requests")
         result.append(port)
     return result
 

@@ -14,6 +14,9 @@ from pathlib import Path
 
 from .backends.laya import LayaConfig
 from .backends.jev import JevConfig
+from .backends.openai_json import OpenAIJsonConfig, siliconflow_preset
+
+SECRET_KEYS = {"jev": "secret_ref", "laya": "laya_secret_ref", "openai_json": "openai_json_secret_ref"}
 
 
 class ManagementError(RuntimeError):
@@ -170,7 +173,7 @@ class SecretStore:
         if not self._credential.isascii() or len(self._credential) < 32 or len(self._credential) > 256:
             raise ManagementError("invalid_management_credential", 500)
         self._redactions.add(self._credential)
-        for path in (*self.directory.glob("jev-*.secret"), *self.directory.glob("laya-*.secret")):
+        for path in (p for provider in SECRET_KEYS for p in self.directory.glob(provider + "-*.secret")):
             if path.is_symlink() or not path.is_file():
                 raise ManagementError("unsafe_secret_path", 500)
             os.chmod(path, 0o600)
@@ -185,7 +188,7 @@ class SecretStore:
         return len(candidate) <= 256 and hmac.compare_digest(candidate.encode("utf-8"), self._credential.encode("ascii"))
 
     def _path(self, reference):
-        if not isinstance(reference, str) or not re.fullmatch(r"(?:jev|laya)-[0-9a-f]{32}", reference):
+        if not isinstance(reference, str) or not re.fullmatch(r"(?:jev|laya|openai_json)-[0-9a-f]{32}", reference):
             raise ManagementError("invalid_secret_ref", 400)
         path = self.directory / (reference + ".secret")
         if path.is_symlink():
@@ -193,7 +196,7 @@ class SecretStore:
         return path
 
     def create(self, value, *, provider="jev"):
-        if provider not in {"jev", "laya"}:
+        if provider not in SECRET_KEYS:
             raise ManagementError("invalid_secret_provider", 400)
         self.remember(value)
         with self._lock:
@@ -279,16 +282,19 @@ class DecisionConfigStore:
             laya.pop(name)
         laya.update(service_connection={"mode": "external", "base_url": f"http://127.0.0.1:{self.port}",
                                        "model": "typed-decisions", "auth_mode": "none"}, deployment=None)
-        return {"backend": "mock", "mock": {"kind": "wait"}, "laya": laya,
+        compatible = asdict(OpenAIJsonConfig())
+        compatible["service_connection"] = {k: compatible.pop(k) for k in ("base_url", "model", "auth_mode")}
+        compatible.update(siliconflow_preset())
+        return {"openai_json": compatible, "openai_json_secret_ref": None, "backend": "mock", "mock": {"kind": "wait"}, "laya": laya,
                 "jev": {"service_connection": {"base_url": "https://api.typesafe.ai",
                         "model": JevConfig().model, "auth_mode": "bearer"},
-                        "mode": "shadow", "allow_live_http": False, "deadline_ms": 1500,
+                        "mode": "shadow", "allow_live_http": False, "deadline_ms": 10000,
                         "min_interval_ms": 500, "min_confidence": 0.6},
                 "secret_ref": None, "laya_secret_ref": None}
 
     def backend_config(self, name, config=None):
         """Single validated mapping shared by management/factories/probes."""
-        if name not in ("jev", "laya"):
+        if name not in SECRET_KEYS:
             raise ManagementError("unknown_backend", 400)
         with self._lock:
             self._check_storage()
@@ -298,6 +304,8 @@ class DecisionConfigStore:
     def _backend_config(self, name, config):
         raw = copy.deepcopy(config[name])
         connection = raw.pop("service_connection")
+        if name == "openai_json":
+            return OpenAIJsonConfig(**raw, **connection)
         if name == "laya":
             raw.pop("deployment")
             raw.update(base_url=connection["base_url"], auth_mode=connection["auth_mode"],
@@ -324,15 +332,19 @@ class DecisionConfigStore:
 
     def validate(self, raw, *, allow_reference=False):
         defaults = self.defaults()
+        # Older clients and schema-v2 files have neither field; preserve a
+        # configured compatible provider on legacy clients' partial round-trips.
+        if isinstance(raw, dict) and set(raw) == set(defaults) - {"openai_json", "openai_json_secret_ref"}:
+            raw = {**raw, **{k: self.saved[k] for k in ("openai_json", "openai_json_secret_ref")}}
         if not isinstance(raw, dict) or set(raw) != set(defaults):
             raise ManagementError("invalid_config", 400)
         value = copy.deepcopy(raw)
-        if not isinstance(value["backend"], str) or value["backend"] not in {"mock", "jev", "laya"}:
+        if not isinstance(value["backend"], str) or value["backend"] not in {"mock", "jev", "laya", "structured", "openai_json"}:
             raise ManagementError("unknown_backend", 400)
         if not isinstance(value["mock"], dict) or set(value["mock"]) != {"kind"} or not isinstance(value["mock"]["kind"], str) or value["mock"]["kind"] not in {
                 "wait", "request_replan", "start", "cancel"}:
             raise ManagementError("invalid_mock_config", 400)
-        for name in ("jev", "laya"):
+        for name in SECRET_KEYS:
             item = value[name]
             if not isinstance(item, dict) or set(item) != set(defaults[name]):
                 raise ManagementError("invalid_" + name + "_config", 400)
@@ -343,7 +355,7 @@ class DecisionConfigStore:
             allowed_auth = ("bearer",) if name == "jev" else ("none", "bearer")
             if connection["auth_mode"] not in allowed_auth:
                 raise ManagementError("invalid_auth_mode", 400)
-            if connection["model"] != defaults[name]["service_connection"]["model"]:
+            if name == "laya" and connection["model"] != defaults[name]["service_connection"]["model"]:
                 raise ManagementError("unsupported_model", 400)
             if name == "laya":
                 if connection["mode"] not in ("external", "owned"):
@@ -367,7 +379,7 @@ class DecisionConfigStore:
                 self._backend_config(name, value)
             except Exception as exc:
                 raise ManagementError(getattr(exc, "code", "invalid_" + name + "_config"), 400) from None
-        for key, provider in (("secret_ref", "jev"), ("laya_secret_ref", "laya")):
+        for provider, key in SECRET_KEYS.items():
             reference = value[key]
             if reference is not None:
                 self.secrets._path(reference)
@@ -446,20 +458,28 @@ class DecisionConfigStore:
     def save(self, raw, expected_revision, ex_session):
         with self._lock:
             self.check(expected_revision, ex_session)
-            self._publish(self.validate(raw), self.revision + 1)
+            config = self.validate(raw)
+            key = SECRET_KEYS["openai_json"]
+            previous_key = config[key]
+            if config["openai_json"]["service_connection"]["base_url"] != self.saved["openai_json"]["service_connection"]["base_url"]:
+                # A domestic API and a local model must not receive each other's credential.
+                config[key] = None
+            self._publish(config, self.revision + 1)
+            if previous_key and not config[key]:
+                self.secrets.remove(previous_key)
             return self.get()
 
     def update_secret(self, action, value, expected_revision, ex_session, *, provider="jev"):
         with self._lock:
             self.check(expected_revision, ex_session)
-            if provider not in {"jev", "laya"}:
+            if provider not in SECRET_KEYS:
                 raise ManagementError("invalid_secret_provider", 400)
             if not isinstance(action, str) or action not in {"set", "keep", "clear"} or (action != "set" and value is not None):
                 raise ManagementError("invalid_secret_action", 400)
             if action == "keep":
                 return self.get()
             config = copy.deepcopy(self.saved)
-            key = "secret_ref" if provider == "jev" else "laya_secret_ref"
+            key = SECRET_KEYS[provider]
             previous = config[key]
             reference = None
             try:
@@ -505,5 +525,6 @@ class DecisionConfigStore:
             return {"ex_session": self.ex_session, "revision": self.revision,
                     "effective_revision": self.effective_revision, "storage_uncertain": self.storage_uncertain,
                     "saved": copy.deepcopy(self.saved), "effective": copy.deepcopy(self.effective),
-                    "secrets": {"jev": {"configured": bool(self.secrets.read(self.saved["secret_ref"]))},
-                                "laya": {"configured": bool(self.secrets.read(self.saved["laya_secret_ref"]))}}}
+                    "presets": {"openai_json": {"siliconflow_qwen3_vl_8b": siliconflow_preset()}},
+                    "secrets": {name: {"configured": bool(self.secrets.read(self.saved[key]))}
+                                for name, key in SECRET_KEYS.items()}}

@@ -164,7 +164,7 @@ class DecisionManagementActivationTests(ManagementHTTPFixture, unittest.TestCase
         for exception, code in ((ssl.SSLCertVerificationError("private-fixture-body"), "tls_failure"),
                                 (OSError("private-fixture-body"), "transport_failure"),
                                 (TimeoutError("private-fixture-body"), "deadline_exceeded")):
-            with patch.object(jev, "open_connection", side_effect=exception):
+            with patch("astrbot_ex.core.decision.backends.connection.open_connection", side_effect=exception):
                 self.assertEqual(backend.probe()["error_code"], code)
             view = self.view()
             self.assertEqual(view["connection"]["state"], "disconnected")

@@ -1,8 +1,11 @@
 """Isolated v1 Choice adapter. This module selects data; it never executes it."""
 from __future__ import annotations
 
+import copy
+import uuid
 import hashlib
 import http.client
+from contextlib import closing
 import json
 import math
 import os
@@ -11,7 +14,7 @@ import re
 import ssl
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from email.utils import parsedate_to_datetime
 from typing import Callable, Mapping
 
@@ -20,9 +23,29 @@ from astrbot_ex.core.decision.models import (
     BackendDecision, DecisionSnapshot, validate_backend_selection,
 )
 
-from .connection import endpoint, open_connection, probe_snapshot, service_url
+from .connection import ConnectionPool, endpoint, open_connection, probe_snapshot, service_url
+
+def encode_request(payload, jpeg=None):
+    """Reuse JPEG bytes in a multipart request; the cache key is not an upload."""
+    if not jpeg:
+        return json.dumps(payload, ensure_ascii=False, allow_nan=False).encode(), {'Content-Type': 'application/json'}
+    token = 'frame-' + uuid.uuid4().hex
+    payload = copy.deepcopy(payload)
+    payload['state']['image']['asset'] = token
+    payload['assets'] = {token: {'type': 'image', 'part': 'frame'}}
+    boundary = 'ex-' + uuid.uuid4().hex
+    request = json.dumps(payload, ensure_ascii=False, allow_nan=False).encode()
+    body = (f'--{boundary}\r\nContent-Disposition: form-data; name="request"\r\n'
+            'Content-Type: application/json\r\n\r\n').encode() + request
+    body += (f'\r\n--{boundary}\r\nContent-Disposition: form-data; name="frame"; filename="frame.jpg"\r\n'
+             'Content-Type: image/jpeg\r\n\r\n').encode() + jpeg
+    body += f'\r\n--{boundary}--\r\n'.encode()
+    return body, {'Content-Type': 'multipart/form-data; boundary=' + boundary,
+                  'TypeSafe-Danger-Zone-Images': 'true'}
+
 
 PINNED_MODEL = "jev-1.13.0"
+DEFAULT_MODEL = "jev-latest"
 API_HOST = "api.typesafe.ai"
 API_PATH = "/v1/systemone"
 INSTRUCTIONS = (
@@ -59,11 +82,11 @@ class JevBackendError(RuntimeError):
 @dataclass(frozen=True, slots=True)
 class JevConfig:
     base_url: str = "https://api.typesafe.ai"
-    model: str = PINNED_MODEL
+    model: str = DEFAULT_MODEL
     mode: str = "disabled"
     allow_live_http: bool = False
     secret_env: str | None = None
-    deadline_ms: int = 1500
+    deadline_ms: int = 10000
     max_request_bytes: int = 262144
     max_response_bytes: int = 262144
     max_owners: int = 32
@@ -78,7 +101,8 @@ class JevConfig:
             service_url(self.base_url)
         except ValueError:
             raise JevBackendError("invalid_service_url") from None
-        if self.model != PINNED_MODEL:
+        if self.model != DEFAULT_MODEL and not (
+                isinstance(self.model, str) and re.fullmatch(r"jev-\d+\.\d+\.\d+", self.model)):
             raise JevBackendError("unsupported_model")
         if self.mode not in ("disabled", "shadow", "execute") or type(self.allow_live_http) is not bool:
             raise JevBackendError("invalid_mode")
@@ -148,6 +172,13 @@ def _probability(value):
     return type(value) in (int, float) and 0 <= value <= 1 and math.isfinite(value)
 
 
+def _model_matches(requested, returned):
+    # A concrete version still requires exact equality. Only the official
+    # rolling alias can resolve to a concrete Jev version.
+    return isinstance(returned, str) and (returned == requested or (
+        requested == DEFAULT_MODEL and re.fullmatch(r"jev-\d+\.\d+\.\d+", returned) is not None))
+
+
 def _remaining(deadline, cancel):
     if cancel.is_set():
         raise JevBackendError("canceled")
@@ -157,10 +188,13 @@ def _remaining(deadline, cancel):
     return remaining
 
 
-def _http_transport(body, headers, deadline, cancel, max_bytes, *, base_url="https://api.typesafe.ai"):
+def _http_transport(body, headers, deadline, cancel, max_bytes, *, base_url="https://api.typesafe.ai", pool=None):
     """No redirect handler. A daemon boundary also bounds DNS/slow-header reads."""
-    connection = open_connection(base_url, _remaining(deadline, cancel))
-    try:
+    timeout = _remaining(deadline, cancel)
+    lease = (pool.connection(base_url, timeout) if pool is not None
+             else closing(open_connection(base_url, timeout)))
+    with lease as connection:
+        _remaining(deadline, cancel)
         connection.request("POST", endpoint(base_url, API_PATH), body=body, headers=dict(headers))
         if connection.sock is not None:
             connection.sock.settimeout(_remaining(deadline, cancel))
@@ -187,8 +221,6 @@ def _http_transport(body, headers, deadline, cancel, max_bytes, *, base_url="htt
         if expected_length is not None and size != expected_length:
             raise JevBackendError("incomplete_response")
         return HTTPReply(response.status, b"".join(chunks), response.getheader("Retry-After"))
-    finally:
-        connection.close()
 
 
 def _json_bytes(value):
@@ -246,6 +278,7 @@ class JevBackend:
             raise JevBackendError("ambiguous_secret_config")
         self._secret_provider = secret_provider
         self._transport = transport
+        self._pool = ConnectionPool()
         self._injected_transport = transport is not None
         self._allow_test_execution = allow_test_execution
         self._lock = threading.Lock()
@@ -295,6 +328,8 @@ class JevBackend:
         with self._lock:
             if self._closed:
                 raise JevBackendError("closed")
+            self._pool.close()
+            self._pool = ConnectionPool()
             self._config = config
             self._epoch += 1
             if self._active is not None:
@@ -308,6 +343,7 @@ class JevBackend:
     def close(self):
         with self._lock:
             self._closed = True
+            self._pool.close()
             self._epoch += 1
             if self._active is not None:
                 self._active.set()
@@ -363,7 +399,7 @@ class JevBackend:
         raw = _strict_json(reply.body)
         if not isinstance(raw, dict) or set(raw) != {"model", "answers", "usage"}:
             raise JevBackendError("response_shape")
-        if raw["model"] != config.model:
+        if not _model_matches(config.model, raw["model"]):
             raise JevBackendError("model_mismatch")
         answers = raw["answers"]
         owners = {item["owner"]: item for item in frozen.owners}
@@ -400,7 +436,7 @@ class JevBackend:
             choices.append(choice)
         decision = BackendDecision.parse({
             "schema_version": 1, "snapshot_id": frozen.snapshot_id, "versions": frozen.versions.to_dict(),
-            "backend": "jev", "model": config.model, "elapsed_ms": elapsed_ms, "choices": choices,
+            "backend": "jev", "model": raw["model"], "elapsed_ms": elapsed_ms, "choices": choices,
         })
         validate_backend_selection(frozen, decision, frozen.versions)
         return decision, usage, overrides
@@ -467,7 +503,7 @@ class JevBackend:
                 self._check_locked(epoch, cancel, deadline)
                 # Return is linearized with cancel/close/reconfiguration. B04 must
                 # STILL validate current trusted versions before dispatch.
-                self._record = DecisionRecord(config.model, input_hash, (time.monotonic() - started) * 1000,
+                self._record = DecisionRecord(decision.model, input_hash, (time.monotonic() - started) * 1000,
                     None, attempts, usage["input_tokens"], usage["output_tokens"], overrides)
                 return decision
         except JevBackendError as exc:
@@ -491,7 +527,7 @@ class JevBackend:
 
     # -- bounded exchange shared by decide() and consume_instruction() -----
 
-    def _exchange(self, body, config, epoch, cancel, deadline, counter):
+    def _exchange(self, body, config, epoch, cancel, deadline, counter, *, extra_headers=None):
         """One bounded POST with the shared retry, rate and worker envelope.
 
         ``counter`` is a one-element list so the caller keeps the attempt count
@@ -524,11 +560,12 @@ class JevBackend:
                     self._last_http_started = time.monotonic()
                 headers = {"Authorization": "Bearer " + secret,
                            "Content-Type": "application/json", "Accept": "application/json"}
+                headers.update(extra_headers or {})
                 if self._injected_transport:
                     value = self._transport(body, headers, deadline, cancel, config.max_response_bytes)
                 else:
                     value = _http_transport(body, headers, deadline, cancel, config.max_response_bytes,
-                                            base_url=config.base_url)
+                                            base_url=config.base_url, pool=self._pool)
                 if (not isinstance(value, HTTPReply) or type(value.status) is not int or
                     not 100 <= value.status <= 599 or not isinstance(value.body, bytes)):
                     raise JevBackendError("invalid_transport_reply")
@@ -587,6 +624,89 @@ class JevBackend:
                 raise JevBackendError("retry_exceeds_deadline")
             cancel.wait(delay)
 
+    def bind_primitive(self, text, observations, image_status, jpeg=None, *, provider, batch=None):
+        """Fill one joint primitive using the same credential and HTTP worker.
+
+        Text retains the configured text budget. Only the multipart envelope
+        has the separate 32 MiB image budget requested for this integration.
+        No fallback request or motion is issued here.
+        """
+
+        started = time.monotonic()
+        with self._lock:
+            if self._closed:
+                raise JevBackendError('closed')
+            if self._config.mode == 'disabled':
+                raise JevBackendError('disabled')
+            if not self._injected_transport and not self._config.allow_live_http:
+                raise JevBackendError('live_http_not_authorized')
+            if self._active is not None or (self._worker is not None and self._worker.is_alive()):
+                raise JevBackendError('busy')
+            config = replace(self._config, deadline_ms=max(10000, self._config.deadline_ms), max_retries=0)
+            epoch = self._epoch
+            cancel = self._active = threading.Event()
+            self._last_started = started
+        deadline = started + config.deadline_ms / 1000
+        counter, input_hash, code, usage = [0], '', None, None
+        response_model = config.model
+        try:
+            payload = provider.prepare(text, observations, image_status)
+            payload['model'] = config.model
+            if batch is not None:
+                payload['state']['instruction_input'] = batch
+            if len(_json_bytes(payload)) > config.max_request_bytes:
+                raise JevBackendError('request_too_large')
+            body, headers = encode_request(payload, jpeg)
+            if len(body) > (32 * 1024 * 1024 if jpeg else config.max_request_bytes):
+                raise JevBackendError('request_too_large')
+            input_hash = hashlib.sha256(body).hexdigest()
+            reply = self._exchange(body, config, epoch, cancel, deadline, counter, extra_headers=headers)
+            if reply.status != 200:
+                raise JevBackendError('http_' + str(reply.status))
+            raw = _strict_json(reply.body)
+            if not isinstance(raw, dict) or set(raw) != {'model', 'answers', 'usage'}:
+                raise JevBackendError('response_shape')
+            if not _model_matches(config.model, raw['model']):
+                raise JevBackendError('model_mismatch')
+            response_model = raw['model']
+            if not isinstance(raw['answers'], dict) or set(raw['answers']) != set(payload['questions']):
+                raise JevBackendError('answer_shape')
+            choices = {}
+            for field, question in payload['questions'].items():
+                answer = raw['answers'][field]
+                if (not isinstance(answer, dict) or answer.get('type') != 'choice'
+                        or not isinstance(answer.get('choice'), str)
+                        or answer['choice'] not in question['criteria']):
+                    raise JevBackendError('unknown_option')
+                choices[field] = answer['choice']
+            usage = raw['usage']
+            if (not isinstance(usage, dict) or set(usage) != {'input_tokens', 'output_tokens'}
+                    or any(type(v) is not int or not 0 <= v <= 2**53 - 1 for v in usage.values())):
+                raise JevBackendError('invalid_usage')
+            result = provider.bind(payload, choices)
+            result.update(model=response_model, requested_model=config.model,
+                          elapsed_ms=(time.monotonic() - started) * 1000,
+                          observation_sources=[o.get('source_id') for o in observations],
+                          image_sent=bool(jpeg), input_sha256=input_hash)
+            with self._lock:
+                self._check_locked(epoch, cancel, deadline)
+            return result
+        except JevBackendError as exc:
+            code = exc.code
+            raise
+        except Exception:
+            code = 'invalid_backend_data'
+            raise JevBackendError(code) from None
+        finally:
+            with self._lock:
+                self._instruction_record = InstructionRecord(
+                    response_model, input_hash, (time.monotonic() - started) * 1000, code,
+                    counter[0], usage.get('input_tokens') if isinstance(usage, dict) else None,
+                    usage.get('output_tokens') if isinstance(usage, dict) else None)
+                if self._active is cancel:
+                    cancel.set()
+                    self._active = None
+
     # -- upper-step instruction input --------------------------------------
 
     def supports_instruction_input(self) -> bool:
@@ -620,11 +740,17 @@ class JevBackend:
         if not isinstance(segments, list) or not 1 <= len(segments) <= 64:
             raise JevBackendError("invalid_batch")
         total_chars = 0
-        for index, segment in enumerate(segments):
+        previous_ordinal = None
+        for segment in segments:
             if not isinstance(segment, dict) or set(segment) != {"segment_id", "ordinal", "text"}:
                 raise JevBackendError("invalid_batch")
-            if type(segment["ordinal"]) is not int or segment["ordinal"] != index:
+            # A suffix batch keeps its absolute positions in the original plan.
+            ordinal = segment["ordinal"]
+            if type(ordinal) is not int or ordinal < 0:
                 raise JevBackendError("invalid_batch")
+            if previous_ordinal is not None and ordinal != previous_ordinal + 1:
+                raise JevBackendError("invalid_batch")
+            previous_ordinal = ordinal
             if not isinstance(segment["segment_id"], str) or not segment["segment_id"]:
                 raise JevBackendError("invalid_batch")
             text = segment["text"]
@@ -663,7 +789,7 @@ class JevBackend:
         raw = _strict_json(reply.body)
         if not isinstance(raw, dict) or set(raw) != {"model", "answers", "usage"}:
             raise JevBackendError("response_shape")
-        if raw["model"] != config.model:
+        if not _model_matches(config.model, raw["model"]):
             raise JevBackendError("model_mismatch")
         answers = raw["answers"]
         if not isinstance(answers, dict) or set(answers) != {INSTRUCTION_ACK_OWNER}:
@@ -688,7 +814,7 @@ class JevBackend:
         if (not isinstance(usage, dict) or set(usage) != {"input_tokens", "output_tokens"} or
                 any(type(v) is not int or not 0 <= v <= 2 ** 53 - 1 for v in usage.values())):
             raise JevBackendError("invalid_usage")
-        return choice == "accept", usage
+        return choice == "accept", usage, raw["model"]
 
     def consume_instruction(self, batch):
         """Submit one batch at the model input boundary; never applies anything."""
@@ -724,14 +850,14 @@ class JevBackend:
             if reply.status != 200:
                 raise JevBackendError("http_redirect" if 300 <= reply.status < 400 else
                                       "http_" + str(reply.status) if reply.status in (401, 403, 422, 529) else "http_error")
-            accepted, usage = self._instruction_response(reply, config)
+            accepted, usage, response_model = self._instruction_response(reply, config)
             elapsed = (time.monotonic() - started) * 1000
             with self._lock:
                 self._check_locked(epoch, cancel, deadline)
                 self._instruction_record = InstructionRecord(
-                    config.model, input_hash, elapsed, None, attempts,
+                    response_model, input_hash, elapsed, None, attempts,
                     usage["input_tokens"], usage["output_tokens"])
-            return {"accepted": bool(accepted), "model": config.model,
+            return {"accepted": bool(accepted), "model": response_model,
                     "detail": "accepted" if accepted else "declined",
                     "input_sha256": input_hash}
         except JevBackendError as exc:

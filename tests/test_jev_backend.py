@@ -27,7 +27,7 @@ def reply(raw=None, *, status=200, retry_after=None):
 
 
 def config(**kwargs):
-    return replace(jev.JevConfig(mode="shadow", min_interval_ms=0), **kwargs)
+    return replace(jev.JevConfig(model=jev.PINNED_MODEL, mode="shadow", min_interval_ms=0), **kwargs)
 
 
 class JevBackendTests(unittest.TestCase):
@@ -497,7 +497,7 @@ class JevBackendTests(unittest.TestCase):
         self.rejected(backend, "closed")
         with self.assertRaises(jev.JevBackendError):
             backend.reconfigure(config())
-        for changes in ({"model": "jev-latest"}, {"deadline_ms": True}, {"max_candidates_per_owner": 256},
+        for changes in ({"model": "jev-unsupported"}, {"deadline_ms": True}, {"max_candidates_per_owner": 256},
                         {"min_confidence": float("nan")}, {"mode": "unknown"}, {"observation_guides": []}):
             with self.subTest(changes=changes), self.assertRaises(jev.JevBackendError):
                 config(**changes)

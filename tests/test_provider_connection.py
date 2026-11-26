@@ -63,12 +63,15 @@ class ProviderConnectionTests(unittest.TestCase):
         self.assertFalse(result["health_ok"])
         self.assertFalse(result["inference_called"])
 
-    def server(self, *, provider, status=200, mutate=None, health_status=200, health_value=None):
+    def server(self, *, provider, status=200, mutate=None, health_status=200, health_value=None, peers=None):
         calls = []
         class Handler(BaseHTTPRequestHandler):
+            protocol_version = "HTTP/1.1" if peers is not None else "HTTP/1.0"
             def log_message(self, *args):
                 pass
             def send(self, value, code):
+                if peers is not None:
+                    peers.append(self.client_address)
                 body = json.dumps(value).encode()
                 self.send_response(code)
                 if 300 <= code < 400:
@@ -106,6 +109,17 @@ class ProviderConnectionTests(unittest.TestCase):
             backend = laya.LayaBackend(config, secret_provider=lambda: "laya-fixture-key-only")
         self.addCleanup(backend.close)
         return backend
+
+    def test_native_backend_reuses_http11_between_model_calls(self):
+        for provider in ("jev", "laya"):
+            with self.subTest(provider=provider):
+                peers = []
+                url, calls = self.server(provider=provider, peers=peers)
+                backend = self.backend(provider, url)
+                self.assertTrue(backend.probe()["ok"])
+                self.assertTrue(backend.probe()["ok"])
+                self.assertEqual(sum(method == "POST" for method, *_ in calls), 2)
+                self.assertEqual(len(set(peers)), 1)
 
     def test_builtin_probe_fixed_wait_prefix_auth_and_production_decoding(self):
         for provider in ("jev", "laya"):
@@ -190,8 +204,10 @@ class ProviderConnectionTests(unittest.TestCase):
         with self.assertRaises(AttributeError):
             backend.min_confidence = 0
         for model in ("jev-latest", "jev-1.14.0", "jev-2.0.0"):
+            self.assertEqual(replace(jev_config, model=model).model, model)
+        for invalid in ("latest", "jev-1.14", "jev-1.14.0/extra"):
             with self.assertRaises(jev.JevBackendError):
-                replace(jev_config, model=model)
+                replace(jev_config, model=invalid)
 
     def test_disabled_jev_probe_does_not_enable_mode(self):
         backend = jev.JevBackend(jev.JevConfig(mode="disabled", min_interval_ms=0),
@@ -235,6 +251,85 @@ class ProviderConnectionTests(unittest.TestCase):
         result = backend.probe()
         self.assertEqual(result["error_code"], "missing_or_invalid_secret")
         self.assertFalse(result["inference_called"])
+
+
+
+class PersistentConnectionTests(unittest.TestCase):
+    def setUp(self):
+        self.requests = []
+        self.accepted = []
+        class Server(ThreadingHTTPServer):
+            daemon_threads = True
+            def get_request(server):
+                sock, addr = super().get_request()
+                self.accepted.append(addr)
+                return sock, addr
+        class Handler(BaseHTTPRequestHandler):
+            protocol_version = "HTTP/1.1"
+            def log_message(self, *args):
+                pass
+            def do_POST(handler):
+                body = handler.rfile.read(int(handler.headers["Content-Length"]))
+                self.requests.append(body)
+                if body == b"lost-reply":
+                    handler.close_connection = True
+                    return
+                handler.send_response(200)
+                handler.send_header("Content-Length", "2")
+                if body == b"server-close":
+                    handler.send_header("Connection", "close")
+                handler.end_headers()
+                handler.wfile.write(b"ok")
+        self.server = Server(("127.0.0.1", 0), Handler)
+        worker = threading.Thread(target=self.server.serve_forever, kwargs={"poll_interval": .01}, daemon=True)
+        worker.start()
+        self.addCleanup(worker.join, 2)
+        self.addCleanup(self.server.server_close)
+        self.addCleanup(self.server.shutdown)
+        self.url = f"http://127.0.0.1:{self.server.server_port}"
+        self.pool = connection.ConnectionPool()
+        self.addCleanup(self.pool.close)
+
+    def post(self, body):
+        metrics = {}
+        with self.pool.connection(self.url, 2, timings=metrics) as conn:
+            conn.request("POST", "/", body)
+            self.assertEqual(conn.getresponse().read(), b"ok")
+        return metrics
+
+    def test_twenty_posts_reuse_one_connection_across_ephemeral_workers(self):
+        from concurrent.futures import ThreadPoolExecutor
+        for index in range(20):
+            with ThreadPoolExecutor(max_workers=1) as worker:
+                metrics = worker.submit(self.post, str(index).encode()).result(3)
+            self.assertEqual(metrics["connection_reused"], index > 0)
+            if index:
+                self.assertEqual(metrics["connect_tls_ms"], 0)
+        self.assertEqual(len(self.accepted), 1)
+        self.assertEqual(self.requests, [str(i).encode() for i in range(20)])
+        self.pool.close()
+        with self.assertRaisesRegex(RuntimeError, "closed"):
+            self.post(b"after-close")
+
+    def test_close_and_lost_reply_never_replay_post(self):
+        import http.client
+        self.post(b"server-close")
+        self.assertFalse(self.post(b"next")["connection_reused"])
+        with self.assertRaises(http.client.RemoteDisconnected):
+            self.post(b"lost-reply")
+        self.assertFalse(self.post(b"explicit-next")["connection_reused"])
+        self.assertEqual(self.requests, [b"server-close", b"next", b"lost-reply", b"explicit-next"])
+        self.assertEqual(len(self.accepted), 3)
+
+    def test_tailnet_literal_opt_in_only(self):
+        url = "http://100.114.26.5:11434/v1"
+        with self.assertRaises(ValueError):
+            connection.service_url(url)
+        self.assertEqual(connection.endpoint(url, "/chat/completions", allow_tailnet_http=True),
+                         "/v1/chat/completions")
+        for host in ("100.63.255.255", "100.128.0.0", "workstation.example", "192.168.1.21"):
+            with self.subTest(host=host), self.assertRaises(ValueError):
+                connection.service_url("http://" + host, allow_tailnet_http=True)
 
 
 if __name__ == "__main__":

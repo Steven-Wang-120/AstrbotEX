@@ -1,4 +1,4 @@
-/* C07 consumes the frozen management contract; business state comes only from /view. */
+/* Business state comes from /view; /task-selection is a separate read-only local trace. */
 window.DecisionPage = (() => {
   const BASE = '/api/v1/ex/decision';
   const TERMINAL = new Set(['succeeded', 'failed', 'blocked', 'superseded', 'unavailable']);
@@ -21,7 +21,8 @@ window.DecisionPage = (() => {
   const state = {initialized:false, active:false, generation:0, readEpoch:0, session:null, config:null, projection:null,
     stale:true, timer:null, flight:null, opTimer:null, opFlight:null, controllers:new Set(), operations:new Map(),
     busy:new Set(), modalProvider:null, draft:null, draftBase:null, draftRevision:null, draftVersion:0,
-    conflict:false, review:false, testSequence:0, testMessage:'', focus:null, lastRead:0};
+    conflict:false, review:false, testSequence:0, testMessage:'', focus:null, lastRead:0,
+    taskSelection:null, taskTraceStale:true, retiredTaskScopes:new Set()};
   const el = id => document.getElementById(id);
   const text = (id, value) => {el(id).textContent = value;};
   const clone = value => structuredClone(value);
@@ -64,6 +65,7 @@ window.DecisionPage = (() => {
     clearTimeout(state.timer);clearTimeout(state.opTimer);state.timer=state.opTimer=null;
     state.flight=state.opFlight=null;state.operations.clear();state.busy.clear();
     state.session=null;state.config=state.projection=null;state.stale=true;
+    state.taskSelection=null;state.taskTraceStale=true;state.retiredTaskScopes.clear();
     if(state.draft)state.review=true;
     el('decisionSecret').value='';el('decisionSecretClear').checked=false;invalidateTest();
   }
@@ -103,15 +105,56 @@ window.DecisionPage = (() => {
           if(error.obsolete)return;
           state.stale=true;state.projection=null;message(errorMessage(error),'warning');
         }
-      } catch(error) {if(!error.obsolete){state.stale=true;message(errorMessage(error),'error');}}
+        try {
+          const value=(await request('/task-selection',null,true)).data;
+          if(value.ex_session!==state.session)throw {code:'task_trace_unavailable'};
+          receiveTaskSelection(value.task_selection);
+        } catch(error) {
+          if(error.obsolete)return;
+          state.taskTraceStale=true;
+        }
+      } catch(error) {if(!error.obsolete){state.stale=true;state.taskTraceStale=true;message(errorMessage(error),'error');}}
       finally {if(state.flight===work)state.flight=null;render();schedule();scheduleOperations();}
     })();
     state.flight=work;return work;
   }
+  function receiveTaskSelection(next) {
+    const prior=state.taskSelection;
+    const scope=t=>JSON.stringify([t?.source_instance_id,t?.ex_session,t?.task_session]);
+    if(!next || typeof next.connected!=='boolean' || next.ex_session!==state.session ||
+      !Number.isInteger(next.sequence) || next.sequence<0) {state.taskTraceStale=true;return;}
+    if(next.connected && (typeof next.source_instance_id!=='string' || !next.source_instance_id ||
+      typeof next.task_session!=='string' || !next.task_session || state.retiredTaskScopes.has(scope(next)))) {
+      state.taskTraceStale=true;return;
+    }
+    if(prior?.connected && next.connected && scope(prior)!==scope(next))state.retiredTaskScopes.add(scope(prior));
+    if(prior && scope(prior)===scope(next) && next.sequence<prior.sequence) {state.taskTraceStale=true;return;}
+    state.taskSelection=next;state.taskTraceStale=false;
+  }
+  function renderTaskSelection() {
+    const panel=el('decisionTaskSelection'), trace=state.taskSelection;
+    const node=(tag,value)=>{const n=document.createElement(tag);n.textContent=value ?? '未提供';return n;};
+    if(!trace?.connected){panel.replaceChildren(node('p','未接入'));return;}
+    const stamp=Date.parse(trace.updated_at);
+    const stale=state.taskTraceStale || !Number.isFinite(stamp) || Date.now()-stamp>10000 || stamp>Date.now()+1000;
+    const fields=document.createElement('dl');
+    for(const [key,value] of [['连接',stale?'数据陈旧':'已连接'],['实例',trace.source_instance_id],
+      ['EX 会话',trace.ex_session],['任务会话',trace.task_session],['序号',trace.sequence],
+      ['状态',TASK[trace.state] || trace.state],['错误 / 拒绝',trace.error ?? trace.rejection]]) {
+      fields.append(node('dt',key),node('dd',value));
+    }
+    const details=[];
+    for(const [key,value] of [['实际任务请求',trace.current_request],['原始模型选择',trace.raw_selection],
+      ['新观测绑定',trace.binding],['关联 Goal',trace.goal],['请求证据',trace.model_trace]]) {
+      const detail=document.createElement('details');
+      detail.append(node('summary',key),node('pre',JSON.stringify(value ?? null,null,2)));details.push(detail);
+    }
+    panel.replaceChildren(fields,...details);
+  }
   function render() {
     text('decisionFreshness',!authenticated()?'等待管理凭据':state.stale?'状态暂不可确认':'当前状态已读取');
     const projection=state.stale?null:state.projection;
-    for(const provider of ['jev','laya']) {
+    for(const provider of ['jev','laya','structured','openai_json']) {
       const selected=state.config?.saved.backend===provider;
       const button=el('decisionProvider'+provider);
       button.dataset.selected=String(selected);button.setAttribute('aria-pressed',String(selected));
@@ -129,7 +172,7 @@ window.DecisionPage = (() => {
     text('decisionTaskTitle',available && !idle?task.title:'');
     text('decisionTaskGoal',available && !idle && task.current_goal?task.current_goal:'');
     text('decisionTaskProgress',available && !idle && Number.isInteger(task.completed) && Number.isInteger(task.total)?`已完成 ${task.completed} / ${task.total}`:'');
-    renderModal();updateButtons();
+    renderTaskSelection();renderModal();updateButtons();
   }
   function updateButtons() {
     const known=authenticated() && Boolean(state.session);
@@ -143,24 +186,54 @@ window.DecisionPage = (() => {
     el('decisionReviewConfig').disabled=!state.config || state.busy.has('save');
     for(const input of el('decisionConfigForm').querySelectorAll('input,select'))input.disabled=state.busy.has('save');
     el('decisionSecret').disabled=state.busy.has('save') || el('decisionSecretClear').checked;
+    el('decisionSiliconFlow').disabled=state.busy.has('save') || !state.config?.presets?.openai_json?.siliconflow_qwen3_vl_8b;
   }
   function invalidateTest() {state.draftVersion++;state.testSequence++;state.testMessage='';}
   function changed() {invalidateTest();syncDraft();renderModal();updateButtons();}
   function syncDraft() {
-    if(!state.draft)return;
+    if(!state.draft || state.modalProvider==='structured')return;
     const provider=state.modalProvider, connection=state.draft[provider].service_connection;
     connection.base_url=el('decisionAddress').value.trim();connection.model=el('decisionModel').value;
+    if(provider==='openai_json') {
+      connection.model=el('decisionJsonModel').value.trim();
+      connection.auth_mode=el('decisionJsonAuth').value;
+      state.draft.openai_json.response_format=el('decisionJsonFormat').value;
+      state.draft.openai_json.require_image=el('decisionJsonImage').checked;
+    }
     if(provider==='laya') {
       connection.mode=el('decisionLayaMode').value;connection.auth_mode=el('decisionAuth').value;
       state.draft.laya.deployment=connection.mode==='owned'?{launcher:'subprocess',python:el('decisionPython').value.trim(),cache:el('decisionCache').value.trim(),device:el('decisionDevice').value}:null;
     }
   }
   function populateModal() {
-    const provider=state.modalProvider, connection=state.draft[provider].service_connection;
-    text('decisionModalTitle',(provider==='jev'?'Jev':'Laya')+' 配置');
+    const provider=state.modalProvider, connection=state.draft[provider]?.service_connection;
+    const direct=provider==='structured', json=provider==='openai_json';
+    const label={jev:'Jev',laya:'Laya',structured:'上层结构化动作',openai_json:'结构化模型'}[provider];
+    text('decisionModalTitle',label+' 配置');
+    el('decisionAddress').closest('label').hidden=direct;
+    el('decisionAddress').required=!direct;
+    el('decisionModel').closest('label').hidden=direct || json;
+    el('decisionModel').required=!direct && !json;
+    el('decisionJsonFields').hidden=!json;
+    el('decisionJsonModel').required=json;
+    el('decisionSecret').closest('label').hidden=direct;
+    el('decisionSecretClear').closest('label').hidden=direct;
+    el('decisionSecretState').hidden=direct;
+    if(direct) {
+      el('decisionSecret').value='';el('decisionSecretClear').checked=false;
+      renderModal();updateButtons();return;
+    }
+    if(json) {
+      el('decisionJsonModel').value=connection.model;
+      el('decisionJsonAuth').value=connection.auth_mode;
+      el('decisionJsonFormat').value=state.draft.openai_json.response_format;
+      el('decisionJsonImage').checked=state.draft.openai_json.require_image;
+    }
     el('decisionAddress').value=connection.base_url;
-    const option=document.createElement('option');option.value=provider==='jev'?'jev-1.13.0':'typed-decisions';option.textContent=option.value;
-    el('decisionModel').replaceChildren(option);el('decisionModel').value=connection.model;
+    const models=provider==='jev'?[...new Set(['jev-latest',connection.model])]:['typed-decisions'];
+    el('decisionModel').replaceChildren(...models.map(model=>{
+      const option=document.createElement('option');option.value=model;option.textContent=model;return option;
+    }));el('decisionModel').value=connection.model;
     el('decisionLayaMode').value=provider==='laya'?connection.mode:'external';
     el('decisionAuth').value=provider==='laya'?connection.auth_mode:'bearer';
     const deployment=state.draft.laya.deployment;
@@ -169,13 +242,28 @@ window.DecisionPage = (() => {
     el('decisionSecret').value='';el('decisionSecretClear').checked=false;
     renderModal();updateButtons();
   }
+  function applySiliconFlow() {
+    if(state.modalProvider!=='openai_json' || state.busy.has('save'))return;
+    const preset=state.config?.presets?.openai_json?.siliconflow_qwen3_vl_8b;
+    if(!preset)return;
+    const compatible=state.draft.openai_json;
+    compatible.service_connection=clone(preset.service_connection);
+    compatible.response_format=preset.response_format;
+    invalidateTest();
+    populateModal();
+    el('decisionSecret').focus();
+  }
   function renderModal() {
     if(!state.modalProvider)return;
     const laya=state.modalProvider==='laya', owned=laya && el('decisionLayaMode').value==='owned';
     el('decisionLayaFields').hidden=!laya;el('decisionOwnedFields').hidden=!owned;
     el('decisionPython').required=el('decisionCache').required=el('decisionDevice').required=owned;
-    text('decisionServiceHint',!laya?'仅支持固定模型版本。':owned?'EX 只管理自行启动的服务。请填写已安装的真实部署信息。':'连接已启动的服务；停止 EX 不会终止外部服务。');
-    text('decisionSecretState',state.config?.secrets[state.modalProvider]?.configured?'已设置密钥；留空保留。':'尚未设置密钥；留空不修改。');
+    text('decisionProbeHint',state.modalProvider==='structured'?'测试会在本机检查结构化动作入口。':'测试会调用模型一次，可能产生费用或加载开销。');
+    text('decisionServiceHint',state.modalProvider==='structured'?'上层提交动作 JSON，EX 在本地校验并执行。':state.modalProvider==='openai_json'?'填写含 /v1 的基础地址及模型名称。更换地址时需重新填写密钥。':!laya?'选择已配置的 JEV 模型。':owned?'EX 只管理自行启动的服务。请填写已安装的真实部署信息。':'连接已启动的服务；停止 EX 不会终止外部服务。');
+    const changedEndpoint=state.modalProvider==='openai_json' && state.draft.openai_json.service_connection.base_url!==state.config?.saved.openai_json.service_connection.base_url;
+    const hasKey=state.config?.secrets[state.modalProvider]?.configured;
+    text('decisionSecretState',changedEndpoint?'请输入新服务的密钥。保存后将移除旧地址的密钥。':
+      hasKey?'已设置密钥，留空保留。':'尚未设置密钥。');
     text('decisionConfigNote',state.review?'会话或凭据已变化，请核对草稿。':state.conflict?'服务器配置已变化，草稿已保留。':dirty()?'有未保存的修改。':'配置与已保存内容一致。');
     text('decisionTestResult',state.testMessage);
   }
@@ -187,7 +275,7 @@ window.DecisionPage = (() => {
     state.draft=clone(state.config.saved);state.draftBase=clone(state.config.saved);state.draft.backend=provider;
     state.draftRevision=state.config.revision;state.conflict=state.review=false;invalidateTest();populateModal();
     if(!el('decisionModal').open)el('decisionModal').showModal();
-    el('decisionAddress').focus();
+    el(provider==='structured'?'decisionSave':'decisionAddress').focus();
   }
   function closeModal(force=false) {
     if(!force && (state.busy.has('save') || !discardAllowed()))return false;
@@ -197,14 +285,20 @@ window.DecisionPage = (() => {
   }
   function reviewConfig() {
     if(!state.config || !state.draft)return;
-    const provider=state.modalProvider, connection=clone(state.draft[provider].service_connection), deployment=clone(state.draft.laya.deployment);
-    state.draft=clone(state.config.saved);state.draft.backend=provider;state.draft[provider].service_connection=connection;
-    if(provider==='laya')state.draft.laya.deployment=deployment;
+    const provider=state.modalProvider, previous=state.draft;
+    state.draft=clone(state.config.saved);state.draft.backend=provider;
+    if(provider!=='structured')state.draft[provider].service_connection=clone(previous[provider].service_connection);
+    if(provider==='laya')state.draft.laya.deployment=clone(previous.laya.deployment);
+    if(provider==='openai_json') {
+      state.draft.openai_json.response_format=previous.openai_json.response_format;
+      state.draft.openai_json.require_image=previous.openai_json.require_image;
+    }
     state.draftBase=clone(state.config.saved);state.draftRevision=state.config.revision;state.conflict=state.review=false;
     invalidateTest();renderModal();updateButtons();
   }
   function validateDraft() {
     syncDraft();
+    if(state.modalProvider==='structured')return true;
     if(!el('decisionConfigForm').reportValidity())return false;
     try {
       const url=new URL(state.draft[state.modalProvider].service_connection.base_url);
@@ -230,7 +324,7 @@ window.DecisionPage = (() => {
       const result=await request('/config',{ex_session:state.session,expected_revision:state.draftRevision,config});
       if(!current(captured))return;
       receiveConfig(result.data);committed=true;
-      await request('/secret',{ex_session:captured.session,expected_revision:result.data.revision,provider,action,...(action==='set'?{value}:{})});
+      if(provider!=='structured') await request('/secret',{ex_session:captured.session,expected_revision:result.data.revision,provider,action,...(action==='set'?{value}:{})});
       if(!current(captured))return;
       receiveConfig((await request('/config')).data);
       closeModal(true);message('配置已保存；尚未启用 EX。');schedule(0);
@@ -277,8 +371,10 @@ window.DecisionPage = (() => {
           if(!TERMINAL.has(op.state))continue;
           if(op.kind==='test' && validBinding(op.binding)) {
             const result=data.operation.result;
-            const success=op.state==='succeeded' && result?.ok===true && result?.inference_ok===true;
-            state.testMessage=success?(result.binding?.current_config_verified===true?'当前草稿测试通过，已保存连接已验证。':'当前草稿测试通过；不代表已保存连接已验证。'):
+            const local=result?.provider==='structured';
+            const success=op.state==='succeeded' && result?.ok===true && (local || result?.inference_ok===true);
+            state.testMessage=success?(local?'本地结构化动作入口可用。':
+              result.binding?.current_config_verified===true?'已验证当前保存的模型连接。':'草稿模型连接测试通过。'):
               result?.health_ok===true && result?.error_code==='http_401'?'服务可达，但供应商认证失败。':errorMessage({code:result?.error_code || data.operation.error_code});
           } else if(op.kind!=='test')message(op.state==='succeeded'?'操作已完成，正在读取实际状态。':errorMessage({code:data.operation.error_code}),'');
           schedule(0);
@@ -302,7 +398,7 @@ window.DecisionPage = (() => {
   }
   function init() {
     if(state.initialized)return;state.initialized=true;
-    for(const provider of ['jev','laya'])el('decisionProvider'+provider).addEventListener('click',()=>openProvider(provider));
+    for(const provider of ['jev','laya','structured','openai_json'])el('decisionProvider'+provider).addEventListener('click',()=>openProvider(provider));
     for(const input of el('decisionConfigForm').querySelectorAll('input,select'))input.addEventListener('input',changed);
     el('decisionConfigForm').addEventListener('submit',event=>{event.preventDefault();save();});
     el('decisionModal').addEventListener('cancel',event=>{event.preventDefault();closeModal();});
@@ -310,6 +406,7 @@ window.DecisionPage = (() => {
     el('decisionReviewConfig').addEventListener('click',reviewConfig);el('decisionTest').addEventListener('click',test);
     el('decisionStart').addEventListener('click',()=>startOperation('mode','/mode',{mode:'execute'}));
     for(const id of ['decisionStop','decisionModalStop'])el(id).addEventListener('click',()=>startOperation('stop','/stop',{reason:'management_stop'}));
+    el('decisionSiliconFlow').addEventListener('click',applySiliconFlow);
     el('decisionRefresh').addEventListener('click',()=>schedule(0));render();
   }
   function enter() {init();if(state.active)return;state.active=true;document.addEventListener('visibilitychange',visibilityChanged);schedule(0);scheduleOperations();}

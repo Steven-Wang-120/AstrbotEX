@@ -65,6 +65,13 @@ class ActionServiceFailuresTest(unittest.TestCase):
         self.ledger.report(command.command_id, self.binding, ActionStatus.ACCEPTED).result(timeout=1)
         return self.ledger.report(command.command_id, self.binding, ActionStatus.RUNNING).result(timeout=1)
 
+    def test_success_in_committed_page_does_not_require_second_read(self):
+        row = self.running_command(("test-resource",))
+        self.ledger.report(row.command_id, self.binding, ActionStatus.SUCCEEDED).result(1)
+        with patch.object(self.ledger, "get", wraps=self.ledger.get) as reads:
+            self.assertTrue(self.service.await_stop_proof(binding=self.binding))
+            reads.assert_not_called()
+
     def test_deadline_after_pending_does_not_submit_another_read(self):
         row = self.running_command(("test-resource",))
         self.ledger.report(row.command_id, self.binding, ActionStatus.UNKNOWN).result(1)

@@ -1354,13 +1354,18 @@ def _build_step_input(decision_service: DecisionService, connections: Connection
                     "description": str(action.get("description") or "")[:200],
                     "available": bool(entry.get("available")),
                 })
-        return {"catalog_version": str(snapshot.revision), "actions": actions[:128]}
+        pipeline = decision_service.primitives
+        tools = getattr(pipeline.provider, "tool_definitions", None) if pipeline else None
+        return {"catalog_version": str(snapshot.revision), "actions": actions[:128],
+                "primitive_catalog": pipeline.catalog if pipeline else None,
+                "primitive_tools": tools() if callable(tools) else []}
 
     ingress = StepInputIngress(
         log=log,
         adapter=adapter,
         trusted_context=connections.control_trusted_context,
         catalog_summary=catalog_summary,
+        primitive_status=lambda: pipeline.status() if (pipeline := decision_service.primitives) else {},
     )
     # The session is a runtime value; a reloaded record cannot pin it.
     connections.set_control_session_provider(lambda: decision_service.goals.ex_session)
@@ -1503,6 +1508,7 @@ def build_server(host: str, port: int, tick_hz: float, *,
         environment_manager=environment_manager,
         action_dispatcher=dispatcher,
         capability_catalog=catalog,
+        on_primitive_owner=decision_service.set_primitive_owner,
     )
     server.local_plugins.discover()
     server.local_plugins.load_enabled()
